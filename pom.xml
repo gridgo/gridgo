@@ -6,4 +6,17 @@
 	<artifactId>gridgo</artifactId>
 	<version>1.0.0</version>
 	<packaging>pom</packaging>
+
+	<properties>
+		<maven.compiler.target>1.10</maven.compiler.target>
+		<maven.compiler.source>1.10</maven.compiler.source>
+	</properties>
+
+	<modules>
+		<module>gridgo-base</module>
+		<module>gridgo-utils</module>
+		<module>gridgo-bean</module>
+		<module>gridgo-net</module>
+		<module>gridgo-formatting</module>
+	</modules>
 </project>
