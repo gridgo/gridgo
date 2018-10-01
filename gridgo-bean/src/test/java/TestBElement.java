@@ -1,0 +1,31 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
+import nhb.bean.BElement;
+import nhb.bean.BObject;
+import nhb.bean.impl.BFactory;
+
+public class TestBElement {
+
+	public static void main(String[] args) throws IOException {
+		try (InputStream in = TestBElement.class.getClassLoader().getResourceAsStream("test.xml");
+				Reader reader = new InputStreamReader(in)) {
+
+			String xml = new BufferedReader(reader).lines().collect(Collectors.joining("\n"));
+
+			BObject obj = BFactory.DEFAULT.fromXml(xml);
+			System.out.println("Loaded object: " + obj);
+			System.out.println("To XML: " + obj.toXml());
+
+			byte[] bytes = obj.toBytes();
+			System.out.println("Serialized: " + Arrays.toString(bytes));
+			System.out.println("Deserialized: " + BElement.fromRaw(ByteBuffer.wrap(bytes)));
+		}
+	}
+}

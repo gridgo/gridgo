@@ -1,0 +1,38 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>gridgo-utils</artifactId>
+
+	<parent>
+		<groupId>io.gridgo</groupId>
+		<artifactId>gridgo-base</artifactId>
+		<version>1.0.0</version>
+	</parent>
+
+	<properties>
+		<high-scale-lib.version>1.0.6</high-scale-lib.version>
+	</properties>
+
+
+	<dependencies>
+		<dependency>
+			<groupId>com.boundary</groupId>
+			<artifactId>high-scale-lib</artifactId>
+			<version>${high-scale-lib.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-text</artifactId>
+			<version>1.4</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.jpountz.lz4</groupId>
+			<artifactId>lz4</artifactId>
+			<version>1.3.0</version>
+		</dependency>
+
+	</dependencies>
+</project>
