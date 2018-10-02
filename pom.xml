@@ -4,13 +4,23 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.gridgo</groupId>
 	<artifactId>gridgo</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
-	<properties>
-		<maven.compiler.target>1.10</maven.compiler.target>
-		<maven.compiler.source>1.10</maven.compiler.source>
-	</properties>
+	<url>https://gridgo.io</url>
+
+	<scm>
+		<url>https://github.com/bachden/gridgo.git</url>
+		<connection>scm:git:https://github.com/bachden/gridgo.git</connection>
+		<developerConnection>Bach Hoang Nguyen</developerConnection>
+		<tag>Java, server, microservice, message</tag>
+	</scm>
+
+	<parent>
+		<groupId>org.sonatype.oss</groupId>
+		<artifactId>oss-parent</artifactId>
+		<version>9</version>
+	</parent>
 
 	<modules>
 		<module>gridgo-base</module>
@@ -19,4 +29,35 @@
 		<module>gridgo-net</module>
 		<module>gridgo-formatting</module>
 	</modules>
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>org.apache.maven.plugins</groupId>
+										<artifactId>maven-enforcer-plugin</artifactId>
+										<versionRange>[1.0.0,)</versionRange>
+										<goals>
+											<goal>enforce</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore />
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
 </project>

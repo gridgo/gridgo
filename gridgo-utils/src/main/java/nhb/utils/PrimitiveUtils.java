@@ -186,8 +186,8 @@ public class PrimitiveUtils {
 	}
 
 	/**
-	 * return char value for specific obj </br>
-	 * if obj is number, return char represent by obj as UTF-16 code</br>
+	 * return char value for specific obj <br>
+	 * if obj is number, return char represent by obj as UTF-16 code<br>
 	 * else if obj is boolean, return '0' for false, '1' for true
 	 * 
 	 * @param obj
@@ -215,10 +215,10 @@ public class PrimitiveUtils {
 	}
 
 	/**
-	 * return boolean value for specific obj </br>
-	 * if obj is number, return false if obj == 0, true for otherwise </br>
+	 * return boolean value for specific obj <br>
+	 * if obj is number, return false if obj == 0, true for otherwise <br>
 	 * else if obj is character, return false if obj == '\0' char (null value), true
-	 * for otherwise </br>
+	 * for otherwise <br>
 	 * else return object != null
 	 * 
 	 * @param obj

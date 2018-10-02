@@ -9,13 +9,13 @@ public interface Socket {
 	/**
 	 * Connect to uri
 	 * 
-	 * @param uri in format <b>protocol://endpoint_spec/path</b>.<br/>
-	 *            For example: <br/>
+	 * @param uri in format <b>protocol://endpoint_spec/path</b>.<br>
+	 *            For example: <br>
 	 *            <ul>
 	 *            <li>tcp://localhost:8080</li>
 	 *            <li>inproc://mysocket</li>
 	 *            <li>ipc://my_unix_socket</li>
-	 *            <ul>
+	 *            </ul>
 	 */
 	void connect(String uri);
 

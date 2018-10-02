@@ -40,7 +40,7 @@ public class ThreadUtils {
 
 	/**
 	 * Stop current thread using LockSupport.parkNanos(nanoSegment) calling inside a
-	 * while loop <br/>
+	 * while loop <br>
 	 * Break if process is shutdown or breakSignal return true
 	 * 
 	 * @param nanoSegment parking time in nano seconds
