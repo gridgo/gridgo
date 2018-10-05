@@ -1,5 +1,5 @@
 language: java
 jdk:
 - oraclejdk8
- notifications:
-    slack: gridgo:1yoHlHXkfXNWGWXgOssMfcWV
+notifications:
+  slack: gridgo:1yoHlHXkfXNWGWXgOssMfcWV
