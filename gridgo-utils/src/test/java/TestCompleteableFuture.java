@@ -2,7 +2,7 @@ import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
-import nhb.utils.ThreadUtils;
+import io.gridgo.utils.ThreadUtils;
 
 public class TestCompleteableFuture {
 

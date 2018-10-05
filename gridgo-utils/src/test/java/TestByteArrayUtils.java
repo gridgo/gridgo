@@ -1,6 +1,6 @@
 import java.util.Arrays;
 
-import nhb.utils.ByteArrayUtils;
+import io.gridgo.utils.ByteArrayUtils;
 
 public class TestByteArrayUtils {
 

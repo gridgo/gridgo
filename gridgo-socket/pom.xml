@@ -2,7 +2,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>gridgo-formatting</artifactId>
+	<artifactId>gridgo-socket</artifactId>
 
 	<parent>
 		<groupId>io.gridgo</groupId>
@@ -11,21 +11,11 @@
 		<relativePath>../gridgo-base/pom.xml</relativePath>
 	</parent>
 
-	<properties>
-		<evalex.version>2.0</evalex.version>
-	</properties>
-
 	<dependencies>
 		<dependency>
 			<groupId>io.gridgo</groupId>
 			<artifactId>gridgo-utils</artifactId>
-			<version>${gridgo.utils.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>com.udojava</groupId>
-			<artifactId>EvalEx</artifactId>
-			<version>${evalex.version}</version>
+			<version>${gridgo.base.version}</version>
 		</dependency>
 	</dependencies>
 </project>

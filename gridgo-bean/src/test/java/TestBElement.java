@@ -7,9 +7,9 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-import nhb.bean.BElement;
-import nhb.bean.BObject;
-import nhb.bean.impl.BFactory;
+import io.gridgo.bean.BElement;
+import io.gridgo.bean.BObject;
+import io.gridgo.bean.impl.BFactory;
 
 public class TestBElement {
 

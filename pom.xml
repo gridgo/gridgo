@@ -26,9 +26,25 @@
 		<module>gridgo-base</module>
 		<module>gridgo-utils</module>
 		<module>gridgo-bean</module>
-		<module>gridgo-net</module>
 		<module>gridgo-formatting</module>
+		<module>gridgo-socket</module>
+		<module>gridgo-socket-nanomsg</module>
+		<module>gridgo-socket-zmq</module>
+		<module>gridgo-configuration</module>
 	</modules>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+		<gridgo.base.version>${project.version}</gridgo.base.version>
+		<gridgo.utils.version>${project.version}</gridgo.utils.version>
+		<gridgo.bean.version>${project.version}</gridgo.bean.version>
+		<gridgo.formatting.version>${project.version}</gridgo.formatting.version>
+		<gridgo.socket.version>${project.version}</gridgo.socket.version>
+		<gridgo.socket.nanomsg.version>${project.version}</gridgo.socket.nanomsg.version>
+		<gridgo.socket.zmq.version>${project.version}</gridgo.socket.zmq.version>
+		<gridgo.configuration.version>${project.version}</gridgo.configuration.version>
+	</properties>
 
 	<build>
 		<pluginManagement>
