@@ -24,13 +24,6 @@
 
 	<modules>
 		<module>gridgo-base</module>
-		<module>gridgo-utils</module>
-		<module>gridgo-bean</module>
-		<module>gridgo-formatting</module>
-		<module>gridgo-socket</module>
-		<module>gridgo-socket-nanomsg</module>
-		<module>gridgo-socket-zmq</module>
-		<module>gridgo-configuration</module>
 	</modules>
 
 	<properties>
