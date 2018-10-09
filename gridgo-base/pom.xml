@@ -1,6 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>gridgo-base</artifactId>
 	<packaging>pom</packaging>
@@ -14,7 +12,11 @@
 		<maven.compiler.plugin.version>3.8.0</maven.compiler.plugin.version>
 		<maven.compiler.target>11</maven.compiler.target>
 		<maven.compiler.source>11</maven.compiler.source>
-		<jacoco.maven.plugin.version>0.8.3-SNAPSHOT</jacoco.maven.plugin.version>
+
+		<maven.source.plugin.version>3.0.1</maven.source.plugin.version>
+		<maven.javadoc.plugin.version>3.0.1</maven.javadoc.plugin.version>
+		<maven.deploy.plugin.version>3.0.0-M1</maven.deploy.plugin.version>
+		<jacoco.maven.plugin.version>0.8.2</jacoco.maven.plugin.version>
 
 		<delombok.output>${project.build.directory}/delombok</delombok.output>
 
@@ -56,6 +58,7 @@
 
 			<plugin>
 				<artifactId>maven-source-plugin</artifactId>
+				<version>${maven.source.plugin.version}</version>
 				<executions>
 					<execution>
 						<id>attach-sources</id>
@@ -69,6 +72,7 @@
 
 			<plugin>
 				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>${maven.javadoc.plugin.version}</version>
 				<configuration>
 					<sourcepath>${delombok.output}</sourcepath>
 				</configuration>
@@ -89,6 +93,7 @@
 
 			<plugin>
 				<artifactId>maven-deploy-plugin</artifactId>
+				<version>${maven.deploy.plugin.version}</version>
 				<executions>
 					<execution>
 						<id>deploy</id>

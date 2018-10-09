@@ -1,19 +1,24 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.gridgo</groupId>
 	<artifactId>gridgo</artifactId>
 	<version>0.1.0</version>
 	<packaging>pom</packaging>
 
-	<url>https://gridgo.io</url>
+	<url>https://github.com/gridgo/gridgo.git</url>
+
+	<licenses>
+		<license>
+			<name>MIT License</name>
+			<url>https://github.com/gridgo/gridgo/blob/master/LICENSE</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
 
 	<scm>
 		<url>https://github.com/gridgo/gridgo.git</url>
-		<connection>scm:git:https://github.com/gridgo/gridgo.git</connection>
-		<developerConnection>scm:git:https://github.com/gridgo/gridgo.git</developerConnection>
-		<tag>Java, server, microservice, message</tag>
+		<developerConnection>scm:git:[fetch=]https://github.com/gridgo/gridgo.git</developerConnection>
+		<connection>scm:git:[fetch=]https://github.com/gridgo/gridgo.git</connection>
 	</scm>
 
 	<parent>
@@ -61,4 +66,29 @@
 			</plugins>
 		</pluginManagement>
 	</build>
+
+	<profiles>
+		<profile>
+			<id>release-sign-artifacts</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<version>1.5</version>
+						<executions>
+							<execution>
+								<id>sign-artifacts</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
 </project>
