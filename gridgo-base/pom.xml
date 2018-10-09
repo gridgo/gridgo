@@ -14,7 +14,7 @@
 		<maven.compiler.plugin.version>3.8.0</maven.compiler.plugin.version>
 		<maven.compiler.target>11</maven.compiler.target>
 		<maven.compiler.source>11</maven.compiler.source>
-
+		<jacoco.maven.plugin.version>0.8.3-SNAPSHOT</jacoco.maven.plugin.version>
 
 		<delombok.output>${project.build.directory}/delombok</delombok.output>
 
@@ -53,6 +53,7 @@
 					<target>${maven.compiler.target}</target>
 				</configuration>
 			</plugin>
+
 			<plugin>
 				<artifactId>maven-source-plugin</artifactId>
 				<executions>
@@ -65,6 +66,7 @@
 					</execution>
 				</executions>
 			</plugin>
+
 			<plugin>
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<configuration>
@@ -84,6 +86,7 @@
 					</execution>
 				</executions>
 			</plugin>
+
 			<plugin>
 				<artifactId>maven-deploy-plugin</artifactId>
 				<executions>
@@ -96,6 +99,7 @@
 					</execution>
 				</executions>
 			</plugin>
+
 			<plugin>
 				<groupId>org.projectlombok</groupId>
 				<artifactId>lombok-maven-plugin</artifactId>
@@ -113,6 +117,12 @@
 						</goals>
 					</execution>
 				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>${jacoco.maven.plugin.version}</version>
 			</plugin>
 		</plugins>
 	</build>

@@ -12,7 +12,7 @@
 	<scm>
 		<url>https://github.com/gridgo/gridgo.git</url>
 		<connection>scm:git:https://github.com/gridgo/gridgo.git</connection>
-		<developerConnection>Bach Hoang Nguyen</developerConnection>
+		<developerConnection>scm:git:https://github.com/gridgo/gridgo.git</developerConnection>
 		<tag>Java, server, microservice, message</tag>
 	</scm>
 
