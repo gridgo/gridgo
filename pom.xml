@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.gridgo</groupId>
 	<artifactId>gridgo</artifactId>
-	<version>0.1.1-SNAPSHOT</version>
+	<version>0.1.1</version>
 	<packaging>pom</packaging>
 
 	<url>https://github.com/gridgo/gridgo.git</url>
@@ -19,7 +19,7 @@
 		<url>https://github.com/gridgo/gridgo.git</url>
 		<developerConnection>scm:git:[fetch=]https://github.com/gridgo/gridgo.git</developerConnection>
 		<connection>scm:git:[fetch=]https://github.com/gridgo/gridgo.git</connection>
-	  <tag>HEAD</tag>
+	  <tag>gridgo-0.1.1</tag>
   </scm>
 
 	<parent>
