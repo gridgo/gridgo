@@ -19,6 +19,7 @@
 		<maven.javadoc.plugin.version>3.0.1</maven.javadoc.plugin.version>
 		<maven.deploy.plugin.version>3.0.0-M1</maven.deploy.plugin.version>
 		<jacoco.maven.plugin.version>0.8.2</jacoco.maven.plugin.version>
+		<coveralls.maven.plugin.version>4.3.0</coveralls.maven.plugin.version>
 
 		<delombok.output>${project.build.directory}/delombok</delombok.output>
 
@@ -130,6 +131,12 @@
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
 				<version>${jacoco.maven.plugin.version}</version>
+			</plugin>
+			
+			<plugin>
+				<groupId>org.eluder.coveralls</groupId>
+				<artifactId>coveralls-maven-plugin</artifactId>
+				<version>${coveralls.maven.plugin.version}</version>
 			</plugin>
 		</plugins>
 	</build>
