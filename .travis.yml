@@ -2,4 +2,4 @@ language: java
 jdk:
 - oraclejdk11
 notifications:
-  slack: gridgo:1yoHlHXkfXNWGWXgOssMfcWV
+  slack: gridgo:0p4KX4Aaf4jlCnBnuLJ76DSQ
