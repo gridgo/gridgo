@@ -3,6 +3,7 @@ package io.gridgo.core.support.template.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiPredicate;
+import java.util.function.Function;
 
 import org.joo.promise4j.Promise;
 import org.joo.promise4j.impl.JoinedPromise;
@@ -30,16 +31,18 @@ public class MatchingProducerTemplate extends AbstractProducerTemplate {
 
 	@Override
 	public Promise<Message, Exception> sendWithAck(List<Connector> connectors, Message message) {
-		var promises = new ArrayList<Promise<Message, Exception>>();
-		connectors.stream().filter(c -> predicate.test(c, message)).map(c -> sendWithAck(c, message))
-				.forEach(promises::add);
-		return JoinedPromise.from(promises).filterDone(this::convertJoinedResult);
+		return executeProducerWithMapper(connectors, message, c -> sendWithAck(c, message));
 	}
 
 	@Override
 	public Promise<Message, Exception> call(List<Connector> connectors, Message message) {
+		return executeProducerWithMapper(connectors, message, c -> call(c, message));
+	}
+
+	private Promise<Message, Exception> executeProducerWithMapper(List<Connector> connectors, Message message,
+			Function<Connector, Promise<Message, Exception>> mapper) {
 		var promises = new ArrayList<Promise<Message, Exception>>();
-		connectors.stream().filter(c -> predicate.test(c, message)).map(c -> call(c, message)).forEach(promises::add);
+		connectors.stream().filter(c -> predicate.test(c, message)).map(mapper).forEach(promises::add);
 		return JoinedPromise.from(promises).filterDone(this::convertJoinedResult);
 	}
 
