@@ -3,3 +3,6 @@ jdk:
 - oraclejdk11
 notifications:
   slack: gridgo:1yoHlHXkfXNWGWXgOssMfcWV
+
+after_success:
+- mvn clean test jacoco:report coveralls:report -DrepoToken=$CoverallsRepoToken
