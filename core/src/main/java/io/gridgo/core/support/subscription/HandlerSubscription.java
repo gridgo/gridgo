@@ -1,8 +1,7 @@
-package io.gridgo.core.subscription;
+package io.gridgo.core.support.subscription;
 
 import org.joo.libra.Predicate;
 
-import io.gridgo.core.Gateway;
 import io.gridgo.framework.execution.ExecutionStrategy;
 
 public interface HandlerSubscription {
@@ -13,7 +12,9 @@ public interface HandlerSubscription {
 
 	public HandlerSubscription using(ExecutionStrategy strategy);
 
-	public Gateway withPolicy(RoutingPolicy policy);
+	public GatewaySubscription withPolicy(RoutingPolicy policy);
 
-	public Gateway finishSubscribing();
+	public GatewaySubscription finishSubscribing();
+	
+	public RoutingPolicy getPolicy();
 }
