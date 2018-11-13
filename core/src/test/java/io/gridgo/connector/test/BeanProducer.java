@@ -35,7 +35,7 @@ public class BeanProducer extends AbstractProducer {
 
 	@Override
 	protected String generateName() {
-		return "bean";
+		return "producer.bean";
 	}
 
 	@Override

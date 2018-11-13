@@ -20,16 +20,18 @@ public class GatewayUnitTest {
 		var beanValue = 1;
 		var registry = new SimpleRegistry().register("dummy", beanValue);
 		var context = new DefaultGridgoContextBuilder().setName("test").setRegistry(registry).build();
+
+		var consumerLatch = new CountDownLatch(2);
+
 		context.openGateway("test") //
 				.attachConnector("test:dummy") //
 				.subscribe((rc, gc) -> {
-
+					consumerLatch.countDown();
 				}) //
-				.when("payload.body.data == 1").finishSubscribing()//
-				.subscribe((rc, gc) -> {
-
-				}).when("payload.body.data == 2").finishSubscribing();
+				.when("payload.body.data == " + beanValue).finishSubscribing();
 		context.start();
+
+		consumerLatch.await();
 
 		var latch = new CountDownLatch(1);
 

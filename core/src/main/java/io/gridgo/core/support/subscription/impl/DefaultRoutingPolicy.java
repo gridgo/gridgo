@@ -12,9 +12,9 @@ import lombok.Getter;
 @Getter
 public class DefaultRoutingPolicy implements RoutingPolicy {
 
-	private Optional<Predicate> condition;
+	private Optional<Predicate> condition = Optional.empty();
 
-	private Optional<ExecutionStrategy> strategy;
+	private Optional<ExecutionStrategy> strategy = Optional.empty();
 
 	private Processor processor;
 
