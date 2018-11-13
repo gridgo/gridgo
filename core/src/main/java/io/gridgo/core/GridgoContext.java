@@ -10,6 +10,7 @@ import io.gridgo.core.support.ProducerJoinMode;
 import io.gridgo.core.support.subscription.GatewaySubscription;
 import io.gridgo.core.support.template.ProducerTemplate;
 import io.gridgo.framework.ComponentLifecycle;
+import io.gridgo.framework.support.Registry;
 
 public interface GridgoContext extends ComponentLifecycle {
 
@@ -26,6 +27,8 @@ public interface GridgoContext extends ComponentLifecycle {
 	public Collection<Gateway> getGateways();
 
 	public Map<String, Gateway> getGatewaysWithNames();
+
+	public Registry getRegistry();
 
 	public ConnectorFactory getConnectorFactory();
 

@@ -6,14 +6,76 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import io.gridgo.bean.BValue;
+import io.gridgo.connector.Connector;
+import io.gridgo.core.GridgoContext;
 import io.gridgo.core.impl.DefaultGridgoContextBuilder;
+import io.gridgo.core.support.ProducerJoinMode;
+import io.gridgo.core.support.template.impl.MatchingProducerTemplate;
 import io.gridgo.framework.support.Message;
+import io.gridgo.framework.support.MessageConstants;
 import io.gridgo.framework.support.Payload;
 import io.gridgo.framework.support.impl.SimpleRegistry;
 
 public class GatewayUnitTest {
 
 	private static final int NUM_MESSAGES = 100;
+
+	@Test
+	public void testProducerTemplate() throws InterruptedException {
+		var registry = new SimpleRegistry().register("dummy1", 1).register("dummy2", 2);
+		var context = new DefaultGridgoContextBuilder().setName("test").setRegistry(registry).build();
+
+		context.openGateway("test", ProducerJoinMode.JOIN) //
+				.attachConnector("test:dummy1") //
+				.attachConnector("test:dummy2");
+		context.openGateway("test2", new MatchingProducerTemplate((c, m) -> match(context, c, m))) //
+				.attachConnector("test:dummy1") //
+				.attachConnector("test:dummy2");
+
+		context.start();
+
+		var latch = new CountDownLatch(1);
+
+		var gateway = context.findGateway("test").orElseThrow();
+		gateway.call(createType1Message()).done(response -> {
+			var body = response.getPayload().getBody();
+			Assert.assertTrue(body.isArray());
+			Assert.assertEquals(2, body.asArray().size());
+			Assert.assertEquals(1, body.asArray().getObject(0).getInteger(MessageConstants.BODY));
+			Assert.assertEquals(2, body.asArray().getObject(1).getInteger(MessageConstants.BODY));
+			latch.countDown();
+		});
+
+		latch.await();
+
+		var latch2 = new CountDownLatch(2);
+
+		var gateway2 = context.findGateway("test2").orElseThrow();
+		gateway2.call(createType1Message()).done(response -> {
+			var body = response.getPayload().getBody();
+			Assert.assertTrue(body.isArray());
+			Assert.assertEquals(1, body.asArray().size());
+			Assert.assertEquals(1, body.asArray().getObject(0).getInteger(MessageConstants.BODY));
+			latch2.countDown();
+		});
+		gateway2.call(createType2Message()).done(response -> {
+			var body = response.getPayload().getBody();
+			Assert.assertTrue(body.isArray());
+			Assert.assertEquals(1, body.asArray().size());
+			Assert.assertEquals(2, body.asArray().getObject(0).getInteger(MessageConstants.BODY));
+			latch2.countDown();
+		});
+
+		latch.await();
+
+		context.stop();
+	}
+
+	private boolean match(GridgoContext context, Connector connector, Message msg) {
+		var beanName = connector.getConnectorConfig().getPlaceholders().getProperty("bean");
+		var beanValue = context.getRegistry().lookupMandatory(beanName, Integer.class);
+		return beanValue == msg.getPayload().getBody().asValue().getInteger();
+	}
 
 	@Test
 	public void testConnector() throws InterruptedException {
