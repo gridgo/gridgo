@@ -1,6 +1,6 @@
 package io.gridgo.core;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -17,7 +17,7 @@ public interface GridgoContext extends ComponentLifecycle {
 
 	public Optional<Gateway> findGateway(String name);
 
-	public List<Gateway> getGateways();
+	public Collection<Gateway> getGateways();
 
 	public Map<String, Gateway> getGatewaysWithNames();
 

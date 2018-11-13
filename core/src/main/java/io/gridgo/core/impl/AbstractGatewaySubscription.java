@@ -111,25 +111,17 @@ public abstract class AbstractGatewaySubscription extends AbstractComponentLifec
 
 	@Override
 	protected void onStart() {
-		getLogger().trace("Gateway starting: %s", name);
-
 		this.policyEnforcers = subscriptions.stream().map(s -> s.getPolicy()).map(RoutingPolicyEnforcer::new)
 				.toArray(size -> new RoutingPolicyEnforcer[size]);
 
 		for (Connector connector : connectors)
 			connector.start();
-
-		getLogger().trace("Gateway started: %s", name);
 	}
 
 	@Override
 	protected void onStop() {
-		getLogger().trace("Gateway stopping: %s", name);
-
 		for (Connector connector : connectors)
 			connector.stop();
-
-		getLogger().trace("Gateway stopped: %s", name);
 	}
 
 	@Override

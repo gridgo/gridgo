@@ -2,11 +2,12 @@ package io.gridgo.core;
 
 import org.joo.promise4j.Promise;
 
+import io.gridgo.core.support.ProducerTemplateAware;
 import io.gridgo.core.support.subscription.GatewaySubscription;
 import io.gridgo.framework.ComponentLifecycle;
 import io.gridgo.framework.support.Message;
 
-public interface Gateway extends ComponentLifecycle, GatewaySubscription {
+public interface Gateway extends ComponentLifecycle, GatewaySubscription, ProducerTemplateAware {
 
 	public void send(Message message);
 
