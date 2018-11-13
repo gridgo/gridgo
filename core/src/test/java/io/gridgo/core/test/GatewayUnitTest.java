@@ -2,6 +2,7 @@ package io.gridgo.core.test;
 
 import java.util.concurrent.CountDownLatch;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import io.gridgo.bean.BValue;
@@ -12,7 +13,7 @@ import io.gridgo.framework.support.impl.SimpleRegistry;
 
 public class GatewayUnitTest {
 
-	private static final int NUM_MESSAGES = 100000;
+	private static final int NUM_MESSAGES = 100;
 
 	@Test
 	public void testPush() throws InterruptedException {
@@ -20,7 +21,7 @@ public class GatewayUnitTest {
 		var latch2 = new CountDownLatch(NUM_MESSAGES / 2);
 		var registry = new SimpleRegistry().register("dummy", 1);
 		var context = new DefaultGridgoContextBuilder().setName("test").setRegistry(registry).build();
-		context.openGateway("test") //
+		var firstGateway = context.openGateway("test") //
 				.subscribe((rc, gc) -> {
 					latch1.countDown();
 				}) //
@@ -32,6 +33,8 @@ public class GatewayUnitTest {
 		context.start();
 
 		var gateway = context.findGateway("test").orElseThrow();
+		Assert.assertEquals(firstGateway, gateway);
+
 		for (int i = 0; i < NUM_MESSAGES / 2; i++)
 			gateway.push(createType1Message());
 		for (int i = 0; i < NUM_MESSAGES / 2; i++)
@@ -39,6 +42,11 @@ public class GatewayUnitTest {
 
 		latch1.await();
 		latch2.await();
+
+		Assert.assertEquals(firstGateway, context.openGateway("test"));
+
+		context.closeGateway("test");
+		Assert.assertTrue(context.findGateway("test").isEmpty());
 
 		context.stop();
 	}

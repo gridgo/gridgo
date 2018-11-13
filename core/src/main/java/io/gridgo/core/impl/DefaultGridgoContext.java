@@ -12,7 +12,6 @@ import io.gridgo.connector.ConnectorFactory;
 import io.gridgo.connector.impl.factories.DefaultConnectorFactory;
 import io.gridgo.core.Gateway;
 import io.gridgo.core.GridgoContext;
-import io.gridgo.core.support.exceptions.DuplicateGatewayException;
 import io.gridgo.core.support.subscription.GatewaySubscription;
 import io.gridgo.framework.AbstractComponentLifecycle;
 import io.gridgo.framework.support.Registry;
@@ -50,10 +49,7 @@ public class DefaultGridgoContext extends AbstractComponentLifecycle implements 
 
 	@Override
 	public GatewaySubscription openGateway(String name) {
-		var gateway = gateways.computeIfAbsent(name, key -> new DefaultGateway(this, key));
-		if (gateway == null)
-			throw new DuplicateGatewayException(name);
-		return gateway;
+		return gateways.computeIfAbsent(name, key -> new DefaultGateway(this, key));
 	}
 
 	@Override
