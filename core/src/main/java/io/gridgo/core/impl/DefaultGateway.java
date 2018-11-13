@@ -3,26 +3,22 @@ package io.gridgo.core.impl;
 import org.joo.promise4j.Promise;
 
 import io.gridgo.core.GridgoContext;
-import io.gridgo.core.support.context.ProducerJoinMode;
+import io.gridgo.core.support.ProducerJoinMode;
 import io.gridgo.core.support.template.ProducerTemplate;
 import io.gridgo.framework.support.Message;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
-public class DefaultGateway extends AbstractGateway {
+@Slf4j
+public class DefaultGateway extends AbstractGatewaySubscription {
 
-	private ProducerTemplate producerTemplate;
+	@Getter
+	@Setter
+	private ProducerTemplate producerTemplate = ProducerTemplate.create(ProducerJoinMode.SINGLE);
 
 	public DefaultGateway(GridgoContext context, String name) {
-		this(context, name, ProducerJoinMode.SINGLE);
-	}
-
-	public DefaultGateway(GridgoContext context, String name, ProducerJoinMode joinMode) {
 		super(context, name);
-		this.producerTemplate = ProducerTemplate.create(joinMode);
-	}
-
-	public DefaultGateway(GridgoContext context, String name, ProducerTemplate producerTemplate) {
-		super(context, name);
-		this.producerTemplate = producerTemplate;
 	}
 
 	@Override
@@ -41,12 +37,17 @@ public class DefaultGateway extends AbstractGateway {
 	}
 
 	@Override
-	public void push(Message message) {
-		
+	public void callAndPush(Message message) {
+		producerTemplate.call(getConnectors(), message, this::push, this::handleCallAndPushException);
 	}
 
 	@Override
-	public void callAndPush(Message message) {
-		
+	public void push(Message message) {
+		publish(message, null);
+	}
+
+	private void handleCallAndPushException(Exception ex) {
+		log.error("Error caught while calling callAndPush", ex);
+		getContext().getExceptionHandler().accept(ex);
 	}
 }

@@ -1,5 +1,7 @@
 package io.gridgo.core.support.subscription.impl;
 
+import java.util.Optional;
+
 import org.joo.libra.Predicate;
 
 import io.gridgo.core.Processor;
@@ -9,11 +11,11 @@ import lombok.Getter;
 
 @Getter
 public class DefaultRoutingPolicy implements RoutingPolicy {
-	
-	private Predicate condition;
 
-	private ExecutionStrategy strategy;
-	
+	private Optional<Predicate> condition;
+
+	private Optional<ExecutionStrategy> strategy;
+
 	private Processor processor;
 
 	public DefaultRoutingPolicy(Processor processor) {
@@ -22,13 +24,13 @@ public class DefaultRoutingPolicy implements RoutingPolicy {
 
 	@Override
 	public RoutingPolicy setCondition(Predicate condition) {
-		this.condition = condition;
+		this.condition = Optional.ofNullable(condition);
 		return this;
 	}
 
 	@Override
 	public RoutingPolicy setStrategy(ExecutionStrategy strategy) {
-		this.strategy = strategy;
+		this.strategy = Optional.ofNullable(strategy);
 		return this;
 	}
 

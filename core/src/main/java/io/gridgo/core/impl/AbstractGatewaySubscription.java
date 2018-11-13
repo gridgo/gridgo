@@ -3,21 +3,27 @@ package io.gridgo.core.impl;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.joo.libra.PredicateContext;
+import org.joo.promise4j.Deferred;
+
 import io.gridgo.connector.Connector;
 import io.gridgo.connector.ConnectorResolver;
+import io.gridgo.connector.Consumer;
 import io.gridgo.connector.support.config.ConnectorContext;
 import io.gridgo.core.Gateway;
 import io.gridgo.core.GridgoContext;
 import io.gridgo.core.Processor;
+import io.gridgo.core.support.impl.DefaultRoutingContext;
 import io.gridgo.core.support.subscription.GatewaySubscription;
 import io.gridgo.core.support.subscription.HandlerSubscription;
 import io.gridgo.core.support.subscription.RoutingPolicy;
 import io.gridgo.core.support.subscription.impl.DefaultHandlerSubscription;
 import io.gridgo.framework.AbstractComponentLifecycle;
+import io.gridgo.framework.support.Message;
 import lombok.Getter;
 
 @Getter
-public abstract class AbstractGateway extends AbstractComponentLifecycle implements Gateway {
+public abstract class AbstractGatewaySubscription extends AbstractComponentLifecycle implements Gateway {
 
 	private String name;
 
@@ -27,7 +33,9 @@ public abstract class AbstractGateway extends AbstractComponentLifecycle impleme
 
 	private List<HandlerSubscription> subscriptions = new CopyOnWriteArrayList<>();
 
-	public AbstractGateway(GridgoContext context, String name) {
+	private RoutingPolicyEnforcer[] policyEnforcers = new RoutingPolicyEnforcer[0];
+
+	public AbstractGatewaySubscription(GridgoContext context, String name) {
 		this.context = context;
 		this.name = name;
 	}
@@ -35,36 +43,51 @@ public abstract class AbstractGateway extends AbstractComponentLifecycle impleme
 	@Override
 	public GatewaySubscription attachConnector(String endpoint) {
 		var connector = context.getConnectorFactory().createConnector(endpoint);
-		connectors.add(connector);
-		return this;
+		return attachConnector(connector);
 	}
 
 	@Override
 	public GatewaySubscription attachConnector(String endpoint, ConnectorResolver resolver) {
 		var connector = context.getConnectorFactory().createConnector(endpoint, resolver);
-		connectors.add(connector);
-		return this;
+		return attachConnector(connector);
 	}
 
 	@Override
 	public GatewaySubscription attachConnector(String endpoint, ConnectorContext connectorContext) {
 		var connector = context.getConnectorFactory().createConnector(endpoint, connectorContext);
-		connectors.add(connector);
-		return this;
+		return attachConnector(connector);
 	}
 
 	@Override
 	public GatewaySubscription attachConnector(String endpoint, ConnectorResolver resolver,
 			ConnectorContext connectorContext) {
 		var connector = context.getConnectorFactory().createConnector(endpoint, resolver, connectorContext);
-		connectors.add(connector);
-		return this;
+		return attachConnector(connector);
 	}
 
 	@Override
 	public GatewaySubscription attachConnector(Connector connector) {
 		connectors.add(connector);
+		subscribeConnector(connector);
 		return this;
+	}
+
+	private void subscribeConnector(Connector connector) {
+		connector.getConsumer().ifPresent(this::subscribeConsumer);
+	}
+
+	private void subscribeConsumer(Consumer consumer) {
+		consumer.subscribe(this::publish);
+	}
+
+	protected void publish(Message msg, Deferred<Message, Exception> deferred) {
+		var routingContext = new DefaultRoutingContext(this, msg, deferred);
+		var predicateContext = new PredicateContext(msg);
+		for (var enforcer : policyEnforcers) {
+			if (enforcer.isMatch(predicateContext)) {
+				enforcer.execute(routingContext, context);
+			}
+		}
 	}
 
 	@Override
@@ -88,14 +111,25 @@ public abstract class AbstractGateway extends AbstractComponentLifecycle impleme
 
 	@Override
 	protected void onStart() {
+		getLogger().trace("Gateway starting: %s", name);
+
+		this.policyEnforcers = subscriptions.stream().map(s -> s.getPolicy()).map(RoutingPolicyEnforcer::new)
+				.toArray(size -> new RoutingPolicyEnforcer[size]);
+
 		for (Connector connector : connectors)
 			connector.start();
+
+		getLogger().trace("Gateway started: %s", name);
 	}
 
 	@Override
 	protected void onStop() {
+		getLogger().trace("Gateway stopping: %s", name);
+
 		for (Connector connector : connectors)
 			connector.stop();
+
+		getLogger().trace("Gateway stopped: %s", name);
 	}
 
 	@Override

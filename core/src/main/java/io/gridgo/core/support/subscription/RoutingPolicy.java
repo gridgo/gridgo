@@ -1,5 +1,7 @@
 package io.gridgo.core.support.subscription;
 
+import java.util.Optional;
+
 import org.joo.libra.Predicate;
 
 import io.gridgo.core.Processor;
@@ -7,9 +9,9 @@ import io.gridgo.framework.execution.ExecutionStrategy;
 
 public interface RoutingPolicy {
 
-	public Predicate getCondition();
+	public Optional<Predicate> getCondition();
 
-	public ExecutionStrategy getStrategy();
+	public Optional<ExecutionStrategy> getStrategy();
 
 	public Processor getProcessor();
 

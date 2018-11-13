@@ -1,6 +1,6 @@
 package io.gridgo.core;
 
-import io.gridgo.core.support.context.RoutingContext;
+import io.gridgo.core.support.RoutingContext;
 
 public interface Processor {
 

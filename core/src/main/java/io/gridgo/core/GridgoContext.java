@@ -3,6 +3,7 @@ package io.gridgo.core;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import io.gridgo.connector.ConnectorFactory;
 import io.gridgo.core.support.subscription.GatewaySubscription;
@@ -21,4 +22,6 @@ public interface GridgoContext extends ComponentLifecycle {
 	public Map<String, Gateway> getGatewaysWithNames();
 
 	public ConnectorFactory getConnectorFactory();
+
+	public Consumer<Throwable> getExceptionHandler();
 }
