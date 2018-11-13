@@ -68,6 +68,8 @@ public class GatewayUnitTest {
 
 		latch.await();
 
+		gateway.send(createType1Message());
+
 		context.stop();
 	}
 
