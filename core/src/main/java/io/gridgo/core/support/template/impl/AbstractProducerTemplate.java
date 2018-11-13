@@ -29,24 +29,23 @@ public abstract class AbstractProducerTemplate implements ProducerTemplate {
 	}
 
 	protected Promise<Message, Exception> call(Connector connector, Message message) {
-		if (connector.getProducer().isEmpty()) {
-			return new SimpleFailurePromise<>(
-					new UnsupportedOperationException("No producer found for this connector " + connector.getName()));
-		}
-		return connector.getProducer().get().call(message);
+		return connector.getProducer() //
+				.map(p -> p.call(message)) //
+				.orElse(createProducerNotFoundPromise(connector.getName()));
 	}
 
 	protected void send(Connector connector, Message message) {
-		if (connector.getProducer().isEmpty())
-			return;
-		connector.getProducer().get().send(message);
+		connector.getProducer().ifPresent(p -> p.send(message));
 	}
 
 	protected Promise<Message, Exception> sendWithAck(Connector connector, Message message) {
-		if (connector.getProducer().isEmpty()) {
-			return new SimpleFailurePromise<>(
-					new UnsupportedOperationException("No producer found for this connector " + connector.getName()));
-		}
-		return connector.getProducer().get().sendWithAck(message);
+		return connector.getProducer() //
+				.map(p -> p.sendWithAck(message)) //
+				.orElse(createProducerNotFoundPromise(connector.getName()));
+	}
+
+	private SimpleFailurePromise<Message, Exception> createProducerNotFoundPromise(String name) {
+		return new SimpleFailurePromise<>(
+				new UnsupportedOperationException("No producer found for this connector " + name));
 	}
 }
