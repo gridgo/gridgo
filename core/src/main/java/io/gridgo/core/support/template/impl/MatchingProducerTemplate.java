@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
 
+import org.joo.promise4j.DoneCallback;
+import org.joo.promise4j.FailCallback;
 import org.joo.promise4j.Promise;
 import org.joo.promise4j.impl.JoinedPromise;
 import org.joo.promise4j.impl.JoinedResults;
@@ -22,10 +24,20 @@ public class MatchingProducerTemplate extends AbstractProducerTemplate {
 		this.predicate = predicate;
 	}
 
+	@Override
 	public void send(List<Connector> connectors, Message message) {
 		for (var connector : connectors) {
 			if (predicate.test(connector, message))
 				send(connector, message);
+		}
+	}
+
+	@Override
+	public void call(List<Connector> connectors, Message message, DoneCallback<Message> doneCallback,
+			FailCallback<Exception> failCallback) {
+		for (var connector : connectors) {
+			if (predicate.test(connector, message))
+				call(connector, message).done(doneCallback).fail(failCallback);
 		}
 	}
 
