@@ -14,6 +14,7 @@
 
 	<properties>
 		<gridgo.connector.core.version>0.1.0-SNAPSHOT</gridgo.connector.core.version>
+		<joo.libra.version>2.0.0</joo.libra.version>
 	</properties>
 
 	<dependencies>
@@ -21,6 +22,11 @@
 			<groupId>io.gridgo</groupId>
 			<artifactId>gridgo-connector-core</artifactId>
 			<version>${gridgo.connector.core.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.dungba</groupId>
+			<artifactId>joo-libra</artifactId>
+			<version>${joo.libra.version}</version>
 		</dependency>
 	</dependencies>
 </project>
