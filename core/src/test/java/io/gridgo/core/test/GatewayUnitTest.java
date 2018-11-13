@@ -16,6 +16,35 @@ public class GatewayUnitTest {
 	private static final int NUM_MESSAGES = 100;
 
 	@Test
+	public void testConnector() throws InterruptedException {
+		var beanValue = 1;
+		var registry = new SimpleRegistry().register("dummy", beanValue);
+		var context = new DefaultGridgoContextBuilder().setName("test").setRegistry(registry).build();
+		context.openGateway("test") //
+				.attachConnector("test:dummy") //
+				.subscribe((rc, gc) -> {
+
+				}) //
+				.when("payload.body.data == 1").finishSubscribing()//
+				.subscribe((rc, gc) -> {
+
+				}).when("payload.body.data == 2").finishSubscribing();
+		context.start();
+
+		var latch = new CountDownLatch(1);
+
+		var gateway = context.findGateway("test").orElseThrow();
+		gateway.call(createType1Message()).done(response -> {
+			if (response.getPayload().getBody().asValue().getInteger() == beanValue)
+				latch.countDown();
+		});
+
+		latch.await();
+
+		context.stop();
+	}
+
+	@Test
 	public void testPush() throws InterruptedException {
 		var latch1 = new CountDownLatch(NUM_MESSAGES / 2);
 		var latch2 = new CountDownLatch(NUM_MESSAGES / 2);

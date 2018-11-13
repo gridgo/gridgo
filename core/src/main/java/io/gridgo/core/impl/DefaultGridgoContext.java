@@ -47,6 +47,7 @@ public class DefaultGridgoContext extends AbstractComponentLifecycle implements 
 			this.registry = registry;
 		if (exceptionHandler != null)
 			this.exceptionHandler = exceptionHandler;
+		this.connectorFactory.setRegistry(registry);
 	}
 
 	@Override
