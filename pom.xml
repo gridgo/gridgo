@@ -12,6 +12,7 @@
 	</parent>
 
 	<modules>
+		<module>core</module>
 	</modules>
 
 	<properties>
