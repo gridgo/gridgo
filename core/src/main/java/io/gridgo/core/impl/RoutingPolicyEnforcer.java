@@ -20,6 +20,11 @@ public class RoutingPolicyEnforcer {
 	}
 
 	public void execute(RoutingContext rc, GridgoContext gc) {
+		Runnable runnable = () -> doProcess(rc, gc);
+		policy.getStrategy().ifPresentOrElse(s -> s.execute(runnable), runnable);
+	}
+
+	private void doProcess(RoutingContext rc, GridgoContext gc) {
 		policy.getProcessor().process(rc, gc);
 	}
 }
