@@ -2,19 +2,18 @@ package io.gridgo.core.impl;
 
 import org.joo.promise4j.Promise;
 
+import io.gridgo.core.Gateway;
 import io.gridgo.core.GridgoContext;
 import io.gridgo.core.support.ProducerJoinMode;
 import io.gridgo.core.support.template.ProducerTemplate;
 import io.gridgo.framework.support.Message;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class DefaultGateway extends AbstractGatewaySubscription {
 
 	@Getter
-	@Setter
 	private ProducerTemplate producerTemplate = ProducerTemplate.create(ProducerJoinMode.SINGLE);
 
 	public DefaultGateway(GridgoContext context, String name) {
@@ -49,5 +48,11 @@ public class DefaultGateway extends AbstractGatewaySubscription {
 	private void handleCallAndPushException(Exception ex) {
 		log.error("Error caught while calling callAndPush", ex);
 		getContext().getExceptionHandler().accept(ex);
+	}
+
+	@Override
+	public Gateway setProducerTemplate(ProducerTemplate producerTemplate) {
+		this.producerTemplate = producerTemplate;
+		return this;
 	}
 }

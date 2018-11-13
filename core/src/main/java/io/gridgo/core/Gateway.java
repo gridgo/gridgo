@@ -7,7 +7,7 @@ import io.gridgo.core.support.subscription.GatewaySubscription;
 import io.gridgo.framework.ComponentLifecycle;
 import io.gridgo.framework.support.Message;
 
-public interface Gateway extends ComponentLifecycle, GatewaySubscription, ProducerTemplateAware {
+public interface Gateway extends ComponentLifecycle, GatewaySubscription, ProducerTemplateAware<Gateway> {
 
 	public void send(Message message);
 

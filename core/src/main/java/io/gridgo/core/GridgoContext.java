@@ -6,12 +6,18 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 import io.gridgo.connector.ConnectorFactory;
+import io.gridgo.core.support.ProducerJoinMode;
 import io.gridgo.core.support.subscription.GatewaySubscription;
+import io.gridgo.core.support.template.ProducerTemplate;
 import io.gridgo.framework.ComponentLifecycle;
 
 public interface GridgoContext extends ComponentLifecycle {
 
 	public GatewaySubscription openGateway(String name);
+
+	public GatewaySubscription openGateway(String name, ProducerTemplate producerTemplate);
+
+	public GatewaySubscription openGateway(String name, ProducerJoinMode joinMode);
 
 	public Optional<Gateway> closeGateway(String name);
 

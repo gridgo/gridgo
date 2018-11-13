@@ -2,7 +2,7 @@ package io.gridgo.core.support;
 
 import io.gridgo.core.support.template.ProducerTemplate;
 
-public interface ProducerTemplateAware {
+public interface ProducerTemplateAware<T> {
 
-	public void setProducerTemplate(ProducerTemplate producerTemplate);
+	public T setProducerTemplate(ProducerTemplate producerTemplate);
 }

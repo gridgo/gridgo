@@ -12,7 +12,9 @@ import io.gridgo.connector.ConnectorFactory;
 import io.gridgo.connector.impl.factories.DefaultConnectorFactory;
 import io.gridgo.core.Gateway;
 import io.gridgo.core.GridgoContext;
+import io.gridgo.core.support.ProducerJoinMode;
 import io.gridgo.core.support.subscription.GatewaySubscription;
+import io.gridgo.core.support.template.ProducerTemplate;
 import io.gridgo.framework.AbstractComponentLifecycle;
 import io.gridgo.framework.support.Registry;
 import io.gridgo.framework.support.impl.SimpleRegistry;
@@ -50,6 +52,17 @@ public class DefaultGridgoContext extends AbstractComponentLifecycle implements 
 	@Override
 	public GatewaySubscription openGateway(String name) {
 		return gateways.computeIfAbsent(name, key -> new DefaultGateway(this, key));
+	}
+
+	@Override
+	public GatewaySubscription openGateway(String name, ProducerJoinMode joinMode) {
+		return openGateway(name, ProducerTemplate.create(joinMode));
+	}
+
+	@Override
+	public GatewaySubscription openGateway(String name, ProducerTemplate producerTemplate) {
+		return gateways.computeIfAbsent(name,
+				key -> new DefaultGateway(this, key).setProducerTemplate(producerTemplate));
 	}
 
 	@Override
