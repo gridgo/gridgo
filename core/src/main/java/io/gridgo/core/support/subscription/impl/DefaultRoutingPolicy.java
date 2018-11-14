@@ -17,7 +17,7 @@ public class DefaultRoutingPolicy implements RoutingPolicy {
 	private Optional<ExecutionStrategy> strategy = Optional.empty();
 
 	private Processor processor;
-
+	
 	public DefaultRoutingPolicy(Processor processor) {
 		this.processor = processor;
 	}

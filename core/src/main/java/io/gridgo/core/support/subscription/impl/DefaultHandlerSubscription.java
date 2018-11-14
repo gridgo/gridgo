@@ -48,7 +48,8 @@ public class DefaultHandlerSubscription implements HandlerSubscription {
 
 	@Override
 	public GatewaySubscription withPolicy(final @NonNull RoutingPolicy policy) {
-		this.policy = policy;
+		this.policy.setCondition(policy.getCondition().orElse(null));
+		this.policy.setStrategy(policy.getStrategy().orElse(null));
 		return gateway;
 	}
 

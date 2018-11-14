@@ -2,6 +2,7 @@ package io.gridgo.core.test;
 
 import java.util.concurrent.CountDownLatch;
 
+import org.joo.libra.sql.SqlPredicate;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -10,6 +11,8 @@ import io.gridgo.connector.Connector;
 import io.gridgo.core.GridgoContext;
 import io.gridgo.core.impl.DefaultGridgoContextBuilder;
 import io.gridgo.core.support.ProducerJoinMode;
+import io.gridgo.core.support.subscription.RoutingPolicy;
+import io.gridgo.core.support.subscription.impl.DefaultRoutingPolicy;
 import io.gridgo.core.support.template.impl.MatchingProducerTemplate;
 import io.gridgo.framework.support.Message;
 import io.gridgo.framework.support.MessageConstants;
@@ -88,12 +91,12 @@ public class GatewayUnitTest {
 
 		var consumerLatch = new CountDownLatch(2);
 
+		RoutingPolicy policy = new DefaultRoutingPolicy((rc, gc) -> {
+			consumerLatch.countDown();
+		}).setCondition(new SqlPredicate("payload.body.data == " + beanValue));
 		context.openGateway("test") //
 				.attachConnector("test:dummy") //
-				.subscribe((rc, gc) -> {
-					consumerLatch.countDown();
-				}) //
-				.when("payload.body.data == " + beanValue).finishSubscribing();
+				.attachRoutingPolicy(policy);
 		context.start();
 
 		consumerLatch.await();
@@ -117,6 +120,7 @@ public class GatewayUnitTest {
 		var latch2 = new CountDownLatch(NUM_MESSAGES / 2);
 		var registry = new SimpleRegistry().register("dummy", 1);
 		var context = new DefaultGridgoContextBuilder().setName("test").setRegistry(registry).build();
+		RoutingPolicy policy = new DefaultRoutingPolicy(null).setCondition(new SqlPredicate("payload.body.data == 2"));
 		var firstGateway = context.openGateway("test") //
 				.subscribe((rc, gc) -> {
 					latch1.countDown();
@@ -124,7 +128,7 @@ public class GatewayUnitTest {
 				.when("payload.body.data == 1").finishSubscribing()//
 				.subscribe((rc, gc) -> {
 					latch2.countDown();
-				}).when("payload.body.data == 2").finishSubscribing();
+				}).withPolicy(policy);
 
 		context.start();
 
