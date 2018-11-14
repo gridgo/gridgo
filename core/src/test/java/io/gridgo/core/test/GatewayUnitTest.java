@@ -48,7 +48,7 @@ public class GatewayUnitTest {
 		var gateway2 = context.findGateway("test2").orElseThrow();
 		gateway2.callAndPush(createType1Message());
 		gateway2.callAndPush(createType2Message());
-		
+
 		latch1.await();
 		latch2.await();
 
@@ -118,7 +118,7 @@ public class GatewayUnitTest {
 	@Test
 	public void testConnector() throws InterruptedException {
 		var beanValue = 1;
-		var registry = new SimpleRegistry().register("dummy", beanValue);
+		var registry = new SimpleRegistry().register("dummy", beanValue).register("dummy1", 2);
 		var context = new DefaultGridgoContextBuilder().setName("test").setRegistry(registry).build();
 
 		var consumerLatch = new CountDownLatch(2);
@@ -128,6 +128,7 @@ public class GatewayUnitTest {
 		}).setCondition(new SqlPredicate("payload.body.data == " + beanValue));
 		context.openGateway("test") //
 				.attachConnector("test:dummy") //
+				.attachConnector("test:dummy1") //
 				.attachRoutingPolicy(policy);
 		context.start();
 
