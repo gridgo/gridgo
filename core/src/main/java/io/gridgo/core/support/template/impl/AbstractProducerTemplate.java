@@ -20,7 +20,8 @@ public abstract class AbstractProducerTemplate implements ProducerTemplate {
 	@Override
 	public void send(List<Connector> connectors, Message message) {
 		for (var connector : connectors) {
-			send(connector, message);
+			if (match(connector, message))
+				send(connector, message);
 		}
 	}
 
@@ -28,7 +29,8 @@ public abstract class AbstractProducerTemplate implements ProducerTemplate {
 	public void call(List<Connector> connectors, Message message, DoneCallback<Message> doneCallback,
 			FailCallback<Exception> failCallback) {
 		for (var connector : connectors) {
-			call(connector, message).done(doneCallback).fail(failCallback);
+			if (match(connector, message))
+				call(connector, message).done(doneCallback).fail(failCallback);
 		}
 	}
 
@@ -43,9 +45,13 @@ public abstract class AbstractProducerTemplate implements ProducerTemplate {
 	protected Promise<Message, Exception> sendWithAck(Connector connector, Message message) {
 		return executeProducerWithMapper(connector, p -> p.sendWithAck(message));
 	}
-	
+
 	protected Message convertJoinedResult(JoinedResults<Message> results) {
 		return new MultipartMessage(results);
+	}
+
+	protected boolean match(Connector connector, Message message) {
+		return true;
 	}
 
 	private Promise<Message, Exception> executeProducerWithMapper(Connector connector,

@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
 
-import org.joo.promise4j.DoneCallback;
-import org.joo.promise4j.FailCallback;
 import org.joo.promise4j.Promise;
 import org.joo.promise4j.impl.JoinedPromise;
 
@@ -23,23 +21,6 @@ public class MatchingProducerTemplate extends AbstractProducerTemplate {
 	}
 
 	@Override
-	public void send(List<Connector> connectors, Message message) {
-		for (var connector : connectors) {
-			if (predicate.test(connector, message))
-				send(connector, message);
-		}
-	}
-
-	@Override
-	public void call(List<Connector> connectors, Message message, DoneCallback<Message> doneCallback,
-			FailCallback<Exception> failCallback) {
-		for (var connector : connectors) {
-			if (predicate.test(connector, message))
-				call(connector, message).done(doneCallback).fail(failCallback);
-		}
-	}
-
-	@Override
 	public Promise<Message, Exception> sendWithAck(List<Connector> connectors, Message message) {
 		return executeProducerWithMapper(connectors, message, c -> sendWithAck(c, message));
 	}
@@ -47,6 +28,11 @@ public class MatchingProducerTemplate extends AbstractProducerTemplate {
 	@Override
 	public Promise<Message, Exception> call(List<Connector> connectors, Message message) {
 		return executeProducerWithMapper(connectors, message, c -> call(c, message));
+	}
+	
+	@Override
+	protected boolean match(Connector connector, Message message) {
+		return predicate.test(connector, message);
 	}
 
 	private Promise<Message, Exception> executeProducerWithMapper(List<Connector> connectors, Message message,
