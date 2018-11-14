@@ -13,6 +13,7 @@ import io.gridgo.connector.support.config.ConnectorContext;
 import io.gridgo.core.Gateway;
 import io.gridgo.core.GridgoContext;
 import io.gridgo.core.Processor;
+import io.gridgo.core.support.RoutingContext;
 import io.gridgo.core.support.impl.DefaultRoutingContext;
 import io.gridgo.core.support.subscription.GatewaySubscription;
 import io.gridgo.core.support.subscription.HandlerSubscription;
@@ -20,6 +21,9 @@ import io.gridgo.core.support.subscription.RoutingPolicy;
 import io.gridgo.core.support.subscription.impl.DefaultHandlerSubscription;
 import io.gridgo.framework.AbstractComponentLifecycle;
 import io.gridgo.framework.support.Message;
+import io.reactivex.ObservableSource;
+import io.reactivex.subjects.PublishSubject;
+import io.reactivex.subjects.Subject;
 import lombok.Getter;
 
 @Getter
@@ -35,9 +39,12 @@ public abstract class AbstractGatewaySubscription extends AbstractComponentLifec
 
 	private RoutingPolicyEnforcer[] policyEnforcers = new RoutingPolicyEnforcer[0];
 
+	private Subject<RoutingContext> subject = PublishSubject.create();
+
 	public AbstractGatewaySubscription(GridgoContext context, String name) {
 		this.context = context;
 		this.name = name;
+		this.subject.subscribe(this::handleMessages);
 	}
 
 	@Override
@@ -80,14 +87,18 @@ public abstract class AbstractGatewaySubscription extends AbstractComponentLifec
 		consumer.subscribe(this::publish);
 	}
 
-	protected void publish(Message msg, Deferred<Message, Exception> deferred) {
-		var routingContext = new DefaultRoutingContext(this, msg, deferred);
-		var predicateContext = new PredicateContext(msg);
+	private void handleMessages(RoutingContext rc) {
+		var predicateContext = new PredicateContext(rc.getMessage());
 		for (var enforcer : policyEnforcers) {
 			if (enforcer.isMatch(predicateContext)) {
-				enforcer.execute(routingContext, context);
+				enforcer.execute(rc, context);
 			}
 		}
+	}
+
+	protected void publish(Message msg, Deferred<Message, Exception> deferred) {
+		var routingContext = new DefaultRoutingContext(this, msg, deferred);
+		subject.onNext(routingContext);
 	}
 
 	@Override
@@ -102,6 +113,11 @@ public abstract class AbstractGatewaySubscription extends AbstractComponentLifec
 		var subscription = new DefaultHandlerSubscription(this, processor);
 		subscriptions.add(subscription);
 		return subscription;
+	}
+
+	@Override
+	public ObservableSource<RoutingContext> asObservable() {
+		return subject.publish();
 	}
 
 	@Override

@@ -15,6 +15,7 @@
 	<properties>
 		<gridgo.connector.core.version>0.1.0-SNAPSHOT</gridgo.connector.core.version>
 		<joo.libra.version>2.0.0</joo.libra.version>
+		<rxjava.version>2.2.3</rxjava.version>
 	</properties>
 
 	<dependencies>
@@ -27,6 +28,11 @@
 			<groupId>org.dungba</groupId>
 			<artifactId>joo-libra</artifactId>
 			<version>${joo.libra.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.reactivex.rxjava2</groupId>
+			<artifactId>rxjava</artifactId>
+			<version>${rxjava.version}</version>
 		</dependency>
 	</dependencies>
 </project>
