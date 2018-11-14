@@ -4,7 +4,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.stream.IntStream;
 
 import org.bson.Document;
-import org.joo.promise4j.Deferred;
 
 import com.mongodb.async.client.MongoClient;
 import com.mongodb.async.client.MongoClients;
@@ -47,6 +46,8 @@ public class MongoVertxApplication implements Runnable {
 
 	private GridgoContext context;
 
+	private Gateway mongoGateway;
+
 	public MongoVertxApplication(int mongodbPort, int httpPort) {
 		this.mongodbPort = mongodbPort;
 		this.httpPort = httpPort;
@@ -74,8 +75,11 @@ public class MongoVertxApplication implements Runnable {
 
 		/**
 		 * Create a new GridgoContext. Each context will have its own configurations,
-		 * gateways, etc. and will handle start/stop independently. A registry is
-		 * required because we want to lookup the MongoClient instance later.
+		 * gateways, etc. and will handle start/stop independently.
+		 * 
+		 * A registry is required here because we want to lookup the MongoClient
+		 * instance later. We will create a simple registry and register the MongoClient
+		 * instance.
 		 */
 		var registry = new SimpleRegistry().register(MONGO_BEAN_NAME, mongo);
 		context = new DefaultGridgoContextBuilder().setName(APPLICATION_NAME).setRegistry(registry).build();
@@ -84,10 +88,13 @@ public class MongoVertxApplication implements Runnable {
 
 		/**
 		 * Create a gateway and attach a MongoDB connector. Because MongoDB is
-		 * producer-only thus we don't need to subscribe anything
+		 * producer-only thus we don't need to subscribe anything.
+		 * 
+		 * Also we will store the gateway instance to be used later
 		 */
-		context.openGateway(GATEWAY_MONGO) //
-				.attachConnector("mongodb:" + MONGO_BEAN_NAME + "/" + DATABASE_NAME + "/" + COLLECTION);
+		mongoGateway = context.openGateway(GATEWAY_MONGO) //
+				.attachConnector("mongodb:" + MONGO_BEAN_NAME + "/" + DATABASE_NAME + "/" + COLLECTION) //
+				.get();
 
 		log.info("Mongo gateway opened");
 
@@ -131,19 +138,16 @@ public class MongoVertxApplication implements Runnable {
 
 	private void populateDummyData() throws InterruptedException {
 		var latch = new CountDownLatch(1);
-		context.findGateway(GATEWAY_MONGO) //
-				.ifPresent(gateway -> {
-					/**
-					 * Create a message containing dummy data
-					 */
-					Message msg = createInsertMessage();
-					/**
-					 * Send it to the gateway and wait for the response
-					 */
-					gateway.call(msg).always((s, r, e) -> {
-						latch.countDown();
-					});
-				});
+		/**
+		 * Create a message containing dummy data
+		 */
+		Message msg = createInsertMessage();
+		/**
+		 * Send it to the gateway and wait for the response
+		 */
+		mongoGateway.call(msg).always((s, r, e) -> {
+			latch.countDown();
+		});
 		latch.await();
 	}
 
@@ -177,24 +181,9 @@ public class MongoVertxApplication implements Runnable {
 		// response to client
 		var deferred = rc.getDeferred();
 
-		// access the mongo gateway
-		gc.findGateway(GATEWAY_MONGO) //
-				.ifPresentOrElse(gateway -> {
-					/**
-					 * if we find the gateway, make a request and return response to client
-					 */
-					callAndReturn(deferred, gateway);
-				}, () -> {
-					/**
-					 * if no gateway available, which it shouldn't, we should return error to client
-					 */
-					deferred.reject(new RuntimeException("No mongodb gateway available"));
-				});
-	}
-
-	private void callAndReturn(Deferred<Message, Exception> deferred, Gateway gateway) {
+		// call the gateway with a default request and return response to client
 		var mongoRequest = createMongoRequest();
-		gateway.call(mongoRequest) // call the gateway
+		mongoGateway.call(mongoRequest) // call the gateway
 				.done(response -> {
 					// return response if success
 					deferred.resolve(response);
