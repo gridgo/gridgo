@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 import io.gridgo.connector.ConnectorFactory;
+import io.gridgo.core.support.ContextAwareComponent;
 import io.gridgo.core.support.ProducerJoinMode;
 import io.gridgo.core.support.subscription.GatewaySubscription;
 import io.gridgo.core.support.template.ProducerTemplate;
@@ -13,6 +14,8 @@ import io.gridgo.framework.ComponentLifecycle;
 import io.gridgo.framework.support.Registry;
 
 public interface GridgoContext extends ComponentLifecycle {
+
+	public GridgoContext attachComponent(ContextAwareComponent component);
 
 	public GatewaySubscription openGateway(String name);
 

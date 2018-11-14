@@ -2,20 +2,24 @@ package io.gridgo.core.impl;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
 import io.gridgo.connector.ConnectorFactory;
 import io.gridgo.connector.impl.factories.DefaultConnectorFactory;
 import io.gridgo.core.Gateway;
 import io.gridgo.core.GridgoContext;
+import io.gridgo.core.support.ContextAwareComponent;
 import io.gridgo.core.support.ProducerJoinMode;
 import io.gridgo.core.support.subscription.GatewaySubscription;
 import io.gridgo.core.support.template.ProducerTemplate;
 import io.gridgo.framework.AbstractComponentLifecycle;
+import io.gridgo.framework.ComponentLifecycle;
 import io.gridgo.framework.support.Registry;
 import io.gridgo.framework.support.impl.SimpleRegistry;
 import lombok.Getter;
@@ -37,6 +41,9 @@ public class DefaultGridgoContext extends AbstractComponentLifecycle implements 
 
 	@Getter
 	private Consumer<Throwable> exceptionHandler = DEFAULT_EXCEPTION_HANDLER;
+
+	@Getter
+	private List<ComponentLifecycle> components = new CopyOnWriteArrayList<>();
 
 	protected DefaultGridgoContext(String name, ConnectorFactory connectorFactory, Registry registry,
 			Consumer<Throwable> exceptionHandler) {
@@ -88,13 +95,22 @@ public class DefaultGridgoContext extends AbstractComponentLifecycle implements 
 	}
 
 	@Override
+	public GridgoContext attachComponent(ContextAwareComponent component) {
+		components.add(component);
+		component.setContext(this);
+		return this;
+	}
+
+	@Override
 	protected void onStart() {
+		components.stream().forEach(c -> c.start());
 		gateways.values().stream().forEach(g -> g.start());
 	}
 
 	@Override
 	protected void onStop() {
-		getGateways().stream().forEach(g -> g.stop());
+		gateways.values().stream().forEach(g -> g.stop());
+		components.stream().forEach(c -> c.stop());
 	}
 
 	@Override

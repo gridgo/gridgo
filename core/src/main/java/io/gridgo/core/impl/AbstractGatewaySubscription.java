@@ -21,7 +21,7 @@ import io.gridgo.core.support.subscription.RoutingPolicy;
 import io.gridgo.core.support.subscription.impl.DefaultHandlerSubscription;
 import io.gridgo.framework.AbstractComponentLifecycle;
 import io.gridgo.framework.support.Message;
-import io.reactivex.ObservableSource;
+import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
 import lombok.Getter;
@@ -116,8 +116,8 @@ public abstract class AbstractGatewaySubscription extends AbstractComponentLifec
 	}
 
 	@Override
-	public ObservableSource<RoutingContext> asObservable() {
-		return subject.publish();
+	public Observable<RoutingContext> asObservable() {
+		return subject.publish().autoConnect();
 	}
 
 	@Override

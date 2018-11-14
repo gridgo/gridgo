@@ -1,8 +1,8 @@
 package io.gridgo.core.support;
 
-import io.reactivex.ObservableSource;
+import io.reactivex.Observable;
 
 public interface Streamable<T> {
 
-	public ObservableSource<T> asObservable();
+	public Observable<T> asObservable();
 }

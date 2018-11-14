@@ -21,6 +21,10 @@ public class BeanConsumer extends AbstractConsumer {
 
 	@Override
 	protected void onStart() {
+	
+	}
+	
+	public void testPublish() {
 		publish(createMessage(BObject.newDefault(), BValue.newDefault(beanValue)), null);
 		publish(createMessage(BObject.newDefault(), BValue.newDefault(beanValue)), null);
 	}
