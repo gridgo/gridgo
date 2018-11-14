@@ -29,7 +29,7 @@ public class SingleProducerTemplate extends AbstractProducerTemplate {
 		var first = connectors.get(0);
 		var promise = call(first, message);
 		for (int i = 1; i < connectors.size(); i++) {
-			call(connectors.get(i), message);
+			send(connectors.get(i), message);
 		}
 		return promise;
 	}
