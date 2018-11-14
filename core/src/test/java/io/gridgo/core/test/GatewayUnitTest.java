@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import io.gridgo.bean.BValue;
 import io.gridgo.connector.Connector;
+import io.gridgo.connector.impl.resolvers.ClasspathConnectorResolver;
 import io.gridgo.core.GridgoContext;
 import io.gridgo.core.impl.DefaultGridgoContextBuilder;
 import io.gridgo.core.support.ProducerJoinMode;
@@ -34,8 +35,8 @@ public class GatewayUnitTest {
 		RoutingPolicy policy1 = new DefaultRoutingPolicy(null).setCondition(new SqlPredicate("payload.body.data == 1"));
 		RoutingPolicy policy2 = new DefaultRoutingPolicy(null).setCondition(new SqlPredicate("payload.body.data == 2"));
 		context.openGateway("test2", new MatchingProducerTemplate((c, m) -> match(context, c, m))) //
-				.attachConnector("test:dummy1") //
-				.attachConnector("test:dummy2") //
+				.attachConnector("test:dummy1", new ClasspathConnectorResolver("io.gridgo.connector.test")) //
+				.attachConnector("test:dummy2", new ClasspathConnectorResolver("io.gridgo.connector.test")) //
 				.subscribe((rc, gc) -> {
 					latch1.countDown();
 				}).withPolicy(policy1) //
