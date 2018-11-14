@@ -68,7 +68,7 @@ context.stop();
 Runtime.getRuntime().addShutdownHook(new Thread(context::stop);
 ```
 
-### returning responses to Connector
+### returning responses to connectors
 
 Many Connectors require responses or acknowledgements from Processors, e.g in a HTTP server, you need to send the response back to client, or in Kafka you need to send acknowledgement back to KafkaConnector, so it will commit the message. This is done using the `Deferred` object in `RoutingContext`
 
@@ -85,7 +85,7 @@ public void handleMessages(RoutingContext rc, GridgoContext gc) {
 
 Only the first call to either `resolve()` or `reject()` will work. Subsequent calls will be ignored.
 
-### sending Messages to Gateway
+### sending messages to gateways
 
 Flows between Processors and Gateways are not one-way, most of the time. Often you will need to send messages to a remote endpoint via Gateway, e.g querying a database, or producing messages to Kafka brokers. To do so you must first obtain the Gateway instance, e.g using `GridgoContext`
 
