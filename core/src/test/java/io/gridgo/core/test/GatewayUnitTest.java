@@ -24,6 +24,38 @@ public class GatewayUnitTest {
 	private static final int NUM_MESSAGES = 100;
 
 	@Test
+	public void testCallAndPush() throws InterruptedException {
+		var registry = new SimpleRegistry().register("dummy1", 1).register("dummy2", 2);
+		var context = new DefaultGridgoContextBuilder().setName("test").setRegistry(registry).build();
+
+		var latch1 = new CountDownLatch(1);
+		var latch2 = new CountDownLatch(1);
+
+		RoutingPolicy policy1 = new DefaultRoutingPolicy(null).setCondition(new SqlPredicate("payload.body.data == 1"));
+		RoutingPolicy policy2 = new DefaultRoutingPolicy(null).setCondition(new SqlPredicate("payload.body.data == 2"));
+		context.openGateway("test2", new MatchingProducerTemplate((c, m) -> match(context, c, m))) //
+				.attachConnector("test:dummy1") //
+				.attachConnector("test:dummy2") //
+				.subscribe((rc, gc) -> {
+					latch1.countDown();
+				}).withPolicy(policy1) //
+				.subscribe((rc, gc) -> {
+					latch2.countDown();
+				}).withPolicy(policy2);
+
+		context.start();
+
+		var gateway2 = context.findGateway("test2").orElseThrow();
+		gateway2.callAndPush(createType1Message());
+		gateway2.callAndPush(createType2Message());
+		
+		latch1.await();
+		latch2.await();
+
+		context.stop();
+	}
+
+	@Test
 	public void testProducerTemplate() throws InterruptedException {
 		var registry = new SimpleRegistry().register("dummy1", 1).register("dummy2", 2);
 		var context = new DefaultGridgoContextBuilder().setName("test").setRegistry(registry).build();
@@ -124,7 +156,6 @@ public class GatewayUnitTest {
 		var latch2 = new CountDownLatch(NUM_MESSAGES / 2);
 		var registry = new SimpleRegistry().register("dummy", 1);
 		var context = new DefaultGridgoContextBuilder().setName("test").setRegistry(registry).build();
-		RoutingPolicy policy = new DefaultRoutingPolicy(null).setCondition(new SqlPredicate("payload.body.data == 2"));
 		var firstGateway = context.openGateway("test") //
 				.subscribe((rc, gc) -> {
 					latch1.countDown();
@@ -132,7 +163,8 @@ public class GatewayUnitTest {
 				.when("payload.body.data == 1").finishSubscribing()//
 				.subscribe((rc, gc) -> {
 					latch2.countDown();
-				}).withPolicy(policy);
+				}) //
+				.when("payload.body.data == 2").finishSubscribing();
 
 		context.start();
 
