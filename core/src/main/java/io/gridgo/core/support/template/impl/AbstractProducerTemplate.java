@@ -6,12 +6,14 @@ import java.util.function.Function;
 import org.joo.promise4j.DoneCallback;
 import org.joo.promise4j.FailCallback;
 import org.joo.promise4j.Promise;
+import org.joo.promise4j.impl.JoinedResults;
 import org.joo.promise4j.impl.SimpleFailurePromise;
 
 import io.gridgo.connector.Connector;
 import io.gridgo.connector.Producer;
 import io.gridgo.core.support.template.ProducerTemplate;
 import io.gridgo.framework.support.Message;
+import io.gridgo.framework.support.impl.MultipartMessage;
 
 public abstract class AbstractProducerTemplate implements ProducerTemplate {
 
@@ -40,6 +42,10 @@ public abstract class AbstractProducerTemplate implements ProducerTemplate {
 
 	protected Promise<Message, Exception> sendWithAck(Connector connector, Message message) {
 		return executeProducerWithMapper(connector, p -> p.sendWithAck(message));
+	}
+	
+	protected Message convertJoinedResult(JoinedResults<Message> results) {
+		return new MultipartMessage(results);
 	}
 
 	private Promise<Message, Exception> executeProducerWithMapper(Connector connector,

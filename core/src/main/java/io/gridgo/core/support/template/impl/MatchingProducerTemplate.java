@@ -9,11 +9,9 @@ import org.joo.promise4j.DoneCallback;
 import org.joo.promise4j.FailCallback;
 import org.joo.promise4j.Promise;
 import org.joo.promise4j.impl.JoinedPromise;
-import org.joo.promise4j.impl.JoinedResults;
 
 import io.gridgo.connector.Connector;
 import io.gridgo.framework.support.Message;
-import io.gridgo.framework.support.impl.MultipartMessage;
 import lombok.NonNull;
 
 public class MatchingProducerTemplate extends AbstractProducerTemplate {
@@ -56,9 +54,5 @@ public class MatchingProducerTemplate extends AbstractProducerTemplate {
 		var promises = new ArrayList<Promise<Message, Exception>>();
 		connectors.stream().filter(c -> predicate.test(c, message)).map(mapper).forEach(promises::add);
 		return JoinedPromise.from(promises).filterDone(this::convertJoinedResult);
-	}
-
-	private Message convertJoinedResult(JoinedResults<Message> results) {
-		return new MultipartMessage(results);
 	}
 }

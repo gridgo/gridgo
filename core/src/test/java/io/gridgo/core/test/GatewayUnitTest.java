@@ -101,12 +101,16 @@ public class GatewayUnitTest {
 
 		consumerLatch.await();
 
-		var latch = new CountDownLatch(1);
+		var latch = new CountDownLatch(2);
 
 		var gateway = context.findGateway("test").orElseThrow();
 		gateway.call(createType1Message()).done(response -> {
 			if (response.getPayload().getBody().asValue().getInteger() == beanValue)
 				latch.countDown();
+		});
+		gateway.sendWithAck(createType1Message()).done(response -> {
+			Assert.assertNull(response);
+			latch.countDown();
 		});
 
 		latch.await();
