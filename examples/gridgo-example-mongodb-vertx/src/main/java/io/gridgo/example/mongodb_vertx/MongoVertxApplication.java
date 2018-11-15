@@ -1,16 +1,9 @@
 package io.gridgo.example.mongodb_vertx;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.stream.IntStream;
-
-import org.bson.Document;
-
 import com.mongodb.async.client.MongoClient;
 import com.mongodb.async.client.MongoClients;
 
-import io.gridgo.bean.BArray;
 import io.gridgo.bean.BObject;
-import io.gridgo.bean.BReference;
 import io.gridgo.connector.mongodb.MongoDBConstants;
 import io.gridgo.core.Gateway;
 import io.gridgo.core.GridgoContext;
@@ -24,21 +17,36 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class MongoVertxApplication implements Runnable {
 
+	/**
+	 * The name of the Mongo Gateway. We can use the name to open the gateway and
+	 * look it up later
+	 */
 	private static final String GATEWAY_MONGO = "mongo";
 
+	/**
+	 * The name of the Vert.x HTTP Gateway
+	 */
 	private static final String GATEWAY_VERTX = "vertx";
 
+	/**
+	 * The name of the Mongo bean. It will be used to register the MongoClient bean
+	 */
 	private static final String MONGO_BEAN_NAME = GATEWAY_MONGO;
 
+	/**
+	 * Our application name
+	 */
 	private static final String APPLICATION_NAME = "gridgo-example-mongodb-vertx";
 
+	/**
+	 * The name of the database
+	 */
 	private static final String DATABASE_NAME = "gridgo-example-mongodb-vertx";
 
+	/**
+	 * The name of the Mongo collection
+	 */
 	private static final String COLLECTION = "test";
-
-	private static final int NUM_RECORDS = 10;
-
-	private static final String[] NAMES = new String[] { "Peter", "Mary", "Sophie", "Bob", "Mark" };
 
 	private int mongodbPort;
 
@@ -63,10 +71,11 @@ public class MongoVertxApplication implements Runnable {
 		log.info("MongoClient created");
 
 		/**
-		 * Prepare the database, it will drop and create the collection
+		 * Prepare the database, it will drop and create the collection and also
+		 * populate some dummy data
 		 */
 		try {
-			prepareDatabase(mongo);
+			new MongoHelper().prepareDatabase(mongo, DATABASE_NAME, COLLECTION);
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
 		}
@@ -87,26 +96,33 @@ public class MongoVertxApplication implements Runnable {
 		log.info("Context created");
 
 		/**
-		 * Create a gateway and attach a MongoDB connector. Because MongoDB is
-		 * producer-only thus we don't need to subscribe anything.
-		 * 
-		 * Also we will store the gateway instance to be used later
-		 */
-		mongoGateway = context.openGateway(GATEWAY_MONGO) //
-				.attachConnector("mongodb:" + MONGO_BEAN_NAME + "/" + DATABASE_NAME + "/" + COLLECTION) //
-				.get();
-
-		log.info("Mongo gateway opened");
-
-		/**
 		 * Create another gateway and attach a VertxHttp connector. We will subscribe
-		 * for incoming requests and handle it
+		 * for incoming requests and handle it.
+		 * 
+		 * The Vert.x HTTP endpoint syntax is
+		 * <code>vertx:http://{adddress}:{port}/[{path}][?options]</code>
 		 */
 		context.openGateway(GATEWAY_VERTX) //
 				.attachConnector("vertx:http://127.0.0.1:" + httpPort + "/api?method=GET") //
 				.subscribe(this::handleHttpRequest);
 
 		log.info("Vertx gateway opened");
+
+		/**
+		 * Create a gateway and attach a MongoDB connector. Because MongoDB is
+		 * producer-only thus we don't need to subscribe anything.
+		 * 
+		 * The MongoDB endpoint syntax is
+		 * <code>mongodb:{mongoBeanName}/{database}/{collection}[?options]</code>
+		 * 
+		 * Also we will store the gateway instance to be used later
+		 */
+		var mongoEndpoint = "mongodb:" + MONGO_BEAN_NAME + "/" + DATABASE_NAME + "/" + COLLECTION;
+		mongoGateway = context.openGateway(GATEWAY_MONGO) // open the gateway
+				.attachConnector(mongoEndpoint) // attach the MongoDB connector
+				.get(); // get the gateway instance
+
+		log.info("Mongo gateway opened");
 
 		/**
 		 * Finally start the connector, this will starts all the opened gateways and
@@ -117,57 +133,12 @@ public class MongoVertxApplication implements Runnable {
 		log.info("Context started");
 
 		/**
-		 * Send some requests to populate dummy data
-		 */
-		try {
-			populateDummyData();
-		} catch (InterruptedException e) {
-			throw new RuntimeException(e);
-		}
-
-		log.info("Data populated");
-
-		/**
 		 * Make sure the context will stop when application is about to shutdown
 		 */
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 			context.stop();
 			log.info("Context stopped");
 		}));
-	}
-
-	private void populateDummyData() throws InterruptedException {
-		var latch = new CountDownLatch(1);
-		/**
-		 * Create a message containing dummy data
-		 */
-		Message msg = createInsertMessage();
-		/**
-		 * Send it to the gateway and wait for the response
-		 */
-		mongoGateway.call(msg).always((s, r, e) -> {
-			latch.countDown();
-		});
-		latch.await();
-	}
-
-	private Message createInsertMessage() {
-		BReference[] list = IntStream.range(1, NUM_RECORDS) //
-				.mapToObj(this::createDummyDocument) //
-				.map(BReference::newDefault) //
-				.toArray(size -> new BReference[size]);
-		var headers = BObject.newDefault().setAny(MongoDBConstants.OPERATION, MongoDBConstants.OPERATION_INSERT);
-		return Message.newDefault(Payload.newDefault(headers, BArray.newDefault(list)));
-	}
-
-	private Document createDummyDocument(int i) {
-		return new Document("key", i).append("name", createRandomName());
-	}
-
-	private String createRandomName() {
-		double ran = Math.random();
-		int random = (int) ((NAMES.length - 1) * ran);
-		return NAMES[random];
 	}
 
 	/**
@@ -199,19 +170,6 @@ public class MongoVertxApplication implements Runnable {
 		var headers = BObject.newDefault() // create new headers
 				.setAny(MongoDBConstants.OPERATION, MongoDBConstants.OPERATION_FIND_ALL); // set operation to find all
 		return Message.newDefault(Payload.newDefault(headers, null));
-	}
-
-	private void prepareDatabase(MongoClient mongo) throws InterruptedException {
-		var latch = new CountDownLatch(1);
-		var db = mongo.getDatabase(DATABASE_NAME);
-		db.getCollection(COLLECTION).drop((a, b) -> {
-			log.info("Drop collection completed");
-			db.createCollection("testCols", (result, throwable) -> {
-				log.info("Create collection completed");
-				latch.countDown();
-			});
-		});
-		latch.await();
 	}
 
 	private MongoClient createMongoClient() {
