@@ -5,6 +5,7 @@ import io.gridgo.core.GridgoContext;
 import io.gridgo.core.support.ContextAwareComponent;
 import io.gridgo.framework.AbstractComponentLifecycle;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 
 @Getter
@@ -17,7 +18,9 @@ public abstract class AbstractDirectionalComponent extends AbstractComponentLife
 	@Setter
 	private GridgoContext context;
 
-	public AbstractDirectionalComponent(String source, String target) {
+	public AbstractDirectionalComponent(final @NonNull String source, final @NonNull String target) {
+		if (source.equals(target))
+			throw new IllegalArgumentException("Source and target cannot be the same");
 		this.source = source;
 		this.target = target;
 	}
