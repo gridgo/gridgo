@@ -16,7 +16,8 @@
 	<artifactId>gridgo-examples</artifactId>
 
 	<modules>
-	
+
+	<module>gridgo-example-tik-tac-toe</module>
 	</modules>
 
 	<dependencies>
