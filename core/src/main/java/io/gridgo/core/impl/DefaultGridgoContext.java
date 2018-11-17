@@ -50,11 +50,12 @@ public class DefaultGridgoContext extends AbstractComponentLifecycle implements 
 		this.name = name != null ? name : UUID.randomUUID().toString();
 		if (connectorFactory != null)
 			this.connectorFactory = connectorFactory;
-		if (registry != null)
+		if (registry != null) {
 			this.registry = registry;
+			this.connectorFactory.setRegistry(registry);
+		}
 		if (exceptionHandler != null)
 			this.exceptionHandler = exceptionHandler;
-		this.connectorFactory.setRegistry(registry);
 	}
 
 	@Override
