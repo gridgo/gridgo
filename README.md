@@ -90,10 +90,10 @@ Only the first call to either `resolve()` or `reject()` will work. Subsequent ca
 Flows between Processors and Gateways are not one-way, most of the time. Often you will need to send messages to a remote endpoint via Gateway, e.g querying a database, or producing messages to Kafka brokers. To do so you must first obtain the Gateway instance, e.g using `GridgoContext`
 
 ```java
-var gateway = context.findGateway("myGateway") // will return an Optional<Gateway>
-                     .ifPresent(gateway -> {
-                         // send message here
-                     });
+context.findGateway("myGateway") // will return an Optional<Gateway>
+       .ifPresent(gateway -> {
+           // send message here
+       });
 ```
 
 There are 5 different types of sending:
