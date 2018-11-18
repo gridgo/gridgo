@@ -4,9 +4,7 @@
 [![Javadocs](http://javadoc.io/badge/io.gridgo/gridgo-core.svg)](http://javadoc.io/doc/io.gridgo/gridgo-core)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-Website: [https://gridgo.io](https://gridgo.io)
-
-A platform to create distributed systems more easier
+A platform to create distributed systems more easier with abstract I/O connectors and event driven programming.
 
 ## build status
 
