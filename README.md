@@ -1,15 +1,14 @@
 # gridgo
 
+[![Maven Central](https://img.shields.io/maven-central/v/io.gridgo/gridgo-core.svg?maxAge=604800)](http://mvnrepository.com/artifact/io.gridgo/gridgo-core)
+[![Javadocs](http://javadoc.io/badge/io.gridgo/gridgo-core.svg)](http://javadoc.io/doc/io.gridgo/gridgo-core)
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 Website: [https://gridgo.io](https://gridgo.io)
 
 A platform to create distributed systems more easier
 
-### continuous integration
-
-**release**
-
-[![Maven Central](https://img.shields.io/maven-central/v/io.gridgo/gridgo-core.svg?maxAge=604800)](http://mvnrepository.com/artifact/io.gridgo/gridgo-core)
-[![Javadocs](http://javadoc.io/badge/io.gridgo/gridgo-core.svg)](http://javadoc.io/doc/io.gridgo/gridgo-core)
+## continuous integration
 
 **master**
 
@@ -21,7 +20,7 @@ A platform to create distributed systems more easier
 [![Build Status](https://travis-ci.com/gridgo/gridgo.svg?branch=develop)](https://travis-ci.com/gridgo/gridgo)
 [![Coverage Status](https://coveralls.io/repos/github/gridgo/gridgo/badge.svg?branch=develop&maxAge=86400)](https://coveralls.io/github/gridgo/gridgo?branch=develop)
 
-### install
+## install
 
 ```xml
 <dependency>
@@ -31,7 +30,7 @@ A platform to create distributed systems more easier
 </dependency>
 ```
 
-### getting started
+## getting started
 
 The entry-point of a Gridgo application is the `GridgoContext`. A `GridgoContext` will act as a standalone component which will have its own configuration and be started/stopped independently regardless of where it's running. While a JVM process is a physical entity, a `GridgoContext` is a logical one, and in fact, you can have multiple instances of `GridgoContext` inside a single JVM process.
 
@@ -85,6 +84,8 @@ context.stop();
 Runtime.getRuntime().addShutdownHook(new Thread(context::stop);
 ```
 
+## advanced topics
+
 ### returning responses to connectors
 
 Many Connectors require responses or acknowledgements from Processors, e.g in a HTTP server, you need to send the response back to client, or in Kafka you need to send acknowledgement back to KafkaConnector, so it will commit the message. This is done using the `Deferred` object in `RoutingContext`
@@ -131,6 +132,6 @@ So what is the response if you make RPC calls to a Gateway having multiple Conne
 - `JoinProducerTemplate`: which will merge all responses into a single `MultipartMessage`
 - `MatchingProducerTemplate`: similar to `JoinProducerTemplate`, but allows you to use a `Predicate` to filter what Connector to be called. Responses are also merged into a single `MultipartMessage`
 
-### license
+## license
 
 This library is distributed under MIT license, see [LICENSE](LICENSE)
