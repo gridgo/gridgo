@@ -8,8 +8,8 @@ A platform to create distributed systems more easier
 
 **release**
 
-[![Maven Central](https://img.shields.io/maven-central/v/io.gridgo/gridgo.svg?maxAge=604800)](http://mvnrepository.com/artifact/io.gridgo/gridgo)
-[![Javadocs](http://javadoc.io/badge/io.gridgo/gridgo.svg)](http://javadoc.io/doc/io.gridgo/gridgo)
+[![Maven Central](https://img.shields.io/maven-central/v/io.gridgo/gridgo-core.svg?maxAge=604800)](http://mvnrepository.com/artifact/io.gridgo/gridgo-core)
+[![Javadocs](http://javadoc.io/badge/io.gridgo/gridgo-core.svg)](http://javadoc.io/doc/io.gridgo/gridgo-core)
 
 **master**
 
