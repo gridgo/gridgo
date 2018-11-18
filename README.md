@@ -26,7 +26,7 @@ A platform to create distributed systems more easier
 <dependency>
     <groupId>io.gridgo</groupId>
     <artifactId>gridgo-core</artifactId>
-    <version>0.1.0</version>
+    <version>0.1.2</version>
 </dependency>
 ```
 
