@@ -34,7 +34,7 @@ A platform to create distributed systems more easier
 
 Refer to the [getting started guide](https://github.com/gridgo/gridgo/wiki/getting-started) for instruction
 
-## Contributing
+## contributing
 
 Read the [contribution guidelines](https://github.com/gridgo/gridgo/wiki/contribution-guideline) before contributing.
 
