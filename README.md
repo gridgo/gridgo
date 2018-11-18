@@ -18,7 +18,7 @@ A platform to create distributed systems more easier
 **develop**
 
 [![Build Status](https://travis-ci.com/gridgo/gridgo.svg?branch=develop)](https://travis-ci.com/gridgo/gridgo)
-[![Coverage Status](https://coveralls.io/repos/github/gridgo/gridgo/badge.svg?branch=develop&maxAge=86400)](https://coveralls.io/github/gridgo/gridgo?branch=develop)
+[![Coverage Status](https://coveralls.io/repos/github/gridgo/gridgo/badge.svg?branch=develop)](https://coveralls.io/github/gridgo/gridgo?branch=develop)
 
 ## install
 
