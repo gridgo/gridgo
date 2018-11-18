@@ -32,7 +32,7 @@ A platform to create distributed systems more easier
 
 ## getting started
 
-Refer to the [getting started guide](https://github.com/gridgo/gridgo/wiki/getting-started) for instruction
+Refer to the [getting started guide](https://github.com/gridgo/gridgo/wiki/getting-started) for instructions
 
 ## contributing
 
