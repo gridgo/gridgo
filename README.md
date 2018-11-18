@@ -4,6 +4,23 @@ Website: [https://gridgo.io](https://gridgo.io)
 
 A platform to create distributed systems more easier
 
+### continuous integration
+
+**release**
+
+[![Maven Central](https://img.shields.io/maven-central/v/io.gridgo/gridgo.svg?maxAge=604800)](http://mvnrepository.com/artifact/io.gridgo/gridgo)
+[![Javadocs](http://javadoc.io/badge/io.gridgo/gridgo.svg)](http://javadoc.io/doc/io.gridgo/gridgo)
+
+**master**
+
+[![Build Status](https://travis-ci.org/gridgo/gridgo.svg?branch=master)](https://travis-ci.org/gridgo/gridgo)
+[![Coverage Status](https://coveralls.io/repos/github/gridgo/gridgo/badge.svg?branch=master&maxAge=86400)](https://coveralls.io/github/gridgo/gridgo?branch=master)
+
+**develop**
+
+[![Build Status](https://travis-ci.com/gridgo/gridgo.svg?branch=develop)](https://travis-ci.com/gridgo/gridgo)
+[![Coverage Status](https://coveralls.io/repos/github/gridgo/gridgo/badge.svg?branch=develop&maxAge=86400)](https://coveralls.io/github/gridgo/gridgo?branch=develop)
+
 ### install
 
 ```xml
@@ -113,18 +130,6 @@ So what is the response if you make RPC calls to a Gateway having multiple Conne
 - `SingleProducerTemplate`: which will keep the first Connector response and discard all others, this is the default template
 - `JoinProducerTemplate`: which will merge all responses into a single `MultipartMessage`
 - `MatchingProducerTemplate`: similar to `JoinProducerTemplate`, but allows you to use a `Predicate` to filter what Connector to be called. Responses are also merged into a single `MultipartMessage`
-
-### continuous integration
-
-**master**
-
-[![Build Status](https://travis-ci.org/gridgo/gridgo.svg?branch=master)](https://travis-ci.org/gridgo/gridgo)
-[![Coverage Status](https://coveralls.io/repos/github/gridgo/gridgo/badge.svg?branch=master&maxAge=86400)](https://coveralls.io/github/gridgo/gridgo?branch=master)
-
-**develop**
-
-[![Build Status](https://travis-ci.com/gridgo/gridgo.svg?branch=develop)](https://travis-ci.com/gridgo/gridgo)
-[![Coverage Status](https://coveralls.io/repos/github/gridgo/gridgo/badge.svg?branch=develop&maxAge=86400)](https://coveralls.io/github/gridgo/gridgo?branch=develop)
 
 ### license
 
