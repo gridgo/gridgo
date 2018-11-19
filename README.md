@@ -1,6 +1,5 @@
 <p align="center">
 <h1>gridgo</h1>
-A platform to create distributed systems more easier with abstract I/O connectors and event driven programming.
 </p>
 
 [![Maven Central](https://img.shields.io/maven-central/v/io.gridgo/gridgo-core.svg?maxAge=604800)](http://mvnrepository.com/artifact/io.gridgo/gridgo-core)
@@ -8,6 +7,8 @@ A platform to create distributed systems more easier with abstract I/O connector
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Build Status](https://travis-ci.org/gridgo/gridgo.svg?branch=master)](https://travis-ci.org/gridgo/gridgo)
 [![Coverage Status](https://coveralls.io/repos/github/gridgo/gridgo/badge.svg?branch=master&maxAge=86400)](https://coveralls.io/github/gridgo/gridgo?branch=master)
+
+A platform to create distributed systems more easier with abstract I/O connectors and event driven programming.
 
 ## build status
 
