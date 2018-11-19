@@ -30,7 +30,7 @@ Refer to the [getting started guide](https://github.com/gridgo/gridgo/wiki/getti
 
 ## contributing
 
-Please read the [contribution guidelines](https://github.com/gridgo/gridgo/wiki/contribution-guideline) before contributing.
+All contributions are welcome. Please read the [contribution guidelines](https://github.com/gridgo/gridgo/wiki/contribution-guideline) before contributing.
 
 ## license
 
