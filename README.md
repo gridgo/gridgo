@@ -8,7 +8,7 @@
 [![Build Status](https://travis-ci.org/gridgo/gridgo.svg?branch=master)](https://travis-ci.org/gridgo/gridgo)
 [![Coverage Status](https://coveralls.io/repos/github/gridgo/gridgo/badge.svg?branch=master&maxAge=86400)](https://coveralls.io/github/gridgo/gridgo?branch=master)
 
-A platform to create distributed systems easier with asynchronous I/O connectors and event driven programming. Gridgo handles the heavylift work of I/O and thread scheduling so you can focus on designing network topologies and implementing business logic.
+A platform to create distributed systems easier with asynchronous I/O connectors and event driven programming. Gridgo handles the heavylift work of I/O and thread routing so you can focus on designing network topologies and implementing business logic.
 
 ## build status
 
