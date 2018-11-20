@@ -28,9 +28,13 @@ View [build status](https://github.com/gridgo/gridgo/wiki/build-status) for all 
 
 Refer to the [getting started guide](https://github.com/gridgo/gridgo/wiki/getting-started) for instructions
 
+## documentation
+
+Read the manual, tutorial and examples in our [documentation](https://gridgo.readthedocs.io/en/latest/)
+
 ## contributing
 
-All contributions are welcome. Please read the [contribution guidelines](https://github.com/gridgo/gridgo/wiki/contribution-guideline) before contributing.
+All contributions are welcome. Please read the [contribution guidelines](https://github.com/gridgo/gridgo/wiki/contribution-guideline) before contributing
 
 ## license
 
