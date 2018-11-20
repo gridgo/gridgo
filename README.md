@@ -12,7 +12,7 @@ A platform to create distributed systems easier with asynchronous I/O connectors
 
 ## build status
 
-View [build status](BUILD.md) for all branches
+View [build status](https://github.com/gridgo/gridgo/wiki/build-status) for all branches
 
 ## install
 
