@@ -6,7 +6,7 @@ notifications:
   
 addons:
   sonarcloud:
-    organization: "sonarcloud_organization_key" # the key of the org you chose at step #3
+    organization: "gridgo" # the key of the org you chose at step #3
     token: $SONAR_TOKEN
 
 script:
