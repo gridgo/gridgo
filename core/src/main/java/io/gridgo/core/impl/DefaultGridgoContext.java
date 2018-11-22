@@ -2,9 +2,11 @@ package io.gridgo.core.impl;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -15,12 +17,14 @@ import io.gridgo.connector.impl.factories.DefaultConnectorFactory;
 import io.gridgo.core.Gateway;
 import io.gridgo.core.GridgoContext;
 import io.gridgo.core.support.ContextAwareComponent;
+import io.gridgo.core.support.Feature;
 import io.gridgo.core.support.ProducerJoinMode;
 import io.gridgo.core.support.subscription.GatewaySubscription;
 import io.gridgo.core.support.template.ProducerTemplate;
 import io.gridgo.framework.AbstractComponentLifecycle;
 import io.gridgo.framework.ComponentLifecycle;
 import io.gridgo.framework.support.Registry;
+import io.gridgo.framework.support.generators.IdGenerator;
 import io.gridgo.framework.support.impl.SimpleRegistry;
 import lombok.Getter;
 
@@ -43,10 +47,15 @@ public class DefaultGridgoContext extends AbstractComponentLifecycle implements 
 	private Consumer<Throwable> exceptionHandler = DEFAULT_EXCEPTION_HANDLER;
 
 	@Getter
+	private Optional<IdGenerator> idGenerator = Optional.empty();
+
+	@Getter
 	private List<ComponentLifecycle> components = new CopyOnWriteArrayList<>();
 
+	private Set<Feature> features = new HashSet<>();
+
 	protected DefaultGridgoContext(String name, ConnectorFactory connectorFactory, Registry registry,
-			Consumer<Throwable> exceptionHandler) {
+			Consumer<Throwable> exceptionHandler, IdGenerator idGenerator) {
 		this.name = name != null ? name : UUID.randomUUID().toString();
 		if (connectorFactory != null)
 			this.connectorFactory = connectorFactory;
@@ -56,6 +65,7 @@ public class DefaultGridgoContext extends AbstractComponentLifecycle implements 
 		}
 		if (exceptionHandler != null)
 			this.exceptionHandler = exceptionHandler;
+		this.idGenerator = Optional.ofNullable(idGenerator);
 	}
 
 	@Override
@@ -117,5 +127,22 @@ public class DefaultGridgoContext extends AbstractComponentLifecycle implements 
 	@Override
 	protected String generateName() {
 		return "context." + name;
+	}
+
+	@Override
+	public GridgoContext enableFeature(Feature feature) {
+		features.add(feature);
+		return this;
+	}
+
+	@Override
+	public GridgoContext disableFeature(Feature feature) {
+		features.remove(feature);
+		return this;
+	}
+
+	@Override
+	public boolean isFeatureEnabled(Feature feature) {
+		return features.contains(feature);
 	}
 }

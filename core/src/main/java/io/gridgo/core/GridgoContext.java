@@ -1,39 +1,31 @@
 package io.gridgo.core;
 
-import java.util.Collection;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 
 import io.gridgo.connector.ConnectorFactory;
 import io.gridgo.core.support.ContextAwareComponent;
-import io.gridgo.core.support.ProducerJoinMode;
-import io.gridgo.core.support.subscription.GatewaySubscription;
-import io.gridgo.core.support.template.ProducerTemplate;
+import io.gridgo.core.support.Feature;
+import io.gridgo.core.support.GatewayContainer;
 import io.gridgo.framework.ComponentLifecycle;
 import io.gridgo.framework.support.Registry;
+import io.gridgo.framework.support.generators.IdGenerator;
 
-public interface GridgoContext extends ComponentLifecycle {
+public interface GridgoContext extends GatewayContainer, ComponentLifecycle {
 
 	public GridgoContext attachComponent(ContextAwareComponent component);
-
-	public GatewaySubscription openGateway(String name);
-
-	public GatewaySubscription openGateway(String name, ProducerTemplate producerTemplate);
-
-	public GatewaySubscription openGateway(String name, ProducerJoinMode joinMode);
-
-	public Optional<Gateway> closeGateway(String name);
-
-	public Optional<Gateway> findGateway(String name);
-
-	public Collection<Gateway> getGateways();
-
-	public Map<String, Gateway> getGatewaysWithNames();
 
 	public Registry getRegistry();
 
 	public ConnectorFactory getConnectorFactory();
 
 	public Consumer<Throwable> getExceptionHandler();
+	
+	public Optional<IdGenerator> getIdGenerator();
+
+	public GridgoContext enableFeature(Feature feature);
+
+	public GridgoContext disableFeature(Feature feature);
+
+	public boolean isFeatureEnabled(Feature feature);
 }

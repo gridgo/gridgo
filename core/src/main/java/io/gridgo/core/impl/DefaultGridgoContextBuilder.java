@@ -6,6 +6,7 @@ import io.gridgo.connector.ConnectorFactory;
 import io.gridgo.core.GridgoContext;
 import io.gridgo.core.support.GridgoContextBuilder;
 import io.gridgo.framework.support.Registry;
+import io.gridgo.framework.support.generators.IdGenerator;
 
 public class DefaultGridgoContextBuilder implements GridgoContextBuilder {
 
@@ -14,6 +15,8 @@ public class DefaultGridgoContextBuilder implements GridgoContextBuilder {
 	private Registry registry;
 
 	private Consumer<Throwable> exceptionHandler;
+
+	private IdGenerator idGenerator;
 
 	private String name;
 
@@ -42,9 +45,15 @@ public class DefaultGridgoContextBuilder implements GridgoContextBuilder {
 	}
 
 	@Override
+	public GridgoContextBuilder setIdGenerator(IdGenerator idGenerator) {
+		this.idGenerator = idGenerator;
+		return this;
+	}
+
+	@Override
 	public GridgoContext build() {
 		if (this.connectorFactory != null)
 			this.connectorFactory.setRegistry(registry);
-		return new DefaultGridgoContext(name, connectorFactory, registry, exceptionHandler);
+		return new DefaultGridgoContext(name, connectorFactory, registry, exceptionHandler, idGenerator);
 	}
 }

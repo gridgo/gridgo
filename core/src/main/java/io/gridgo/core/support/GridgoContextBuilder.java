@@ -6,6 +6,7 @@ import io.gridgo.connector.ConnectorFactory;
 import io.gridgo.core.GridgoContext;
 import io.gridgo.framework.support.Builder;
 import io.gridgo.framework.support.Registry;
+import io.gridgo.framework.support.generators.IdGenerator;
 
 public interface GridgoContextBuilder extends Builder<GridgoContext> {
 
@@ -16,4 +17,6 @@ public interface GridgoContextBuilder extends Builder<GridgoContext> {
 	public GridgoContextBuilder setExceptionHandler(Consumer<Throwable> exceptionHandler);
 
 	public GridgoContextBuilder setName(String name);
+
+	public GridgoContextBuilder setIdGenerator(IdGenerator idGenerator);
 }

@@ -13,6 +13,7 @@ import io.gridgo.connector.support.config.ConnectorContext;
 import io.gridgo.core.Gateway;
 import io.gridgo.core.GridgoContext;
 import io.gridgo.core.Processor;
+import io.gridgo.core.support.Feature;
 import io.gridgo.core.support.RoutingContext;
 import io.gridgo.core.support.impl.DefaultRoutingContext;
 import io.gridgo.core.support.subscription.GatewaySubscription;
@@ -21,6 +22,7 @@ import io.gridgo.core.support.subscription.RoutingPolicy;
 import io.gridgo.core.support.subscription.impl.DefaultHandlerSubscription;
 import io.gridgo.framework.AbstractComponentLifecycle;
 import io.gridgo.framework.support.Message;
+import io.gridgo.framework.support.MessageConstants;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
@@ -88,12 +90,26 @@ public abstract class AbstractGatewaySubscription extends AbstractComponentLifec
 	}
 
 	private void handleMessages(RoutingContext rc) {
+		executeFeaturesOnPublish(rc.getMessage());
 		var predicateContext = new PredicateContext(rc.getMessage());
 		for (var enforcer : policyEnforcers) {
 			if (enforcer.isMatch(predicateContext)) {
 				enforcer.execute(rc, context);
 			}
 		}
+	}
+
+	protected void executeFeaturesOnPublish(Message msg) {
+		if (context.isFeatureEnabled(Feature.TRACE_ID)) {
+			attachTraceId(msg);
+		}
+	}
+
+	protected void attachTraceId(Message message) {
+		context.getIdGenerator().ifPresent(gen -> {
+			message.getPayload().getHeaders().computeIfAbsent(MessageConstants.TRACE_ID,
+					key -> gen.generateId().orElse(null));
+		});
 	}
 
 	protected void publish(Message msg, Deferred<Message, Exception> deferred) {
