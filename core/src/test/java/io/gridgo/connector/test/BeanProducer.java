@@ -48,4 +48,9 @@ public class BeanProducer extends AbstractProducer {
 
 	}
 
+	@Override
+	public boolean isCallSupported() {
+		return true;
+	}
+
 }

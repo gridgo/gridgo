@@ -54,6 +54,24 @@ public abstract class AbstractProducerTemplate implements ProducerTemplate {
 		return true;
 	}
 
+	protected int findConnectorWithCallSupport(List<Connector> connectors) {
+		for (int i = 0; i < connectors.size(); i++) {
+			var connector = connectors.get(i);
+			if (isCallSupported(connector)) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	protected boolean isCallSupported(Connector connector) {
+		return connector.getProducer().isPresent() && connector.getProducer().get().isCallSupported();
+	}
+
+	protected boolean isSendWithAckSupported(Connector connector) {
+		return connector.getProducer().isPresent() && connector.getProducer().get().isSendWithAckSupported();
+	}
+
 	private Promise<Message, Exception> executeProducerWithMapper(Connector connector,
 			Function<Producer, Promise<Message, Exception>> mapper) {
 		return connector.getProducer() //

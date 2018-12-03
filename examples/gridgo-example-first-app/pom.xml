@@ -10,19 +10,13 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<artifactId>gridgo-example-mongodb-vertx</artifactId>
+	<artifactId>gridgo-example-first-app</artifactId>
 
 	<properties>
-		<gridgo.mongodb.version>${project.version}</gridgo.mongodb.version>
 		<gridgo.vertx.http.version>${project.version}</gridgo.vertx.http.version>
 	</properties>
 
 	<dependencies>
-		<dependency>
-			<groupId>io.gridgo</groupId>
-			<artifactId>gridgo-mongodb</artifactId>
-			<version>${gridgo.mongodb.version}</version>
-		</dependency>
 		<dependency>
 			<groupId>io.gridgo</groupId>
 			<artifactId>gridgo-vertx-http</artifactId>

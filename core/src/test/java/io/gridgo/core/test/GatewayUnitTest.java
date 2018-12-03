@@ -26,6 +26,32 @@ public class GatewayUnitTest {
 	private static final int NUM_MESSAGES = 100;
 
 	@Test
+	public void testNoSupportedProducer() throws InterruptedException {
+		var latch = new CountDownLatch(2);
+		var context = new DefaultGridgoContextBuilder().setName("test").build();
+
+		context.openGateway("test").attachConnector("empty");
+
+		context.openGateway("test2");
+
+		context.start();
+
+		context.findGateway("test").get().call(createType1Message()).done(response -> {
+			if (response == null)
+				latch.countDown();
+		});
+
+		context.findGateway("test2").get().call(createType1Message()).done(response -> {
+			if (response == null)
+				latch.countDown();
+		});
+
+		latch.await();
+
+		context.stop();
+	}
+
+	@Test
 	public void testSwitch() throws InterruptedException {
 		var latch = new CountDownLatch(2);
 
