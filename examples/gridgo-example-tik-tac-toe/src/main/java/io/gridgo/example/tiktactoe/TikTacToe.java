@@ -21,7 +21,7 @@ public class TikTacToe extends NonameComponentLifecycle {
 
 		String webServerGatewayName = "tikTacToeWebserver";
 		String webSocketGatewayName = "tikTacToeWebSocket";
-		String gameServerGatewayName = "tikTacToeWebSocket";
+		String gameServerGatewayName = "tikTacToeGameServer";
 
 		this.appContext //
 				.attachComponent(new TikTacToeWebserver(webServerGatewayName)) //
