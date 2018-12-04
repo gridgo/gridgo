@@ -30,7 +30,7 @@ public class BeanProducer extends AbstractProducer {
 
 	@Override
 	public Promise<Message, Exception> call(Message request) {
-		return new SimpleDonePromise<>(createMessage(BObject.newDefault(), BValue.newDefault(beanValue)));
+		return new SimpleDonePromise<>(createMessage(BObject.ofEmpty(), BValue.of(beanValue)));
 	}
 
 	@Override
