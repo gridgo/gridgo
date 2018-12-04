@@ -9,29 +9,31 @@ import io.gridgo.framework.NonameComponentLifecycle;
 
 public class TikTacToe extends NonameComponentLifecycle {
 
+	private static final String GATEWAY_WEBSERVER = "tikTacToeWebserver";
+
+	private static final String GATEWAY_WEBSOCKET = "tikTacToeWebSocket";
+
+	private static final String GATEWAY_GAMESERVER = "tikTacToeGameServer";
+
 	private final GridgoContext appContext;
 
 	public TikTacToe() {
 		this.appContext = new DefaultGridgoContextBuilder().setName("TikTacToe").build();
 
-		String webServerGatewayName = "tikTacToeWebserver";
-		String webSocketGatewayName = "tikTacToeWebSocket";
-		String gameServerGatewayName = "tikTacToeGameServer";
-
 		this.appContext //
-				.attachComponent(new TikTacToeWebserver(webServerGatewayName)) //
-				.attachComponent(new TikTacToeWebSocket(webSocketGatewayName)) //
-				.attachComponent(new TikTacToeGameServer(gameServerGatewayName));
+				.attachComponent(new TikTacToeWebserver(GATEWAY_WEBSERVER)) //
+				.attachComponent(new TikTacToeWebSocket(GATEWAY_WEBSOCKET)) //
+				.attachComponent(new TikTacToeGameServer(GATEWAY_GAMESERVER));
 
-		appContext.openGateway(webServerGatewayName) //
+		appContext.openGateway(GATEWAY_WEBSERVER) //
 				.attachConnector("jetty:http://localhost:8888/*");
 
-		appContext.openGateway(webSocketGatewayName) //
+		appContext.openGateway(GATEWAY_WEBSOCKET) //
 				.attachConnector("netty4:server:ws://localhost:8889/tiktactoe") //
 				.attachConnector("zmq:push:ipc://clientToGame") //
 				.attachConnector("zmq:pull:ipc://gameToClient");
 
-		appContext.openGateway(gameServerGatewayName) //
+		appContext.openGateway(GATEWAY_GAMESERVER) //
 				.attachConnector("zmq:pull:ipc://clientToGame") //
 				.attachConnector("zmq:push:ipc://gameToClient");
 	}
