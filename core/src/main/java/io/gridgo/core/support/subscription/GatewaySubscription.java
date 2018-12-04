@@ -23,5 +23,9 @@ public interface GatewaySubscription {
 
 	public HandlerSubscription subscribe(Processor processor);
 
+	public GatewaySubscription setAutoStart(boolean autoStart);
+
+	public boolean isAutoStart();
+
 	public Gateway get();
 }

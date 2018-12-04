@@ -16,6 +16,9 @@ public class DefaultGateway extends AbstractGatewaySubscription {
 	@Getter
 	private ProducerTemplate producerTemplate = ProducerTemplate.create(ProducerJoinMode.SINGLE);
 
+	@Getter
+	private boolean autoStart = true;
+
 	public DefaultGateway(GridgoContext context, String name) {
 		super(context, name);
 	}
@@ -52,7 +55,13 @@ public class DefaultGateway extends AbstractGatewaySubscription {
 
 	@Override
 	public Gateway setProducerTemplate(ProducerTemplate producerTemplate) {
-		this.producerTemplate = producerTemplate;
+		if (producerTemplate != null)
+			this.producerTemplate = producerTemplate;
+		return this;
+	}
+	
+	public Gateway setAutoStart(boolean autoStart) {
+		this.autoStart = autoStart;
 		return this;
 	}
 }
