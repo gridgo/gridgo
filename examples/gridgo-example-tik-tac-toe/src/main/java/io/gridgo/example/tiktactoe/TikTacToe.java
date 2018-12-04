@@ -31,7 +31,7 @@ public class TikTacToe extends NonameComponentLifecycle {
 		webserverGateway = appContext.openGateway(webServerGatewayName);
 		webserverGateway.attachConnector("jetty:http://localhost:8888/*");
 
-		websocketGateway = appContext.openGateway(webServerGatewayName);
+		websocketGateway = appContext.openGateway(webSocketGatewayName);
 		websocketGateway.attachConnector("netty4:server:ws://localhost:8889/tiktactoe");
 		websocketGateway.attachConnector("zmq:push:ipc://clientToGame");
 		websocketGateway.attachConnector("zmq:pull:ipc://gameToClient");
