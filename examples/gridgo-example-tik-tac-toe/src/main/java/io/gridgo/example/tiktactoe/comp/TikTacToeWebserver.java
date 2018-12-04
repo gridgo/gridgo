@@ -35,13 +35,13 @@ public class TikTacToeWebserver extends TikTacToeBaseComponent {
 		Payload response;
 		var input = getClass().getClassLoader().getResourceAsStream(path);
 		if (input == null) {
-			response = Payload.newDefault(BValue.newDefault("Not found")).addHeader(HttpCommonConstants.HEADER_STATUS,
+			response = Payload.of(BValue.of("Not found")).addHeader(HttpCommonConstants.HEADER_STATUS,
 					HttpStatus.NOT_FOUND_404.getCode());
 		} else {
-			response = Payload.newDefault(BReference.newDefault(input)).addHeader(HttpCommonConstants.CONTENT_TYPE,
+			response = Payload.of(BReference.of(input)).addHeader(HttpCommonConstants.CONTENT_TYPE,
 					HttpContentType.forFileName(path).getMime());
 		}
-		rc.getDeferred().resolve(Message.newDefault(response).setRoutingId(msg.getRoutingId().get()));
+		rc.getDeferred().resolve(Message.of(response).setRoutingId(msg.getRoutingId().get()));
 	}
 
 }
