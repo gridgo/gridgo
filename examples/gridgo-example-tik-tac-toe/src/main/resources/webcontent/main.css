@@ -1,0 +1,13 @@
+table, td {
+	border: 1px solid black;
+}
+
+td {
+	width: 40px;
+	height: 44px;
+	text-align: center;
+}
+
+td:hover {
+	background-color: #ccc;
+}

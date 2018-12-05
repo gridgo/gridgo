@@ -22,7 +22,7 @@ abstract class TikTacToeBaseComponent extends NonameComponentLifecycle implement
 	}
 
 	@Override
-	protected final void onStart() {
+	protected void onStart() {
 		this.getGateway().subscribe(this::processRequest);
 	}
 
