@@ -18,7 +18,7 @@ public interface Gateway
 
 	public Promise<Message, Exception> call(Message message);
 
-	public void push(Message message);
+	public Promise<Message, Exception> push(Message message);
 
 	public void callAndPush(Message message);
 }
