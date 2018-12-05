@@ -252,10 +252,10 @@ public class GatewayUnitTest {
 	}
 
 	private Message createType2Message() {
-		return Message.newDefault(Payload.newDefault(BValue.newDefault(2)));
+		return Message.of(Payload.of(BValue.of(2)));
 	}
 
 	private Message createType1Message() {
-		return Message.newDefault(Payload.newDefault(BValue.newDefault(1)));
+		return Message.of(Payload.of(BValue.of(1)));
 	}
 }

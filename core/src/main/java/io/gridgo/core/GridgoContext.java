@@ -17,11 +17,15 @@ public interface GridgoContext extends ComponentLifecycle {
 
 	public GridgoContext attachComponent(ContextAwareComponent component);
 
-	public GatewaySubscription openGateway(String name);
+	public default GatewaySubscription openGateway(String name) {
+		return openGateway(name, ProducerJoinMode.SINGLE);
+	}
+
+	public default GatewaySubscription openGateway(String name, ProducerJoinMode joinMode) {
+		return openGateway(name, ProducerTemplate.create(joinMode));
+	}
 
 	public GatewaySubscription openGateway(String name, ProducerTemplate producerTemplate);
-
-	public GatewaySubscription openGateway(String name, ProducerJoinMode joinMode);
 
 	public Optional<Gateway> closeGateway(String name);
 
