@@ -17,7 +17,6 @@ import io.gridgo.core.support.subscription.RoutingPolicy;
 import io.gridgo.core.support.subscription.impl.DefaultRoutingPolicy;
 import io.gridgo.core.support.template.impl.MatchingProducerTemplate;
 import io.gridgo.framework.support.Message;
-import io.gridgo.framework.support.MessageConstants;
 import io.gridgo.framework.support.Payload;
 import io.gridgo.framework.support.impl.SimpleRegistry;
 
@@ -134,10 +133,10 @@ public class GatewayUnitTest {
 			var body = response.getPayload().getBody();
 			Assert.assertTrue(body.isArray());
 			Assert.assertEquals(2, body.asArray().size());
-			Assert.assertEquals(Integer.valueOf(1), body.asArray().getObject(0).getInteger(MessageConstants.BODY));
-			Assert.assertEquals(Integer.valueOf(2), body.asArray().getObject(1).getInteger(MessageConstants.BODY));
+			Assert.assertEquals(Integer.valueOf(1), body.asArray().getArray(0).getInteger(2));
+			Assert.assertEquals(Integer.valueOf(2), body.asArray().getArray(1).getInteger(2));
 			latch.countDown();
-		});
+		}).fail(ex -> ex.printStackTrace());
 
 		latch.await();
 
@@ -148,16 +147,16 @@ public class GatewayUnitTest {
 			var body = response.getPayload().getBody();
 			Assert.assertTrue(body.isArray());
 			Assert.assertEquals(1, body.asArray().size());
-			Assert.assertEquals(Integer.valueOf(1), body.asArray().getObject(0).getInteger(MessageConstants.BODY));
+			Assert.assertEquals(Integer.valueOf(1), body.asArray().getArray(0).getInteger(2));
 			latch2.countDown();
-		});
+        }).fail(ex -> ex.printStackTrace());
 		gateway2.call(createType2Message()).done(response -> {
 			var body = response.getPayload().getBody();
 			Assert.assertTrue(body.isArray());
 			Assert.assertEquals(1, body.asArray().size());
-			Assert.assertEquals(Integer.valueOf(2), body.asArray().getObject(0).getInteger(MessageConstants.BODY));
+			Assert.assertEquals(Integer.valueOf(2), body.asArray().getArray(0).getInteger(2));
 			latch2.countDown();
-		});
+        }).fail(ex -> ex.printStackTrace());
 
 		latch.await();
 
