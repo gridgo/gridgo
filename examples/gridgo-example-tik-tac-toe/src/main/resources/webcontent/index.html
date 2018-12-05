@@ -5,19 +5,38 @@
 </head>
 <body>
 	<h1>Tik Tac Toe</h1>
-	
+
 	<form onsubmit="return socketClient.toggleConnect();" action="javascript:void(0);">
 		<input id="userNameInput" placeholder="Input your username">
-		<button id="playBtn" type="submit">Play</button>
+		<button id="playBtn" type="submit">Login</button>
 	</form>
-	
+
 	<div id="gameListContainer">
 		<button id="createGameBtn" onclick="return gameManager.create();">Create new game</button>
+		<button id="quitGameBtn" onclick="return gameManager.quit();">Quit</button>
 		<ul id="gameList"></ul>
 	</div>
-	
-	<div id="gameBoardContainer"></div>
-	
+
+	<div id="gameBoardContainer">
+		<span id="playerInTurnLabel"></span>
+		<table id="gameBoard">
+			<tr id="row0" y="0">
+				<td id="cell00" x="0" y="0" onclick="return gameBoard.move(0,0);"></td>
+				<td id="cell10" x="1" y="0" onclick="return gameBoard.move(1,0);"></td>
+				<td id="cell20" x="2" y="0" onclick="return gameBoard.move(2,0);"></td>
+			</tr>
+			<tr id="row1" y="1">
+				<td id="cell01" x="0" y="1" onclick="return gameBoard.move(0,1);"></td>
+				<td id="cell11" x="1" y="1" onclick="return gameBoard.move(1,1);"></td>
+				<td id="cell21" x="2" y="1" onclick="return gameBoard.move(2,1);"></td>
+			</tr>
+			<tr id="row2" y="2">
+				<td id="cell02" x="0" y="2" onclick="return gameBoard.move(0,2);"></td>
+				<td id="cell12" x="1" y="2" onclick="return gameBoard.move(1,2);"></td>
+				<td id="cell22" x="2" y="2" onclick="return gameBoard.move(2,2);"></td>
+			</tr>
+		</table>
+	</div>
 	<script type="text/javascript" src="socket.js"></script>
 	<script type="text/javascript" src="game-list.js"></script>
 	<script type="text/javascript" src="game-board.js"></script>

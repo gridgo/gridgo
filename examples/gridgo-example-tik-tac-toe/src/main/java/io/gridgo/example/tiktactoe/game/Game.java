@@ -9,12 +9,13 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
+import io.gridgo.utils.helper.Loggable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
 
 @AllArgsConstructor
-public class Game {
+public class Game implements Loggable {
 
 	@Getter
 	private final long id;
@@ -29,7 +30,8 @@ public class Game {
 
 	{
 		this.availableChars.add('x');
-		this.availableChars.add('y');
+		this.availableChars.add('o');
+		this.reset();
 	}
 
 	public void reset() {
@@ -122,6 +124,7 @@ public class Game {
 		synchronized (playerToAssignedChar) {
 			Character assignedChar = this.playerToAssignedChar.remove(player);
 			if (assignedChar != null) {
+				this.turn.set(null);
 				this.availableChars.add(assignedChar);
 				return true;
 			}
@@ -130,8 +133,8 @@ public class Game {
 	}
 
 	public boolean move(@NonNull String player, int x, int y) {
-		String turn = this.getTurn();
-		if (this.turn.compareAndSet(turn, this.getNonTurn())) {
+		getLogger().debug("player {} try to move while turn={} ", player, this.turn.get());
+		if (this.turn.compareAndSet(player, this.getNonTurn())) {
 			if (x >= 0 && x <= 3 && y >= 0 && y <= 3) {
 				char cellValue = this.board[y][x];
 				if (cellValue == 0) {

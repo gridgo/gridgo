@@ -4,8 +4,15 @@ var socketClient = (function() {
 	var userNameInput = undefined;
 	var playBtn = undefined;
 	var userName = undefined;
+	var subscribers = [];
 
 	var userNamePattern = /[a-z0-9_]+/ig;
+
+	function dispatch(event) {
+		for (var i = 0; i < subscribers.length; i++) {
+			subscribers[i](event);
+		}
+	}
 
 	function connect() {
 		userNameInput = document.getElementById("userNameInput");
@@ -37,7 +44,7 @@ var socketClient = (function() {
 
 	function onConnected() {
 		userNameInput.disabled = true;
-		playBtn.innerHTML = "Quit";
+		playBtn.innerHTML = "Logout";
 
 		send({
 			cmd : "login",
@@ -47,17 +54,23 @@ var socketClient = (function() {
 
 	function onDisconnected() {
 		userNameInput.disabled = false;
-		playBtn.innerHTML = "Play";
+		playBtn.innerHTML = "Login";
 		userName = undefined;
 		socket = null;
+		dispatch({
+			cmd : "loggedOut"
+		})
 	}
-
-	var subscribers = [];
 
 	function onMessage(msg) {
 		var data = JSON.parse(msg.data);
-		for (var i = 0; i < subscribers.length; i++) {
-			subscribers[i](data[2]);
+		var body = data[2];
+		if (body) {
+			if (body.cmd == "error") {
+				alert(body.message)
+			} else {
+				dispatch(body);
+			}
 		}
 	}
 
@@ -68,6 +81,7 @@ var socketClient = (function() {
 			alert("Disconnected");
 		}
 	}
+
 	return {
 		toggleConnect : function() {
 			(socket ? close : connect)();

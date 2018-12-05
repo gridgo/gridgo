@@ -115,10 +115,6 @@ public class GameManager {
 				builder.finish(true).winner(game.getWinner()).winnerLine(game.getWinnerLine());
 			}
 			this.dispatchEvent(builder.build());
-
-			if (isFinish) {
-				game.reset();
-			}
 			return;
 		}
 		throw new GameException("Player wasn't in game");
@@ -126,6 +122,10 @@ public class GameManager {
 
 	public Collection<Game> getGames() {
 		return this.games.values();
+	}
+
+	public Game getGame(long gameId) {
+		return this.games.get(gameId);
 	}
 
 }

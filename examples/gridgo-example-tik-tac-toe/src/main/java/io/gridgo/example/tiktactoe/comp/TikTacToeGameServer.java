@@ -3,13 +3,16 @@ package io.gridgo.example.tiktactoe.comp;
 import static io.gridgo.example.tiktactoe.TikTacToeConstants.ACTION;
 import static io.gridgo.example.tiktactoe.TikTacToeConstants.CELL;
 import static io.gridgo.example.tiktactoe.TikTacToeConstants.CMD;
-import static io.gridgo.example.tiktactoe.TikTacToeConstants.CREATOR;
+import static io.gridgo.example.tiktactoe.TikTacToeConstants.NEW_GAME;
 import static io.gridgo.example.tiktactoe.TikTacToeConstants.FINISH;
 import static io.gridgo.example.tiktactoe.TikTacToeConstants.GAME_ID;
 import static io.gridgo.example.tiktactoe.TikTacToeConstants.MESSAGE;
 import static io.gridgo.example.tiktactoe.TikTacToeConstants.PLAYER_LIST;
 import static io.gridgo.example.tiktactoe.TikTacToeConstants.ROUTING_ID;
+import static io.gridgo.example.tiktactoe.TikTacToeConstants.TURN;
 import static io.gridgo.example.tiktactoe.TikTacToeConstants.USERNAME;
+import static io.gridgo.example.tiktactoe.TikTacToeConstants.WINNER;
+import static io.gridgo.example.tiktactoe.TikTacToeConstants.WINNER_LINE;
 
 import java.util.Collection;
 import java.util.Map;
@@ -72,7 +75,6 @@ public class TikTacToeGameServer extends TikTacToeBaseComponent {
 			String socketMessageType = payload.getHeaders().getString(SocketConstants.SOCKET_MESSAGE_TYPE, "");
 			switch (socketMessageType.toLowerCase()) {
 			case "open":
-				getLogger().info("New session: " + routingId);
 				break;
 			case "close":
 				this.userManager.removeUser(routingId);
@@ -111,6 +113,15 @@ public class TikTacToeGameServer extends TikTacToeBaseComponent {
 		Collection<User> allUser = this.userManager.getAllUser();
 		for (User user : allUser) {
 			send(user.getSessionId(), msgBody);
+		}
+	}
+
+	private void sendToGame(long gameId, BElement msgBody) {
+		Game game = gameManager.getGame(gameId);
+		if (game != null) {
+			for (String userName : game.getPlayerAssignedChar().keySet()) {
+				this.send(userName, msgBody);
+			}
 		}
 	}
 
@@ -205,7 +216,7 @@ public class TikTacToeGameServer extends TikTacToeBaseComponent {
 		for (Game game : games) {
 			gameList.add(BObject.ofEmpty() //
 					.setAny(GAME_ID, game.getId()) //
-					.setAny(PLAYER_LIST, game.getPlayerAssignedChar().keySet()) //
+					.setAny(PLAYER_LIST, game.getPlayerAssignedChar()) //
 			);
 		}
 		BObject msgBody = generateMsgBody("loggedIn")//
@@ -241,22 +252,21 @@ public class TikTacToeGameServer extends TikTacToeBaseComponent {
 				.setAny(GAME_ID, game.getId()));
 	}
 
-	private void onPlayerJoinGame(Game game, String player, boolean creator) {
+	private void onPlayerJoinGame(Game game, String player, boolean isNewGame) {
 		Map<String, Character> playerList = game.getPlayerAssignedChar();
 		BObject messageBody = this.generateMsgBody("playerJoinGame") //
 				.setAny(USERNAME, player) //
-				.setAny(CREATOR, creator) //
+				.setAny(NEW_GAME, isNewGame) //
 				.setAny(GAME_ID, game.getId()) //
 				.setAny(PLAYER_LIST, playerList);
 
-		for (String userName : playerList.keySet()) {
-			this.send(userName, messageBody);
-		}
+		this.sendToAll(messageBody);
 
-		if (creator) {
-			sendToAll(generateMsgBody("gameAdded") //
-					.setAny(GAME_ID, game.getId()) //
-					.setAny(PLAYER_LIST, playerList));
+		if (game.getPlayerAssignedChar().size() > 1) {
+			this.sendToGame(game.getId(), generateMsgBody("startGame") //
+					.setAny(PLAYER_LIST, game.getPlayerAssignedChar()) //
+					.setAny(TURN, game.getTurn()) //
+			);
 		}
 	}
 
@@ -267,28 +277,31 @@ public class TikTacToeGameServer extends TikTacToeBaseComponent {
 				.setAny(GAME_ID, game.getId()) //
 				.setAny(PLAYER_LIST, playerList);
 
-		for (String userName : playerList.keySet()) {
-			this.send(userName, messageBody);
-		}
+		this.sendToAll(messageBody);
+		this.sendToGame(game.getId(), generateMsgBody("clearGame") //
+				.setAny(PLAYER_LIST, playerList) //
+		);
 	}
 
 	private void onPlayerMove(Game game, String player, int x, int y, boolean finish, String winner,
 			int[][] winnerLine) {
 		Map<String, Character> playerList = game.getPlayerAssignedChar();
-		BObject messageBody = this.generateMsgBody("playerMove") //
+		BObject msgBody = this.generateMsgBody("playerMove") //
 				.setAny(USERNAME, player) //
 				.setAny(GAME_ID, game.getId()) //
 				.setAny(FINISH, finish) //
 				.setAny(CELL, BObject.ofSequence("x", x, "y", y, "char", playerList.get(player))) //
-				.setAny(PLAYER_LIST, playerList);
+				.setAny(PLAYER_LIST, playerList) //
+				.setAny(TikTacToeConstants.TURN, game.getTurn());
 
 		if (finish) {
-			messageBody //
-					.setAny(TikTacToeConstants.WINNER, winner) //
-					.setAny(TikTacToeConstants.WINNER_LINE, winnerLine);
+			msgBody //
+					.setAny(WINNER, winner) //
+					.setAny(WINNER_LINE, winnerLine);
+
+			game.reset();
 		}
-		for (String userName : playerList.keySet()) {
-			this.send(userName, messageBody);
-		}
+
+		this.sendToGame(game.getId(), msgBody);
 	}
 }
