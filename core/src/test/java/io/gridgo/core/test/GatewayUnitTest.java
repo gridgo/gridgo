@@ -134,8 +134,8 @@ public class GatewayUnitTest {
 			var body = response.getPayload().getBody();
 			Assert.assertTrue(body.isArray());
 			Assert.assertEquals(2, body.asArray().size());
-			Assert.assertEquals(1, body.asArray().getObject(0).getInteger(MessageConstants.BODY));
-			Assert.assertEquals(2, body.asArray().getObject(1).getInteger(MessageConstants.BODY));
+			Assert.assertEquals(Integer.valueOf(1), body.asArray().getObject(0).getInteger(MessageConstants.BODY));
+			Assert.assertEquals(Integer.valueOf(2), body.asArray().getObject(1).getInteger(MessageConstants.BODY));
 			latch.countDown();
 		});
 
@@ -148,14 +148,14 @@ public class GatewayUnitTest {
 			var body = response.getPayload().getBody();
 			Assert.assertTrue(body.isArray());
 			Assert.assertEquals(1, body.asArray().size());
-			Assert.assertEquals(1, body.asArray().getObject(0).getInteger(MessageConstants.BODY));
+			Assert.assertEquals(Integer.valueOf(1), body.asArray().getObject(0).getInteger(MessageConstants.BODY));
 			latch2.countDown();
 		});
 		gateway2.call(createType2Message()).done(response -> {
 			var body = response.getPayload().getBody();
 			Assert.assertTrue(body.isArray());
 			Assert.assertEquals(1, body.asArray().size());
-			Assert.assertEquals(2, body.asArray().getObject(0).getInteger(MessageConstants.BODY));
+			Assert.assertEquals(Integer.valueOf(2), body.asArray().getObject(0).getInteger(MessageConstants.BODY));
 			latch2.countDown();
 		});
 
