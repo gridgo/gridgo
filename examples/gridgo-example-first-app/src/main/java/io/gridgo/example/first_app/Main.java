@@ -40,6 +40,6 @@ public class Main {
 		var deferred = rc.getDeferred();
 
 		// using the same request as response
-		deferred.resolve(Message.newDefault(Payload.newDefault(msg.getPayload().getBody())));
+		deferred.resolve(Message.of(Payload.of(msg.getPayload().getBody())));
 	}
 }

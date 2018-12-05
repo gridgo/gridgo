@@ -167,9 +167,9 @@ public class MongoVertxApplication implements Runnable {
 	}
 
 	private Message createMongoRequest() {
-		var headers = BObject.newDefault() // create new headers
+		var headers = BObject.ofEmpty() // create new headers
 				.setAny(MongoDBConstants.OPERATION, MongoDBConstants.OPERATION_FIND_ALL); // set operation to find all
-		return Message.newDefault(Payload.newDefault(headers, null));
+		return Message.of(Payload.of(headers, null));
 	}
 
 	private MongoClient createMongoClient() {
