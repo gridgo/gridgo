@@ -10,9 +10,9 @@ import io.gridgo.core.support.RoutingContext;
 import io.gridgo.framework.support.Message;
 import io.gridgo.framework.support.Payload;
 
-public class TikTacToeWebserver extends TikTacToeBaseComponent {
+public class TikTacToeHttp extends TikTacToeBaseComponent {
 
-	public TikTacToeWebserver(String gatewayName) {
+	public TikTacToeHttp(String gatewayName) {
 		super(gatewayName);
 	}
 
