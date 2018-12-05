@@ -15,29 +15,43 @@ import io.gridgo.framework.support.Registry;
 
 public interface GridgoContext extends ComponentLifecycle {
 
-	public GridgoContext attachComponent(ContextAwareComponent component);
+    public GridgoContext attachComponent(ContextAwareComponent component);
 
-	public default GatewaySubscription openGateway(String name) {
-		return openGateway(name, ProducerJoinMode.SINGLE);
-	}
+    public default GatewaySubscription openGateway(String name) {
+        return openGateway(name, ProducerJoinMode.SINGLE);
+    }
 
-	public default GatewaySubscription openGateway(String name, ProducerJoinMode joinMode) {
-		return openGateway(name, ProducerTemplate.create(joinMode));
-	}
+    public default GatewaySubscription openGateway(String name, ProducerJoinMode joinMode) {
+        return openGateway(name, ProducerTemplate.create(joinMode));
+    }
 
-	public GatewaySubscription openGateway(String name, ProducerTemplate producerTemplate);
+    public GatewaySubscription openGateway(String name, ProducerTemplate producerTemplate);
 
-	public Optional<Gateway> closeGateway(String name);
+    public Optional<Gateway> closeGateway(String name);
 
-	public Optional<Gateway> findGateway(String name);
+    public Optional<Gateway> findGateway(String name);
 
-	public Collection<Gateway> getGateways();
+    public default Gateway findGatewayMandatory(String name) {
+        return findGateway(name).get();
+    }
 
-	public Map<String, Gateway> getGatewaysWithNames();
+    public default GridgoContext startGateway(String name) {
+        findGatewayMandatory(name).start();
+        return this;
+    }
 
-	public Registry getRegistry();
+    public default GridgoContext stopGateway(String name) {
+        findGatewayMandatory(name).stop();
+        return this;
+    }
 
-	public ConnectorFactory getConnectorFactory();
+    public Collection<Gateway> getGateways();
 
-	public Consumer<Throwable> getExceptionHandler();
+    public Map<String, Gateway> getGatewaysWithNames();
+
+    public Registry getRegistry();
+
+    public ConnectorFactory getConnectorFactory();
+
+    public Consumer<Throwable> getExceptionHandler();
 }
