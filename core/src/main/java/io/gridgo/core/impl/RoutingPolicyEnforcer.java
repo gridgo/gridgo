@@ -9,22 +9,29 @@ import lombok.NonNull;
 
 public class RoutingPolicyEnforcer {
 
-	private RoutingPolicy policy;
+    private RoutingPolicy policy;
 
-	public RoutingPolicyEnforcer(final @NonNull RoutingPolicy policy) {
-		this.policy = policy;
-	}
+    public RoutingPolicyEnforcer(final @NonNull RoutingPolicy policy) {
+        this.policy = policy;
+    }
 
-	public boolean isMatch(PredicateContext context) {
-		return policy.getCondition().isEmpty() || policy.getCondition().get().satisfiedBy(context);
-	}
+    public boolean isMatch(PredicateContext context) {
+        return policy.getCondition().isEmpty() || policy.getCondition().get().satisfiedBy(context);
+    }
 
-	public void execute(RoutingContext rc, GridgoContext gc) {
-		Runnable runnable = () -> doProcess(rc, gc);
-		policy.getStrategy().ifPresentOrElse(s -> s.execute(runnable), runnable);
-	}
+    public void execute(RoutingContext rc, GridgoContext gc) {
+        Runnable runnable = () -> {
+            try {
+                doProcess(rc, gc);
+            } catch (Exception ex) {
+                if (rc.getDeferred() != null)
+                    rc.getDeferred().reject(ex);
+            }
+        };
+        policy.getStrategy().ifPresentOrElse(s -> s.execute(runnable), runnable);
+    }
 
-	private void doProcess(RoutingContext rc, GridgoContext gc) {
-		policy.getProcessor().process(rc, gc);
-	}
+    private void doProcess(RoutingContext rc, GridgoContext gc) {
+        policy.getProcessor().process(rc, gc);
+    }
 }
