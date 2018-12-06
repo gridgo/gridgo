@@ -77,6 +77,7 @@ var gameBoard = (function() {
 			clearBoard();
 			break;
 		case "loggedOut":
+			turn = undefined;
 			gameId = -1;
 			userName = undefined;
 			clearBoard();
