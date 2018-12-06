@@ -107,8 +107,13 @@ public class Game implements Loggable {
 		synchronized (playerToAssignedChar) {
 			if (this.playerToAssignedChar.size() < 2) {
 				this.playerToAssignedChar.put(player, availableChars.remove(0));
-				if (this.playerToAssignedChar.size() == 1) {
-					this.turn.set(player);
+				if (this.playerToAssignedChar.size() > 1 && getTurn() == null) {
+					for (String p : this.playerToAssignedChar.keySet()) {
+						if (!p.equals(player)) {
+							this.turn.set(p);
+							break;
+						}
+					}
 				}
 			} else {
 				ex = new GameException("Game is full");
@@ -133,6 +138,9 @@ public class Game implements Loggable {
 	}
 
 	public boolean move(@NonNull String player, int x, int y) {
+		if (this.getPlayerAssignedChar().size() < 2) {
+			throw new GameException("Invalid state, player not enough");
+		}
 		getLogger().debug("player {} try to move while turn={} ", player, this.turn.get());
 		if (this.turn.compareAndSet(player, this.getNonTurn())) {
 			if (x >= 0 && x <= 3 && y >= 0 && y <= 3) {

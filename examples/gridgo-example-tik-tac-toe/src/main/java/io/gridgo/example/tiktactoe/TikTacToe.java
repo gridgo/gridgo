@@ -15,18 +15,18 @@ import io.gridgo.framework.support.Payload;
 
 public class TikTacToe extends NonameComponentLifecycle {
 
-	private static final String GATEWAY_HTTP = "tikTacToeWebserver";
+	private static final String GATEWAY_HTTP = "tikTacToeHttp";
 
-	private static final String GATEWAY_WEBSOCKET = "tikTacToeWebSocket";
+	private static final String GATEWAY_WEBSOCKET = "tikTacToeWebsocket";
 
-	private static final String GATEWAY_GAMESERVER = "tikTacToeGameServer";
+	private static final String GATEWAY_GAME = "tikTacToeGame";
 
-	private static final String GATEWAY_WS_TO_GAME = "tikTacToeWsToGame";
+	private static final String GATEWAY_FORWARDER = "tikTacToeForwarder";
 
 	private final GridgoContext appContext;
 
 	public TikTacToe() {
-		this.appContext = new DefaultGridgoContextBuilder().setName("TikTacToe").setExceptionHandler(this::onException)
+		this.appContext = new DefaultGridgoContextBuilder().setName("tiktactoe").setExceptionHandler(this::onException)
 				.build();
 
 		appContext.openGateway(GATEWAY_HTTP) //
@@ -35,11 +35,11 @@ public class TikTacToe extends NonameComponentLifecycle {
 		appContext.openGateway(GATEWAY_WEBSOCKET) //
 				.attachConnector("netty4:server:ws://localhost:8889/tiktactoe");
 
-		appContext.openGateway(GATEWAY_WS_TO_GAME) //
+		appContext.openGateway(GATEWAY_FORWARDER) //
 				.attachConnector("zmq:push:ipc://clientToGame") //
 				.attachConnector("zmq:pull:ipc://gameToClient");
 
-		appContext.openGateway(GATEWAY_GAMESERVER) //
+		appContext.openGateway(GATEWAY_GAME) //
 				.attachConnector("zmq:pull:ipc://clientToGame") //
 				.attachConnector("zmq:push:ipc://gameToClient");
 
@@ -47,10 +47,10 @@ public class TikTacToe extends NonameComponentLifecycle {
 				// handle http request
 				.attachComponent(new TikTacToeHttp(GATEWAY_HTTP)) //
 				// handle game logic request
-				.attachComponent(new TikTacToeGameServer(GATEWAY_GAMESERVER)) //
+				.attachComponent(new TikTacToeGameServer(GATEWAY_GAME)) //
 				// attach 2 bridge components to fwd msg from/to websocket to/from game via zmq
-				.attachComponent(new BridgeComponent(GATEWAY_WEBSOCKET, GATEWAY_WS_TO_GAME, this::forwardMsgWsToGame)) //
-				.attachComponent(new BridgeComponent(GATEWAY_WS_TO_GAME, GATEWAY_WEBSOCKET, this::forwardMsgGameToWs)) //
+				.attachComponent(new BridgeComponent(GATEWAY_WEBSOCKET, GATEWAY_FORWARDER, this::forwardMsgWsToGame)) //
+				.attachComponent(new BridgeComponent(GATEWAY_FORWARDER, GATEWAY_WEBSOCKET, this::forwardMsgGameToWs)) //
 		;
 	}
 

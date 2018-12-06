@@ -291,8 +291,7 @@ public class TikTacToeGameServer extends TikTacToeBaseComponent {
 				.setAny(GAME_ID, game.getId()) //
 				.setAny(FINISH, finish) //
 				.setAny(CELL, BObject.ofSequence("x", x, "y", y, "char", playerList.get(player))) //
-				.setAny(PLAYER_LIST, playerList) //
-				.setAny(TikTacToeConstants.TURN, game.getTurn());
+				.setAny(PLAYER_LIST, playerList);
 
 		if (finish) {
 			msgBody //
@@ -301,6 +300,8 @@ public class TikTacToeGameServer extends TikTacToeBaseComponent {
 
 			game.reset();
 		}
+
+		msgBody.setAny(TikTacToeConstants.TURN, game.getTurn());
 
 		this.sendToGame(game.getId(), msgBody);
 	}

@@ -11,21 +11,64 @@ var gameBoard = (function() {
 	var playerList = []
 	var board = [ [ 0, 0, 0 ], [ 0, 0, 0 ], [ 0, 0, 0 ] ];
 
-	function renderGameBoard() {
+	function renderGameBoard(clearBackground) {
 		for (var y=0; y<3; y++) {
 			for (var x=0; x<3; x++ ){
 				var char = String.fromCharCode(board[y][x]);
-				document.getElementById("cell" + x + "" + y).innerHTML = char;
+				var cell = document.getElementById("cell" + x + "" + y);
+				cell.innerHTML = char;
+				if (clearBackground) {
+					cell.style.backgroundColor = "";
+				}
 			}
 		}
-		document.getElementById("playerInTurnLabel").innerHTML = "Turn: " + turn;
+		document.getElementById("playerInTurnLabel").innerHTML = "Turn: " + (turn ? turn : "N/A");
 	}
 	
 	function clearBoard() {
 		board = [ [ 0, 0, 0 ], [ 0, 0, 0 ], [ 0, 0, 0 ] ];
-		renderGameBoard();
+		renderGameBoard(true);
 	}
 
+	var displayNotification = (function() {
+		var list = [];
+		var timeoutId = undefined;
+
+		function hideError() {
+			list = [];
+			render();
+		}
+
+		function render() {
+			var html = [];
+
+			for (var i = 0; i < list.length; i++) {
+				html.push('<div>' + list[i] + '</div>');
+			}
+
+			var label = document.getElementById("notificationLabel");
+			label.innerHTML = html.join("");
+
+			if (timeoutId != undefined) {
+				clearTimeout(timeoutId);
+			}
+
+			if (list.length > 0) {
+				timeoutId = setTimeout(hideError, 2000);
+			}
+		}
+
+		return function(msg) {
+			if (msg) {
+				list.push(msg);
+				render();
+			}
+		}
+		
+	})();
+	
+	var timeoutToClearBoard = undefined;
+	
 	function onMessage(msg) {
 		switch (msg.cmd) {
 		case "loggedIn":
@@ -69,11 +112,15 @@ var gameBoard = (function() {
 			renderGameBoard();
 			
 			if (msg.finish) {
-				turn = msg.winner;
-				setTimeout(function() {
-					alert("Game over, winner: " + msg.winner);
+				displayNotification('Game over, winner: ' + msg.winner);
+				var winnerLine = msg.winnerLine;
+				for (var i= 0; i<winnerLine.length; i++) {
+					document.getElementById('cell'+winnerLine[i][1] + "" + winnerLine[i][0]).style.backgroundColor = "cadetblue";
+				}
+				timeoutToClearBoard = setTimeout(function() {
 					clearBoard()
-				}, 500)
+					timeoutToClearBoard = undefined;
+				}, 1000)
 			}
 			break;
 		}
@@ -83,6 +130,10 @@ var gameBoard = (function() {
 
 	return {
 		move : function(x, y) {
+			if (timeoutToClearBoard) {
+				displayNotification("Wait a moment");
+				return;
+			}
 			socketClient.send({
 				cmd : "game",
 				data : {

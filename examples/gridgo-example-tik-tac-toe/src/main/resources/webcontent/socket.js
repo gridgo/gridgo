@@ -19,7 +19,7 @@ var socketClient = (function() {
 		playBtn = document.getElementById("playBtn");
 
 		if (!userNamePattern.test(userNameInput.value)) {
-			alert("Invalid username, must contain only letters, numbers and underscore (_)");
+			displayError("Invalid username, must contain only letters, numbers and underscore (_)");
 			return;
 		}
 
@@ -62,12 +62,50 @@ var socketClient = (function() {
 		})
 	}
 
+	var displayError = (function() {
+
+		var list = [];
+		var timeoutId = undefined;
+
+		function hideError() {
+			list = [];
+			render();
+		}
+
+		function render() {
+			var html = [];
+
+			for (var i = 0; i < list.length; i++) {
+				html.push('<div>' + list[i] + '</div>');
+			}
+
+			var label = document.getElementById("errorLabel");
+			label.innerHTML = html.join("");
+
+			if (timeoutId != undefined) {
+				clearTimeout(timeoutId);
+			}
+
+			if (list.length > 0) {
+				timeoutId = setTimeout(hideError, 2000);
+			}
+		}
+
+		return function(error) {
+			if (error) {
+				list.push(error);
+				render();
+			}
+		}
+	})();
+
 	function onMessage(msg) {
 		var data = JSON.parse(msg.data);
 		var body = data[2];
 		if (body) {
+			console.log("[RECV] >>> ", body);
 			if (body.cmd == "error") {
-				alert(body.message)
+				displayError(body.message)
 			} else {
 				dispatch(body);
 			}
@@ -76,9 +114,10 @@ var socketClient = (function() {
 
 	function send(msg) {
 		if (socket != null) {
+			console.log("[SEND] <<< ", msg);
 			socket.send(typeof msg == "object" ? JSON.stringify(msg) : msg);
 		} else {
-			alert("Disconnected");
+			displayError("Disconnected");
 		}
 	}
 
