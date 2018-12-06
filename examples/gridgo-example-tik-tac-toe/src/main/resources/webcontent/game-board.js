@@ -5,7 +5,7 @@ var gameBoard = (function() {
 		throw "Socket client not found";
 	}
 
-	var alreadyJoined = false;
+	var gameId = -1;
 	var userName = undefined;
 	var turn = undefined;
 	var playerList = []
@@ -72,26 +72,26 @@ var gameBoard = (function() {
 	function onMessage(msg) {
 		switch (msg.cmd) {
 		case "loggedIn":
-			alreadyJoined = false;
+			gameId = -1;
 			userName = msg.userName;
 			clearBoard();
 			break;
 		case "loggedOut":
-			alreadyJoined = false;
+			gameId = -1;
 			userName = undefined;
 			clearBoard();
 			break;
 		case "playerJoinGame":
 			if (msg.userName == userName) {
-				alreadyJoined = true;
+				gameId = msg.gameId;
 				playerList = msg.playerList;
 				clearBoard();
 			}
 			break
 		case "playerQuitGame":
-			if (msg.userName == userName) {
+			if (msg.userName == userName || msg.gameId == gameId) {
 				turn = undefined;
-				alreadyJoined = false;
+				gameId = -1;
 				playerList = msg.playerList;
 				clearBoard();
 			}

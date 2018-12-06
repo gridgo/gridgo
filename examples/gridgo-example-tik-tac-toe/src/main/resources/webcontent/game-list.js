@@ -19,7 +19,7 @@ var gameManager = (function() {
 			}
 			var button = '<button onclick="return gameManager.join(' + game.gameId + ');">Join</button>';
 			var info = '<span>Game ' + game.gameId + ": " + players.join(", ") + "</span>";
-			html += '<li id="game' + game.gameId + '">' + info + (alreadyJoined ? "" : button) + '</li>';
+			html += '<li id="game' + game.gameId + '">' + info + ((alreadyJoined || players.length > 1) ? "" : button) + '</li>';
 		}
 		var gameListContainer = document.getElementById("gameList");
 		gameListContainer.innerHTML = html;
