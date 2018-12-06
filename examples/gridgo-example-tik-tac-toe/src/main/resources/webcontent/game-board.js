@@ -104,6 +104,7 @@ var gameBoard = (function() {
 			renderGameBoard();
 			break;
 		case "clearGame":
+			turn = undefined;
 			playerList = msg.playerList;
 			clearBoard()
 			break;
