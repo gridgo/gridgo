@@ -90,6 +90,7 @@ var gameBoard = (function() {
 			break
 		case "playerQuitGame":
 			if (msg.userName == userName) {
+				turn = undefined;
 				alreadyJoined = false;
 				playerList = msg.playerList;
 				clearBoard();

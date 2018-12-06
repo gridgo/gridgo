@@ -131,6 +131,7 @@ public class Game implements Loggable {
 			if (assignedChar != null) {
 				this.turn.set(null);
 				this.availableChars.add(assignedChar);
+				this.reset();
 				return true;
 			}
 		}
@@ -142,10 +143,11 @@ public class Game implements Loggable {
 			throw new GameException("Invalid state, player not enough");
 		}
 		getLogger().debug("player {} try to move while turn={} ", player, this.turn.get());
-		if (this.turn.compareAndSet(player, this.getNonTurn())) {
-			if (x >= 0 && x <= 3 && y >= 0 && y <= 3) {
-				char cellValue = this.board[y][x];
-				if (cellValue == 0) {
+
+		if (x >= 0 && x <= 3 && y >= 0 && y <= 3) {
+			char cellValue = this.board[y][x];
+			if (cellValue == 0) {
+				if (this.turn.compareAndSet(player, this.getNonTurn())) {
 					Character assignedChar = this.playerToAssignedChar.get(player);
 					if (assignedChar != null) {
 						this.board[y][x] = assignedChar.charValue();
@@ -154,12 +156,14 @@ public class Game implements Loggable {
 						throw new GameException("Player not in game");
 					}
 				} else {
-					throw new GameException("Bad move, cell already filled");
+					throw new GameException("Bad move, invalid turn");
 				}
+			} else {
+				throw new GameException("Bad move, cell already filled");
 			}
+		} else {
 			throw new GameException("Bad move, invalid cell location (" + x + "," + y + ")");
 		}
-		throw new GameException("Bad move, invalid turn");
 	}
 
 	private char check3Chars(char[] cells) {

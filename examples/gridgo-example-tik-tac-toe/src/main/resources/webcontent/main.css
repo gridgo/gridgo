@@ -18,7 +18,8 @@ td:hover {
 #errorLabel {
 	position: absolute;
 	top: 0;
-	right: 0px; width : 400px;
+	left: 500px; 
+	width : 700px;
 	text-align: center;
 	width: 400px;
 }
