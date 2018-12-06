@@ -143,26 +143,25 @@ public class Game implements Loggable {
 			throw new GameException("Invalid state, player not enough");
 		}
 		getLogger().debug("player {} try to move while turn={} ", player, this.turn.get());
-
-		if (x >= 0 && x <= 3 && y >= 0 && y <= 3) {
-			char cellValue = this.board[y][x];
-			if (cellValue == 0) {
-				if (this.turn.compareAndSet(player, this.getNonTurn())) {
-					Character assignedChar = this.playerToAssignedChar.get(player);
-					if (assignedChar != null) {
+		Character assignedChar = this.playerToAssignedChar.get(player);
+		if (assignedChar != null) {
+			if (x >= 0 && x <= 3 && y >= 0 && y <= 3) {
+				char cellValue = this.board[y][x];
+				if (cellValue == 0) {
+					if (this.turn.compareAndSet(player, this.getNonTurn())) {
 						this.board[y][x] = assignedChar.charValue();
 						return this.checkFinishGame();
 					} else {
-						throw new GameException("Player not in game");
+						throw new GameException("Bad move, invalid turn");
 					}
 				} else {
-					throw new GameException("Bad move, invalid turn");
+					throw new GameException("Bad move, cell already filled");
 				}
 			} else {
-				throw new GameException("Bad move, cell already filled");
+				throw new GameException("Bad move, invalid cell location (" + x + "," + y + ")");
 			}
 		} else {
-			throw new GameException("Bad move, invalid cell location (" + x + "," + y + ")");
+			throw new GameException("Player not in game");
 		}
 	}
 
