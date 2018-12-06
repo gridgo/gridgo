@@ -35,7 +35,10 @@ public class Game implements Loggable {
 	}
 
 	public void reset() {
-		this.turn.set(winner.get());
+		if (winner.get() != null) {
+			this.turn.set(winner.get());
+		}
+
 		this.winner.set(null);
 		this.winnerLine.set(null);
 		for (int i = 0; i < 3; i++) {
@@ -181,6 +184,7 @@ public class Game implements Loggable {
 
 	private boolean checkFinishGame() {
 		char winChar = 0;
+
 		/**
 		 * check rows
 		 */
@@ -232,7 +236,16 @@ public class Game implements Loggable {
 			throw new GameException("Invalid game state, cannot mark player as winner");
 		}
 
-		return false;
+		int filledCount = 0;
+		for (int y = 0; y < 3; y++) {
+			for (int x = 0; x < 3; x++) {
+				if (this.board[y][x] != 0) {
+					filledCount++;
+				}
+			}
+		}
+
+		return filledCount == 9;
 	}
 
 }

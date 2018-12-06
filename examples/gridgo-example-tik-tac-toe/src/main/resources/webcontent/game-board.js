@@ -113,11 +113,17 @@ var gameBoard = (function() {
 			renderGameBoard();
 			
 			if (msg.finish) {
-				displayNotification('Game over, winner: ' + msg.winner);
-				var winnerLine = msg.winnerLine;
-				for (var i= 0; i<winnerLine.length; i++) {
-					document.getElementById('cell'+winnerLine[i][1] + "" + winnerLine[i][0]).style.backgroundColor = "cadetblue";
+				var winner = msg.winner;
+				if (winner) {					
+					displayNotification('Game over, winner: ' + msg.winner);
+					var winnerLine = msg.winnerLine;
+					for (var i= 0; i<winnerLine.length; i++) {
+						document.getElementById('cell'+winnerLine[i][1] + "" + winnerLine[i][0]).style.backgroundColor = "cadetblue";
+					}
+				} else {
+					displayNotification('Game over, draw');
 				}
+				
 				timeoutToClearBoard = setTimeout(function() {
 					clearBoard()
 					timeoutToClearBoard = undefined;
