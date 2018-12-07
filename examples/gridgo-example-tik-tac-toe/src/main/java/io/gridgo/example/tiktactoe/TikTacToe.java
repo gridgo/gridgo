@@ -30,10 +30,10 @@ public class TikTacToe extends NonameComponentLifecycle {
 				.build();
 
 		appContext.openGateway(GATEWAY_HTTP) //
-				.attachConnector("jetty:http://localhost:8888/[tiktactoe/*]");
+				.attachConnector("jetty:http://0.0.0.0:8888/[tiktactoe/*]");
 
 		appContext.openGateway(GATEWAY_WEBSOCKET) //
-				.attachConnector("netty4:server:ws://localhost:8889/tiktactoe");
+				.attachConnector("netty4:server:ws://0.0.0.0:8889/tiktactoe");
 
 		appContext.openGateway(GATEWAY_FORWARDER) //
 				.attachConnector("zmq:push:ipc://clientToGame") //
