@@ -11,8 +11,8 @@ import lombok.NonNull;
 
 public class UserManager {
 
-	private final Map<Long, User> users = new NonBlockingHashMap<>();
-	private final Map<String, Long> userNameLookUpMap = new NonBlockingHashMap<>();
+	private final Map<String, User> users = new NonBlockingHashMap<>();
+	private final Map<String, String> userNameLookUpMap = new NonBlockingHashMap<>();
 
 	private final AtomicLong listenerIdSeed = new AtomicLong(0);
 	private final Map<Long, BiConsumer<UserEventType, User>> listeners = new NonBlockingHashMap<>();
@@ -27,7 +27,7 @@ public class UserManager {
 		this.listeners.remove(listenerId);
 	}
 
-	public void addUser(@NonNull String userName, long routingId) {
+	public void addUser(@NonNull String userName, String routingId) {
 		User currSession = this.users.putIfAbsent(routingId, User.builder() //
 				.userName(userName) //
 				.sessionId(routingId) //
@@ -43,7 +43,7 @@ public class UserManager {
 		}
 	}
 
-	public void removeUser(long routingId) {
+	public void removeUserBySession(String routingId) {
 		User currSession = this.users.remove(routingId);
 		if (currSession != null) {
 			this.userNameLookUpMap.remove(currSession.getUserName());
@@ -60,12 +60,12 @@ public class UserManager {
 		}
 	}
 
-	public User getUser(long sessionId) {
+	public User getUserBySession(String sessionId) {
 		return this.users.get(sessionId);
 	}
 
 	public User getUser(@NonNull String userName) {
-		Long sessionId = this.userNameLookUpMap.get(userName);
+		String sessionId = this.userNameLookUpMap.get(userName);
 		if (sessionId != null) {
 			return this.users.get(sessionId);
 		}
@@ -73,7 +73,7 @@ public class UserManager {
 	}
 
 	public boolean isLoggedIn(@NonNull String userName) {
-		Long sessionId = this.userNameLookUpMap.get(userName);
+		String sessionId = this.userNameLookUpMap.get(userName);
 		if (sessionId != null) {
 			return this.users.containsKey(sessionId);
 		}
