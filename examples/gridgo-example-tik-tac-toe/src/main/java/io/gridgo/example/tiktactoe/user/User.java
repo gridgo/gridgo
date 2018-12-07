@@ -6,13 +6,13 @@ import lombok.Builder;
 public class User {
 
 	private String userName;
-	private long sessionId;
+	private String sessionId;
 
 	public String getUserName() {
 		return userName;
 	}
 
-	public long getSessionId() {
+	public String getSessionId() {
 		return sessionId;
 	}
 }

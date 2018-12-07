@@ -3,10 +3,10 @@ package io.gridgo.example.tiktactoe.comp;
 import static io.gridgo.example.tiktactoe.TikTacToeConstants.ACTION;
 import static io.gridgo.example.tiktactoe.TikTacToeConstants.CELL;
 import static io.gridgo.example.tiktactoe.TikTacToeConstants.CMD;
-import static io.gridgo.example.tiktactoe.TikTacToeConstants.NEW_GAME;
 import static io.gridgo.example.tiktactoe.TikTacToeConstants.FINISH;
 import static io.gridgo.example.tiktactoe.TikTacToeConstants.GAME_ID;
 import static io.gridgo.example.tiktactoe.TikTacToeConstants.MESSAGE;
+import static io.gridgo.example.tiktactoe.TikTacToeConstants.NEW_GAME;
 import static io.gridgo.example.tiktactoe.TikTacToeConstants.PLAYER_LIST;
 import static io.gridgo.example.tiktactoe.TikTacToeConstants.ROUTING_ID;
 import static io.gridgo.example.tiktactoe.TikTacToeConstants.TURN;
@@ -67,22 +67,26 @@ public class TikTacToeGameServer extends TikTacToeBaseComponent {
 
 	@Override
 	protected void processRequest(RoutingContext rc, GridgoContext gc) {
-		Message message = rc.getMessage();
-		Payload payload = message.getPayload();
+		try {
+			Message message = rc.getMessage();
+			Payload payload = message.getPayload();
 
-		long routingId = payload.getHeaders().getLong(TikTacToeConstants.ROUTING_ID, -1);
-		if (routingId >= 0) {
-			String socketMessageType = payload.getHeaders().getString(SocketConstants.SOCKET_MESSAGE_TYPE, "");
-			switch (socketMessageType.toLowerCase()) {
-			case "open":
-				break;
-			case "close":
-				this.userManager.removeUser(routingId);
-				break;
-			case "message":
-				this.handle(payload.getBody(), routingId);
-				break;
+			String routingId = payload.getHeaders().getString(TikTacToeConstants.ROUTING_ID, null);
+			if (routingId != null) {
+				String socketMessageType = payload.getHeaders().getString(SocketConstants.SOCKET_MESSAGE_TYPE, "");
+				switch (socketMessageType.toLowerCase()) {
+				case "open":
+					break;
+				case "close":
+					this.userManager.removeUserBySession(routingId);
+					break;
+				case "message":
+					this.handle(payload.getBody(), routingId);
+					break;
+				}
 			}
+		} catch (Exception e) {
+			getLogger().error("Error: ", e);
 		}
 	}
 
@@ -94,25 +98,25 @@ public class TikTacToeGameServer extends TikTacToeBaseComponent {
 		return generateMsgBody("error").setAny(MESSAGE, errMsg == null ? "Internal server error" : errMsg);
 	}
 
-	private void sendError(long routingId, String message) {
-		this.send(routingId, generateError(message));
+	private void sendErrorToRoutingId(String routingId, String message) {
+		this.sendToSessionId(routingId, generateError(message));
 	}
 
-	private void send(long routingId, BElement body) {
+	private void sendToSessionId(String routingId, BElement body) {
 		this.getGateway().send(Message.of(Payload.of(body).addHeader(ROUTING_ID, routingId)));
 	}
 
-	private void send(String userName, BElement body) {
+	private void sendToUser(String userName, BElement body) {
 		User user = this.userManager.getUser(userName);
 		if (user != null) {
-			this.send(user.getSessionId(), body);
+			this.sendToSessionId(user.getSessionId(), body);
 		}
 	}
 
 	private void sendToAll(BElement msgBody) {
 		Collection<User> allUser = this.userManager.getAllUser();
 		for (User user : allUser) {
-			send(user.getSessionId(), msgBody);
+			sendToSessionId(user.getSessionId(), msgBody);
 		}
 	}
 
@@ -120,12 +124,12 @@ public class TikTacToeGameServer extends TikTacToeBaseComponent {
 		Game game = gameManager.getGame(gameId);
 		if (game != null) {
 			for (String userName : game.getPlayerAssignedChar().keySet()) {
-				this.send(userName, msgBody);
+				this.sendToUser(userName, msgBody);
 			}
 		}
 	}
 
-	private void handle(BElement body, long routingId) {
+	private void handle(BElement body, String routingId) {
 		if (body != null) {
 			if (body.isObject()) {
 				BObject request = body.asObject();
@@ -138,7 +142,7 @@ public class TikTacToeGameServer extends TikTacToeBaseComponent {
 							if (!userName.isBlank()) {
 								this.userManager.addUser(userName, routingId);
 							} else {
-								sendError(routingId, "userName is required on login");
+								sendErrorToRoutingId(routingId, "userName is required on login");
 							}
 							break;
 						case "logout":
@@ -149,19 +153,20 @@ public class TikTacToeGameServer extends TikTacToeBaseComponent {
 							break;
 						}
 					} catch (UserException | GameException e) {
-						this.sendError(routingId, e.getMessage());
+						this.sendErrorToRoutingId(routingId, e.getMessage());
 					}
 				}
 			} else {
-				sendError(routingId, "Invalid request format, expected object (key-value), got " + body.getType());
+				sendErrorToRoutingId(routingId,
+						"Invalid request format, expected object (key-value), got " + body.getType());
 			}
 		} else {
-			sendError(routingId, "Invalid request: null");
+			sendErrorToRoutingId(routingId, "Invalid request: null");
 		}
 	}
 
-	private void handleGameCommand(BObject playData, long routingId) {
-		User user = this.userManager.getUser(routingId);
+	private void handleGameCommand(BObject playData, String sessionId) {
+		User user = this.userManager.getUserBySession(sessionId);
 		if (user != null) {
 			String userName = user.getUserName();
 			if (playData != null) {
@@ -223,7 +228,7 @@ public class TikTacToeGameServer extends TikTacToeBaseComponent {
 				.setAny(TikTacToeConstants.USERNAME, user.getUserName()) //
 				.setAny(TikTacToeConstants.GAME_LIST, gameList);
 
-		this.send(user.getSessionId(), msgBody);
+		this.sendToSessionId(user.getSessionId(), msgBody);
 	}
 
 	private void onGameEvent(@NonNull GameEvent event) {
