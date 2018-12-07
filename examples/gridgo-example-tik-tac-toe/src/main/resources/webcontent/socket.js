@@ -25,7 +25,7 @@ var socketClient = (function() {
 
 		userName = userNameInput.value;
 
-		socket = new WebSocket("ws://localhost:8889/tiktactoe");
+		socket = new WebSocket("ws://" + location.hostname + ":8889/tiktactoe");
 		socket.onerror = onError;
 		socket.onclose = onDisconnected;
 		socket.onopen = onConnected;
