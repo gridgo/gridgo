@@ -15,7 +15,6 @@ import io.gridgo.connector.impl.factories.DefaultConnectorFactory;
 import io.gridgo.core.Gateway;
 import io.gridgo.core.GridgoContext;
 import io.gridgo.core.support.ContextAwareComponent;
-import io.gridgo.core.support.ProducerJoinMode;
 import io.gridgo.core.support.subscription.GatewaySubscription;
 import io.gridgo.core.support.template.ProducerTemplate;
 import io.gridgo.framework.AbstractComponentLifecycle;
@@ -59,16 +58,6 @@ public class DefaultGridgoContext extends AbstractComponentLifecycle implements 
 	}
 
 	@Override
-	public GatewaySubscription openGateway(String name) {
-		return gateways.computeIfAbsent(name, key -> new DefaultGateway(this, key));
-	}
-
-	@Override
-	public GatewaySubscription openGateway(String name, ProducerJoinMode joinMode) {
-		return openGateway(name, ProducerTemplate.create(joinMode));
-	}
-
-	@Override
 	public GatewaySubscription openGateway(String name, ProducerTemplate producerTemplate) {
 		return gateways.computeIfAbsent(name,
 				key -> new DefaultGateway(this, key).setProducerTemplate(producerTemplate));
@@ -105,7 +94,7 @@ public class DefaultGridgoContext extends AbstractComponentLifecycle implements 
 	@Override
 	protected void onStart() {
 		components.stream().forEach(c -> c.start());
-		gateways.values().stream().forEach(g -> g.start());
+		gateways.values().stream().filter(g -> g.isAutoStart()).forEach(g -> g.start());
 	}
 
 	@Override

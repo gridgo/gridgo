@@ -2,28 +2,25 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<packaging>pom</packaging>
-	
+
 	<parent>
 		<groupId>io.gridgo</groupId>
-		<artifactId>gridgo</artifactId>
+		<artifactId>gridgo-examples</artifactId>
 		<version>0.2.0</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<artifactId>gridgo-examples</artifactId>
+	<artifactId>gridgo-example-first-app</artifactId>
 
-	<modules>
-		<module>gridgo-example-mongodb-vertx</module>
-		<module>gridgo-example-first-app</module>
-		<module>gridgo-example-tik-tac-toe</module>
-	</modules>
+	<properties>
+		<gridgo.vertx.http.version>${project.version}</gridgo.vertx.http.version>
+	</properties>
 
 	<dependencies>
 		<dependency>
 			<groupId>io.gridgo</groupId>
-			<artifactId>gridgo-core</artifactId>
-			<version>${project.version}</version>
+			<artifactId>gridgo-vertx-http</artifactId>
+			<version>${gridgo.vertx.http.version}</version>
 		</dependency>
 	</dependencies>
 </project>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration monitorInterval="15" packages="com.moonlit.logfaces.appenders.log4j2">
+	<Properties>
+		<Property name="log-path">logs/</Property>
+		<Property name="blank-pattern-layout">%msg%n</Property>
+		<Property name="only-thread-name-layout">%t -> %msg%n</Property>
+		<Property name="default-pattern-layout">%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n</Property>
+		<Property name="debug-pattern-layout">%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} (%F:%L) - %msg%n</Property>
+	</Properties>
+	<Appenders>
+		<!-- <RollingRandomAccessFile name="fileOutputLog" immediateFlush="false" append="true" fileName="${log-path}/console.log" filePattern="${log-path}/console-%d{yyyy-MM-dd}-%d{HH}-%i.log"> 
+			<PatternLayout pattern="${default-pattern-layout}" /> <Policies> <TimeBasedTriggeringPolicy interval="1" modulate="true" /> <SizeBasedTriggeringPolicy size="64MB" 
+			/> </Policies> <DefaultRolloverStrategy max="4" /> </RollingRandomAccessFile> -->
+		<Console name="console" target="SYSTEM_OUT">
+			<PatternLayout pattern="${debug-pattern-layout}" />
+		</Console>
+	</Appenders>
+	<Loggers>
+		<Root level="warn" includeLocation="true">
+			<!-- <AppenderRef ref="fileOutputLog" /> -->
+			<AppenderRef ref="console" />
+		</Root>
+		<Logger name="io.gridgo" additivity="true" level="debug" />
+	</Loggers>
+</Configuration>

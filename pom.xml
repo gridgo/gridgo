@@ -2,13 +2,11 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>gridgo</artifactId>
 	<packaging>pom</packaging>
-
-	<version>0.1.2</version>
-
+	
 	<parent>
 		<groupId>io.gridgo</groupId>
 		<artifactId>gridgo-base</artifactId>
-		<version>0.1.3</version>
+		<version>0.2.0</version>
 	</parent>
 
 	<url>https://github.com/gridgo/gridgo.git</url>
@@ -22,6 +20,7 @@
 
 	<modules>
 		<module>core</module>
+		<module>examples</module>
 	</modules>
 
 	<properties>

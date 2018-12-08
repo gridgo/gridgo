@@ -1,0 +1,47 @@
+<html>
+<head>
+<title>GridGo example - Tik Tac Toe</title>
+<link rel="stylesheet" type="text/css" href="main.css">
+</head>
+<body>
+	<h1>Tik Tac Toe</h1>
+	<div style="color: red; height: 20px, background-color: red" id="errorLabel"></div>
+
+	<form onsubmit="return socketClient.toggleConnect();" action="javascript:void(0);">
+		<input id="userNameInput" placeholder="Input your username">
+		<button id="playBtn" type="submit">Login</button>
+	</form>
+
+	<div id="gameListContainer">
+		<button id="createGameBtn" onclick="return gameManager.create();">Create new game</button>
+		<button id="quitGameBtn" onclick="return gameManager.quit();">Quit</button>
+		<ul id="gameList"></ul>
+	</div>
+
+	<div id="gameBoardContainer">
+		<table id="gameBoard">
+			<tr id="row0">
+				<td id="cell00" onclick="return gameBoard.move(0,0);"></td>
+				<td id="cell10" onclick="return gameBoard.move(1,0);"></td>
+				<td id="cell20" onclick="return gameBoard.move(2,0);"></td>
+			</tr>
+			<tr id="row1">
+				<td id="cell01" onclick="return gameBoard.move(0,1);"></td>
+				<td id="cell11" onclick="return gameBoard.move(1,1);"></td>
+				<td id="cell21" onclick="return gameBoard.move(2,1);"></td>
+			</tr>
+			<tr id="row2">
+				<td id="cell02" onclick="return gameBoard.move(0,2);"></td>
+				<td id="cell12" onclick="return gameBoard.move(1,2);"></td>
+				<td id="cell22" onclick="return gameBoard.move(2,2);"></td>
+			</tr>
+		</table>
+		<div id="playerInTurnLabel"></div>
+		<div style="color: green" id="notificationLabel"></div>
+	</div>
+
+	<script type="text/javascript" src="socket.js"></script>
+	<script type="text/javascript" src="game-list.js"></script>
+	<script type="text/javascript" src="game-board.js"></script>
+</body>
+</html>

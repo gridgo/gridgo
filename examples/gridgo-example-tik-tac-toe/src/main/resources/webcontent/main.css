@@ -1,0 +1,38 @@
+table, td {
+	border: 1px solid black;
+}
+
+td {
+	width: 40px;
+	height: 44px;
+	text-align: center;
+	font-size: 27px;
+	font-weight: bold;
+	font-family: sans;
+}
+
+td:hover {
+	background-color: #ccc;
+}
+
+#errorLabel {
+	position: absolute;
+	top: 0;
+	left: 500px; 
+	width : 700px;
+	text-align: center;
+	width: 400px;
+}
+
+#gameListContainer {
+	display: inline-block;
+	width: 300px;
+	vertical-align: top;
+	height: 500px;
+}
+
+#gameBoardContainer {
+	display: inline-block;
+	vertical-align: top;
+	margin-left: 10px;
+}
