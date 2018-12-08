@@ -20,7 +20,7 @@ View [build status](https://github.com/gridgo/gridgo/wiki/build-status) for all 
 <dependency>
     <groupId>io.gridgo</groupId>
     <artifactId>gridgo-core</artifactId>
-    <version>0.1.2</version>
+    <version>0.2.0</version>
 </dependency>
 ```
 
