@@ -12,31 +12,31 @@ import lombok.Getter;
 @Getter
 public class DefaultRoutingPolicy implements RoutingPolicy {
 
-	private Optional<Predicate> condition = Optional.empty();
+    private Optional<Predicate> condition = Optional.empty();
 
-	private Optional<ExecutionStrategy> strategy = Optional.empty();
+    private Optional<ExecutionStrategy> strategy = Optional.empty();
 
-	private Processor processor;
-	
-	public DefaultRoutingPolicy(Processor processor) {
-		this.processor = processor;
-	}
+    private Processor processor;
 
-	@Override
-	public RoutingPolicy setCondition(Predicate condition) {
-		this.condition = Optional.ofNullable(condition);
-		return this;
-	}
+    public DefaultRoutingPolicy(Processor processor) {
+        this.processor = processor;
+    }
 
-	@Override
-	public RoutingPolicy setStrategy(ExecutionStrategy strategy) {
-		this.strategy = Optional.ofNullable(strategy);
-		return this;
-	}
+    @Override
+    public RoutingPolicy setCondition(Predicate condition) {
+        this.condition = Optional.ofNullable(condition);
+        return this;
+    }
 
-	@Override
-	public RoutingPolicy setProcessor(Processor processor) {
-		this.processor = processor;
-		return this;
-	}
+    @Override
+    public RoutingPolicy setStrategy(ExecutionStrategy strategy) {
+        this.strategy = Optional.ofNullable(strategy);
+        return this;
+    }
+
+    @Override
+    public RoutingPolicy setProcessor(Processor processor) {
+        this.processor = processor;
+        return this;
+    }
 }

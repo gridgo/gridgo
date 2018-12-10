@@ -6,15 +6,15 @@ import io.gridgo.framework.execution.ExecutionStrategy;
 
 public interface HandlerSubscription {
 
-	public HandlerSubscription when(String condition);
+    public HandlerSubscription when(String condition);
 
-	public HandlerSubscription when(Predicate condition);
+    public HandlerSubscription when(Predicate condition);
 
-	public HandlerSubscription using(ExecutionStrategy strategy);
+    public HandlerSubscription using(ExecutionStrategy strategy);
 
-	public GatewaySubscription withPolicy(RoutingPolicy policy);
+    public GatewaySubscription withPolicy(RoutingPolicy policy);
 
-	public GatewaySubscription finishSubscribing();
-	
-	public RoutingPolicy getPolicy();
+    public GatewaySubscription finishSubscribing();
+
+    public RoutingPolicy getPolicy();
 }

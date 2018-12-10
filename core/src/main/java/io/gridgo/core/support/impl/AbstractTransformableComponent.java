@@ -12,33 +12,33 @@ import lombok.Getter;
 @Getter
 public abstract class AbstractTransformableComponent extends AbstractDirectionalComponent {
 
-	private Optional<Function<Message, Message>> transformer = Optional.empty();
+    private Optional<Function<Message, Message>> transformer = Optional.empty();
 
-	private Disposable disposable;
+    private Disposable disposable;
 
-	public AbstractTransformableComponent(String source, String target) {
-		super(source, target);
-	}
+    public AbstractTransformableComponent(String source, String target) {
+        super(source, target);
+    }
 
-	public AbstractTransformableComponent(String source, String target, Function<Message, Message> transformer) {
-		super(source, target);
-		this.transformer = Optional.ofNullable(transformer);
-	}
+    public AbstractTransformableComponent(String source, String target, Function<Message, Message> transformer) {
+        super(source, target);
+        this.transformer = Optional.ofNullable(transformer);
+    }
 
-	@Override
-	protected void startWithGateways(Gateway source, Gateway target) {
-		this.disposable = source.asObservable().map(this::transform).forEach(msg -> handle(target, msg));
-	}
+    @Override
+    protected void startWithGateways(Gateway source, Gateway target) {
+        this.disposable = source.asObservable().map(this::transform).forEach(msg -> handle(target, msg));
+    }
 
-	protected Message transform(RoutingContext rc) {
-		return transformer.orElse(Function.identity()).apply(rc.getMessage());
-	}
+    protected Message transform(RoutingContext rc) {
+        return transformer.orElse(Function.identity()).apply(rc.getMessage());
+    }
 
-	protected abstract void handle(Gateway target, Message message);
+    protected abstract void handle(Gateway target, Message message);
 
-	@Override
-	protected void onStop() {
-		if (this.disposable != null)
-			this.disposable.dispose();
-	}
+    @Override
+    protected void onStop() {
+        if (this.disposable != null)
+            this.disposable.dispose();
+    }
 }

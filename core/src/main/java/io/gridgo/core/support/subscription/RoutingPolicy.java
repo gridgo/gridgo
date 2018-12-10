@@ -9,15 +9,15 @@ import io.gridgo.framework.execution.ExecutionStrategy;
 
 public interface RoutingPolicy {
 
-	public Optional<Predicate> getCondition();
+    public Optional<Predicate> getCondition();
 
-	public Optional<ExecutionStrategy> getStrategy();
+    public Optional<ExecutionStrategy> getStrategy();
 
-	public Processor getProcessor();
+    public Processor getProcessor();
 
-	public RoutingPolicy setCondition(Predicate condition);
+    public RoutingPolicy setCondition(Predicate condition);
 
-	public RoutingPolicy setStrategy(ExecutionStrategy strategy);
+    public RoutingPolicy setStrategy(ExecutionStrategy strategy);
 
-	public RoutingPolicy setProcessor(Processor processor);
+    public RoutingPolicy setProcessor(Processor processor);
 }

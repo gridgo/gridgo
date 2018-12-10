@@ -7,16 +7,16 @@ import lombok.Getter;
 @Builder
 public class GameEvent {
 
-	private GameEventType type;
-	private Game game;
+    private GameEventType type;
+    private Game game;
 
-	private boolean creator;
+    private boolean creator;
 
-	private String player;
-	private int x;
-	private int y;
+    private String player;
+    private int x;
+    private int y;
 
-	private boolean finish;
-	private int[][] winnerLine;
-	private String winner;
+    private boolean finish;
+    private int[][] winnerLine;
+    private String winner;
 }

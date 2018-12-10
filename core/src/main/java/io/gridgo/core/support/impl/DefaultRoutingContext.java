@@ -10,15 +10,15 @@ import lombok.Getter;
 @Getter
 public class DefaultRoutingContext implements RoutingContext {
 
-	private Gateway caller;
+    private Gateway caller;
 
-	private Message message;
+    private Message message;
 
-	private Deferred<Message, Exception> deferred;
+    private Deferred<Message, Exception> deferred;
 
-	public DefaultRoutingContext(Gateway caller, Message msg, Deferred<Message, Exception> deferred) {
-		this.caller = caller;
-		this.message = msg;
-		this.deferred = deferred;
-	}
+    public DefaultRoutingContext(Gateway caller, Message msg, Deferred<Message, Exception> deferred) {
+        this.caller = caller;
+        this.message = msg;
+        this.deferred = deferred;
+    }
 }

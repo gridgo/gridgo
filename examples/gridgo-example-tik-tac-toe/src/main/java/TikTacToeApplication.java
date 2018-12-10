@@ -4,9 +4,9 @@ import io.gridgo.utils.ThreadUtils;
 
 public class TikTacToeApplication {
 
-	public static void main(String[] args) {
-		final var app = new TikTacToe();
-		ThreadUtils.registerShutdownTask(app::stop);
-		app.start();
-	}
+    public static void main(String[] args) {
+        final var app = new TikTacToe();
+        ThreadUtils.registerShutdownTask(app::stop);
+        app.start();
+    }
 }

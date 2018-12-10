@@ -5,14 +5,14 @@ import lombok.Builder;
 @Builder
 public class User {
 
-	private String userName;
-	private String sessionId;
+    private String userName;
+    private String sessionId;
 
-	public String getUserName() {
-		return userName;
-	}
+    public String getUserName() {
+        return userName;
+    }
 
-	public String getSessionId() {
-		return sessionId;
-	}
+    public String getSessionId() {
+        return sessionId;
+    }
 }

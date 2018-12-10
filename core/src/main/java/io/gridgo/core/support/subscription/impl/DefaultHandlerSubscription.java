@@ -15,46 +15,46 @@ import lombok.NonNull;
 @Getter
 public class DefaultHandlerSubscription implements HandlerSubscription {
 
-	private Gateway gateway;
+    private Gateway gateway;
 
-	private RoutingPolicy policy;
+    private RoutingPolicy policy;
 
-	public DefaultHandlerSubscription(Gateway gateway, Processor processor) {
-		this.gateway = gateway;
-		this.policy = new DefaultRoutingPolicy(processor);
-	}
+    public DefaultHandlerSubscription(Gateway gateway, Processor processor) {
+        this.gateway = gateway;
+        this.policy = new DefaultRoutingPolicy(processor);
+    }
 
-	public DefaultHandlerSubscription(Gateway gateway, RoutingPolicy policy) {
-		this.gateway = gateway;
-		this.policy = policy;
-	}
+    public DefaultHandlerSubscription(Gateway gateway, RoutingPolicy policy) {
+        this.gateway = gateway;
+        this.policy = policy;
+    }
 
-	@Override
-	public HandlerSubscription when(String condition) {
-		return when(new SqlPredicate(condition));
-	}
+    @Override
+    public HandlerSubscription when(String condition) {
+        return when(new SqlPredicate(condition));
+    }
 
-	@Override
-	public HandlerSubscription when(Predicate condition) {
-		this.policy.setCondition(condition);
-		return this;
-	}
+    @Override
+    public HandlerSubscription when(Predicate condition) {
+        this.policy.setCondition(condition);
+        return this;
+    }
 
-	@Override
-	public HandlerSubscription using(ExecutionStrategy strategy) {
-		this.policy.setStrategy(strategy);
-		return this;
-	}
+    @Override
+    public HandlerSubscription using(ExecutionStrategy strategy) {
+        this.policy.setStrategy(strategy);
+        return this;
+    }
 
-	@Override
-	public GatewaySubscription withPolicy(final @NonNull RoutingPolicy policy) {
-		this.policy.setCondition(policy.getCondition().orElse(null));
-		this.policy.setStrategy(policy.getStrategy().orElse(null));
-		return gateway;
-	}
+    @Override
+    public GatewaySubscription withPolicy(final @NonNull RoutingPolicy policy) {
+        this.policy.setCondition(policy.getCondition().orElse(null));
+        this.policy.setStrategy(policy.getStrategy().orElse(null));
+        return gateway;
+    }
 
-	@Override
-	public GatewaySubscription finishSubscribing() {
-		return gateway;
-	}
+    @Override
+    public GatewaySubscription finishSubscribing() {
+        return gateway;
+    }
 }
