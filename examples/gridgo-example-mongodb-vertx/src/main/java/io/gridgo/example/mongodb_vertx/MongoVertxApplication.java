@@ -155,10 +155,8 @@ public class MongoVertxApplication implements Runnable {
         // call the gateway with a default request and return response to client
         var mongoRequest = createMongoRequest();
         mongoGateway.call(mongoRequest) // call the gateway
-                    .done(response -> {
-                        // return response if success
-                        deferred.resolve(response);
-                    }).fail(ex -> {
+                    .done(deferred::resolve) //
+                    .fail(ex -> {
                         // just to make sure we won't miss anything
                         log.error("Error while handling request", ex);
                         // return exception if failed
