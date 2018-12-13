@@ -4,10 +4,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 
 import io.gridgo.connector.ConnectorFactory;
@@ -29,6 +31,10 @@ public class DefaultGridgoContext extends AbstractComponentLifecycle implements 
     };
 
     private Map<String, Gateway> gateways = new ConcurrentHashMap<>();
+
+    private Map<String, Long> gatewayOrder = new ConcurrentHashMap<>();
+
+    private AtomicLong counter = new AtomicLong(0);
 
     private String name;
 
@@ -59,8 +65,10 @@ public class DefaultGridgoContext extends AbstractComponentLifecycle implements 
 
     @Override
     public GatewaySubscription openGateway(String name, ProducerTemplate producerTemplate) {
-        return gateways.computeIfAbsent(name,
-                key -> new DefaultGateway(this, key).setProducerTemplate(producerTemplate));
+        return gateways.computeIfAbsent(name, key -> {
+            gatewayOrder.put(name, counter.incrementAndGet());
+            return new DefaultGateway(this, key).setProducerTemplate(producerTemplate);
+        });
     }
 
     @Override
@@ -94,7 +102,15 @@ public class DefaultGridgoContext extends AbstractComponentLifecycle implements 
     @Override
     protected void onStart() {
         components.stream().forEach(c -> c.start());
-        gateways.values().stream().filter(g -> g.isAutoStart()).forEach(g -> g.start());
+        gateways.entrySet().stream() //
+                .sorted(this::compareGateways) //
+                .map(entry -> entry.getValue()) //
+                .filter(g -> g.isAutoStart()) //
+                .forEach(g -> g.start());
+    }
+
+    private int compareGateways(Entry<String, Gateway> e1, Entry<String, Gateway> e2) {
+        return gatewayOrder.get(e1.getKey()) > gatewayOrder.get(e2.getKey()) ? 1 : -1;
     }
 
     @Override
