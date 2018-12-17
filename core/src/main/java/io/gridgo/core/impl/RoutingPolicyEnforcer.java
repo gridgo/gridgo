@@ -6,7 +6,9 @@ import io.gridgo.core.GridgoContext;
 import io.gridgo.core.support.RoutingContext;
 import io.gridgo.core.support.subscription.RoutingPolicy;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class RoutingPolicyEnforcer {
 
     private RoutingPolicy policy;
@@ -24,6 +26,7 @@ public class RoutingPolicyEnforcer {
             try {
                 doProcess(rc, gc);
             } catch (Exception ex) {
+                log.error("Exception caught while executing processor", ex);
                 if (rc.getDeferred() != null)
                     rc.getDeferred().reject(ex);
             }
