@@ -6,12 +6,15 @@ import org.joo.libra.Predicate;
 
 import io.gridgo.core.Processor;
 import io.gridgo.framework.execution.ExecutionStrategy;
+import io.gridgo.framework.execution.ExecutionStrategyInstrumenter;
 
 public interface RoutingPolicy {
 
     public Optional<Predicate> getCondition();
 
     public Optional<ExecutionStrategy> getStrategy();
+
+    public Optional<ExecutionStrategyInstrumenter> getInstrumenter();
 
     public Processor getProcessor();
 
@@ -20,4 +23,6 @@ public interface RoutingPolicy {
     public RoutingPolicy setStrategy(ExecutionStrategy strategy);
 
     public RoutingPolicy setProcessor(Processor processor);
+
+    public RoutingPolicy setInstrumenter(ExecutionStrategyInstrumenter instrumenter);
 }

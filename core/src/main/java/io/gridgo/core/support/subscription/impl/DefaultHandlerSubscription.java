@@ -9,6 +9,7 @@ import io.gridgo.core.support.subscription.GatewaySubscription;
 import io.gridgo.core.support.subscription.HandlerSubscription;
 import io.gridgo.core.support.subscription.RoutingPolicy;
 import io.gridgo.framework.execution.ExecutionStrategy;
+import io.gridgo.framework.execution.ExecutionStrategyInstrumenter;
 import lombok.Getter;
 import lombok.NonNull;
 
@@ -27,6 +28,12 @@ public class DefaultHandlerSubscription implements HandlerSubscription {
     public DefaultHandlerSubscription(Gateway gateway, RoutingPolicy policy) {
         this.gateway = gateway;
         this.policy = policy;
+    }
+
+    @Override
+    public HandlerSubscription instrumentWith(ExecutionStrategyInstrumenter instrumenter) {
+        this.policy.setInstrumenter(instrumenter);
+        return this;
     }
 
     @Override

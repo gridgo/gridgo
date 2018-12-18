@@ -22,6 +22,11 @@ public class RoutingPolicyEnforcer {
     }
 
     public void execute(RoutingContext rc, GridgoContext gc) {
+        var runnable = buildRunnable(rc, gc);
+        policy.getStrategy().ifPresentOrElse(s -> s.execute(runnable), runnable);
+    }
+
+    private Runnable buildRunnable(RoutingContext rc, GridgoContext gc) {
         Runnable runnable = () -> {
             try {
                 doProcess(rc, gc);
@@ -31,7 +36,9 @@ public class RoutingPolicyEnforcer {
                     rc.getDeferred().reject(ex);
             }
         };
-        policy.getStrategy().ifPresentOrElse(s -> s.execute(runnable), runnable);
+        if (policy.getInstrumenter().isPresent())
+            runnable = policy.getInstrumenter().get().wrap(runnable);
+        return runnable;
     }
 
     private void doProcess(RoutingContext rc, GridgoContext gc) {
