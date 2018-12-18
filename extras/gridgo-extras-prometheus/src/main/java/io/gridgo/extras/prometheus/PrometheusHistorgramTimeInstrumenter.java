@@ -22,7 +22,7 @@ public class PrometheusHistorgramTimeInstrumenter implements ExecutionStrategyIn
     }
 
     @Override
-    public Runnable wrap(Runnable runnable) {
+    public Runnable instrument(Runnable runnable) {
         return () -> {
             histogram.time(runnable);
         };

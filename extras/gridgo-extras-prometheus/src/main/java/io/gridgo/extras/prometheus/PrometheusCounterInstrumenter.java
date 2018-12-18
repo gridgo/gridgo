@@ -18,7 +18,7 @@ public class PrometheusCounterInstrumenter implements ExecutionStrategyInstrumen
     }
 
     @Override
-    public Runnable wrap(Runnable runnable) {
+    public Runnable instrument(Runnable runnable) {
         return () -> {
             counter.inc();
             runnable.run();

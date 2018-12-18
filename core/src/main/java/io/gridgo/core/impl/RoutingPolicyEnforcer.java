@@ -37,7 +37,7 @@ public class RoutingPolicyEnforcer {
             }
         };
         if (policy.getInstrumenter().isPresent())
-            runnable = policy.getInstrumenter().get().wrap(runnable);
+            runnable = policy.getInstrumenter().get().instrument(runnable);
         return runnable;
     }
 

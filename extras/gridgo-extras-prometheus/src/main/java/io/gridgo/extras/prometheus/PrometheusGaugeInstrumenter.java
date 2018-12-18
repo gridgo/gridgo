@@ -18,7 +18,7 @@ public class PrometheusGaugeInstrumenter implements ExecutionStrategyInstrumente
     }
 
     @Override
-    public Runnable wrap(Runnable runnable) {
+    public Runnable instrument(Runnable runnable) {
         return () -> {
             gauge.inc();
             runnable.run();
