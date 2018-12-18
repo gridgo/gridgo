@@ -10,6 +10,14 @@ public class PrometheusCounterExecutionStrategy extends WrappedExecutionStrategy
     @Getter
     private Counter counter;
 
+    public PrometheusCounterExecutionStrategy(String name, String help) {
+        this.counter = Counter.build().name(name).help(help).register();
+    }
+
+    public PrometheusCounterExecutionStrategy(Counter counter) {
+        this.counter = counter;
+    }
+
     public PrometheusCounterExecutionStrategy(ExecutionStrategy strategy, String name, String help) {
         super(strategy);
         this.counter = Counter.build().name(name).help(help).register();

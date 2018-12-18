@@ -9,6 +9,14 @@ public class PrometheusGaugeExecutionStrategy extends WrappedExecutionStrategy {
 
     @Getter
     private Gauge gauge;
+    
+    public PrometheusGaugeExecutionStrategy(String name, String help) {
+        this.gauge = Gauge.build(name, help).register();
+    }
+
+    public PrometheusGaugeExecutionStrategy(Gauge gauge) {
+        this.gauge = gauge;
+    }
 
     public PrometheusGaugeExecutionStrategy(ExecutionStrategy strategy, String name, String help) {
         super(strategy);

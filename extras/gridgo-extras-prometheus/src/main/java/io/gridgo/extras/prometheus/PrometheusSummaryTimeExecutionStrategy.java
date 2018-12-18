@@ -10,6 +10,14 @@ public class PrometheusSummaryTimeExecutionStrategy extends WrappedExecutionStra
     @Getter
     private Summary summary;
 
+    public PrometheusSummaryTimeExecutionStrategy(String name, String help) {
+        this.summary = Summary.build(name, help).register();
+    }
+
+    public PrometheusSummaryTimeExecutionStrategy(Summary summary) {
+        this.summary = summary;
+    }
+
     public PrometheusSummaryTimeExecutionStrategy(ExecutionStrategy strategy, String name, String help) {
         super(strategy);
         this.summary = Summary.build(name, help).register();
