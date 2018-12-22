@@ -1,5 +1,7 @@
 package io.gridgo.example.tiktactoe.comp;
 
+import java.util.Optional;
+
 import io.gridgo.core.Gateway;
 import io.gridgo.core.GridgoContext;
 import io.gridgo.core.support.ContextAwareComponent;
@@ -23,7 +25,7 @@ abstract class TikTacToeBaseComponent extends NonameComponentLifecycle implement
 
     @Override
     protected void onStart() {
-        this.getGateway().subscribe(this::processRequest);
+        this.getGateway().ifPresent(g -> g.subscribe(this::processRequest));
     }
 
     @Override
@@ -31,8 +33,8 @@ abstract class TikTacToeBaseComponent extends NonameComponentLifecycle implement
         // do nothing...
     }
 
-    protected Gateway getGateway() {
-        return this.getContext().findGateway(gatewayName).orElse(null);
+    protected Optional<Gateway> getGateway() {
+        return this.getContext().findGateway(gatewayName);
     }
 
     protected abstract void processRequest(RoutingContext rc, GridgoContext gc);
