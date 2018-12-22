@@ -2,10 +2,10 @@ package io.gridgo.example.tiktactoe.comp;
 
 import java.util.Optional;
 
-import io.gridgo.core.Gateway;
 import io.gridgo.core.GridgoContext;
 import io.gridgo.core.support.ContextAwareComponent;
 import io.gridgo.core.support.RoutingContext;
+import io.gridgo.core.support.subscription.GatewaySubscription;
 import io.gridgo.framework.NonameComponentLifecycle;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -33,8 +33,8 @@ abstract class TikTacToeBaseComponent extends NonameComponentLifecycle implement
         // do nothing...
     }
 
-    protected Optional<Gateway> getGateway() {
-        return this.getContext().findGateway(gatewayName);
+    protected Optional<GatewaySubscription> getGateway() {
+        return this.getContext().getGatewaySubscription(gatewayName);
     }
 
     protected abstract void processRequest(RoutingContext rc, GridgoContext gc);

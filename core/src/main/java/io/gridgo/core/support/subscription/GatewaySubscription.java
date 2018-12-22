@@ -5,8 +5,9 @@ import io.gridgo.connector.ConnectorResolver;
 import io.gridgo.connector.support.config.ConnectorContext;
 import io.gridgo.core.Gateway;
 import io.gridgo.core.Processor;
+import io.gridgo.core.support.ProducerTemplateAware;
 
-public interface GatewaySubscription {
+public interface GatewaySubscription extends ProducerTemplateAware<GatewaySubscription> {
 
     public GatewaySubscription attachConnector(String endpoint);
 
@@ -24,8 +25,6 @@ public interface GatewaySubscription {
     public HandlerSubscription subscribe(Processor processor);
 
     public GatewaySubscription setAutoStart(boolean autoStart);
-
-    public boolean isAutoStart();
 
     public Gateway get();
 }

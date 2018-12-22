@@ -3,9 +3,9 @@ package io.gridgo.core.impl;
 import org.joo.promise4j.Promise;
 import org.joo.promise4j.impl.CompletableDeferredObject;
 
-import io.gridgo.core.Gateway;
 import io.gridgo.core.GridgoContext;
 import io.gridgo.core.support.ProducerJoinMode;
+import io.gridgo.core.support.subscription.GatewaySubscription;
 import io.gridgo.core.support.template.ProducerTemplate;
 import io.gridgo.framework.support.Message;
 import lombok.Getter;
@@ -57,13 +57,13 @@ public class DefaultGateway extends AbstractGatewaySubscription {
     }
 
     @Override
-    public Gateway setProducerTemplate(ProducerTemplate producerTemplate) {
+    public GatewaySubscription setProducerTemplate(ProducerTemplate producerTemplate) {
         if (producerTemplate != null)
             this.producerTemplate = producerTemplate;
         return this;
     }
 
-    public Gateway setAutoStart(boolean autoStart) {
+    public GatewaySubscription setAutoStart(boolean autoStart) {
         this.autoStart = autoStart;
         return this;
     }

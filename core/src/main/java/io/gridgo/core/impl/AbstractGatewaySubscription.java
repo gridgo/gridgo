@@ -27,7 +27,8 @@ import io.reactivex.subjects.Subject;
 import lombok.Getter;
 
 @Getter
-public abstract class AbstractGatewaySubscription extends AbstractComponentLifecycle implements Gateway {
+public abstract class AbstractGatewaySubscription extends AbstractComponentLifecycle
+        implements Gateway, GatewaySubscription {
 
     private String name;
 

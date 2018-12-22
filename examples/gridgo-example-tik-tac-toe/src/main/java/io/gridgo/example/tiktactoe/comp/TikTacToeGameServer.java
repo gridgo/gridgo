@@ -103,7 +103,7 @@ public class TikTacToeGameServer extends TikTacToeBaseComponent {
     }
 
     private void sendToSessionId(String routingId, BElement body) {
-        this.getGateway().ifPresent(g -> g.send(Message.of(Payload.of(body).addHeader(ROUTING_ID, routingId))));
+        this.getGateway().ifPresent(g -> g.get().send(Message.of(Payload.of(body).addHeader(ROUTING_ID, routingId))));
     }
 
     private void sendToUser(String userName, BElement body) {
