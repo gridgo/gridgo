@@ -10,6 +10,7 @@ import io.gridgo.core.support.subscription.HandlerSubscription;
 import io.gridgo.core.support.subscription.RoutingPolicy;
 import io.gridgo.framework.execution.ExecutionStrategy;
 import io.gridgo.framework.execution.ExecutionStrategyInstrumenter;
+import io.gridgo.framework.support.Message;
 import lombok.Getter;
 import lombok.NonNull;
 
@@ -44,6 +45,12 @@ public class DefaultHandlerSubscription implements HandlerSubscription {
     @Override
     public HandlerSubscription when(Predicate condition) {
         this.policy.setCondition(condition);
+        return this;
+    }
+
+    @Override
+    public HandlerSubscription when(java.util.function.Predicate<Message> condition) {
+        this.policy.setCondition(new MessagePredicate(condition));
         return this;
     }
 
