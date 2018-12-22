@@ -17,17 +17,21 @@ public class RoutingPolicyEnforcer {
         this.policy = policy;
     }
 
-    public boolean isMatch(PredicateContext context) {
-        return policy.getCondition().isEmpty() || policy.getCondition().get().satisfiedBy(context);
+    public void execute(RoutingContext rc, GridgoContext gc, PredicateContext context) {
+        if (!isMatch(context))
+            return;
+        var runnable = buildRunnable(rc, gc);
+        if (policy.getInstrumenter().isPresent() && isMatchInstrumenter(context))
+            runnable = policy.getInstrumenter().get().instrument(runnable);
+        execute(runnable);
     }
 
-    public void execute(RoutingContext rc, GridgoContext gc) {
-        var runnable = buildRunnable(rc, gc);
+    private void execute(Runnable runnable) {
         policy.getStrategy().ifPresentOrElse(s -> s.execute(runnable), runnable);
     }
 
     private Runnable buildRunnable(RoutingContext rc, GridgoContext gc) {
-        Runnable runnable = () -> {
+        return () -> {
             try {
                 doProcess(rc, gc);
             } catch (Exception ex) {
@@ -36,9 +40,14 @@ public class RoutingPolicyEnforcer {
                     rc.getDeferred().reject(ex);
             }
         };
-        if (policy.getInstrumenter().isPresent())
-            runnable = policy.getInstrumenter().get().instrument(runnable);
-        return runnable;
+    }
+
+    private boolean isMatch(PredicateContext context) {
+        return policy.getCondition().map(c -> c.satisfiedBy(context)).orElse(true);
+    }
+
+    private boolean isMatchInstrumenter(PredicateContext context) {
+        return policy.getInstrumenterCondition().map(c -> c.satisfiedBy(context)).orElse(true);
     }
 
     private void doProcess(RoutingContext rc, GridgoContext gc) {

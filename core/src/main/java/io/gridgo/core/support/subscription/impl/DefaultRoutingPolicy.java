@@ -13,6 +13,8 @@ import lombok.Getter;
 @Getter
 public class DefaultRoutingPolicy implements RoutingPolicy {
 
+    private Optional<Predicate> instrumenterCondition = Optional.empty();
+
     private Optional<Predicate> condition = Optional.empty();
 
     private Optional<ExecutionStrategy> strategy = Optional.empty();
@@ -46,6 +48,12 @@ public class DefaultRoutingPolicy implements RoutingPolicy {
     @Override
     public RoutingPolicy setInstrumenter(ExecutionStrategyInstrumenter instrumenter) {
         this.instrumenter = Optional.ofNullable(instrumenter);
+        return this;
+    }
+
+    @Override
+    public RoutingPolicy setInstrumenterCondition(Predicate condition) {
+        this.instrumenterCondition = Optional.ofNullable(condition);
         return this;
     }
 }
