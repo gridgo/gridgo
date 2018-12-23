@@ -78,6 +78,12 @@ public interface GatewaySubscription extends ProducerTemplateAware<GatewaySubscr
      */
     public ProcessorSubscription subscribe(Processor processor);
 
+    /**
+     * Set the gateway autoStart flag.
+     * 
+     * @param autoStart the autoStart value
+     * @return the GatewaySubscription itself
+     */
     public GatewaySubscription setAutoStart(boolean autoStart);
 
     /**
