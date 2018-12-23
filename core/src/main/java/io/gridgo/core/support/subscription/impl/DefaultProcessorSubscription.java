@@ -55,6 +55,8 @@ public class DefaultProcessorSubscription implements ProcessorSubscription {
 
     @Override
     public GatewaySubscription withPolicy(final @NonNull RoutingPolicy policy) {
+        this.policy.setInstrumenterCondition(policy.getInstrumenterCondition().orElse(null));
+        this.policy.setInstrumenter(policy.getInstrumenter().orElse(null));
         this.policy.setCondition(policy.getCondition().orElse(null));
         this.policy.setStrategy(policy.getStrategy().orElse(null));
         return gateway;
