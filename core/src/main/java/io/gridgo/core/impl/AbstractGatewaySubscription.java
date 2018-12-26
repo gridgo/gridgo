@@ -126,7 +126,9 @@ public abstract class AbstractGatewaySubscription extends AbstractComponentLifec
 
     @Override
     protected void onStart() {
-        this.policyEnforcers = subscriptions.stream().map(s -> s.getPolicy()).map(RoutingPolicyEnforcer::new)
+        this.policyEnforcers = subscriptions.stream() //
+                                            .map(ProcessorSubscription::getPolicy) //
+                                            .map(RoutingPolicyEnforcer::new)
                                             .toArray(size -> new RoutingPolicyEnforcer[size]);
 
         for (Connector connector : connectors)

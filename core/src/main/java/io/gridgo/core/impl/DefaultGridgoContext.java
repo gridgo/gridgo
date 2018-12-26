@@ -89,12 +89,12 @@ public class DefaultGridgoContext extends AbstractComponentLifecycle implements 
 
     @Override
     protected void onStart() {
-        components.stream().forEach(c -> c.start());
+        components.stream().forEach(ComponentLifecycle::start);
         gateways.entrySet().stream() //
                 .sorted(this::compareGateways) //
                 .map(entry -> entry.getValue().get()) //
-                .filter(g -> g.isAutoStart()) //
-                .forEach(g -> g.start());
+                .filter(Gateway::isAutoStart) //
+                .forEach(Gateway::start);
     }
 
     private int compareGateways(Entry<String, GatewaySubscription> e1, Entry<String, GatewaySubscription> e2) {
@@ -104,7 +104,7 @@ public class DefaultGridgoContext extends AbstractComponentLifecycle implements 
     @Override
     protected void onStop() {
         gateways.values().stream().forEach(g -> g.get().stop());
-        components.stream().forEach(c -> c.stop());
+        components.stream().forEach(ComponentLifecycle::stop);
     }
 
     @Override

@@ -83,6 +83,7 @@ public class TikTacToeGameServer extends TikTacToeBaseComponent {
                 case "message":
                     this.handle(payload.getBody(), routingId);
                     break;
+                default:
                 }
             }
         } catch (Exception e) {
@@ -151,6 +152,7 @@ public class TikTacToeGameServer extends TikTacToeBaseComponent {
                         case "game":
                             this.handleGameCommand(request.getObject("data", null), routingId);
                             break;
+                        default:
                         }
                     } catch (UserException | GameException e) {
                         this.sendErrorToRoutingId(routingId, e.getMessage());
@@ -247,8 +249,6 @@ public class TikTacToeGameServer extends TikTacToeBaseComponent {
         case GAME_DELETED:
             this.onGameDeleted(event.getGame());
         default:
-            // do nothing
-            break;
         }
     }
 
