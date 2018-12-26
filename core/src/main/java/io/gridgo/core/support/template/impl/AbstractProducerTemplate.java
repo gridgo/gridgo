@@ -65,11 +65,11 @@ public abstract class AbstractProducerTemplate implements ProducerTemplate {
     }
 
     protected boolean isCallSupported(Connector connector) {
-        return connector.getProducer().isPresent() && connector.getProducer().get().isCallSupported();
+        return connector.getProducer().map(Producer::isCallSupported).orElse(false);
     }
 
     protected boolean isSendWithAckSupported(Connector connector) {
-        return connector.getProducer().isPresent() && connector.getProducer().get().isSendWithAckSupported();
+        return connector.getProducer().map(p -> p.isSendWithAckSupported()).orElse(false);
     }
 
     private Promise<Message, Exception> executeProducerWithMapper(Connector connector,

@@ -77,6 +77,7 @@ public class MongoVertxApplication implements Runnable {
         try {
             new MongoHelper().prepareDatabase(mongo, DATABASE_NAME, COLLECTION);
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             throw new RuntimeException(e);
         }
 

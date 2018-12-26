@@ -46,6 +46,7 @@ public class MongoHelper {
             latch.await();
         } catch (InterruptedException ex) {
             log.error("InterruptedException caught when populating dummy data. Exiting now...");
+            Thread.currentThread().interrupt();
             System.exit(1);
         }
     }

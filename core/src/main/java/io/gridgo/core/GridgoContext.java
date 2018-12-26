@@ -32,7 +32,7 @@ public interface GridgoContext extends ComponentLifecycle {
     public Optional<Gateway> findGateway(String name);
 
     public default Gateway findGatewayMandatory(String name) {
-        return findGateway(name).get();
+        return findGateway(name).orElseThrow();
     }
 
     public default GridgoContext startGateway(String name) {

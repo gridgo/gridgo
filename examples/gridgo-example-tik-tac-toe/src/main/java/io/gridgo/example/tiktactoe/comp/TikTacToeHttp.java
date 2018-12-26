@@ -41,7 +41,7 @@ public class TikTacToeHttp extends TikTacToeBaseComponent {
             response = Payload.of(BReference.of(input)).addHeader(HttpCommonConstants.CONTENT_TYPE,
                     HttpContentType.forFileName(path).getMime());
         }
-        rc.getDeferred().resolve(Message.of(response).setRoutingId(msg.getRoutingId().get()));
+        rc.getDeferred().resolve(Message.of(response).setRoutingId(msg.getRoutingId().orElseThrow()));
     }
 
 }

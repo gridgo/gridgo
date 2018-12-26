@@ -21,8 +21,9 @@ public class RoutingPolicyEnforcer {
         if (!isMatch(context))
             return;
         var runnable = buildRunnable(rc, gc);
-        if (policy.getInstrumenter().isPresent() && isMatchInstrumenter(context))
-            runnable = policy.getInstrumenter().get().instrument(runnable);
+        var instrumenter = policy.getInstrumenter();
+        if (instrumenter.isPresent() && isMatchInstrumenter(context))
+            runnable = instrumenter.get().instrument(runnable);
         execute(runnable);
     }
 

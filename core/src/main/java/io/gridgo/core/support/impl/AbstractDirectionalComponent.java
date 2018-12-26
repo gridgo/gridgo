@@ -29,13 +29,9 @@ public abstract class AbstractDirectionalComponent extends AbstractComponentLife
     protected void onStart() {
         if (context == null)
             throw new IllegalStateException("Context is not set");
-        var sourceGateway = context.findGateway(source);
-        var targetGateway = context.findGateway(target);
-        if (sourceGateway.isEmpty() || targetGateway.isEmpty()) {
-            getLogger().warn("Source or target gateway is not available");
-            return;
-        }
-        startWithGateways(sourceGateway.get(), targetGateway.get());
+        var sourceGateway = context.findGatewayMandatory(source);
+        var targetGateway = context.findGatewayMandatory(target);
+        startWithGateways(sourceGateway, targetGateway);
     }
 
     protected abstract void startWithGateways(Gateway source, Gateway target);
