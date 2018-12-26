@@ -45,9 +45,11 @@ public interface GridgoContext extends ComponentLifecycle {
         return this;
     }
 
-    public Collection<Gateway> getGateways();
+    public Collection<GatewaySubscription> getGateways();
 
-    public Map<String, Gateway> getGatewaysWithNames();
+    public Map<String, GatewaySubscription> getGatewaysWithNames();
+
+    public Optional<GatewaySubscription> getGatewaySubscription(String name);
 
     public Registry getRegistry();
 

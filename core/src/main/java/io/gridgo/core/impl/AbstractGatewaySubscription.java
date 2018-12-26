@@ -16,9 +16,9 @@ import io.gridgo.core.Processor;
 import io.gridgo.core.support.RoutingContext;
 import io.gridgo.core.support.impl.DefaultRoutingContext;
 import io.gridgo.core.support.subscription.GatewaySubscription;
-import io.gridgo.core.support.subscription.HandlerSubscription;
+import io.gridgo.core.support.subscription.ProcessorSubscription;
 import io.gridgo.core.support.subscription.RoutingPolicy;
-import io.gridgo.core.support.subscription.impl.DefaultHandlerSubscription;
+import io.gridgo.core.support.subscription.impl.DefaultProcessorSubscription;
 import io.gridgo.framework.AbstractComponentLifecycle;
 import io.gridgo.framework.support.Message;
 import io.reactivex.Observable;
@@ -27,7 +27,8 @@ import io.reactivex.subjects.Subject;
 import lombok.Getter;
 
 @Getter
-public abstract class AbstractGatewaySubscription extends AbstractComponentLifecycle implements Gateway {
+public abstract class AbstractGatewaySubscription extends AbstractComponentLifecycle
+        implements Gateway, GatewaySubscription {
 
     private String name;
 
@@ -35,7 +36,7 @@ public abstract class AbstractGatewaySubscription extends AbstractComponentLifec
 
     private List<Connector> connectors = new CopyOnWriteArrayList<>();
 
-    private List<HandlerSubscription> subscriptions = new CopyOnWriteArrayList<>();
+    private List<ProcessorSubscription> subscriptions = new CopyOnWriteArrayList<>();
 
     private RoutingPolicyEnforcer[] policyEnforcers = new RoutingPolicyEnforcer[0];
 
@@ -90,9 +91,7 @@ public abstract class AbstractGatewaySubscription extends AbstractComponentLifec
     private void handleMessages(RoutingContext rc) {
         var predicateContext = new PredicateContext(rc.getMessage());
         for (var enforcer : policyEnforcers) {
-            if (enforcer.isMatch(predicateContext)) {
-                enforcer.execute(rc, context);
-            }
+            enforcer.execute(rc, context, predicateContext);
         }
     }
 
@@ -103,14 +102,14 @@ public abstract class AbstractGatewaySubscription extends AbstractComponentLifec
 
     @Override
     public GatewaySubscription attachRoutingPolicy(RoutingPolicy policy) {
-        var subscription = new DefaultHandlerSubscription(this, policy);
+        var subscription = new DefaultProcessorSubscription(this, policy);
         subscriptions.add(subscription);
         return this;
     }
 
     @Override
-    public HandlerSubscription subscribe(Processor processor) {
-        var subscription = new DefaultHandlerSubscription(this, processor);
+    public ProcessorSubscription subscribe(Processor processor) {
+        var subscription = new DefaultProcessorSubscription(this, processor);
         subscriptions.add(subscription);
         return subscription;
     }
