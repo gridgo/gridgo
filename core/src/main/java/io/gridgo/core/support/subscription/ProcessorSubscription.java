@@ -18,7 +18,7 @@ public interface ProcessorSubscription {
 
     /**
      * Set the condition of the processor to run, using
-     * <code>org.joo.libra.sql.SqlPredicate<code> syntax.
+     * <code>org.joo.libra.sql.SqlPredicate</code> syntax.
      * 
      * @param condition the condition
      * @return the current object
