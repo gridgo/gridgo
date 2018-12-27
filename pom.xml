@@ -21,7 +21,6 @@
 	<modules>
 		<module>core</module>
 		<module>extras</module>
-		<module>examples</module>
 	</modules>
 
 	<properties>
