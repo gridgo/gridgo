@@ -14,4 +14,4 @@ addons:
   #- mvn clean install sonar:sonar test jacoco:report coveralls:report -DrepoToken=$CoverallsRepoToken
 
 after_success:
-- mvn clean test jacoco:report sonar:sonar coveralls:report -DrepoToken=$CoverallsRepoToken
+- mvn clean test jacoco:report sonar:sonar -Dsonar.projectKey=gridgo_gridgo coveralls:report -DrepoToken=$CoverallsRepoToken
