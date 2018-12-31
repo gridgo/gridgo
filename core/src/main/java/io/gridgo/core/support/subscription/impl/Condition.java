@@ -10,6 +10,10 @@ import io.gridgo.framework.support.Message;
 
 public class Condition {
 
+    private Condition() {
+        // Nothing to do here
+    }
+
     public static Predicate of(BooleanSupplier supplier) {
         return of(supplier.getAsBoolean());
     }
