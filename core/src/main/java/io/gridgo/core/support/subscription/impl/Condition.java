@@ -1,6 +1,6 @@
 package io.gridgo.core.support.subscription.impl;
 
-import java.util.function.Supplier;
+import java.util.function.BooleanSupplier;
 
 import org.joo.libra.Predicate;
 import org.joo.libra.common.SimplePredicate;
@@ -10,8 +10,8 @@ import io.gridgo.framework.support.Message;
 
 public class Condition {
 
-    public static Predicate of(Supplier<Boolean> supplier) {
-        return of(supplier.get());
+    public static Predicate of(BooleanSupplier supplier) {
+        return of(supplier.getAsBoolean());
     }
 
     public static Predicate of(boolean value) {

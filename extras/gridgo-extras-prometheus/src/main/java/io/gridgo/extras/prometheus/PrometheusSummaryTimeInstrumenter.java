@@ -19,8 +19,6 @@ public class PrometheusSummaryTimeInstrumenter implements ExecutionStrategyInstr
 
     @Override
     public Runnable instrument(Runnable runnable) {
-        return () -> {
-            summary.time(runnable);
-        };
+        return () -> summary.time(runnable);
     }
 }

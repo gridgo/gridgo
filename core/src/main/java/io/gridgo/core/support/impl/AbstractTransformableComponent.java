@@ -2,6 +2,7 @@ package io.gridgo.core.support.impl;
 
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 import io.gridgo.core.Gateway;
 import io.gridgo.core.support.RoutingContext;
@@ -20,7 +21,7 @@ public abstract class AbstractTransformableComponent extends AbstractDirectional
         super(source, target);
     }
 
-    public AbstractTransformableComponent(String source, String target, Function<Message, Message> transformer) {
+    public AbstractTransformableComponent(String source, String target, UnaryOperator<Message> transformer) {
         super(source, target);
         this.transformer = Optional.ofNullable(transformer);
     }

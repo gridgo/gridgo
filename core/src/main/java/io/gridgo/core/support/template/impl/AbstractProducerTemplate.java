@@ -69,7 +69,7 @@ public abstract class AbstractProducerTemplate implements ProducerTemplate {
     }
 
     protected boolean isSendWithAckSupported(Connector connector) {
-        return connector.getProducer().map(p -> p.isSendWithAckSupported()).orElse(false);
+        return connector.getProducer().map(Producer::isSendWithAckSupported).orElse(false);
     }
 
     private Promise<Message, Exception> executeProducerWithMapper(Connector connector,

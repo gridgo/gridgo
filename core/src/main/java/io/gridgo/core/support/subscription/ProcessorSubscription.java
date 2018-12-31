@@ -1,6 +1,6 @@
 package io.gridgo.core.support.subscription;
 
-import java.util.function.Supplier;
+import java.util.function.BooleanSupplier;
 
 import org.joo.libra.Predicate;
 
@@ -70,9 +70,9 @@ public interface ProcessorSubscription {
      * @param instrumenter the instrumenter
      * @return the current object
      */
-    public default ProcessorSubscription instrumentWhen(Supplier<Boolean> condition,
+    public default ProcessorSubscription instrumentWhen(BooleanSupplier condition,
             ExecutionStrategyInstrumenter instrumenter) {
-        if (condition.get())
+        if (condition.getAsBoolean())
             instrumentWith(instrumenter);
         return this;
     }

@@ -2,7 +2,6 @@ package io.gridgo.core.support.subscription.impl;
 
 import org.joo.libra.Predicate;
 import org.joo.libra.PredicateContext;
-import org.joo.libra.support.exceptions.PredicateExecutionException;
 
 import io.gridgo.framework.support.Message;
 
@@ -15,7 +14,7 @@ public class MessagePredicate implements Predicate {
     }
 
     @Override
-    public boolean satisfiedBy(PredicateContext context) throws PredicateExecutionException {
+    public boolean satisfiedBy(PredicateContext context) {
         return condition.test((Message) context.getContext());
     }
 }
