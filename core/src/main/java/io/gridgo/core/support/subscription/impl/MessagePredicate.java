@@ -15,6 +15,8 @@ public class MessagePredicate implements Predicate {
 
     @Override
     public boolean satisfiedBy(PredicateContext context) {
+        if (context == null)
+            return condition.test(null);
         return condition.test((Message) context.getContext());
     }
 }
