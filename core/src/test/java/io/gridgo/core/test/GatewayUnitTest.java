@@ -1,6 +1,7 @@
 package io.gridgo.core.test;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.joo.libra.sql.SqlPredicate;
 import org.junit.Assert;
@@ -246,6 +247,42 @@ public class GatewayUnitTest {
 
         context.closeGateway("test");
         Assert.assertTrue(context.findGateway("test").isEmpty());
+
+        context.stop();
+    }
+
+    @Test
+    public void testInstrumenter() throws InterruptedException {
+        var atomic = new AtomicInteger();
+        var latch1 = new CountDownLatch(2);
+        var context = new DefaultGridgoContextBuilder().setName("test").build();
+        context.openGateway("test") //
+               .subscribe((rc, gc) -> {
+                   latch1.countDown();
+               }) //
+               .when("payload.body.data == 1") //
+               .instrumentWith(runnable -> (() -> {
+                   atomic.incrementAndGet();
+                   runnable.run();
+               })) //
+               .finishSubscribing() //
+               .subscribe((rc, gc) -> {
+                   latch1.countDown();
+               }) //
+               .when("payload.body.data == 2") //
+               .instrumentWith(runnable -> (() -> {
+                   runnable.run();
+               }));
+
+        context.start();
+
+        var gateway = context.findGateway("test").orElseThrow();
+        gateway.push(createType1Message());
+        gateway.push(createType2Message());
+
+        latch1.await();
+
+        Assert.assertEquals(1, atomic.get());
 
         context.stop();
     }
