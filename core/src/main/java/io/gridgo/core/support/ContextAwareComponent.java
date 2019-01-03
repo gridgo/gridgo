@@ -5,5 +5,5 @@ import io.gridgo.framework.ComponentLifecycle;
 
 public interface ContextAwareComponent extends ComponentLifecycle {
 
-	public void setContext(GridgoContext context);
+    public void setContext(GridgoContext context);
 }

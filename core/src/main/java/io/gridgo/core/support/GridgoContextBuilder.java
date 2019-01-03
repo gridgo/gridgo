@@ -9,11 +9,11 @@ import io.gridgo.framework.support.Registry;
 
 public interface GridgoContextBuilder extends Builder<GridgoContext> {
 
-	public GridgoContextBuilder setConnectorFactory(ConnectorFactory connectorFactory);
-	
-	public GridgoContextBuilder setRegistry(Registry registry);
-	
-	public GridgoContextBuilder setExceptionHandler(Consumer<Throwable> exceptionHandler);
+    public GridgoContextBuilder setConnectorFactory(ConnectorFactory connectorFactory);
 
-	public GridgoContextBuilder setName(String name);
+    public GridgoContextBuilder setRegistry(Registry registry);
+
+    public GridgoContextBuilder setExceptionHandler(Consumer<Throwable> exceptionHandler);
+
+    public GridgoContextBuilder setName(String name);
 }

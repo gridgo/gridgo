@@ -11,46 +11,46 @@ import io.gridgo.framework.support.Message;
 
 public class BeanProducer extends AbstractProducer {
 
-	private Integer beanValue;
+    private Integer beanValue;
 
-	public BeanProducer(ConnectorContext context, Integer beanValue) {
-		super(context);
-		this.beanValue = beanValue;
-	}
+    public BeanProducer(ConnectorContext context, Integer beanValue) {
+        super(context);
+        this.beanValue = beanValue;
+    }
 
-	@Override
-	public void send(Message message) {
+    @Override
+    public void send(Message message) {
 
-	}
+    }
 
-	@Override
-	public Promise<Message, Exception> sendWithAck(Message message) {
-		return new SimpleDonePromise<>(null);
-	}
+    @Override
+    public Promise<Message, Exception> sendWithAck(Message message) {
+        return new SimpleDonePromise<>(null);
+    }
 
-	@Override
-	public Promise<Message, Exception> call(Message request) {
-		return new SimpleDonePromise<>(createMessage(BObject.ofEmpty(), BValue.of(beanValue)));
-	}
+    @Override
+    public Promise<Message, Exception> call(Message request) {
+        return new SimpleDonePromise<>(createMessage(BObject.ofEmpty(), BValue.of(beanValue)));
+    }
 
-	@Override
-	protected String generateName() {
-		return "producer.bean";
-	}
+    @Override
+    protected String generateName() {
+        return "producer.bean";
+    }
 
-	@Override
-	protected void onStart() {
+    @Override
+    protected void onStart() {
 
-	}
+    }
 
-	@Override
-	protected void onStop() {
+    @Override
+    protected void onStop() {
 
-	}
+    }
 
-	@Override
-	public boolean isCallSupported() {
-		return true;
-	}
+    @Override
+    public boolean isCallSupported() {
+        return true;
+    }
 
 }

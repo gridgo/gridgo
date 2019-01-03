@@ -11,32 +11,28 @@ import lombok.Setter;
 @Getter
 public abstract class AbstractDirectionalComponent extends AbstractComponentLifecycle implements ContextAwareComponent {
 
-	private String source;
+    private String source;
 
-	private String target;
+    private String target;
 
-	@Setter
-	private GridgoContext context;
+    @Setter
+    private GridgoContext context;
 
-	public AbstractDirectionalComponent(final @NonNull String source, final @NonNull String target) {
-		if (source.equals(target))
-			throw new IllegalArgumentException("Source and target cannot be the same");
-		this.source = source;
-		this.target = target;
-	}
+    public AbstractDirectionalComponent(final @NonNull String source, final @NonNull String target) {
+        if (source.equals(target))
+            throw new IllegalArgumentException("Source and target cannot be the same");
+        this.source = source;
+        this.target = target;
+    }
 
-	@Override
-	protected void onStart() {
-		if (context == null)
-			throw new IllegalStateException("Context is not set");
-		var sourceGateway = context.findGateway(source);
-		var targetGateway = context.findGateway(target);
-		if (sourceGateway.isEmpty() || targetGateway.isEmpty()) {
-			getLogger().warn("Source or target gateway is not available");
-			return;
-		}
-		startWithGateways(sourceGateway.get(), targetGateway.get());
-	}
+    @Override
+    protected void onStart() {
+        if (context == null)
+            throw new IllegalStateException("Context is not set");
+        var sourceGateway = context.findGatewayMandatory(source);
+        var targetGateway = context.findGatewayMandatory(target);
+        startWithGateways(sourceGateway, targetGateway);
+    }
 
-	protected abstract void startWithGateways(Gateway source, Gateway target);
+    protected abstract void startWithGateways(Gateway source, Gateway target);
 }
