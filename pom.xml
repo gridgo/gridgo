@@ -3,12 +3,10 @@
 	<artifactId>gridgo</artifactId>
 	<packaging>pom</packaging>
 	
-	<version>0.3.0</version>
-	
 	<parent>
 		<groupId>io.gridgo</groupId>
 		<artifactId>gridgo-base</artifactId>
-		<version>0.3.0</version>
+		<version>0.4.0-SNAPSHOT</version>
 	</parent>
 
 	<url>https://github.com/gridgo/gridgo.git</url>
