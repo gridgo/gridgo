@@ -3,6 +3,7 @@ package io.gridgo.core.support.impl;
 import java.util.function.UnaryOperator;
 
 import io.gridgo.core.Gateway;
+import io.gridgo.core.support.RoutingContext;
 import io.gridgo.framework.support.Message;
 
 public class BridgeComponent extends AbstractTransformableComponent {
@@ -16,8 +17,8 @@ public class BridgeComponent extends AbstractTransformableComponent {
     }
 
     @Override
-    protected void handle(Gateway target, Message message) {
-        target.send(message);
+    protected void doHandle(Gateway target, RoutingContext rc) {
+        target.send(rc.getMessage());
     }
 
     @Override
