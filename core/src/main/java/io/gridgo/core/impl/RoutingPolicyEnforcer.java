@@ -41,8 +41,7 @@ public class RoutingPolicyEnforcer {
                     var msg = rc.getMessage();
                     log.error("Exception caught while executing processor with message id {} and source {}",
                             msg.getPayload().getId().orElse(null), //
-                            msg.getMisc().get(MessageConstants.SOURCE), //
-                            ex);
+                            msg.getMisc().get(MessageConstants.SOURCE), ex);
                 }
                 if (rc.getDeferred() != null)
                     rc.getDeferred().reject(ex);
