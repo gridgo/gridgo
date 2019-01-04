@@ -5,6 +5,7 @@ import org.joo.libra.PredicateContext;
 import io.gridgo.core.GridgoContext;
 import io.gridgo.core.support.RoutingContext;
 import io.gridgo.core.support.subscription.RoutingPolicy;
+import io.gridgo.framework.support.MessageConstants;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
@@ -36,7 +37,13 @@ public class RoutingPolicyEnforcer {
             try {
                 doProcess(rc, gc);
             } catch (Exception ex) {
-                log.error("Exception caught while executing processor", ex);
+                if (log.isErrorEnabled()) {
+                    var msg = rc.getMessage();
+                    log.error("Exception caught while executing processor with message id {} and source {}",
+                            msg.getPayload().getId().orElse(null), //
+                            msg.getMisc().get(MessageConstants.SOURCE), //
+                            ex);
+                }
                 if (rc.getDeferred() != null)
                     rc.getDeferred().reject(ex);
             }
