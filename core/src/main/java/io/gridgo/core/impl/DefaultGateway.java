@@ -9,6 +9,7 @@ import io.gridgo.core.support.subscription.GatewaySubscription;
 import io.gridgo.core.support.template.ProducerTemplate;
 import io.gridgo.framework.support.Message;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -45,7 +46,9 @@ public class DefaultGateway extends AbstractGatewaySubscription {
     }
 
     @Override
-    public Promise<Message, Exception> push(Message message) {
+    public Promise<Message, Exception> push(@NonNull Message message) {
+        if (message.getSource() == null)
+            throw new IllegalArgumentException("Source is required for push()");
         var deferred = new CompletableDeferredObject<Message, Exception>();
         publish(message, deferred);
         return deferred.promise();
