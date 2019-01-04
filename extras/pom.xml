@@ -13,6 +13,8 @@
 
 	<modules>
 		<module>gridgo-extras-prometheus</module>
+		<module>gridgo-extras-spring</module>
+		<module>gridgo-extras-typesafe</module>
 	</modules>
 
 	<dependencies>

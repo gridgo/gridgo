@@ -39,4 +39,13 @@ public class SpringRegistry implements Registry {
         factory.registerSingleton(name, answer);
         return this;
     }
+
+    @Override
+    public Object lookupByType(Class<?> type) {
+        try {
+            return applicationContext.getBean(type);
+        } catch (NoSuchBeanDefinitionException ex) {
+            return null;
+        }
+    }
 }

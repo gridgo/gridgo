@@ -17,26 +17,22 @@ public class DefaultGridgoContextBuilder implements GridgoContextBuilder {
 
     private String name;
 
-    @Override
-    public GridgoContextBuilder setConnectorFactory(ConnectorFactory connectorFactory) {
+    public DefaultGridgoContextBuilder setConnectorFactory(ConnectorFactory connectorFactory) {
         this.connectorFactory = connectorFactory;
         return this;
     }
 
-    @Override
-    public GridgoContextBuilder setExceptionHandler(Consumer<Throwable> exceptionHandler) {
+    public DefaultGridgoContextBuilder setExceptionHandler(Consumer<Throwable> exceptionHandler) {
         this.exceptionHandler = exceptionHandler;
         return this;
     }
 
-    @Override
-    public GridgoContextBuilder setRegistry(Registry registry) {
+    public DefaultGridgoContextBuilder setRegistry(Registry registry) {
         this.registry = registry;
         return this;
     }
 
-    @Override
-    public GridgoContextBuilder setName(String name) {
+    public DefaultGridgoContextBuilder setName(String name) {
         this.name = name;
         return this;
     }
