@@ -12,8 +12,16 @@ public class SwitchComponent extends AbstractTransformableComponent {
         super(source, target);
     }
 
+    public SwitchComponent(String source, String target, boolean autoResolve) {
+        super(source, target, autoResolve);
+    }
+
     public SwitchComponent(String source, String target, UnaryOperator<Message> transformer) {
         super(source, target, transformer);
+    }
+
+    public SwitchComponent(String source, String target, UnaryOperator<Message> transformer, boolean autoResolve) {
+        super(source, target, transformer, autoResolve);
     }
 
     @Override

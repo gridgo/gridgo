@@ -24,13 +24,18 @@ public abstract class AbstractTransformableComponent extends AbstractDirectional
     }
 
     public AbstractTransformableComponent(String source, String target, boolean autoResolve) {
-        super(source, target);
-        this.autoResolve = autoResolve;
+        this(source, target, null, autoResolve);
     }
 
     public AbstractTransformableComponent(String source, String target, UnaryOperator<Message> transformer) {
+        this(source, target, transformer, false);
+    }
+
+    public AbstractTransformableComponent(String source, String target, UnaryOperator<Message> transformer,
+            boolean autoResolve) {
         super(source, target);
         this.transformer = Optional.ofNullable(transformer);
+        this.autoResolve = autoResolve;
     }
 
     @Override
