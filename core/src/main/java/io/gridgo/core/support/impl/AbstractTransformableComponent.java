@@ -45,6 +45,8 @@ public abstract class AbstractTransformableComponent extends AbstractDirectional
 
     protected RoutingContext transform(RoutingContext rc) {
         var msg = transformer.orElse(Function.identity()).apply(rc.getMessage());
+        if (msg.getSource() == null)
+            msg.attachSource(getName());
         return new DefaultRoutingContext(rc.getCaller(), msg, rc.getDeferred());
     }
 
