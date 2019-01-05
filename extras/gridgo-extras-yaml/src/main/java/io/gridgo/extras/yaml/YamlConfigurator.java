@@ -4,29 +4,31 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.Reader;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
 import org.yaml.snakeyaml.Yaml;
 
 import io.gridgo.bean.BElement;
-import io.gridgo.bean.BObject;
 import io.gridgo.config.impl.AbstractLocalConfigurator;
 
 public class YamlConfigurator extends AbstractLocalConfigurator {
 
     private Yaml yaml = new Yaml();
 
-    private Function<Yaml, BObject> loader;
+    private Function<Yaml, Map<String, Object>> loader = yaml -> Collections.emptyMap();
 
     private YamlConfigurator() {
+        // Nothing to do here
     }
 
     public YamlConfigurator(Yaml config) {
         this.yaml = config;
     }
 
-    private YamlConfigurator load(Function<Yaml, BObject> loader) {
+    private YamlConfigurator load(Function<Yaml, Map<String, Object>> loader) {
         this.loader = loader;
         return this;
     }
@@ -44,7 +46,8 @@ public class YamlConfigurator extends AbstractLocalConfigurator {
     }
 
     public static final YamlConfigurator ofResource(String resource) {
-        return ofEmpty().load(yaml -> yaml.load(Yaml.class.getResourceAsStream(resource)));
+        var classloader = Thread.currentThread().getContextClassLoader();
+        return ofEmpty().load(yaml -> yaml.load(classloader.getResourceAsStream(resource)));
     }
 
     public static final YamlConfigurator ofFile(File file) throws FileNotFoundException {
@@ -61,7 +64,7 @@ public class YamlConfigurator extends AbstractLocalConfigurator {
 
     @Override
     protected Optional<BElement> resolve() {
-        return Optional.of(loader.apply(yaml));
+        return Optional.of(BElement.ofAny(loader.apply(yaml)));
     }
 
     @Override
