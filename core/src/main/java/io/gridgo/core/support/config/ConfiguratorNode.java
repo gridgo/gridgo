@@ -1,5 +1,6 @@
 package io.gridgo.core.support.config;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.gridgo.core.GridgoContext;
@@ -16,9 +17,11 @@ public class ConfiguratorNode {
 
         private String applicationName;
 
-        private List<ComponentNode> componentsContexts;
+        @Builder.Default
+        private List<ComponentNode> componentsContexts = new ArrayList<>();
 
-        private List<GatewayNode> gatewayContexts;
+        @Builder.Default
+        private List<GatewayNode> gatewayContexts = new ArrayList<>();
 
         public void visitChildren(ContextConfiguratorVisitor visitor, GridgoContext gc) {
             for (var ctx : gatewayContexts) {
@@ -40,9 +43,11 @@ public class ConfiguratorNode {
 
         private int order;
 
-        private List<ConnectorNode> connectorContexts;
+        @Builder.Default
+        private List<ConnectorNode> connectorContexts = new ArrayList<>();
 
-        private List<SubscriberNode> subscriberContexts;
+        @Builder.Default
+        private List<SubscriberNode> subscriberContexts = new ArrayList<>();
 
         public void visitChildren(ContextConfiguratorVisitor visitor, GatewaySubscription sub) {
             for (var connectorCtx : connectorContexts) {
@@ -73,7 +78,8 @@ public class ConfiguratorNode {
 
         private String executionStrategy;
 
-        private List<InstrumenterNode> instrumenterContexts;
+        @Builder.Default
+        private List<InstrumenterNode> instrumenterContexts = new ArrayList<>();
 
         public void visitChildren(ContextConfiguratorVisitor visitor, ProcessorSubscription procSub) {
             for (var ctx : instrumenterContexts) {
