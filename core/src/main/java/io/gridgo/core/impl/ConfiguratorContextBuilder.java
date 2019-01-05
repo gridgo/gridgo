@@ -6,13 +6,14 @@ import java.util.concurrent.atomic.AtomicReference;
 import io.gridgo.bean.BObject;
 import io.gridgo.config.Configurator;
 import io.gridgo.core.GridgoContext;
-import io.gridgo.core.support.ContextConfiguratorParser;
 import io.gridgo.core.support.GridgoContextBuilder;
-import io.gridgo.core.support.impl.DefaultContextConfigurationParser;
+import io.gridgo.core.support.config.ContextConfiguratorParser;
+import io.gridgo.core.support.config.impl.DefaultContextConfigurationParser;
+import io.gridgo.core.support.config.impl.DefaultContextConfiguratorVisitor;
 import io.gridgo.framework.support.Registry;
 
 public class ConfiguratorContextBuilder implements GridgoContextBuilder {
-    
+
     private Registry registry;
 
     private Configurator configurator;
@@ -21,6 +22,20 @@ public class ConfiguratorContextBuilder implements GridgoContextBuilder {
 
     @Override
     public GridgoContext build() {
+        var ref = waitForConfig();
+
+        var result = ref.get();
+        if (result instanceof RuntimeException)
+            throw (RuntimeException) result;
+        if (result instanceof Throwable)
+            throw new RuntimeException((Throwable) result);
+
+        var visitor = new DefaultContextConfiguratorVisitor();
+        visitor.setRegistry(registry);
+        return visitor.visit(parser.parse((BObject) result));
+    }
+
+    private AtomicReference<Object> waitForConfig() {
         var ref = new AtomicReference<>();
         var latch = new CountDownLatch(1);
         var disposable = configurator.subscribe(event -> {
@@ -41,10 +56,7 @@ public class ConfiguratorContextBuilder implements GridgoContextBuilder {
             throw new RuntimeException(e);
         }
         disposable.dispose();
-        var result = ref.get();
-        if (result instanceof Throwable)
-            throw new RuntimeException((Throwable) result);
-        return parser.parse(registry, (BObject) result);
+        return ref;
     }
 
     public ConfiguratorContextBuilder setRegistry(Registry registry) {
