@@ -3,6 +3,7 @@ package io.gridgo.extras.yaml;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.InputStream;
 import java.io.Reader;
 import java.util.Collections;
 import java.util.Map;
@@ -45,9 +46,13 @@ public class YamlConfigurator extends AbstractLocalConfigurator {
         return ofEmpty().load(yaml -> yaml.load(reader));
     }
 
+    public static final YamlConfigurator ofStream(InputStream is) {
+        return ofEmpty().load(yaml -> yaml.load(is));
+    }
+
     public static final YamlConfigurator ofResource(String resource) {
         var classloader = Thread.currentThread().getContextClassLoader();
-        return ofEmpty().load(yaml -> yaml.load(classloader.getResourceAsStream(resource)));
+        return ofStream(classloader.getResourceAsStream(resource));
     }
 
     public static final YamlConfigurator ofFile(File file) throws FileNotFoundException {
