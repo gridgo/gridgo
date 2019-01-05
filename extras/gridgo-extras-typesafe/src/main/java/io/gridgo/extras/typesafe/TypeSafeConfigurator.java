@@ -35,7 +35,7 @@ public class TypeSafeConfigurator extends AbstractLocalConfigurator {
     }
 
     public static final TypeSafeConfigurator ofFile(String file) {
-        return new TypeSafeConfigurator(ConfigFactory.load(file));
+        return ofFile(new File(file));
     }
 
     public static final TypeSafeConfigurator ofString(String s) {
