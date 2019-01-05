@@ -26,6 +26,7 @@ public class DefaultContextConfiguratorVisitor implements ContextConfiguratorVis
     @Override
     public GridgoContext visit(RootNode rootContext) {
         var gc = new DefaultGridgoContextBuilder().setName(rootContext.getApplicationName()) //
+                                                  .setRegistry(registry) //
                                                   .build();
         rootContext.visitChildren(this, gc);
         return gc;
@@ -63,11 +64,12 @@ public class DefaultContextConfiguratorVisitor implements ContextConfiguratorVis
 
     @Override
     public void visit(GatewaySubscription sub, ConnectorNode ctx) {
+        var endpoint = registry.substituteRegistriesRecursive(ctx.getEndpoint());
         if (ctx.getContextBuilder() != null) {
             ConnectorContextBuilder builder = resolve(ctx.getContextBuilder());
-            sub.attachConnector(ctx.getEndpoint(), builder.build());
+            sub.attachConnector(endpoint, builder.build());
         } else {
-            sub.attachConnector(ctx.getEndpoint());
+            sub.attachConnector(endpoint);
         }
     }
 }
