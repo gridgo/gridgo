@@ -8,14 +8,9 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
 import io.gridgo.bean.BElement;
-import io.gridgo.config.Configurator;
-import io.gridgo.config.event.ConfigurationEvent;
-import io.gridgo.config.event.impl.DefaultLoadedConfigurationEvent;
-import io.gridgo.core.impl.ReplayEventDispatcher;
+import io.gridgo.config.impl.AbstractLocalConfigurator;
 
-public class TypeSafeConfigurator extends ReplayEventDispatcher<ConfigurationEvent> implements Configurator {
-
-    private Optional<BElement> configObject = Optional.empty();
+public class TypeSafeConfigurator extends AbstractLocalConfigurator {
 
     private Config config;
 
@@ -48,23 +43,12 @@ public class TypeSafeConfigurator extends ReplayEventDispatcher<ConfigurationEve
     }
 
     @Override
-    public Optional<BElement> get() {
-        return configObject;
-    }
-
-    @Override
-    protected void onStart() {
-        this.configObject = Optional.of(BElement.ofAny(config.resolve().root().unwrapped()));
-        publish(new DefaultLoadedConfigurationEvent(configObject.orElse(null), this));
-    }
-
-    @Override
-    protected void onStop() {
-
-    }
-
-    @Override
     protected String generateName() {
         return "config.typesafe";
+    }
+
+    @Override
+    protected Optional<BElement> resolve() {
+        return Optional.of(BElement.ofAny(config.resolve().root().unwrapped()));
     }
 }
