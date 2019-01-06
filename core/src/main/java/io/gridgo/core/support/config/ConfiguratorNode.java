@@ -16,6 +16,8 @@ public class ConfiguratorNode {
     public static class RootNode {
 
         private String applicationName;
+        
+        private String connectorFactory;
 
         @Builder.Default
         private List<ComponentNode> componentsContexts = new ArrayList<>();

@@ -20,9 +20,12 @@ public class DefaultContextConfigurationParser implements ContextConfiguratorPar
     @Override
     public RootNode parse(BObject configObject) {
         var applicationName = configObject.getString("applicationName", null);
+        var connectorFactory = configObject.getString("connectorFactory", null);
         var gateways = parseGateways(configObject.getObject("gateways", BObject.ofEmpty()));
         var components = parseComponents(configObject.getArray("components", BArray.ofEmpty()));
-        return RootNode.builder().applicationName(applicationName) //
+        return RootNode.builder() //
+                       .applicationName(applicationName) //
+                       .connectorFactory(connectorFactory) //
                        .gatewayContexts(gateways) //
                        .componentsContexts(components) //
                        .build();

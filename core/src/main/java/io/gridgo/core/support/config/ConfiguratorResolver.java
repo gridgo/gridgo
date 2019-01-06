@@ -13,6 +13,8 @@ public interface ConfiguratorResolver {
 
     @SuppressWarnings("unchecked")
     public default <T> T resolve(String bean) {
+        if (bean == null)
+            return null;
         var registry = getRegistry();
         var frags = bean.split(":");
         if ("bean".equals(frags[0]))

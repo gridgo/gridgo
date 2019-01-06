@@ -26,6 +26,7 @@ public class DefaultContextConfiguratorVisitor implements ContextConfiguratorVis
     @Override
     public GridgoContext visit(RootNode rootContext) {
         var gc = new DefaultGridgoContextBuilder().setName(rootContext.getApplicationName()) //
+                                                  .setConnectorFactory(resolve(rootContext.getConnectorFactory())) //
                                                   .setRegistry(registry) //
                                                   .build();
         rootContext.visitChildren(this, gc);
