@@ -1,8 +1,12 @@
 package io.gridgo.config.impl;
 
+import org.joo.promise4j.Promise;
+
+import io.gridgo.bean.BElement;
 import io.gridgo.connector.Connector;
 import io.gridgo.connector.ConnectorFactory;
 import io.gridgo.connector.ConnectorResolver;
+import io.gridgo.connector.Producer;
 import io.gridgo.connector.impl.factories.DefaultConnectorFactory;
 import io.gridgo.connector.support.config.ConnectorContext;
 import io.gridgo.core.support.exceptions.NoProducerException;
@@ -45,13 +49,19 @@ public class ProducerConfigurator extends AbstractConnectorConfigurator {
     @Override
     protected void onStart() {
         super.onStart();
-        getConnector().getProducer().ifPresentOrElse(producer -> {
-            producer.call(msg) //
-                    .filterDone(Message::body) //
-                    .done(this::publishLoaded) //
-                    .fail(this::publishFailed);
-        }, () -> publishFailed(
-                new NoProducerException("No producer available for connector " + getConnector().getName())));
+        getConnector().getProducer() //
+                      .ifPresentOrElse(this::resolveWithProducer, this::onNoProducer);
+    }
+
+    private Promise<BElement, Throwable> resolveWithProducer(Producer producer) {
+        return producer.call(msg) //
+                       .filterDone(Message::body) //
+                       .done(this::publishLoaded) //
+                       .fail(this::publishFailed);
+    }
+
+    private void onNoProducer() {
+        publishFailed(new NoProducerException("No producer available for connector " + getConnector().getName()));
     }
 
     @Override

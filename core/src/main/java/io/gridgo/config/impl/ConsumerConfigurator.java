@@ -7,6 +7,7 @@ import org.joo.promise4j.Deferred;
 import io.gridgo.connector.Connector;
 import io.gridgo.connector.ConnectorFactory;
 import io.gridgo.connector.ConnectorResolver;
+import io.gridgo.connector.Consumer;
 import io.gridgo.connector.impl.factories.DefaultConnectorFactory;
 import io.gridgo.connector.support.config.ConnectorContext;
 import io.gridgo.core.support.exceptions.NoConsumerException;
@@ -48,10 +49,16 @@ public class ConsumerConfigurator extends AbstractConnectorConfigurator {
     @Override
     protected void onStart() {
         super.onStart();
-        getConnector().getConsumer().ifPresentOrElse(consumer -> {
-            consumer.subscribe(this::publishEvent);
-        }, () -> publishFailed(
-                new NoConsumerException("No consumer available for connector " + getConnector().getName())));
+        getConnector().getConsumer() //
+                      .ifPresentOrElse(this::resolveWithConsumer, this::onNoConsumer);
+    }
+
+    private Consumer resolveWithConsumer(Consumer consumer) {
+        return consumer.subscribe(this::publishEvent);
+    }
+
+    private void onNoConsumer() {
+        publishFailed(new NoConsumerException("No consumer available for connector " + getConnector().getName()));
     }
 
     private void publishEvent(Message msg, Deferred<Message, Exception> deferred) {
