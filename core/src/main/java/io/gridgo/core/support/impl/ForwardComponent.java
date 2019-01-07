@@ -26,7 +26,7 @@ public class ForwardComponent extends AbstractTransformableComponent {
 
     @Override
     protected void doHandle(Gateway target, RoutingContext rc) {
-        target.call(rc.getMessage()) //
+        target.push(rc.getMessage()) //
               .<Message, Exception>filterDone(responseTransformer::apply) //
               .forward(rc.getDeferred());
     }
