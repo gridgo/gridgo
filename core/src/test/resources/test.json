@@ -1,3 +1,21 @@
 {
-	"applicationName": "test"
+	"applicationName": "test",
+	"gateways": {
+		"test": {
+			"connectors": [
+				"http://localhost:8080"
+			],
+			"subscribers": [
+				"class:io.gridgo.config.test.TestProcessor",
+				{
+					"processor": "class:io.gridgo.config.test.TestProcessor",
+					"executionStrategy": "bean:executionStrategy",
+					"condition": "payload.body.id > 0"
+				}
+			]
+		}
+	},
+	"components": [
+		"class:io.gridgo.config.test.TestComponent"
+	]
 }
