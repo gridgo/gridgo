@@ -3,14 +3,25 @@
 	"gateways": {
 		"test": {
 			"connectors": [
-				"test:xyz"
+				"test:xyz",
+				{
+					"endpoint": "test:abc",
+					"contextBuilder": "bean:connectorContextBuilder"
+				}
 			],
 			"subscribers": [
 				"class:io.gridgo.config.test.TestProcessor",
 				{
 					"processor": "class:io.gridgo.config.test.TestProcessor",
 					"executionStrategy": "bean:executionStrategy",
-					"condition": "payload.body.id > 0"
+					"condition": "payload.body.id > 0",
+					"instrumenters": [
+						"bean:testInstrumenter",
+						{
+							"instrument": "bean:testInstrumenter2",
+							"condition": "payload.body.id > 5"
+						}
+					]
 				}
 			]
 		}

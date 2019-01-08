@@ -4,8 +4,10 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import io.gridgo.config.impl.JsonConfigurator;
+import io.gridgo.connector.support.config.impl.DefaultConnectorContextBuilder;
 import io.gridgo.core.impl.ConfiguratorContextBuilder;
 import io.gridgo.core.support.config.impl.DefaultContextConfigurationParser;
+import io.gridgo.framework.execution.ExecutionStrategyInstrumenter;
 import io.gridgo.framework.execution.impl.ExecutorExecutionStrategy;
 import io.gridgo.framework.support.impl.SimpleRegistry;
 
@@ -41,7 +43,11 @@ public class ParserUnitTest {
     @Test
     public void testContextBuilder() {
         var registry = new SimpleRegistry().register("xyz", 1) //
-                                           .register("executionStrategy", new ExecutorExecutionStrategy(1));
+                                           .register("abc", 2) //
+                                           .register("executionStrategy", new ExecutorExecutionStrategy(1))
+                                           .register("testInstrumenter", (ExecutionStrategyInstrumenter) r -> r)
+                                           .register("testInstrumenter2", (ExecutionStrategyInstrumenter) r -> r);
+        registry.register("connectorContextBuilder", new DefaultConnectorContextBuilder().setRegistry(registry));
         var configurator = JsonConfigurator.ofResource("test.json");
         var context = new ConfiguratorContextBuilder().setConfigurator(configurator).setRegistry(registry).build();
         Assert.assertTrue(context.findGateway("test").isPresent());
