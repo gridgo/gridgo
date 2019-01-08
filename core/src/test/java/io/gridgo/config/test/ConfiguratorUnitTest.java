@@ -1,4 +1,4 @@
-package io.gridgo.core.test;
+package io.gridgo.config.test;
 
 import org.junit.Assert;
 import org.junit.Test;

@@ -3,7 +3,7 @@
 	"gateways": {
 		"test": {
 			"connectors": [
-				"http://localhost:8080"
+				"test:xyz"
 			],
 			"subscribers": [
 				"class:io.gridgo.config.test.TestProcessor",
