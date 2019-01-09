@@ -16,6 +16,7 @@
 		<module>gridgo-extras-spring</module>
 		<module>gridgo-extras-typesafe</module>
 		<module>gridgo-extras-yaml</module>
+		<module>gridgo-extras-flink</module>
 	</modules>
 
 	<dependencies>
