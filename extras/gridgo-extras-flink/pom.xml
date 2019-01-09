@@ -20,7 +20,6 @@
 			<groupId>org.apache.flink</groupId>
 			<artifactId>flink-streaming-java_2.12</artifactId>
 			<version>1.7.1</version>
-			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 </project>

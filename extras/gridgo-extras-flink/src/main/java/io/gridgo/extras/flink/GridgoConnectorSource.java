@@ -1,49 +1,53 @@
 package io.gridgo.extras.flink;
 
+import java.util.concurrent.locks.LockSupport;
+
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
 
 import io.gridgo.connector.Connector;
 import io.gridgo.connector.ConnectorFactory;
-import io.gridgo.connector.ConnectorResolver;
 import io.gridgo.connector.impl.factories.DefaultConnectorFactory;
 import io.gridgo.framework.support.Message;
 
-public class ConnectorSource implements SourceFunction<Message> {
+public class GridgoConnectorSource implements SourceFunction<Message> {
 
     private static final ConnectorFactory DEFAULT_FACTORY = new DefaultConnectorFactory();
 
     private static final long serialVersionUID = -7568626695827640831L;
 
-    private Connector connector;
+    private transient Connector connector;
 
-    public ConnectorSource(String endpoint) {
-        this.connector = DEFAULT_FACTORY.createConnector(endpoint);
-    }
+    private String endpoint;
 
-    public ConnectorSource(Connector connector) {
-        this.connector = connector;
-    }
+    private transient boolean running;
 
-    public ConnectorSource(ConnectorFactory factory, String endpoint) {
-        this.connector = factory.createConnector(endpoint);
-    }
-
-    public ConnectorSource(ConnectorResolver resolver, String endpoint) {
-        this.connector = resolver.resolve(endpoint);
+    public GridgoConnectorSource(String endpoint) {
+        this.endpoint = endpoint;
     }
 
     @Override
     public void run(SourceContext<Message> ctx) throws Exception {
+        connector = DEFAULT_FACTORY.createConnector(endpoint);
         connector.getConsumer().orElseThrow() //
                  .subscribe((msg, deferred) -> {
-                     ctx.collect(msg);
                      deferred.resolve(Message.ofEmpty());
+                     ctx.collect(msg);
                  });
         connector.start();
+        idleSpin();
+    }
+
+    private void idleSpin() {
+        running = true;
+        while (running) {
+            LockSupport.parkNanos(100L);
+        }
     }
 
     @Override
     public void cancel() {
-        connector.stop();
+        running = false;
+        if (connector != null)
+            connector.stop();
     }
 }
