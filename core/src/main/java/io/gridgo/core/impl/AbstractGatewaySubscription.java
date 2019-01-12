@@ -14,6 +14,7 @@ import io.gridgo.core.Gateway;
 import io.gridgo.core.GridgoContext;
 import io.gridgo.core.Processor;
 import io.gridgo.core.RoutingPolicyEnforcer;
+import io.gridgo.core.support.ContextAwareComponent;
 import io.gridgo.core.support.RoutingContext;
 import io.gridgo.core.support.impl.DefaultRoutingContext;
 import io.gridgo.core.support.subscription.GatewaySubscription;
@@ -110,6 +111,8 @@ public abstract class AbstractGatewaySubscription extends AbstractComponentLifec
 
     @Override
     public ProcessorSubscription subscribe(Processor processor) {
+        if (processor instanceof ContextAwareComponent)
+            ((ContextAwareComponent) processor).setContext(context);
         var subscription = new DefaultProcessorSubscription(this, processor);
         subscriptions.add(subscription);
         return subscription;
