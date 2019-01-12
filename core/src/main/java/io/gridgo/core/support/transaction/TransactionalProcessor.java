@@ -46,7 +46,8 @@ public interface TransactionalProcessor extends ContextAwareComponent, Loggable 
         }
     }
 
-    public default void withTransaction(String gateway, Function<Transaction, Promise<Message, Exception>> handler) {
+    public default void withTransaction(String gateway,
+            Function<Transaction, Promise<? extends Object, Exception>> handler) {
         var transaction = createTransaction(gateway);
         try {
             var promise = handler.apply(transaction);
@@ -68,7 +69,7 @@ public interface TransactionalProcessor extends ContextAwareComponent, Loggable 
         }
     }
 
-    private void handleWithPromise(Transaction transaction, Promise<Message, Exception> promise) {
+    private void handleWithPromise(Transaction transaction, Promise<? extends Object, Exception> promise) {
         promise.done(result -> transaction.commit()) //
                .fail(ex -> transaction.rollback());
     }
