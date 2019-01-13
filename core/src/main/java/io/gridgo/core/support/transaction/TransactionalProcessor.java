@@ -30,37 +30,40 @@ public interface TransactionalProcessor extends ContextAwareComponent, Loggable 
         return createTransaction(gateway).filterDone(transaction -> {
             try {
                 handler.accept(transaction);
+                return Promise.of(null);
             } catch (Exception ex) {
                 handleException(transaction, ex);
+                return Promise.ofCause(ex);
             }
-            return null;
         });
     }
 
     public default Promise<Object, Exception> withTransaction(String gateway,
             BiConsumer<MessageSenderComponent, Deferred<Message, Exception>> handler) {
-        return createTransaction(gateway).filterDone(transaction -> {
+        return createTransaction(gateway).pipeDone(transaction -> {
             var deferred = new CompletableDeferredObject<Message, Exception>();
             try {
                 handleWithPromise(transaction, deferred);
                 handler.accept(transaction, deferred);
+                return Promise.of(null);
             } catch (Exception ex) {
                 handleException(transaction, ex);
+                return Promise.ofCause(ex);
             }
-            return null;
         });
     }
 
     public default Promise<Object, Exception> withTransaction(String gateway,
             Function<MessageSenderComponent, Promise<? extends Object, Exception>> handler) {
-        return createTransaction(gateway).filterDone(transaction -> {
+        return createTransaction(gateway).pipeDone(transaction -> {
             try {
                 var promise = handler.apply(transaction);
                 handleWithPromise(transaction, promise);
+                return Promise.of(null);
             } catch (Exception ex) {
                 handleException(transaction, ex);
+                return Promise.ofCause(ex);
             }
-            return null;
         });
     }
 
