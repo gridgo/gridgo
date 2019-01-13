@@ -19,7 +19,7 @@ public class YamlConfigurator extends AbstractLocalConfigurator {
 
     private Yaml yaml = new Yaml();
 
-    private Function<Yaml, Map<String, Object>> loader = yaml -> Collections.emptyMap();
+    private Function<Yaml, Map<String, Object>> loader = ignored -> Collections.emptyMap();
 
     private YamlConfigurator() {
         // Nothing to do here
