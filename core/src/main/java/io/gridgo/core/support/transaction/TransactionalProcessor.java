@@ -27,18 +27,19 @@ public interface TransactionalProcessor extends ContextAwareComponent, Loggable 
     public GridgoContext getContext();
 
     public default Promise<Object, Exception> withTransaction(String gateway, Consumer<Transaction> handler) {
-        return createTransaction(gateway).done(transaction -> {
+        return createTransaction(gateway).filterDone(transaction -> {
             try {
                 handler.accept(transaction);
             } catch (Exception ex) {
                 handleException(transaction, ex);
             }
-        }).filterDone(transaction -> null);
+            return null;
+        });
     }
 
     public default Promise<Object, Exception> withTransaction(String gateway,
             BiConsumer<MessageSenderComponent, Deferred<Message, Exception>> handler) {
-        return createTransaction(gateway).done(transaction -> {
+        return createTransaction(gateway).filterDone(transaction -> {
             var deferred = new CompletableDeferredObject<Message, Exception>();
             try {
                 handleWithPromise(transaction, deferred);
@@ -46,19 +47,21 @@ public interface TransactionalProcessor extends ContextAwareComponent, Loggable 
             } catch (Exception ex) {
                 handleException(transaction, ex);
             }
-        }).filterDone(transaction -> null);
+            return null;
+        });
     }
 
     public default Promise<Object, Exception> withTransaction(String gateway,
             Function<MessageSenderComponent, Promise<? extends Object, Exception>> handler) {
-        return createTransaction(gateway).done(transaction -> {
+        return createTransaction(gateway).filterDone(transaction -> {
             try {
                 var promise = handler.apply(transaction);
                 handleWithPromise(transaction, promise);
             } catch (Exception ex) {
                 handleException(transaction, ex);
             }
-        }).filterDone(transaction -> null);
+            return null;
+        });
     }
 
     public default Promise<Transaction, Exception> createTransaction(String gateway) {
