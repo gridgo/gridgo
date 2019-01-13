@@ -82,7 +82,7 @@ public interface TransactionalProcessor extends ContextAwareComponent, Loggable 
 
     private void handleWithPromise(Transaction transaction, Promise<? extends Object, Exception> promise) {
         promise.done(result -> transaction.commit()) //
-               .fail(ex -> transaction.rollback());
+               .fail(ex -> handleException(transaction, ex));
     }
 
     private void handleException(Transaction transaction, Exception ex) {
