@@ -8,10 +8,10 @@ import java.util.function.Function;
 
 import org.joo.promise4j.Deferred;
 import org.joo.promise4j.Promise;
-import org.joo.promise4j.PromiseException;
 import org.joo.promise4j.impl.CompletableDeferredObject;
 
 import io.gridgo.bean.BObject;
+import io.gridgo.connector.support.MessageSenderComponent;
 import io.gridgo.connector.support.transaction.Transaction;
 import io.gridgo.core.GridgoContext;
 import io.gridgo.core.support.ContextAwareComponent;
@@ -26,47 +26,58 @@ public interface TransactionalProcessor extends ContextAwareComponent, Loggable 
 
     public GridgoContext getContext();
 
-    public default void withTransaction(String gateway, Consumer<Transaction> handler) {
-        var transaction = createTransaction(gateway);
-        try {
-            handler.accept(transaction);
-        } catch (Exception ex) {
-            handleException(transaction, ex);
-        }
+    public default Promise<Object, Exception> withTransaction(String gateway, Consumer<Transaction> handler) {
+        return createTransaction(gateway).done(transaction -> {
+            try {
+                handler.accept(transaction);
+            } catch (Exception ex) {
+                handleException(transaction, ex);
+            }
+        }).filterDone(transaction -> null);
     }
 
-    public default void withTransaction(String gateway, BiConsumer<Transaction, Deferred<Message, Exception>> handler) {
-        var deferred = new CompletableDeferredObject<Message, Exception>();
-        var transaction = createTransaction(gateway);
-        try {
-            handleWithPromise(transaction, deferred);
-            handler.accept(transaction, deferred);
-        } catch (Exception ex) {
-            handleException(transaction, ex);
-        }
+    public default Promise<Object, Exception> withTransaction(String gateway,
+            BiConsumer<MessageSenderComponent, Deferred<Message, Exception>> handler) {
+        return createTransaction(gateway).done(transaction -> {
+            var deferred = new CompletableDeferredObject<Message, Exception>();
+            try {
+                handleWithPromise(transaction, deferred);
+                handler.accept(transaction, deferred);
+            } catch (Exception ex) {
+                handleException(transaction, ex);
+            }
+        }).filterDone(transaction -> null);
     }
 
-    public default void withTransaction(String gateway,
-            Function<Transaction, Promise<? extends Object, Exception>> handler) {
-        var transaction = createTransaction(gateway);
-        try {
-            var promise = handler.apply(transaction);
-            handleWithPromise(transaction, promise);
-        } catch (Exception ex) {
-            handleException(transaction, ex);
-        }
+    public default Promise<Object, Exception> withTransaction(String gateway,
+            Function<MessageSenderComponent, Promise<? extends Object, Exception>> handler) {
+        return createTransaction(gateway).done(transaction -> {
+            try {
+                var promise = handler.apply(transaction);
+                handleWithPromise(transaction, promise);
+            } catch (Exception ex) {
+                handleException(transaction, ex);
+            }
+        }).filterDone(transaction -> null);
     }
 
-    public default Transaction createTransaction(String gateway) {
-        var promise = getContext().findGatewayMandatory(gateway) //
-                                  .callAny(BObject.of(HEADER_CREATE_TRANSACTION, 1), null);
-        if (promise == null)
-            throw new TransactionInitializationException("Underlying connector doesn't support transaction");
-        try {
-            return (Transaction) promise.get().body().asReference().getReference();
-        } catch (PromiseException | InterruptedException e) {
-            throw new TransactionInitializationException("Cannot create transaction", e);
+    public default Promise<Transaction, Exception> createTransaction(String gateway) {
+        return getContext().findGatewayMandatory(gateway) //
+                           .callAny(BObject.of(HEADER_CREATE_TRANSACTION, 1), null) //
+                           .pipeDone(this::toTransaction);
+    }
+
+    private Promise<Transaction, Exception> toTransaction(Message msg) {
+        if (msg == null || msg.body() == null) {
+            return Promise.ofCause(
+                    new TransactionInitializationException("Underlying connector doesn't support transaction"));
         }
+        if (!msg.body().isReference()) {
+            return Promise.ofCause(new TransactionInitializationException(
+                    "Invalid response from Connector, body is not a Transaction"));
+        }
+
+        return Promise.of(msg.body().asReference().getReference());
     }
 
     private void handleWithPromise(Transaction transaction, Promise<? extends Object, Exception> promise) {
