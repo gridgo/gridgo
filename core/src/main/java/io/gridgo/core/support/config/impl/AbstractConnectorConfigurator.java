@@ -1,5 +1,6 @@
-package io.gridgo.config.impl;
+package io.gridgo.core.support.config.impl;
 
+import io.gridgo.config.impl.AbstractConfigurator;
 import io.gridgo.connector.Connector;
 import lombok.AccessLevel;
 import lombok.Getter;

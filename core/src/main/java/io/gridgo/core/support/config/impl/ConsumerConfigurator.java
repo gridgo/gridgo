@@ -1,4 +1,4 @@
-package io.gridgo.config.impl;
+package io.gridgo.core.support.config.impl;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 

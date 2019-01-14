@@ -21,7 +21,7 @@ import io.gridgo.core.support.subscription.GatewaySubscription;
 import io.gridgo.core.support.subscription.ProcessorSubscription;
 import io.gridgo.core.support.subscription.RoutingPolicy;
 import io.gridgo.core.support.subscription.impl.DefaultProcessorSubscription;
-import io.gridgo.framework.AbstractComponentLifecycle;
+import io.gridgo.framework.impl.AbstractComponentLifecycle;
 import io.gridgo.framework.support.Message;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
