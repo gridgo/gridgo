@@ -40,6 +40,8 @@ public abstract class AbstractPojoProcessor<T> extends AbstractProcessor {
     private T convertBodyToRequest(BElement body) {
         if (body == null || body.isNullValue())
             return null;
+        if (body.isReference())
+            return (T) body.asReference().getReference();
         if (body.isValue())
             return (T) body.asValue().getData();
         return body.asObject().toPojo(pojoType);
