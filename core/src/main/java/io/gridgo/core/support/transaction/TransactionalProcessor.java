@@ -82,7 +82,6 @@ public interface TransactionalProcessor extends ContextAwareComponent, Loggable 
             return Promise.ofCause(new TransactionInitializationException(
                     "Invalid response from Connector, body is not a Transaction"));
         }
-
         return Promise.of(msg.body().asReference().getReference());
     }
 
