@@ -19,6 +19,7 @@ public class ResourceConfigurator extends AbstractConfigurator {
 
     public ResourceConfigurator() {
         this.configurator = findConfigurator();
+        this.configurator.subscribe(this::publish);
     }
 
     private AbstractLocalConfigurator findConfigurator() {
