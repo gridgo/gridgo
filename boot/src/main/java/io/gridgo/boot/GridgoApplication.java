@@ -70,7 +70,7 @@ public class GridgoApplication extends AbstractComponentLifecycle {
         var annotation = gatewayClass.getAnnotation(io.gridgo.boot.support.annotations.Gateway.class);
         var gateway = context.openGateway(annotation.name());
         for (String connector : annotation.connectors()) {
-            gateway.attachConnector(connector);
+            gateway.attachConnector(registry.substituteRegistriesRecursive(connector));
         }
         try {
             var instance = gatewayClass.getConstructor().newInstance();
