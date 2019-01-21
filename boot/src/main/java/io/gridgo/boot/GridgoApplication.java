@@ -8,6 +8,7 @@ import org.reflections.Reflections;
 import io.gridgo.boot.config.ResourceConfigurator;
 import io.gridgo.boot.registry.AnnotatedRegistry;
 import io.gridgo.boot.support.annotations.AnnotationUtils;
+import io.gridgo.boot.support.annotations.Connector;
 import io.gridgo.boot.support.annotations.EnableComponentScan;
 import io.gridgo.boot.support.annotations.Gateway;
 import io.gridgo.boot.support.annotations.RegistryInitializer;
@@ -69,8 +70,9 @@ public class GridgoApplication extends AbstractComponentLifecycle {
     private void registerGateway(Class<?> gatewayClass) {
         var annotation = gatewayClass.getAnnotation(io.gridgo.boot.support.annotations.Gateway.class);
         var gateway = context.openGateway(annotation.name());
-        for (String connector : annotation.connectors()) {
-            gateway.attachConnector(registry.substituteRegistriesRecursive(connector));
+        var connectors = gatewayClass.getAnnotationsByType(Connector.class);
+        for (var connector : connectors) {
+            gateway.attachConnector(registry.substituteRegistriesRecursive(connector.value()));
         }
         try {
             var instance = gatewayClass.getConstructor().newInstance();
