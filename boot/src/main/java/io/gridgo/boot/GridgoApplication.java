@@ -13,9 +13,11 @@ import io.gridgo.boot.support.annotations.EnableComponentScan;
 import io.gridgo.boot.support.annotations.Gateway;
 import io.gridgo.boot.support.annotations.RegistryInitializer;
 import io.gridgo.boot.support.exceptions.InitializationException;
+import io.gridgo.boot.support.exceptions.ResourceNotFoundException;
 import io.gridgo.core.GridgoContext;
 import io.gridgo.core.Processor;
 import io.gridgo.core.impl.ConfiguratorContextBuilder;
+import io.gridgo.core.impl.DefaultGridgoContextBuilder;
 import io.gridgo.core.support.subscription.GatewaySubscription;
 import io.gridgo.framework.impl.AbstractComponentLifecycle;
 import io.gridgo.framework.support.Registry;
@@ -23,8 +25,8 @@ import io.gridgo.utils.ThreadUtils;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
-@Getter
 @Slf4j
+@Getter
 public class GridgoApplication extends AbstractComponentLifecycle {
 
     private GridgoContext context;
@@ -35,14 +37,21 @@ public class GridgoApplication extends AbstractComponentLifecycle {
 
     private Class<?> applicationClass;
 
-    private GridgoApplication(Class<?> applicationClass) {
+    private String[] args;
+
+    private GridgoApplication(Class<?> applicationClass, String... args) {
         this.applicationClass = applicationClass;
+        this.args = args;
         this.registry = new AnnotatedRegistry(applicationClass);
         this.initializeRegistry();
-        var configurator = new ResourceConfigurator();
-        this.context = new ConfiguratorContextBuilder().setRegistry(registry) //
-                                                       .setConfigurator(configurator) //
-                                                       .build();
+        try {
+            var configurator = new ResourceConfigurator();
+            this.context = new ConfiguratorContextBuilder().setRegistry(registry) //
+                                                           .setConfigurator(configurator) //
+                                                           .build();
+        } catch (ResourceNotFoundException ex) {
+            this.context = new DefaultGridgoContextBuilder().setRegistry(registry).build();
+        }
         this.appName = this.context.getName();
         this.initialize();
     }
@@ -69,7 +78,7 @@ public class GridgoApplication extends AbstractComponentLifecycle {
 
     private void registerGateway(Class<?> gatewayClass) {
         var annotation = gatewayClass.getAnnotation(io.gridgo.boot.support.annotations.Gateway.class);
-        var gateway = context.openGateway(annotation.name());
+        var gateway = context.openGateway(annotation.value());
         var connectors = gatewayClass.getAnnotationsByType(Connector.class);
         for (var connector : connectors) {
             gateway.attachConnector(registry.substituteRegistriesRecursive(connector.value()));
@@ -105,8 +114,8 @@ public class GridgoApplication extends AbstractComponentLifecycle {
         }
     }
 
-    public static GridgoApplication run(Class<?> applicationClass) {
-        var app = new GridgoApplication(applicationClass);
+    public static GridgoApplication run(Class<?> applicationClass, String... args) {
+        var app = new GridgoApplication(applicationClass, args);
         ThreadUtils.registerShutdownTask(app::stop);
 
         try {
