@@ -1,6 +1,7 @@
 package io.gridgo.boot.support.annotations;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,5 +34,11 @@ public class AnnotationUtils {
             clazz = clazz.getSuperclass();
         }
         return methods;
+    }
+
+    public static List<Field> findAllFieldsWithAnnotation(Class<?> clazz, Class<? extends Annotation> annotation) {
+        return Arrays.stream(clazz.getDeclaredFields()) //
+                     .filter(field -> field.isAnnotationPresent(annotation)) //
+                     .collect(Collectors.toList());
     }
 }
