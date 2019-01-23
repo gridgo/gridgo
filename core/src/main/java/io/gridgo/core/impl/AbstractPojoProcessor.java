@@ -23,10 +23,10 @@ public abstract class AbstractPojoProcessor<T> extends AbstractProcessor {
         var body = rc.getMessage().body();
         if (body.isArray()) {
             var request = convertBodyToList(body);
-            processMulti(request, rc.getDeferred(), gc);
+            processMulti(request, rc.getMessage(), rc.getDeferred(), gc);
         } else {
             var request = convertBodyToRequest(body);
-            processSingle(request, rc.getDeferred(), gc);
+            processSingle(request, rc.getMessage(), rc.getDeferred(), gc);
         }
     }
 
@@ -47,11 +47,11 @@ public abstract class AbstractPojoProcessor<T> extends AbstractProcessor {
         return body.asObject().toPojo(pojoType);
     }
 
-    protected void processSingle(T request, Deferred<Message, Exception> deferred, GridgoContext gc) {
+    protected void processSingle(T request, Message msg, Deferred<Message, Exception> deferred, GridgoContext gc) {
         // To be implemented in subclasses
     }
 
-    protected void processMulti(List<T> request, Deferred<Message, Exception> deferred, GridgoContext gc) {
+    protected void processMulti(List<T> request, Message msg, Deferred<Message, Exception> deferred, GridgoContext gc) {
         // To be implemented in subclasses
     }
 }

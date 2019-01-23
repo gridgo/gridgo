@@ -22,7 +22,7 @@ public class PojoProcessorTest {
         var processor = new AbstractPojoProcessor<Integer>(Integer.class) {
 
             @Override
-            public void processSingle(Integer request, Deferred<Message, Exception> deferred, GridgoContext gc) {
+            public void processSingle(Integer request, Message msg, Deferred<Message, Exception> deferred, GridgoContext gc) {
                 deferred.resolve(Message.ofAny(request));
             }
         };
@@ -38,7 +38,7 @@ public class PojoProcessorTest {
         var processor = new AbstractPojoProcessor<Pojo>(Pojo.class) {
 
             @Override
-            public void processSingle(Pojo request, Deferred<Message, Exception> deferred, GridgoContext gc) {
+            public void processSingle(Pojo request, Message msg, Deferred<Message, Exception> deferred, GridgoContext gc) {
                 deferred.resolve(Message.ofAny(request.getId()));
             }
         };
@@ -54,7 +54,7 @@ public class PojoProcessorTest {
         var processor = new AbstractPojoProcessor<Integer>(Integer.class) {
 
             @Override
-            public void processMulti(List<Integer> request, Deferred<Message, Exception> deferred, GridgoContext gc) {
+            public void processMulti(List<Integer> request, Message msg, Deferred<Message, Exception> deferred, GridgoContext gc) {
                 deferred.resolve(Message.ofAny(request.size()));
             }
         };
@@ -70,7 +70,7 @@ public class PojoProcessorTest {
         var processor = new AbstractPojoProcessor<Pojo>(Pojo.class) {
 
             @Override
-            public void processMulti(List<Pojo> request, Deferred<Message, Exception> deferred, GridgoContext gc) {
+            public void processMulti(List<Pojo> request, Message msg, Deferred<Message, Exception> deferred, GridgoContext gc) {
                 var response = request.stream() //
                                       .map(Pojo::getId) //
                                       .reduce((a, b) -> a + b) //
