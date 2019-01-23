@@ -9,13 +9,12 @@ import org.reflections.Reflections;
 
 import io.gridgo.boot.config.ResourceConfigurator;
 import io.gridgo.boot.registry.AnnotatedRegistry;
+import io.gridgo.boot.support.FieldInjector;
 import io.gridgo.boot.support.annotations.AnnotationUtils;
 import io.gridgo.boot.support.annotations.Connector;
 import io.gridgo.boot.support.annotations.EnableComponentScan;
 import io.gridgo.boot.support.annotations.Gateway;
-import io.gridgo.boot.support.annotations.GatewayInject;
 import io.gridgo.boot.support.annotations.RegistryInitializer;
-import io.gridgo.boot.support.annotations.RegistryInject;
 import io.gridgo.boot.support.exceptions.InitializationException;
 import io.gridgo.boot.support.exceptions.ResourceNotFoundException;
 import io.gridgo.core.GridgoContext;
@@ -25,7 +24,6 @@ import io.gridgo.core.impl.DefaultGridgoContextBuilder;
 import io.gridgo.core.support.subscription.GatewaySubscription;
 import io.gridgo.framework.impl.AbstractComponentLifecycle;
 import io.gridgo.framework.support.Registry;
-import io.gridgo.utils.ObjectUtils;
 import io.gridgo.utils.ThreadUtils;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -47,6 +45,8 @@ public class GridgoApplication extends AbstractComponentLifecycle {
 
     private List<LazyInitializer> lazyInitializers;
 
+    private FieldInjector injector;
+
     private GridgoApplication(Class<?> applicationClass, String... args) {
         this.applicationClass = applicationClass;
         this.args = args;
@@ -61,6 +61,7 @@ public class GridgoApplication extends AbstractComponentLifecycle {
             this.context = new DefaultGridgoContextBuilder().setRegistry(registry).build();
         }
         this.appName = this.context.getName();
+        this.injector = new FieldInjector(context);
         this.lazyInitializers = new ArrayList<LazyInitializer>();
         this.initialize();
     }
@@ -71,7 +72,7 @@ public class GridgoApplication extends AbstractComponentLifecycle {
             scanComponents();
         }
         for (var initializer : lazyInitializers) {
-            injectFields(initializer.gatewayClass, initializer.instance);
+            injector.injectFields(initializer.gatewayClass, initializer.instance);
         }
     }
 
@@ -106,31 +107,6 @@ public class GridgoApplication extends AbstractComponentLifecycle {
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
                 | NoSuchMethodException | SecurityException e) {
             throw new InitializationException("Cannot register processor", e);
-        }
-    }
-
-    private void injectFields(Class<?> gatewayClass, Object instance) {
-        injectRegistries(gatewayClass, instance);
-        injectGateways(gatewayClass, instance);
-    }
-
-    private void injectRegistries(Class<?> gatewayClass, Object instance) {
-        var fields = AnnotationUtils.findAllFieldsWithAnnotation(gatewayClass, RegistryInject.class);
-        for (var field : fields) {
-            var name = field.getName();
-            var injectedKey = field.getAnnotation(RegistryInject.class).value();
-            var injectedValue = registry.lookup(injectedKey, field.getType());
-            ObjectUtils.setValue(instance, name, injectedValue);
-        }
-    }
-
-    private void injectGateways(Class<?> gatewayClass, Object instance) {
-        var fields = AnnotationUtils.findAllFieldsWithAnnotation(gatewayClass, GatewayInject.class);
-        for (var field : fields) {
-            var name = field.getName();
-            var injectedKey = field.getAnnotation(GatewayInject.class).value();
-            var gateway = context.findGatewayMandatory(injectedKey);
-            ObjectUtils.setValue(instance, name, gateway);
         }
     }
 
