@@ -10,6 +10,7 @@ import io.gridgo.connector.Connector;
 import io.gridgo.connector.ConnectorResolver;
 import io.gridgo.connector.Consumer;
 import io.gridgo.connector.support.config.ConnectorContext;
+import io.gridgo.connector.support.exceptions.NoSubscriberException;
 import io.gridgo.core.Gateway;
 import io.gridgo.core.GridgoContext;
 import io.gridgo.core.Processor;
@@ -47,7 +48,6 @@ public abstract class AbstractGatewaySubscription extends AbstractComponentLifec
     public AbstractGatewaySubscription(GridgoContext context, String name) {
         this.context = context;
         this.name = name;
-        this.subject.subscribe(this::handleMessages);
     }
 
     @Override
@@ -91,10 +91,10 @@ public abstract class AbstractGatewaySubscription extends AbstractComponentLifec
     }
 
     private void handleMessages(RoutingContext rc) {
-//        if (policyEnforcers.length == 0) {
-//            rc.getDeferred().reject(new NoSubscriberException());
-//            return;
-//        }
+        if (policyEnforcers.length == 0 && !subject.hasObservers()) {
+            rc.getDeferred().reject(new NoSubscriberException());
+            return;
+        }
         var predicateContext = new PredicateContext(rc.getMessage());
         for (var enforcer : policyEnforcers) {
             enforcer.execute(rc, context, predicateContext);
@@ -103,6 +103,7 @@ public abstract class AbstractGatewaySubscription extends AbstractComponentLifec
 
     protected void publish(Message msg, Deferred<Message, Exception> deferred) {
         var routingContext = new DefaultRoutingContext(this, msg, deferred);
+        handleMessages(routingContext);
         subject.onNext(routingContext);
     }
 
