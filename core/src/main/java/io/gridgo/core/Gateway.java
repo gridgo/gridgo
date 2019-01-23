@@ -1,14 +1,24 @@
 package io.gridgo.core;
 
+import java.util.List;
+
 import org.joo.promise4j.Promise;
 
-import io.gridgo.connector.support.MessageSenderComponent;
+import io.gridgo.connector.Connector;
+import io.gridgo.connector.support.MessageProducer;
 import io.gridgo.core.support.RoutingContext;
 import io.gridgo.core.support.Streamable;
 import io.gridgo.framework.ComponentLifecycle;
 import io.gridgo.framework.support.Message;
 
-public interface Gateway extends ComponentLifecycle, Streamable<RoutingContext>, MessageSenderComponent {
+public interface Gateway extends ComponentLifecycle, Streamable<RoutingContext>, MessageProducer {
+
+    /**
+     * Get the list of attached connectors.
+     * 
+     * @return the list of attached connectors
+     */
+    public List<Connector> getConnectors();
 
     /**
      * Push a message to the gateway incoming sink, so it will be routed the
@@ -31,7 +41,7 @@ public interface Gateway extends ComponentLifecycle, Streamable<RoutingContext>,
      * @param message
      */
     public void callAndPush(Message message);
-    
+
     /**
      * Check if this gateway is auto-started.
      * 
