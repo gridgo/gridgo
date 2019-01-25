@@ -11,7 +11,7 @@ import org.joo.promise4j.Promise;
 import org.joo.promise4j.impl.CompletableDeferredObject;
 
 import io.gridgo.bean.BObject;
-import io.gridgo.connector.support.MessageSenderComponent;
+import io.gridgo.connector.support.MessageProducer;
 import io.gridgo.connector.support.transaction.Transaction;
 import io.gridgo.core.GridgoContext;
 import io.gridgo.core.support.ContextAwareComponent;
@@ -39,7 +39,7 @@ public interface TransactionalProcessor extends ContextAwareComponent, Loggable 
     }
 
     public default Promise<Object, Exception> withTransaction(String gateway,
-            BiConsumer<MessageSenderComponent, Deferred<Message, Exception>> handler) {
+            BiConsumer<MessageProducer, Deferred<Message, Exception>> handler) {
         return createTransaction(gateway).pipeDone(transaction -> {
             var deferred = new CompletableDeferredObject<Message, Exception>();
             try {
@@ -54,7 +54,7 @@ public interface TransactionalProcessor extends ContextAwareComponent, Loggable 
     }
 
     public default Promise<Object, Exception> withTransaction(String gateway,
-            Function<MessageSenderComponent, Promise<? extends Object, Exception>> handler) {
+            Function<MessageProducer, Promise<? extends Object, Exception>> handler) {
         return createTransaction(gateway).pipeDone(transaction -> {
             try {
                 var promise = handler.apply(transaction);
