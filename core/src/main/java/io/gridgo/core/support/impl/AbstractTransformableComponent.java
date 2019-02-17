@@ -1,3 +1,4 @@
+
 package io.gridgo.core.support.impl;
 
 import java.util.Optional;
@@ -46,7 +47,7 @@ public abstract class AbstractTransformableComponent extends AbstractDirectional
     protected RoutingContext transform(RoutingContext rc) {
         var msg = transformer.orElse(Function.identity()).apply(rc.getMessage());
         if (msg.getSource() == null)
-            msg.attachSource(getName());
+            msg.attachSource(rc.getMessage().getSource());
         return new DefaultRoutingContext(rc.getCaller(), msg, rc.getDeferred());
     }
 
