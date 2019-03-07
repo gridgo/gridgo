@@ -22,6 +22,7 @@ import io.gridgo.core.Processor;
 import io.gridgo.core.impl.ConfiguratorContextBuilder;
 import io.gridgo.core.impl.DefaultGridgoContextBuilder;
 import io.gridgo.core.support.subscription.GatewaySubscription;
+import io.gridgo.framework.execution.ExecutionStrategy;
 import io.gridgo.framework.impl.AbstractComponentLifecycle;
 import io.gridgo.framework.support.Registry;
 import io.gridgo.utils.ThreadUtils;
@@ -92,17 +93,10 @@ public class GridgoApplication extends AbstractComponentLifecycle {
     private void registerGateway(Class<?> gatewayClass) {
         var annotation = gatewayClass.getAnnotation(io.gridgo.boot.support.annotations.Gateway.class);
         var gateway = context.openGateway(annotation.value());
-        var connectors = gatewayClass.getAnnotationsByType(Connector.class);
-        for (var connector : connectors) {
-            gateway.attachConnector(registry.substituteRegistriesRecursive(connector.value()));
-        }
+        attachConnectors(gatewayClass, gateway);
         try {
             var instance = gatewayClass.getConstructor().newInstance();
-            if (instance instanceof Processor) {
-                gateway.subscribe((Processor) instance);
-            } else {
-                subscribeProcessorMethods(gatewayClass, gateway, instance);
-            }
+            subscribeProcessor(gatewayClass, gateway, instance);
             lazyInitializers.add(new LazyInitializer(gatewayClass, instance));
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
                 | NoSuchMethodException | SecurityException e) {
@@ -110,7 +104,24 @@ public class GridgoApplication extends AbstractComponentLifecycle {
         }
     }
 
-    private void subscribeProcessorMethods(Class<?> gatewayClass, GatewaySubscription gateway, Object instance) {
+    private void subscribeProcessor(Class<?> gatewayClass, GatewaySubscription gateway, Object instance) {
+        var executionStrategy = extractExecutionStrategy(gatewayClass);
+        if (instance instanceof Processor) {
+            gateway.subscribe((Processor) instance).using(executionStrategy);
+        } else {
+            subscribeProcessorMethods(gatewayClass, gateway, instance, executionStrategy);
+        }
+    }
+
+    private void attachConnectors(Class<?> gatewayClass, GatewaySubscription gateway) {
+        var connectors = gatewayClass.getAnnotationsByType(Connector.class);
+        for (var connector : connectors) {
+            gateway.attachConnector(registry.substituteRegistriesRecursive(connector.value()));
+        }
+    }
+
+    private void subscribeProcessorMethods(Class<?> gatewayClass, GatewaySubscription gateway, Object instance,
+            ExecutionStrategy executionStrategy) {
         var methods = AnnotationUtils.findAllMethodsWithAnnotation(gatewayClass,
                 io.gridgo.boot.support.annotations.Processor.class);
         for (var method : methods) {
@@ -124,8 +135,15 @@ public class GridgoApplication extends AbstractComponentLifecycle {
                 } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
                     rc.getDeferred().reject(e);
                 }
-            });
+            }).using(executionStrategy);
         }
+    }
+
+    private ExecutionStrategy extractExecutionStrategy(Class<?> gatewayClass) {
+        var executionStrategy = gatewayClass.getAnnotation(io.gridgo.boot.support.annotations.ExecutionStrategy.class);
+        if (executionStrategy == null)
+            return null;
+        return registry.lookupMandatory(executionStrategy.value(), ExecutionStrategy.class);
     }
 
     public static GridgoApplication run(Class<?> applicationClass, String... args) {
