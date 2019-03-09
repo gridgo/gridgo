@@ -10,4 +10,6 @@ import java.lang.annotation.Target;
 public @interface Gateway {
 
     String value();
+    
+    boolean autoStart() default true;
 }
