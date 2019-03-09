@@ -8,6 +8,7 @@ import java.util.function.Consumer;
 import io.gridgo.connector.ConnectorFactory;
 import io.gridgo.core.support.ContextAwareComponent;
 import io.gridgo.core.support.ProducerJoinMode;
+import io.gridgo.core.support.exceptions.InvalidGatewayException;
 import io.gridgo.core.support.subscription.GatewaySubscription;
 import io.gridgo.core.support.template.ProducerTemplate;
 import io.gridgo.framework.ComponentLifecycle;
@@ -32,7 +33,7 @@ public interface GridgoContext extends ComponentLifecycle {
     public Optional<Gateway> findGateway(String name);
 
     public default Gateway findGatewayMandatory(String name) {
-        return findGateway(name).orElseThrow();
+        return findGateway(name).orElseThrow(() -> new InvalidGatewayException(name));
     }
 
     public default GridgoContext startGateway(String name) {
