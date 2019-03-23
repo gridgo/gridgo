@@ -1,0 +1,5 @@
+applicationName: "test"
+gateways:
+   test:
+      subscribers:
+         - "bean:test"

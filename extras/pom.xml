@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>io.gridgo</groupId>
 		<artifactId>gridgo</artifactId>
-		<version>0.3.0</version>
+		<version>0.4.1-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -13,6 +13,10 @@
 
 	<modules>
 		<module>gridgo-extras-prometheus</module>
+		<module>gridgo-extras-spring</module>
+		<module>gridgo-extras-typesafe</module>
+		<module>gridgo-extras-yaml</module>
+		<module>gridgo-extras-flink</module>
 	</modules>
 
 	<dependencies>

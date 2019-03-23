@@ -11,6 +11,7 @@ import io.gridgo.extras.prometheus.PrometheusGaugeInstrumenter;
 import io.gridgo.extras.prometheus.PrometheusHistorgramTimeInstrumenter;
 import io.gridgo.extras.prometheus.PrometheusSummaryTimeInstrumenter;
 import io.gridgo.framework.execution.ExecutionStrategyInstrumenter;
+import io.gridgo.framework.support.Message;
 
 public class PrometheusInstrumenterUnitTest {
 
@@ -19,8 +20,8 @@ public class PrometheusInstrumenterUnitTest {
         var counter = new PrometheusCounterInstrumenter("counter", "test");
         var context = buildContext(counter);
         context.start();
-        context.findGatewayMandatory("test").push(null);
-        context.findGatewayMandatory("test").push(null);
+        context.findGatewayMandatory("test").push(Message.ofEmpty().attachSource("test"));
+        context.findGatewayMandatory("test").push(Message.ofEmpty().attachSource("test"));
         Assert.assertEquals(2, (int) counter.getCounter().get());
         context.stop();
     }
@@ -30,8 +31,8 @@ public class PrometheusInstrumenterUnitTest {
         var counter = new PrometheusGaugeInstrumenter("gauge", "test");
         var context = buildContext(counter);
         context.start();
-        context.findGatewayMandatory("test").push(null);
-        context.findGatewayMandatory("test").push(null);
+        context.findGatewayMandatory("test").push(Message.ofEmpty().attachSource("test"));
+        context.findGatewayMandatory("test").push(Message.ofEmpty().attachSource("test"));
         Assert.assertEquals(0, (int) counter.getGauge().get());
         context.stop();
     }
@@ -41,8 +42,8 @@ public class PrometheusInstrumenterUnitTest {
         var counter = new PrometheusHistorgramTimeInstrumenter("histogram", "test");
         var context = buildContext(counter);
         context.start();
-        context.findGatewayMandatory("test").push(null);
-        context.findGatewayMandatory("test").push(null);
+        context.findGatewayMandatory("test").push(Message.ofEmpty().attachSource("test"));
+        context.findGatewayMandatory("test").push(Message.ofEmpty().attachSource("test"));
         Assert.assertFalse(counter.getHistogram().collect().isEmpty());
         context.stop();
     }
@@ -52,8 +53,8 @@ public class PrometheusInstrumenterUnitTest {
         var counter = new PrometheusSummaryTimeInstrumenter("summary", "test");
         var context = buildContext(counter);
         context.start();
-        context.findGatewayMandatory("test").push(null);
-        context.findGatewayMandatory("test").push(null);
+        context.findGatewayMandatory("test").push(Message.ofEmpty().attachSource("test"));
+        context.findGatewayMandatory("test").push(Message.ofEmpty().attachSource("test"));
         Assert.assertEquals(2, (int) counter.getSummary().get().count);
         context.stop();
     }

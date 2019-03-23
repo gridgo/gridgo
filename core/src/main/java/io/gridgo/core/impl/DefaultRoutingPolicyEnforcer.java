@@ -3,20 +3,23 @@ package io.gridgo.core.impl;
 import org.joo.libra.PredicateContext;
 
 import io.gridgo.core.GridgoContext;
+import io.gridgo.core.RoutingPolicyEnforcer;
 import io.gridgo.core.support.RoutingContext;
 import io.gridgo.core.support.subscription.RoutingPolicy;
+import io.gridgo.framework.support.MessageConstants;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class RoutingPolicyEnforcer {
+public class DefaultRoutingPolicyEnforcer implements RoutingPolicyEnforcer {
 
     private RoutingPolicy policy;
 
-    public RoutingPolicyEnforcer(final @NonNull RoutingPolicy policy) {
+    public DefaultRoutingPolicyEnforcer(final @NonNull RoutingPolicy policy) {
         this.policy = policy;
     }
 
+    @Override
     public void execute(RoutingContext rc, GridgoContext gc, PredicateContext context) {
         if (!isMatch(context))
             return;
@@ -36,11 +39,20 @@ public class RoutingPolicyEnforcer {
             try {
                 doProcess(rc, gc);
             } catch (Exception ex) {
-                log.error("Exception caught while executing processor", ex);
-                if (rc.getDeferred() != null)
-                    rc.getDeferred().reject(ex);
+                handleException(rc, ex);
             }
         };
+    }
+
+    private void handleException(RoutingContext rc, Exception ex) {
+        if (log.isErrorEnabled()) {
+            var msg = rc.getMessage();
+            log.error("Exception caught while executing processor with message id {} and source {}",
+                    msg.getPayload().getId().orElse(null), //
+                    msg.getMisc().get(MessageConstants.SOURCE), ex);
+        }
+        if (rc.getDeferred() != null)
+            rc.getDeferred().reject(ex);
     }
 
     private boolean isMatch(PredicateContext context) {

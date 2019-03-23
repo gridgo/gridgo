@@ -131,7 +131,7 @@ public class GatewayUnitTest {
 
         var gateway = context.findGateway("test").orElseThrow();
         gateway.call(createType1Message()).done(response -> {
-            var body = response.getPayload().getBody();
+            var body = response.body();
             Assert.assertTrue(body.isArray());
             Assert.assertEquals(2, body.asArray().size());
             Assert.assertEquals(Integer.valueOf(1), body.asArray().getArray(0).getInteger(2));
@@ -145,14 +145,14 @@ public class GatewayUnitTest {
 
         var gateway2 = context.findGateway("test2").orElseThrow();
         gateway2.call(createType1Message()).done(response -> {
-            var body = response.getPayload().getBody();
+            var body = response.body();
             Assert.assertTrue(body.isArray());
             Assert.assertEquals(1, body.asArray().size());
             Assert.assertEquals(Integer.valueOf(1), body.asArray().getArray(0).getInteger(2));
             latch2.countDown();
         }).fail(ex -> ex.printStackTrace());
         gateway2.call(createType2Message()).done(response -> {
-            var body = response.getPayload().getBody();
+            var body = response.body();
             Assert.assertTrue(body.isArray());
             Assert.assertEquals(1, body.asArray().size());
             Assert.assertEquals(Integer.valueOf(2), body.asArray().getArray(0).getInteger(2));
@@ -170,7 +170,7 @@ public class GatewayUnitTest {
     private boolean match(GridgoContext context, Connector connector, Message msg) {
         var beanName = connector.getConnectorConfig().getPlaceholders().getProperty("bean");
         var beanValue = context.getRegistry().lookupMandatory(beanName, Integer.class);
-        return beanValue == msg.getPayload().getBody().asValue().getInteger();
+        return beanValue == msg.body().asValue().getInteger();
     }
 
     @Test
@@ -201,7 +201,7 @@ public class GatewayUnitTest {
 
         var gateway = context.findGateway("test").orElseThrow();
         gateway.call(createType1Message()).done(response -> {
-            if (response.getPayload().getBody().asValue().getInteger() == beanValue)
+            if (response.body().asValue().getInteger() == beanValue)
                 latch.countDown();
         });
         gateway.sendWithAck(createType1Message()).done(response -> {

@@ -3,7 +3,7 @@ package io.gridgo.core.support.impl;
 import io.gridgo.core.Gateway;
 import io.gridgo.core.GridgoContext;
 import io.gridgo.core.support.ContextAwareComponent;
-import io.gridgo.framework.AbstractComponentLifecycle;
+import io.gridgo.framework.impl.AbstractComponentLifecycle;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;

@@ -1,3 +1,4 @@
+
 package io.gridgo.core.support.impl;
 
 import java.util.Optional;
@@ -17,25 +18,51 @@ public abstract class AbstractTransformableComponent extends AbstractDirectional
 
     private Disposable disposable;
 
+    private boolean autoResolve;
+
     public AbstractTransformableComponent(String source, String target) {
-        super(source, target);
+        this(source, target, false);
+    }
+
+    public AbstractTransformableComponent(String source, String target, boolean autoResolve) {
+        this(source, target, null, autoResolve);
     }
 
     public AbstractTransformableComponent(String source, String target, UnaryOperator<Message> transformer) {
+        this(source, target, transformer, false);
+    }
+
+    public AbstractTransformableComponent(String source, String target, UnaryOperator<Message> transformer,
+            boolean autoResolve) {
         super(source, target);
         this.transformer = Optional.ofNullable(transformer);
+        this.autoResolve = autoResolve;
     }
 
     @Override
     protected void startWithGateways(Gateway source, Gateway target) {
-        this.disposable = source.asObservable().map(this::transform).forEach(msg -> handle(target, msg));
+        this.disposable = source.asObservable().map(this::transform).forEach(rc -> handle(target, rc));
     }
 
-    protected Message transform(RoutingContext rc) {
-        return transformer.orElse(Function.identity()).apply(rc.getMessage());
+    protected RoutingContext transform(RoutingContext rc) {
+        var msg = transformer.orElse(Function.identity()).apply(rc.getMessage());
+        if (msg.getSource() == null)
+            msg.attachSource(rc.getMessage().getSource());
+        return new DefaultRoutingContext(rc.getCaller(), msg, rc.getDeferred());
     }
 
-    protected abstract void handle(Gateway target, Message message);
+    protected void handle(Gateway target, RoutingContext rc) {
+        try {
+            doHandle(target, rc);
+            if (autoResolve && rc.getDeferred() != null)
+                rc.getDeferred().resolve(null);
+        } catch (Exception ex) {
+            if (autoResolve && rc.getDeferred() != null)
+                rc.getDeferred().reject(ex);
+        }
+    }
+
+    protected abstract void doHandle(Gateway target, RoutingContext rc);
 
     @Override
     protected void onStop() {

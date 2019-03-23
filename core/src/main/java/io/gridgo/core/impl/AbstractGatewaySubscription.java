@@ -10,16 +10,19 @@ import io.gridgo.connector.Connector;
 import io.gridgo.connector.ConnectorResolver;
 import io.gridgo.connector.Consumer;
 import io.gridgo.connector.support.config.ConnectorContext;
+import io.gridgo.connector.support.exceptions.NoSubscriberException;
 import io.gridgo.core.Gateway;
 import io.gridgo.core.GridgoContext;
 import io.gridgo.core.Processor;
+import io.gridgo.core.RoutingPolicyEnforcer;
+import io.gridgo.core.support.ContextAwareComponent;
 import io.gridgo.core.support.RoutingContext;
 import io.gridgo.core.support.impl.DefaultRoutingContext;
 import io.gridgo.core.support.subscription.GatewaySubscription;
 import io.gridgo.core.support.subscription.ProcessorSubscription;
 import io.gridgo.core.support.subscription.RoutingPolicy;
 import io.gridgo.core.support.subscription.impl.DefaultProcessorSubscription;
-import io.gridgo.framework.AbstractComponentLifecycle;
+import io.gridgo.framework.impl.AbstractComponentLifecycle;
 import io.gridgo.framework.support.Message;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
@@ -45,7 +48,6 @@ public abstract class AbstractGatewaySubscription extends AbstractComponentLifec
     public AbstractGatewaySubscription(GridgoContext context, String name) {
         this.context = context;
         this.name = name;
-        this.subject.subscribe(this::handleMessages);
     }
 
     @Override
@@ -89,6 +91,10 @@ public abstract class AbstractGatewaySubscription extends AbstractComponentLifec
     }
 
     private void handleMessages(RoutingContext rc) {
+        if (policyEnforcers.length == 0 && !subject.hasObservers()) {
+            rc.getDeferred().reject(new NoSubscriberException());
+            return;
+        }
         var predicateContext = new PredicateContext(rc.getMessage());
         for (var enforcer : policyEnforcers) {
             enforcer.execute(rc, context, predicateContext);
@@ -97,6 +103,7 @@ public abstract class AbstractGatewaySubscription extends AbstractComponentLifec
 
     protected void publish(Message msg, Deferred<Message, Exception> deferred) {
         var routingContext = new DefaultRoutingContext(this, msg, deferred);
+        handleMessages(routingContext);
         subject.onNext(routingContext);
     }
 
@@ -109,6 +116,8 @@ public abstract class AbstractGatewaySubscription extends AbstractComponentLifec
 
     @Override
     public ProcessorSubscription subscribe(Processor processor) {
+        if (processor instanceof ContextAwareComponent)
+            ((ContextAwareComponent) processor).setContext(context);
         var subscription = new DefaultProcessorSubscription(this, processor);
         subscriptions.add(subscription);
         return subscription;
@@ -128,7 +137,7 @@ public abstract class AbstractGatewaySubscription extends AbstractComponentLifec
     protected void onStart() {
         this.policyEnforcers = subscriptions.stream() //
                                             .map(ProcessorSubscription::getPolicy) //
-                                            .map(RoutingPolicyEnforcer::new)
+                                            .map(DefaultRoutingPolicyEnforcer::new)
                                             .toArray(size -> new RoutingPolicyEnforcer[size]);
 
         for (Connector connector : connectors)
