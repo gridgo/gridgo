@@ -25,14 +25,18 @@ public abstract class AbstractDataAccessHandler<T extends Annotation> implements
     }
 
     @Override
-    public Promise<Message, Exception> invoke(Object proxy, Method method, Object[] args) throws Throwable {
+    public Promise<?, Exception> invoke(Object proxy, Method method, Object[] args) throws Throwable {
         var annotation = method.getAnnotation(annotatedClass);
         if (annotation == null) {
             return Promise.ofCause(new IllegalArgumentException(String.format("Method %s is not annotated with @%s",
                     proxy.getClass().getName(), method.getName(), annotatedClass.getSimpleName())));
         }
         var msg = buildMessage(annotation, args);
-        return gateway.call(msg);
+        return filter(annotation, gateway.call(msg));
+    }
+
+    protected Promise<?, Exception> filter(T annotation, Promise<Message, Exception> promise) {
+        return promise;
     }
 
     protected abstract Message buildMessage(T annotation, Object[] args);

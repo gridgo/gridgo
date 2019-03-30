@@ -1,5 +1,7 @@
 package io.gridgo.boot.data.test.processors;
 
+import java.util.List;
+
 import io.gridgo.boot.data.support.annotations.DataAccessInject;
 import io.gridgo.boot.data.test.data.User;
 import io.gridgo.boot.data.test.data.UserDAO;
@@ -28,9 +30,7 @@ public class TestProcessor extends AbstractProcessor {
                .forward(rc.getDeferred());
     }
 
-    private User transform(Message r) {
-        return r.body().asArray().stream() //
-                .map(e -> e.asObject().toPojo(User.class)) //
-                .findAny().orElse(null);
+    private User transform(List<User> r) {
+        return (r.isEmpty()) ? null : r.get(0);
     }
 }

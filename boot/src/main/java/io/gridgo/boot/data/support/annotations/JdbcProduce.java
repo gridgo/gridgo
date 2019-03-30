@@ -10,4 +10,6 @@ import java.lang.annotation.Target;
 public @interface JdbcProduce {
 
     public String value();
+
+    public Class<?> pojo() default Object.class;
 }

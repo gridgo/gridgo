@@ -1,5 +1,7 @@
 package io.gridgo.boot.data.test.data;
 
+import java.util.List;
+
 import org.joo.promise4j.Promise;
 
 import io.gridgo.boot.data.support.annotations.DataAccess;
@@ -19,6 +21,6 @@ public interface UserDAO {
     @JdbcProduce("insert into test_users (id, name) values (:1, :2)")
     public Promise<Message, Exception> add(int id, String name);
 
-    @JdbcProduce("select * from test_users where id = :1")
-    public Promise<Message, Exception> find(int id);
+    @JdbcProduce(value = "select * from test_users where id = :1", pojo = User.class)
+    public Promise<List<User>, Exception> find(int id);
 }
