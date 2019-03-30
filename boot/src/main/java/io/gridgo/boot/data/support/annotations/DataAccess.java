@@ -11,7 +11,7 @@ import io.gridgo.boot.data.support.DataAccessHandler;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface DataAccess {
 
-    public String value();
+    public String gateway();
 
     public Class<? extends DataAccessHandler> handler();
 }

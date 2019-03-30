@@ -35,7 +35,7 @@ public class DataAccessInjector implements Injector {
             throw new IllegalArgumentException(String.format("Field %s.%s of type %s is not annotated with @DataAccess",
                     clazz.getName(), field.getName(), field.getType().getName()));
         }
-        var targetGateway = annotation.value();
+        var targetGateway = annotation.gateway();
         var handler = annotation.handler();
         var proxy = initDataAccessProxy(targetGateway, type, handler);
         ObjectUtils.setValue(instance, field.getName(), proxy);

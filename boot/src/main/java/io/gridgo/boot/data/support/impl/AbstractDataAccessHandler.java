@@ -14,9 +14,9 @@ import lombok.Data;
 @Data
 public abstract class AbstractDataAccessHandler<T extends Annotation> implements DataAccessHandler {
 
-    private GridgoContext context;
+    protected GridgoContext context;
 
-    private Gateway gateway;
+    protected Gateway gateway;
 
     private final Class<? extends T> annotatedClass;
 

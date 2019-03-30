@@ -14,9 +14,12 @@ public class JdbcDataAccessHandler extends AbstractDataAccessHandler<JdbcProduce
 
     protected Message buildMessage(JdbcProduce annotation, Object[] args) {
         var headers = BObject.ofEmpty();
-        for (int i = 0; i < args.length; i++) {
-            headers.setAny((i + 1) + "", args[i]);
+        if (args != null) {
+            for (int i = 0; i < args.length; i++) {
+                headers.setAny((i + 1) + "", args[i]);
+            }
         }
-        return Message.ofAny(headers, annotation.value());
+        var query = context.getRegistry().substituteRegistriesRecursive(annotation.value());
+        return Message.ofAny(headers, query);
     }
 }
