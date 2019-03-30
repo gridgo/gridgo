@@ -25,12 +25,11 @@ public class TestProcessor extends AbstractProcessor {
                .pipeDone(r -> userDAO.createTable()) //
                .pipeDone(r -> userDAO.add(1, "hello")) //
                .pipeDone(r -> userDAO.find(1)) //
-               .filterDone(this::transform) //
-               .<Message, Exception>filterDone(Message::ofAny) //
+               .<Message, Exception>filterDone(this::transform) //
                .forward(rc.getDeferred());
     }
 
-    private User transform(List<User> r) {
-        return (r.isEmpty()) ? null : r.get(0);
+    private Message transform(List<User> r) {
+        return Message.ofAny((r.isEmpty()) ? null : r.get(0));
     }
 }

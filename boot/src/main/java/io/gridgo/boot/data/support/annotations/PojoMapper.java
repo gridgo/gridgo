@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface JdbcProduce {
+public @interface PojoMapper {
 
-    public String value();
+    public Class<?> value();
 }
