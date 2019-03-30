@@ -4,6 +4,9 @@ jdk:
 notifications:
   slack: gridgo:7vQ2ec1IgZ0bjCN9w3wsUiIn
   
+services:
+- mysql
+  
 addons:
   sonarcloud:
     organization: "gridgo" # the key of the org you chose at step #3
