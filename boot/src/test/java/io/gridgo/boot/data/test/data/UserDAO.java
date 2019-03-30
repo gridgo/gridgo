@@ -4,10 +4,10 @@ import java.util.List;
 
 import org.joo.promise4j.Promise;
 
+import io.gridgo.boot.data.jdbc.JdbcDataAccessHandler;
+import io.gridgo.boot.data.jdbc.JdbcProduce;
 import io.gridgo.boot.data.support.annotations.DataAccess;
-import io.gridgo.boot.data.support.annotations.JdbcProduce;
 import io.gridgo.boot.data.support.annotations.PojoMapper;
-import io.gridgo.boot.data.support.impl.JdbcDataAccessHandler;
 import io.gridgo.framework.support.Message;
 
 @DataAccess(gateway = "mysql", handler = JdbcDataAccessHandler.class)

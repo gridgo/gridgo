@@ -1,4 +1,4 @@
-package io.gridgo.boot.data.support.annotations;
+package io.gridgo.boot.data.jdbc;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
