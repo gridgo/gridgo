@@ -1,41 +1,27 @@
 package io.gridgo.boot.support;
 
-import io.gridgo.boot.support.annotations.AnnotationUtils;
-import io.gridgo.boot.support.annotations.GatewayInject;
-import io.gridgo.boot.support.annotations.RegistryInject;
+import java.util.Arrays;
+import java.util.List;
+
+import io.gridgo.boot.data.support.DataAccessInjector;
+import io.gridgo.boot.support.injectors.impl.GatewayInjector;
+import io.gridgo.boot.support.injectors.impl.RegistryInjector;
 import io.gridgo.core.GridgoContext;
-import io.gridgo.utils.ObjectUtils;
 
 public class FieldInjector {
-    
-    private GridgoContext context;
+
+    private List<Injector> injectors;
 
     public FieldInjector(GridgoContext context) {
-        this.context = context;
+        this.injectors = Arrays.asList( //
+                new RegistryInjector(context), //
+                new GatewayInjector(context), //
+                new DataAccessInjector(context));
     }
 
     public void injectFields(Class<?> gatewayClass, Object instance) {
-        injectRegistries(gatewayClass, instance);
-        injectGateways(gatewayClass, instance);
-    }
-
-    private void injectRegistries(Class<?> gatewayClass, Object instance) {
-        var fields = AnnotationUtils.findAllFieldsWithAnnotation(gatewayClass, RegistryInject.class);
-        for (var field : fields) {
-            var name = field.getName();
-            var injectedKey = field.getAnnotation(RegistryInject.class).value();
-            var injectedValue = context.getRegistry().lookup(injectedKey, field.getType());
-            ObjectUtils.setValue(instance, name, injectedValue);
-        }
-    }
-
-    private void injectGateways(Class<?> gatewayClass, Object instance) {
-        var fields = AnnotationUtils.findAllFieldsWithAnnotation(gatewayClass, GatewayInject.class);
-        for (var field : fields) {
-            var name = field.getName();
-            var injectedKey = field.getAnnotation(GatewayInject.class).value();
-            var gateway = context.findGatewayMandatory(injectedKey);
-            ObjectUtils.setValue(instance, name, gateway);
+        for (var injector : injectors) {
+            injector.inject(gatewayClass, instance);
         }
     }
 }

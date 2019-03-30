@@ -1,7 +1,6 @@
 package io.gridgo.boot;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,24 +8,21 @@ import org.reflections.Reflections;
 
 import io.gridgo.boot.config.ResourceConfigurator;
 import io.gridgo.boot.registry.AnnotatedRegistry;
+import io.gridgo.boot.support.AnnotationScanner;
 import io.gridgo.boot.support.FieldInjector;
+import io.gridgo.boot.support.LazyInitializer;
 import io.gridgo.boot.support.annotations.AnnotationUtils;
-import io.gridgo.boot.support.annotations.Connector;
 import io.gridgo.boot.support.annotations.EnableComponentScan;
-import io.gridgo.boot.support.annotations.Gateway;
 import io.gridgo.boot.support.annotations.RegistryInitializer;
 import io.gridgo.boot.support.exceptions.InitializationException;
 import io.gridgo.boot.support.exceptions.ResourceNotFoundException;
+import io.gridgo.boot.support.scanners.impl.GatewayScanner;
 import io.gridgo.core.GridgoContext;
-import io.gridgo.core.Processor;
 import io.gridgo.core.impl.ConfiguratorContextBuilder;
 import io.gridgo.core.impl.DefaultGridgoContextBuilder;
-import io.gridgo.core.support.subscription.GatewaySubscription;
-import io.gridgo.framework.execution.ExecutionStrategy;
 import io.gridgo.framework.impl.AbstractComponentLifecycle;
 import io.gridgo.framework.support.Registry;
 import io.gridgo.utils.ThreadUtils;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -48,6 +44,8 @@ public class GridgoApplication extends AbstractComponentLifecycle {
 
     private FieldInjector injector;
 
+    private List<AnnotationScanner> scanners;
+
     private GridgoApplication(Class<?> applicationClass, String... args) {
         this.applicationClass = applicationClass;
         this.args = args;
@@ -63,7 +61,8 @@ public class GridgoApplication extends AbstractComponentLifecycle {
         }
         this.appName = this.context.getName();
         this.injector = new FieldInjector(context);
-        this.lazyInitializers = new ArrayList<LazyInitializer>();
+        this.lazyInitializers = new ArrayList<>();
+        this.scanners = new ArrayList<>();
         this.initialize();
     }
 
@@ -73,78 +72,17 @@ public class GridgoApplication extends AbstractComponentLifecycle {
             scanComponents();
         }
         for (var initializer : lazyInitializers) {
-            injector.injectFields(initializer.gatewayClass, initializer.instance);
+            injector.injectFields(initializer.getGatewayClass(), initializer.getInstance());
         }
     }
 
     private void scanComponents() {
         var pkg = applicationClass.getPackageName();
         var ref = new Reflections(pkg);
-        scanGateways(ref);
-    }
-
-    private void scanGateways(Reflections ref) {
-        var gateways = ref.getTypesAnnotatedWith(Gateway.class);
-        for (var gateway : gateways) {
-            registerGateway(gateway);
+        this.scanners.add(new GatewayScanner());
+        for (var scanner : scanners) {
+            scanner.scanAnnotation(ref, context, lazyInitializers);
         }
-    }
-
-    private void registerGateway(Class<?> gatewayClass) {
-        var annotation = gatewayClass.getAnnotation(io.gridgo.boot.support.annotations.Gateway.class);
-        var gateway = context.openGateway(annotation.value()) //
-                             .setAutoStart(annotation.autoStart());
-        attachConnectors(gatewayClass, gateway);
-        try {
-            var instance = gatewayClass.getConstructor().newInstance();
-            subscribeProcessor(gatewayClass, gateway, instance);
-            lazyInitializers.add(new LazyInitializer(gatewayClass, instance));
-        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
-                | NoSuchMethodException | SecurityException e) {
-            throw new InitializationException("Cannot register processor", e);
-        }
-    }
-
-    private void subscribeProcessor(Class<?> gatewayClass, GatewaySubscription gateway, Object instance) {
-        var executionStrategy = extractExecutionStrategy(gatewayClass);
-        if (instance instanceof Processor) {
-            gateway.subscribe((Processor) instance).using(executionStrategy);
-        } else {
-            subscribeProcessorMethods(gatewayClass, gateway, instance, executionStrategy);
-        }
-    }
-
-    private void attachConnectors(Class<?> gatewayClass, GatewaySubscription gateway) {
-        var connectors = gatewayClass.getAnnotationsByType(Connector.class);
-        for (var connector : connectors) {
-            gateway.attachConnector(registry.substituteRegistriesRecursive(connector.value()));
-        }
-    }
-
-    private void subscribeProcessorMethods(Class<?> gatewayClass, GatewaySubscription gateway, Object instance,
-            ExecutionStrategy executionStrategy) {
-        var methods = AnnotationUtils.findAllMethodsWithAnnotation(gatewayClass,
-                io.gridgo.boot.support.annotations.Processor.class);
-        for (var method : methods) {
-            var staticMethod = Modifier.isStatic(method.getModifiers());
-            gateway.subscribe((rc, gc) -> {
-                try {
-                    if (staticMethod)
-                        method.invoke(null, rc, gc);
-                    else
-                        method.invoke(instance, rc, gc);
-                } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-                    rc.getDeferred().reject(e);
-                }
-            }).using(executionStrategy);
-        }
-    }
-
-    private ExecutionStrategy extractExecutionStrategy(Class<?> gatewayClass) {
-        var executionStrategy = gatewayClass.getAnnotation(io.gridgo.boot.support.annotations.ExecutionStrategy.class);
-        if (executionStrategy == null)
-            return null;
-        return registry.lookupMandatory(executionStrategy.value(), ExecutionStrategy.class);
     }
 
     public static GridgoApplication run(Class<?> applicationClass, String... args) {
@@ -188,13 +126,5 @@ public class GridgoApplication extends AbstractComponentLifecycle {
     @Override
     protected String generateName() {
         return "app." + appName;
-    }
-
-    @AllArgsConstructor
-    class LazyInitializer {
-
-        Class<?> gatewayClass;
-
-        Object instance;
     }
 }
