@@ -7,9 +7,7 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface DataAccess {
+public @interface DataAccessSchema {
 
-    public String gateway();
-
-    public String schema();
+    public String value();
 }

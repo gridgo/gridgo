@@ -1,4 +1,4 @@
-package io.gridgo.boot.data.support;
+package io.gridgo.boot.data;
 
 import java.lang.reflect.InvocationHandler;
 

@@ -1,11 +1,11 @@
 package io.gridgo.boot.data.jdbc;
 
 import io.gridgo.bean.BObject;
+import io.gridgo.boot.data.support.annotations.DataAccessSchema;
 import io.gridgo.boot.data.support.impl.AbstractDataAccessHandler;
 import io.gridgo.framework.support.Message;
-import lombok.Getter;
 
-@Getter
+@DataAccessSchema("jdbc")
 public class JdbcDataAccessHandler extends AbstractDataAccessHandler<JdbcProduce> {
 
     public JdbcDataAccessHandler() {

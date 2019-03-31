@@ -4,13 +4,12 @@ import java.util.List;
 
 import org.joo.promise4j.Promise;
 
-import io.gridgo.boot.data.jdbc.JdbcDataAccessHandler;
 import io.gridgo.boot.data.jdbc.JdbcProduce;
 import io.gridgo.boot.data.support.annotations.DataAccess;
 import io.gridgo.boot.data.support.annotations.PojoMapper;
 import io.gridgo.framework.support.Message;
 
-@DataAccess(gateway = "mysql", handler = JdbcDataAccessHandler.class)
+@DataAccess(gateway = "mysql", schema = "jdbc")
 public interface UserDAO {
 
     @JdbcProduce("drop table if exists test_users")
@@ -25,4 +24,8 @@ public interface UserDAO {
     @PojoMapper(User.class)
     @JdbcProduce(value = "select * from test_users where id = :1")
     public Promise<List<User>, Exception> find(int id);
+
+    @PojoMapper(User.class)
+    @JdbcProduce(value = "select * from test_users where id in (:1)")
+    public Promise<List<User>, Exception> findByIds(List<Integer> ids);
 }
