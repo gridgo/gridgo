@@ -3,8 +3,6 @@
 	<artifactId>gridgo</artifactId>
 	<packaging>pom</packaging>
 	
-	<version>0.5.1-SNAPSHOT</version>
-	
 	<parent>
 		<groupId>io.gridgo</groupId>
 		<artifactId>gridgo-base</artifactId>
