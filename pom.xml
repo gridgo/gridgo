@@ -3,12 +3,10 @@
 	<artifactId>gridgo</artifactId>
 	<packaging>pom</packaging>
 	
-	<version>0.4.1-SNAPSHOT</version>
-	
 	<parent>
 		<groupId>io.gridgo</groupId>
 		<artifactId>gridgo-base</artifactId>
-		<version>0.4.0</version>
+		<version>0.5.0</version>
 	</parent>
 
 	<url>https://github.com/gridgo/gridgo.git</url>
@@ -22,11 +20,11 @@
 
 	<modules>
 		<module>core</module>
-		<module>boot</module>
 		<module>extras</module>
 	</modules>
 
 	<properties>
+		<gridgo.version>0.5.0</gridgo.version>
 		<junit.version>4.12</junit.version>
 	</properties>
 

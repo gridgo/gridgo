@@ -5,13 +5,11 @@
 	<parent>
 		<groupId>io.gridgo</groupId>
 		<artifactId>gridgo</artifactId>
-		<version>0.4.1-SNAPSHOT</version>
+		<version>0.5.0</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<properties>
-		<gridgo.connector.core.version>0.4.0</gridgo.connector.core.version>
-		<gridgo.config.core.version>0.4.0</gridgo.config.core.version>
 		<joo.libra.version>2.0.0</joo.libra.version>
 	</properties>
 
@@ -19,12 +17,12 @@
 		<dependency>
 			<groupId>io.gridgo</groupId>
 			<artifactId>gridgo-connector-core</artifactId>
-			<version>${gridgo.connector.core.version}</version>
+			<version>${gridgo.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>io.gridgo</groupId>
 			<artifactId>gridgo-config-core</artifactId>
-			<version>${gridgo.config.core.version}</version>
+			<version>${gridgo.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.dungba</groupId>
