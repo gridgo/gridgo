@@ -19,12 +19,12 @@
 		<dependency>
 			<groupId>io.gridgo</groupId>
 			<artifactId>gridgo-connector-core</artifactId>
-			<version>${gridgo.connector.core.version}</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>io.gridgo</groupId>
 			<artifactId>gridgo-config-core</artifactId>
-			<version>${gridgo.config.core.version}</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.dungba</groupId>
