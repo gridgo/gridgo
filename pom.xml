@@ -14,7 +14,7 @@
 		<version>9</version>
 	</parent>
 
-	<url>https://github.com/gridgo/gridgo-commons.git</url>
+	<url>https://github.com/gridgo/gridgo.git</url>
 
 	<licenses>
 		<license>
@@ -25,9 +25,9 @@
 	</licenses>
 
 	<scm>
-		<url>https://github.com/gridgo/gridgo-commons.git</url>
-		<developerConnection>scm:git:[fetch=]https://github.com/gridgo/gridgo-commons.git</developerConnection>
-		<connection>scm:git:[fetch=]https://github.com/gridgo/gridgo-commons.git</connection>
+		<url>https://github.com/gridgo/gridgo.git</url>
+		<developerConnection>scm:git:[fetch=]https://github.com/gridgo/gridgo.git</developerConnection>
+		<connection>scm:git:[fetch=]https://github.com/gridgo/gridgo.git</connection>
 		<tag>HEAD</tag>
 	</scm>
 
