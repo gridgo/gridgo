@@ -19,6 +19,10 @@ public interface BReference extends BElement {
         return BFactory.DEFAULT.newReference(reference);
     }
 
+    static BReference ofEmpty() {
+        return BFactory.DEFAULT.newReference();
+    }
+
     <T> T getReference();
 
     void setReference(Object reference);
