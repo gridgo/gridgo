@@ -53,7 +53,7 @@ public class ProducerConfigurator extends AbstractConnectorConfigurator {
                       .ifPresentOrElse(this::resolveWithProducer, this::onNoProducer);
     }
 
-    private Promise<BElement, Throwable> resolveWithProducer(Producer producer) {
+    private Promise<BElement, Exception> resolveWithProducer(Producer producer) {
         return producer.call(msg) //
                        .filterDone(Message::body) //
                        .done(this::publishLoaded) //
