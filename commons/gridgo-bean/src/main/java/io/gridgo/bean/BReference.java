@@ -98,6 +98,6 @@ public interface BReference extends BElement {
     @SuppressWarnings("unchecked")
     default String toJsonElement() {
         var ref = this.getReference();
-        return ref == null ? "null" : ref.getClass().getName();
+        return ref == null ? "null" : ref.toString();
     }
 }
