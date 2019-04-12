@@ -69,9 +69,8 @@ public final class ObjectUtils {
                     return field.get(obj);
                 }
             } catch (Exception ex) {
-                throw new ObjectReflectiveException("Cannot get value from "
-                        + (this.isMethod ? ("method " + this.method.getName()) : ("field " + this.field.getName())),
-                        ex);
+                throw new ObjectReflectiveException(
+                        "Cannot get value from " + (this.isMethod ? ("method " + this.method.getName()) : ("field " + this.field.getName())), ex);
             }
         }
     }
@@ -95,8 +94,7 @@ public final class ObjectUtils {
 
         @Override
         public String toString() {
-            return "{SETTER: "
-                    + (usingMethod ? "[method] - " + this.method.getName() : "[field] - " + this.field.getName())
+            return "{SETTER: " + (usingMethod ? "[method] - " + this.method.getName() : "[field] - " + this.field.getName())
                     + (!usingMethod ? "" : "(" + this.getParamType().getName() + ")") + "}";
         }
 
@@ -131,7 +129,11 @@ public final class ObjectUtils {
                 if (this.usingMethod) {
                     this.method.invoke(obj, value);
                 } else {
-                    field.set(obj, value);
+                    if (field.trySetAccessible()) {
+                        field.set(obj, value);
+                    } else {
+                        throw new ObjectReflectiveException("Cannot access field " + field.getName());
+                    }
                 }
             } catch (Exception ex) {
                 throw new ObjectReflectiveException(ex);
@@ -170,8 +172,7 @@ public final class ObjectUtils {
                     setter.apply(result, PrimitiveUtils.getValueFrom(setter.getParamType(), value));
                 } else if (value instanceof Map) {
                     setter.apply(result, fromMap(setter.getParamType(), (Map) value));
-                } else if (ArrayUtils.isArrayOrCollection(setter.getParamType())
-                        && ArrayUtils.isArrayOrCollection(value.getClass())) {
+                } else if (ArrayUtils.isArrayOrCollection(setter.getParamType()) && ArrayUtils.isArrayOrCollection(value.getClass())) {
                     final List list = new ArrayList<>();
                     ArrayUtils.foreach(value, new ForeachCallback<Object>() {
 
@@ -223,8 +224,10 @@ public final class ObjectUtils {
             }
             Set<Field> fields = getAllInstancePublicFileds(clazz);
             for (Field field : fields) {
-                if (!Modifier.isStatic(field.getModifiers()) && Modifier.isPublic(field.getModifiers())) {
-                    classSetter.put(field.getName(), new Setter(field));
+                if (!classSetter.containsKey(field.getName()) //
+                        && !Modifier.isStatic(field.getModifiers()) //
+                        && !field.isAnnotationPresent(Transparent.class)) {
+                    classSetter.putIfAbsent(field.getName(), new Setter(field));
                 }
             }
             for (String methodName : methodsByName.keySet()) {
@@ -289,8 +292,7 @@ public final class ObjectUtils {
         while (_class != null && _class != Object.class && _class != Class.class) {
             Method[] methods = _class.getDeclaredMethods();
             for (Method method : methods) {
-                if (Modifier.isPublic(method.getModifiers()) && !Modifier.isStatic(method.getModifiers())
-                        && !method.isAnnotationPresent(Transparent.class)) {
+                if (Modifier.isPublic(method.getModifiers()) && !Modifier.isStatic(method.getModifiers()) && !method.isAnnotationPresent(Transparent.class)) {
                     result.add(method);
                 }
             }
@@ -307,8 +309,8 @@ public final class ObjectUtils {
             for (int i = 0; i < arr.length; i++) {
                 String fieldName = arr[i];
                 if (currObj == null) {
-                    throw new NullPointerException("Cannot get field '" + fieldName + "' from '" + arr[i - 1]
-                            + "' == null, primitive object: " + obj.toString() + ", path: " + path);
+                    throw new NullPointerException(
+                            "Cannot get field '" + fieldName + "' from '" + arr[i - 1] + "' == null, primitive object: " + obj.toString() + ", path: " + path);
                 }
                 currObj = getFieldValue(currObj, fieldName);
             }
@@ -331,13 +333,11 @@ public final class ObjectUtils {
             }
 
             Class<?> clazz = obj.getClass();
-            Map<String, Getter> getters = classGetters.containsKey(obj.getClass()) ? classGetters.get(obj.getClass())
-                    : initClassGetters(clazz);
+            Map<String, Getter> getters = classGetters.containsKey(obj.getClass()) ? classGetters.get(obj.getClass()) : initClassGetters(clazz);
             if (getters.containsKey(fieldName)) {
                 return (T) getters.get(fieldName).get(obj);
             } else {
-                throw new NullPointerException(
-                        "Field '" + fieldName + "' cannot be found in object type " + obj.getClass().getName());
+                throw new NullPointerException("Field '" + fieldName + "' cannot be found in object type " + obj.getClass().getName());
             }
         }
         throw new IllegalArgumentException("Object and fieldName must be not-null");
@@ -362,17 +362,14 @@ public final class ObjectUtils {
             if (method.getParameterCount() == 0) {
                 if (methodName.startsWith(GETTER_PREFIX) && methodName.length() > GETTER_PREFIX.length()) {
                     try {
-                        String fieldName = StringUtils.lowerCaseFirstLetter(
-                                methodName.substring(GETTER_PREFIX.length()));
+                        String fieldName = StringUtils.lowerCaseFirstLetter(methodName.substring(GETTER_PREFIX.length()));
                         classGetter.put(fieldName, new Getter(method));
                     } catch (IllegalArgumentException e) {
                         throw e;
                     }
-                } else if (methodName.startsWith(BOOLEAN_GETTER_PREFIX)
-                        && methodName.length() > BOOLEAN_GETTER_PREFIX.length()) {
+                } else if (methodName.startsWith(BOOLEAN_GETTER_PREFIX) && methodName.length() > BOOLEAN_GETTER_PREFIX.length()) {
                     try {
-                        String fieldName = StringUtils.lowerCaseFirstLetter(
-                                methodName.substring(BOOLEAN_GETTER_PREFIX.length()));
+                        String fieldName = StringUtils.lowerCaseFirstLetter(methodName.substring(BOOLEAN_GETTER_PREFIX.length()));
                         classGetter.put(fieldName, new Getter(method));
                     } catch (IllegalArgumentException e) {
                         throw e;
@@ -396,8 +393,7 @@ public final class ObjectUtils {
         }
 
         var map = new HashMap<String, Object>();
-        var getters = classGetters.containsKey(obj.getClass()) ? classGetters.get(obj.getClass())
-                : initClassGetters(obj.getClass());
+        var getters = classGetters.containsKey(obj.getClass()) ? classGetters.get(obj.getClass()) : initClassGetters(obj.getClass());
         for (var entry : getters.entrySet()) {
             map.put(entry.getKey(), entry.getValue().get(obj));
         }
@@ -470,8 +466,7 @@ public final class ObjectUtils {
                     } else if (PrimitiveUtils.isPrimitive(((Object) entry.getValue()).getClass())) {
                         childMap.put(String.valueOf(entry.getKey()), (Object) entry.getValue());
                     } else if (ArrayUtils.isArrayOrCollection(entry.getValue().getClass())) {
-                        childMap.put(String.valueOf(entry.getKey()),
-                                entry.getValue() instanceof byte[] ? entry.getValue() : toList(entry.getValue()));
+                        childMap.put(String.valueOf(entry.getKey()), entry.getValue() instanceof byte[] ? entry.getValue() : toList(entry.getValue()));
                     } else if (entry.getValue() instanceof Date) {
                         map.put(field, df.format(entry.getValue()));
                     } else {
@@ -493,8 +488,7 @@ public final class ObjectUtils {
     }
 
     public static void assembleFromMap(Class<?> clazz, Object config, Map<String, Object> parameters) {
-        var fieldMap = Arrays.stream(clazz.getDeclaredFields())
-                             .collect(Collectors.toMap(field -> field.getName(), field -> field.getType()));
+        var fieldMap = Arrays.stream(clazz.getDeclaredFields()).collect(Collectors.toMap(field -> field.getName(), field -> field.getType()));
         for (String attr : parameters.keySet()) {
             if (!fieldMap.containsKey(attr))
                 continue;
