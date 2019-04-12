@@ -1,27 +1,36 @@
 package io.gridgo.core.support.impl;
 
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 import io.gridgo.core.Gateway;
+import io.gridgo.core.support.RoutingContext;
 import io.gridgo.framework.support.Message;
 
 public class BridgeComponent extends AbstractTransformableComponent {
 
-	public BridgeComponent(String source, String target) {
-		this(source, target, null);
-	}
+    public BridgeComponent(String source, String target) {
+        super(source, target);
+    }
 
-	public BridgeComponent(String source, String target, Function<Message, Message> transformer) {
-		super(source, target, transformer);
-	}
+    public BridgeComponent(String source, String target, boolean autoResolve) {
+        super(source, target, autoResolve);
+    }
 
-	@Override
-	protected void handle(Gateway target, Message message) {
-		target.send(message);
-	}
+    public BridgeComponent(String source, String target, UnaryOperator<Message> transformer) {
+        super(source, target, transformer);
+    }
 
-	@Override
-	protected String generateName() {
-		return "component.bridge." + getSource() + "." + getTarget();
-	}
+    public BridgeComponent(String source, String target, UnaryOperator<Message> transformer, boolean autoResolve) {
+        super(source, target, transformer, autoResolve);
+    }
+
+    @Override
+    protected void doHandle(Gateway target, RoutingContext rc) {
+        target.send(rc.getMessage());
+    }
+
+    @Override
+    protected String generateName() {
+        return "component.bridge." + getSource() + "." + getTarget();
+    }
 }

@@ -4,32 +4,32 @@
 
 	<parent>
 		<groupId>io.gridgo</groupId>
-		<artifactId>gridgo</artifactId>
-		<version>0.2.0-SNAPSHOT</version>
+		<artifactId>gridgo-base</artifactId>
+		<version>0.6.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<properties>
-		<gridgo.connector.core.version>0.2.0-SNAPSHOT</gridgo.connector.core.version>
+		<gridgo.connector.core.version>0.5.0-SNAPSHOT</gridgo.connector.core.version>
+		<gridgo.config.core.version>0.5.0-SNAPSHOT</gridgo.config.core.version>
 		<joo.libra.version>2.0.0</joo.libra.version>
-		<rxjava.version>2.2.3</rxjava.version>
 	</properties>
 
 	<dependencies>
 		<dependency>
 			<groupId>io.gridgo</groupId>
 			<artifactId>gridgo-connector-core</artifactId>
-			<version>${gridgo.connector.core.version}</version>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.gridgo</groupId>
+			<artifactId>gridgo-config-core</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.dungba</groupId>
 			<artifactId>joo-libra</artifactId>
 			<version>${joo.libra.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>io.reactivex.rxjava2</groupId>
-			<artifactId>rxjava</artifactId>
-			<version>${rxjava.version}</version>
 		</dependency>
 	</dependencies>
 </project>

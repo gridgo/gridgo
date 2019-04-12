@@ -20,7 +20,7 @@ public interface GatewayContainer {
 
 	public Optional<Gateway> findGateway(String name);
 
-	public Collection<Gateway> getGateways();
+	public Collection<GatewaySubscription> getGateways();
 
-	public Map<String, Gateway> getGatewaysWithNames();
+	public Map<String, GatewaySubscription> getGatewaysWithNames();
 }

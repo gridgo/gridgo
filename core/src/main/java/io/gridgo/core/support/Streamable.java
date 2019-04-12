@@ -4,5 +4,5 @@ import io.reactivex.Observable;
 
 public interface Streamable<T> {
 
-	public Observable<T> asObservable();
+    public Observable<T> asObservable();
 }

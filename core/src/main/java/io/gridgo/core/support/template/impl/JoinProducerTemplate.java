@@ -14,23 +14,22 @@ import io.gridgo.framework.support.Message;
 
 public class JoinProducerTemplate extends AbstractProducerTemplate {
 
-	@Override
-	public Promise<Message, Exception> sendWithAck(List<Connector> connectors, Message message) {
-		return executeProducerWithMapper(connectors, message, this::isSendWithAckSupported,
-				c -> sendWithAck(c, message));
-	}
+    @Override
+    public Promise<Message, Exception> sendWithAck(List<Connector> connectors, Message message) {
+        return executeProducerWithMapper(connectors, this::isSendWithAckSupported, c -> sendWithAck(c, message));
+    }
 
-	@Override
-	public Promise<Message, Exception> call(List<Connector> connectors, Message message) {
-		return executeProducerWithMapper(connectors, message, this::isCallSupported, c -> call(c, message));
-	}
+    @Override
+    public Promise<Message, Exception> call(List<Connector> connectors, Message message) {
+        return executeProducerWithMapper(connectors, this::isCallSupported, c -> call(c, message));
+    }
 
-	private Promise<Message, Exception> executeProducerWithMapper(List<Connector> connectors, Message message,
-			Predicate<Connector> predicate, Function<Connector, Promise<Message, Exception>> mapper) {
-		var promises = new ArrayList<Promise<Message, Exception>>();
-		connectors.stream().filter(predicate).map(mapper).forEach(promises::add);
-		if (promises.isEmpty())
-			return new SimpleDonePromise<>(null);
-		return JoinedPromise.from(promises).filterDone(this::convertJoinedResult);
-	}
+    private Promise<Message, Exception> executeProducerWithMapper(List<Connector> connectors,
+            Predicate<Connector> predicate, Function<Connector, Promise<Message, Exception>> mapper) {
+        var promises = new ArrayList<Promise<Message, Exception>>();
+        connectors.stream().filter(predicate).map(mapper).forEach(promises::add);
+        if (promises.isEmpty())
+            return new SimpleDonePromise<>(null);
+        return JoinedPromise.from(promises).filterDone(this::convertJoinedResult);
+    }
 }

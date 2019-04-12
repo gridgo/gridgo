@@ -2,14 +2,14 @@ package io.gridgo.core.impl;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 
 import io.gridgo.connector.ConnectorFactory;
@@ -17,132 +17,120 @@ import io.gridgo.connector.impl.factories.DefaultConnectorFactory;
 import io.gridgo.core.Gateway;
 import io.gridgo.core.GridgoContext;
 import io.gridgo.core.support.ContextAwareComponent;
-import io.gridgo.core.support.Feature;
-import io.gridgo.core.support.ProducerJoinMode;
 import io.gridgo.core.support.subscription.GatewaySubscription;
 import io.gridgo.core.support.template.ProducerTemplate;
-import io.gridgo.framework.AbstractComponentLifecycle;
 import io.gridgo.framework.ComponentLifecycle;
+import io.gridgo.framework.impl.AbstractComponentLifecycle;
 import io.gridgo.framework.support.Registry;
-import io.gridgo.framework.support.generators.IdGenerator;
 import io.gridgo.framework.support.impl.SimpleRegistry;
 import lombok.Getter;
 
 public class DefaultGridgoContext extends AbstractComponentLifecycle implements GridgoContext {
 
-	private static final Consumer<Throwable> DEFAULT_EXCEPTION_HANDLER = ex -> {
-	};
+    private static final Consumer<Throwable> DEFAULT_EXCEPTION_HANDLER = ex -> {
+    };
 
-	private Map<String, Gateway> gateways = new ConcurrentHashMap<>();
+    private Map<String, GatewaySubscription> gateways = new ConcurrentHashMap<>();
 
-	private String name;
+    private Map<String, Long> gatewayOrder = new ConcurrentHashMap<>();
 
-	@Getter
-	private ConnectorFactory connectorFactory = new DefaultConnectorFactory();
+    private AtomicLong counter = new AtomicLong(0);
 
-	@Getter
-	private Registry registry = new SimpleRegistry();
+    private String name;
 
-	@Getter
-	private Consumer<Throwable> exceptionHandler = DEFAULT_EXCEPTION_HANDLER;
+    @Getter
+    private ConnectorFactory connectorFactory = new DefaultConnectorFactory();
 
-	@Getter
-	private Optional<IdGenerator> idGenerator = Optional.empty();
+    @Getter
+    private Registry registry = new SimpleRegistry();
 
-	@Getter
-	private List<ComponentLifecycle> components = new CopyOnWriteArrayList<>();
+    @Getter
+    private Consumer<Throwable> exceptionHandler = DEFAULT_EXCEPTION_HANDLER;
 
-	private Set<Feature> features = new HashSet<>();
+    @Getter
+    private List<ComponentLifecycle> components = new CopyOnWriteArrayList<>();
 
-	protected DefaultGridgoContext(String name, ConnectorFactory connectorFactory, Registry registry,
-			Consumer<Throwable> exceptionHandler, IdGenerator idGenerator) {
-		this.name = name != null ? name : UUID.randomUUID().toString();
-		if (connectorFactory != null)
-			this.connectorFactory = connectorFactory;
-		if (registry != null) {
-			this.registry = registry;
-			this.connectorFactory.setRegistry(registry);
-		}
-		if (exceptionHandler != null)
-			this.exceptionHandler = exceptionHandler;
-		this.idGenerator = Optional.ofNullable(idGenerator);
-	}
+    protected DefaultGridgoContext(String name, ConnectorFactory connectorFactory, Registry registry,
+            Consumer<Throwable> exceptionHandler) {
+        this.name = name != null ? name : UUID.randomUUID().toString();
+        if (connectorFactory != null)
+            this.connectorFactory = connectorFactory;
+        if (registry != null) {
+            this.registry = registry;
+            this.connectorFactory.setRegistry(registry);
+        }
+        if (exceptionHandler != null)
+            this.exceptionHandler = exceptionHandler;
+    }
 
-	@Override
-	public GatewaySubscription openGateway(String name) {
-		return gateways.computeIfAbsent(name, key -> new DefaultGateway(this, key));
-	}
+    @Override
+    public GatewaySubscription openGateway(String name, ProducerTemplate producerTemplate) {
+        return gateways.computeIfAbsent(name, key -> {
+            gatewayOrder.put(name, counter.incrementAndGet());
+            return new DefaultGateway(this, key).setProducerTemplate(producerTemplate);
+        });
+    }
 
-	@Override
-	public GatewaySubscription openGateway(String name, ProducerJoinMode joinMode) {
-		return openGateway(name, ProducerTemplate.create(joinMode));
-	}
+    @Override
+    public Optional<Gateway> closeGateway(String name) {
+        var gateway = gateways.remove(name);
+        if (gateway == null)
+            return Optional.empty();
+        return Optional.of(gateway.get());
+    }
 
-	@Override
-	public GatewaySubscription openGateway(String name, ProducerTemplate producerTemplate) {
-		return gateways.computeIfAbsent(name,
-				key -> new DefaultGateway(this, key).setProducerTemplate(producerTemplate));
-	}
+    @Override
+    public Optional<Gateway> findGateway(String name) {
+        var gateway = gateways.get(name);
+        if (gateway == null)
+            return Optional.empty();
+        return Optional.of(gateway.get());
+    }
 
-	@Override
-	public Optional<Gateway> closeGateway(String name) {
-		var gateway = gateways.remove(name);
-		return Optional.ofNullable(gateway);
-	}
+    @Override
+    protected void onStart() {
+        components.stream().forEach(ComponentLifecycle::start);
+        gateways.entrySet().stream() //
+                .sorted(this::compareGateways) //
+                .map(entry -> entry.getValue().get()) //
+                .filter(Gateway::isAutoStart) //
+                .forEach(Gateway::start);
+    }
 
-	@Override
-	public Optional<Gateway> findGateway(String name) {
-		return Optional.ofNullable(gateways.get(name));
-	}
+    private int compareGateways(Entry<String, GatewaySubscription> e1, Entry<String, GatewaySubscription> e2) {
+        return gatewayOrder.get(e1.getKey()) > gatewayOrder.get(e2.getKey()) ? 1 : -1;
+    }
 
-	@Override
-	public Collection<Gateway> getGateways() {
-		return Collections.unmodifiableCollection(gateways.values());
-	}
+    @Override
+    protected void onStop() {
+        gateways.values().stream().forEach(g -> g.get().stop());
+        components.stream().forEach(ComponentLifecycle::stop);
+    }
 
-	@Override
-	public Map<String, Gateway> getGatewaysWithNames() {
-		return Collections.unmodifiableMap(gateways);
-	}
+    @Override
+    public Collection<GatewaySubscription> getGateways() {
+        return Collections.unmodifiableCollection(gateways.values());
+    }
 
-	@Override
-	public GridgoContext attachComponent(ContextAwareComponent component) {
-		components.add(component);
-		component.setContext(this);
-		return this;
-	}
+    @Override
+    public Map<String, GatewaySubscription> getGatewaysWithNames() {
+        return Collections.unmodifiableMap(gateways);
+    }
 
-	@Override
-	protected void onStart() {
-		components.stream().forEach(c -> c.start());
-		gateways.values().stream().forEach(g -> g.start());
-	}
+    @Override
+    public Optional<GatewaySubscription> getGatewaySubscription(String name) {
+        return Optional.ofNullable(gateways.get(name));
+    }
 
-	@Override
-	protected void onStop() {
-		gateways.values().stream().forEach(g -> g.stop());
-		components.stream().forEach(c -> c.stop());
-	}
+    @Override
+    public GridgoContext attachComponent(ContextAwareComponent component) {
+        components.add(component);
+        component.setContext(this);
+        return this;
+    }
 
-	@Override
-	protected String generateName() {
-		return "context." + name;
-	}
-
-	@Override
-	public GridgoContext enableFeature(Feature feature) {
-		features.add(feature);
-		return this;
-	}
-
-	@Override
-	public GridgoContext disableFeature(Feature feature) {
-		features.remove(feature);
-		return this;
-	}
-
-	@Override
-	public boolean isFeatureEnabled(Feature feature) {
-		return features.contains(feature);
-	}
+    @Override
+    protected String generateName() {
+        return "context." + name;
+    }
 }
