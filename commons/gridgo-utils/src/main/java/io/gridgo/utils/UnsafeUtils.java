@@ -28,4 +28,10 @@ public final class UnsafeUtils {
             throw new RuntimeException("Cannot init unsafe instance", e);
         }
     }
+
+    public static final long getObjectAddress(Object obj) {
+        Object[] arr = { obj };
+        long baseOffset = getUnsafe().arrayBaseOffset(Object[].class);
+        return getUnsafe().getLong(arr, baseOffset);
+    }
 }
