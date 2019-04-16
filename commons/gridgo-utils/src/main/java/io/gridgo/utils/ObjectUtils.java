@@ -199,7 +199,7 @@ public final class ObjectUtils {
                         }
                     }
                 } else {
-                    throw new RuntimeException("unable to find suitable setter for data: " + value);
+                    setter.apply(result, value);
                 }
             }
         }
