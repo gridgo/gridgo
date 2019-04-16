@@ -17,14 +17,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.cliffc.high_scale_lib.NonBlockingHashMap;
 
 import io.gridgo.utils.ArrayUtils.ForeachCallback;
 import io.gridgo.utils.annotations.DefaultSetter;
-import io.gridgo.utils.annotations.Transparent;
+import io.gridgo.utils.annotations.Transient;
 import io.gridgo.utils.exception.ObjectReflectiveException;
 import lombok.extern.slf4j.Slf4j;
 
@@ -174,19 +174,15 @@ public final class ObjectUtils {
                     setter.apply(result, fromMap(setter.getParamType(), (Map) value));
                 } else if (ArrayUtils.isArrayOrCollection(setter.getParamType()) && ArrayUtils.isArrayOrCollection(value.getClass())) {
                     final List list = new ArrayList<>();
-                    ArrayUtils.foreach(value, new ForeachCallback<Object>() {
-
-                        @Override
-                        public void apply(Object element) {
-                            try {
-                                if (PrimitiveUtils.isPrimitive(element.getClass())) {
-                                    list.add(PrimitiveUtils.getValueFrom(setter.getComponentType(), element));
-                                } else if (element instanceof Map) {
-                                    list.add(fromMap(setter.getComponentType(), (Map) element));
-                                }
-                            } catch (Exception e) {
-                                throw new RuntimeException(e);
+                    ArrayUtils.foreach(value, element -> {
+                        try {
+                            if (PrimitiveUtils.isPrimitive(element.getClass())) {
+                                list.add(PrimitiveUtils.getValueFrom(setter.getComponentType(), element));
+                            } else if (element instanceof Map) {
+                                list.add(fromMap(setter.getComponentType(), (Map) element));
                             }
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
                         }
                     });
                     if (Collection.class.isAssignableFrom(setter.getParamType())) {
@@ -226,7 +222,7 @@ public final class ObjectUtils {
             for (Field field : fields) {
                 if (!classSetter.containsKey(field.getName()) //
                         && !Modifier.isStatic(field.getModifiers()) //
-                        && !field.isAnnotationPresent(Transparent.class)) {
+                        && !field.isAnnotationPresent(Transient.class)) {
                     classSetter.putIfAbsent(field.getName(), new Setter(field));
                 }
             }
@@ -272,7 +268,7 @@ public final class ObjectUtils {
         Set<String> checkFieldName = new HashSet<>();
         Class<?> _class = clazz;
         while (_class != null && _class != Object.class && _class != Class.class) {
-            if (!_class.isAnnotationPresent(Transparent.class)) {
+            if (!_class.isAnnotationPresent(Transient.class)) {
                 Field[] fields = _class.getDeclaredFields();
                 for (Field field : fields) {
                     if (!checkFieldName.contains(field.getName())) {
@@ -292,7 +288,7 @@ public final class ObjectUtils {
         while (_class != null && _class != Object.class && _class != Class.class) {
             Method[] methods = _class.getDeclaredMethods();
             for (Method method : methods) {
-                if (Modifier.isPublic(method.getModifiers()) && !Modifier.isStatic(method.getModifiers()) && !method.isAnnotationPresent(Transparent.class)) {
+                if (Modifier.isPublic(method.getModifiers()) && !Modifier.isStatic(method.getModifiers()) && !method.isAnnotationPresent(Transient.class)) {
                     result.add(method);
                 }
             }
