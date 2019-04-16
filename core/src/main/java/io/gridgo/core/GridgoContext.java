@@ -1,12 +1,11 @@
 package io.gridgo.core;
 
-import java.util.Collection;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 
 import io.gridgo.connector.ConnectorFactory;
 import io.gridgo.core.support.ContextAwareComponent;
+import io.gridgo.core.support.GatewayContainer;
 import io.gridgo.core.support.ProducerJoinMode;
 import io.gridgo.core.support.exceptions.InvalidGatewayException;
 import io.gridgo.core.support.subscription.GatewaySubscription;
@@ -14,7 +13,7 @@ import io.gridgo.core.support.template.ProducerTemplate;
 import io.gridgo.framework.ComponentLifecycle;
 import io.gridgo.framework.support.Registry;
 
-public interface GridgoContext extends ComponentLifecycle {
+public interface GridgoContext extends GatewayContainer, ComponentLifecycle {
 
     public GridgoContext attachComponent(ContextAwareComponent component);
 
@@ -45,10 +44,6 @@ public interface GridgoContext extends ComponentLifecycle {
         findGatewayMandatory(name).stop();
         return this;
     }
-
-    public Collection<GatewaySubscription> getGateways();
-
-    public Map<String, GatewaySubscription> getGatewaysWithNames();
 
     public Optional<GatewaySubscription> getGatewaySubscription(String name);
 
