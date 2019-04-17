@@ -7,13 +7,14 @@ import java.util.function.Supplier;
 import io.gridgo.format.CommonNumberTransformerRegistry;
 import io.gridgo.format.GlobalFormatTransformerRegistry;
 import io.gridgo.format.StringFormatter;
+import io.gridgo.utils.PrimitiveUtils;
 
 public class TestFormatTransformation {
 
     public static void main(String[] args) {
         String str = "My name is {{ name > nameTransform }}, " //
                 + "{{ age }} years old, " //
-                + "monthly salary {{ salary > decrement10% > thousandSeparate}} {{currency > upperCase}}, " //
+                + "monthly salary {{ salary > decrement10% > decrement50 > thousandSeparate}} {{currency > upperCase}}, " //
                 + "health {{health > percentage}}, " //
                 + "date: {{today > localOnlyDate}}, " //
                 + "time: {{today > localOnlyTime12}}, " //
@@ -31,6 +32,8 @@ public class TestFormatTransformation {
         data.put("today", dateSupplier);
 
         GlobalFormatTransformerRegistry.getInstance().addTransformer("decrement10%", CommonNumberTransformerRegistry.newXEvalExpTransformer("0.9 * x"));
+
+        GlobalFormatTransformerRegistry.getInstance().addTransformer("decrement50", value -> PrimitiveUtils.getDoubleValueFrom(value) - 50);
 
         GlobalFormatTransformerRegistry.getInstance().addAlias("nameTransform", "lowerCase > capitalize", "stripAccents");
 
