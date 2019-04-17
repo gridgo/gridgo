@@ -26,6 +26,7 @@ import io.gridgo.utils.ArrayUtils.ForeachCallback;
 import io.gridgo.utils.annotations.DefaultSetter;
 import io.gridgo.utils.annotations.Transient;
 import io.gridgo.utils.exception.ObjectReflectiveException;
+import io.gridgo.utils.exception.TypeMismatchException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -176,6 +177,9 @@ public final class ObjectUtils {
                 if (value == null) {
                     setter.apply(result, null);
                 } else if (PrimitiveUtils.isPrimitive(value.getClass())) {
+                    if (!PrimitiveUtils.isPrimitive(setter.getParamType())) {
+                        throw new TypeMismatchException("Cannot set value " + value.getClass() + " to a setter which accept " + setter.getParamType());
+                    }
                     setter.apply(result, PrimitiveUtils.getValueFrom(setter.getParamType(), value));
                 } else if (value instanceof Map) {
                     setter.apply(result, fromMap(setter.getParamType(), (Map) value));

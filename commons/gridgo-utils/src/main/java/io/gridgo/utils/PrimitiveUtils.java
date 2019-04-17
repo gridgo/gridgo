@@ -14,8 +14,17 @@ public class PrimitiveUtils {
         // make constructor private to prevent other where create new instance
     }
 
-    public static boolean isNumberClass(Class<?> clazz) {
-        return clazz != null && Number.class.isAssignableFrom(clazz);
+    public static boolean isNumberClass(@NonNull Class<?> clazz) {
+        if (Number.class.isAssignableFrom(clazz)) {
+            return true;
+        }
+
+        return clazz == Byte.TYPE //
+                || clazz == Short.TYPE //
+                || clazz == Integer.TYPE //
+                || clazz == Long.TYPE //
+                || clazz == Float.TYPE //
+                || clazz == Double.TYPE;
     }
 
     public static boolean isNumber(Object obj) {
