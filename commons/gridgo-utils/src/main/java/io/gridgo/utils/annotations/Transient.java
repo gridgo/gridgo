@@ -10,6 +10,6 @@ import java.lang.annotation.Target;
 
 @Target({ FIELD, METHOD, TYPE })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Transparent {
+public @interface Transient {
 
 }

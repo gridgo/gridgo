@@ -9,6 +9,7 @@ import lombok.NonNull;
 
 public final class ArrayUtils {
 
+    @FunctionalInterface
     public static interface ForeachCallback<T> {
         void apply(T element);
     }

@@ -17,15 +17,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.cliffc.high_scale_lib.NonBlockingHashMap;
 
 import io.gridgo.utils.ArrayUtils.ForeachCallback;
 import io.gridgo.utils.annotations.DefaultSetter;
-import io.gridgo.utils.annotations.Transparent;
+import io.gridgo.utils.annotations.Transient;
 import io.gridgo.utils.exception.ObjectReflectiveException;
+import io.gridgo.utils.exception.TypeMismatchException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -163,30 +164,36 @@ public final class ObjectUtils {
         Map<String, Setter> classSetter = findAllClassSetters(clazz);
         T result = clazz.getDeclaredConstructor().newInstance();
         for (Entry<String, ?> entry : data.entrySet()) {
-            if (classSetter.containsKey(entry.getKey())) {
+            var potentialClassSetter = StringUtils.toCamelCase(entry.getKey());
+            var foundClassSetter = classSetter.containsKey(potentialClassSetter);
+            if(!foundClassSetter){
+                // fallback
+                foundClassSetter = classSetter.containsKey(entry.getKey());
+                potentialClassSetter = entry.getKey();
+            }
+            if (foundClassSetter) {
                 Object value = entry.getValue();
-                final Setter setter = classSetter.get(entry.getKey());
+                final Setter setter = classSetter.get(potentialClassSetter);
                 if (value == null) {
                     setter.apply(result, null);
                 } else if (PrimitiveUtils.isPrimitive(value.getClass())) {
+                    if (!PrimitiveUtils.isPrimitive(setter.getParamType())) {
+                        throw new TypeMismatchException("Cannot set value " + value.getClass() + " to a setter which accept " + setter.getParamType());
+                    }
                     setter.apply(result, PrimitiveUtils.getValueFrom(setter.getParamType(), value));
                 } else if (value instanceof Map) {
                     setter.apply(result, fromMap(setter.getParamType(), (Map) value));
                 } else if (ArrayUtils.isArrayOrCollection(setter.getParamType()) && ArrayUtils.isArrayOrCollection(value.getClass())) {
                     final List list = new ArrayList<>();
-                    ArrayUtils.foreach(value, new ForeachCallback<Object>() {
-
-                        @Override
-                        public void apply(Object element) {
-                            try {
-                                if (PrimitiveUtils.isPrimitive(element.getClass())) {
-                                    list.add(PrimitiveUtils.getValueFrom(setter.getComponentType(), element));
-                                } else if (element instanceof Map) {
-                                    list.add(fromMap(setter.getComponentType(), (Map) element));
-                                }
-                            } catch (Exception e) {
-                                throw new RuntimeException(e);
+                    ArrayUtils.foreach(value, element -> {
+                        try {
+                            if (PrimitiveUtils.isPrimitive(element.getClass())) {
+                                list.add(PrimitiveUtils.getValueFrom(setter.getComponentType(), element));
+                            } else if (element instanceof Map) {
+                                list.add(fromMap(setter.getComponentType(), (Map) element));
                             }
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
                         }
                     });
                     if (Collection.class.isAssignableFrom(setter.getParamType())) {
@@ -226,15 +233,21 @@ public final class ObjectUtils {
             for (Field field : fields) {
                 if (!classSetter.containsKey(field.getName()) //
                         && !Modifier.isStatic(field.getModifiers()) //
-                        && !field.isAnnotationPresent(Transparent.class)) {
+                        && !field.isAnnotationPresent(Transient.class)) {
                     classSetter.putIfAbsent(field.getName(), new Setter(field));
                 }
             }
             for (String methodName : methodsByName.keySet()) {
-                List<Method> setters = methodsByName.get(methodName);
+                var potentialSetter = StringUtils.toCamelCase(methodName);
+                List<Method> setters = methodsByName.get(potentialSetter);
+                if(setters == null || setters.isEmpty()){
+                    // fallback
+                    potentialSetter = methodName;
+                    setters = methodsByName.get(potentialSetter);
+                }
                 Method setter = null;
                 if (setters.size() > 0) {
-                    String fieldName = StringUtils.lowerCaseFirstLetter(methodName.substring(SETTER_PREFIX.length()));
+                    String fieldName = StringUtils.lowerCaseFirstLetter(potentialSetter.substring(SETTER_PREFIX.length()));
                     switch (setters.size()) {
                     case 1:
                         setter = setters.get(0);
@@ -272,7 +285,7 @@ public final class ObjectUtils {
         Set<String> checkFieldName = new HashSet<>();
         Class<?> _class = clazz;
         while (_class != null && _class != Object.class && _class != Class.class) {
-            if (!_class.isAnnotationPresent(Transparent.class)) {
+            if (!_class.isAnnotationPresent(Transient.class)) {
                 Field[] fields = _class.getDeclaredFields();
                 for (Field field : fields) {
                     if (!checkFieldName.contains(field.getName())) {
@@ -292,7 +305,7 @@ public final class ObjectUtils {
         while (_class != null && _class != Object.class && _class != Class.class) {
             Method[] methods = _class.getDeclaredMethods();
             for (Method method : methods) {
-                if (Modifier.isPublic(method.getModifiers()) && !Modifier.isStatic(method.getModifiers()) && !method.isAnnotationPresent(Transparent.class)) {
+                if (Modifier.isPublic(method.getModifiers()) && !Modifier.isStatic(method.getModifiers()) && !method.isAnnotationPresent(Transient.class)) {
                     result.add(method);
                 }
             }
