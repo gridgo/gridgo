@@ -59,4 +59,14 @@ public class ObjectUtilsUnitTest {
         int x = ObjectUtils.<Integer>getValueByPath(obj, "testObj.testInt");
         Assert.assertEquals(2, x);
     }
+
+    @Test
+    public void testToPojo() throws Exception {
+        Map<String, Object> map = new HashMap<>();
+        map.put("snake_case_to_camel_case", "camel_case");
+        map.put("fallback_snake_case_to_camel_case", "snake_case");
+        var obj = ObjectUtils.fromMap(TestObject.class, map);
+        Assert.assertEquals("camel_case", obj.getSnakeCaseToCamelCase());
+        Assert.assertEquals("snake_case", obj.getFallback_snake_case_to_camel_case());
+    }
 }
