@@ -1,5 +1,6 @@
 package io.gridgo.bean.test;
 
+import java.sql.Date;
 import java.util.Collections;
 import java.util.List;
 
@@ -11,6 +12,7 @@ import io.gridgo.bean.BElement;
 import io.gridgo.bean.BObject;
 import io.gridgo.bean.BValue;
 import io.gridgo.bean.test.support.Bar;
+import io.gridgo.bean.test.support.BeanWithDate;
 import io.gridgo.bean.test.support.Foo;
 
 public class BObjectUnitTest {
@@ -125,5 +127,13 @@ public class BObjectUnitTest {
         var obj = BElement.ofJson(json);
         Assert.assertTrue(obj.isObject());
         Assert.assertNotNull(obj.asObject().get("id"));
+    }
+    
+    @Test
+    public void testDate() {
+        var beanWithDate = new BeanWithDate();
+        beanWithDate.setDate(new Date(1555411032310L));
+        beanWithDate = BObject.ofPojo(beanWithDate).toPojo(BeanWithDate.class);
+        System.out.println(beanWithDate.getDate());
     }
 }
