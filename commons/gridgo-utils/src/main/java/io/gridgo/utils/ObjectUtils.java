@@ -163,9 +163,16 @@ public final class ObjectUtils {
         Map<String, Setter> classSetter = findAllClassSetters(clazz);
         T result = clazz.getDeclaredConstructor().newInstance();
         for (Entry<String, ?> entry : data.entrySet()) {
-            if (classSetter.containsKey(entry.getKey())) {
+            var potentialClassSetter = StringUtils.toCamelCase(entry.getKey());
+            var foundClassSetter = classSetter.containsKey(potentialClassSetter);
+            if(!foundClassSetter){
+                // fallback
+                foundClassSetter = classSetter.containsKey(entry.getKey());
+                potentialClassSetter = entry.getKey();
+            }
+            if (foundClassSetter) {
                 Object value = entry.getValue();
-                final Setter setter = classSetter.get(entry.getKey());
+                final Setter setter = classSetter.get(potentialClassSetter);
                 if (value == null) {
                     setter.apply(result, null);
                 } else if (PrimitiveUtils.isPrimitive(value.getClass())) {
@@ -227,10 +234,16 @@ public final class ObjectUtils {
                 }
             }
             for (String methodName : methodsByName.keySet()) {
-                List<Method> setters = methodsByName.get(methodName);
+                var potentialSetter = StringUtils.toCamelCase(methodName);
+                List<Method> setters = methodsByName.get(potentialSetter);
+                if(setters == null || setters.isEmpty()){
+                    // fallback
+                    potentialSetter = methodName;
+                    setters = methodsByName.get(potentialSetter);
+                }
                 Method setter = null;
                 if (setters.size() > 0) {
-                    String fieldName = StringUtils.lowerCaseFirstLetter(methodName.substring(SETTER_PREFIX.length()));
+                    String fieldName = StringUtils.lowerCaseFirstLetter(potentialSetter.substring(SETTER_PREFIX.length()));
                     switch (setters.size()) {
                     case 1:
                         setter = setters.get(0);

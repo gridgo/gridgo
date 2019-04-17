@@ -45,6 +45,55 @@ public final class StringUtils {
         return matches;
     }
 
+    /**
+     * Replace consecutive whitespace characters with a single space.
+     *
+     * @param value input String
+     * @return collapsed String
+     */
+    public static String collapseWhitespace(final String value) {
+        if (value == null) {
+            throw new RuntimeException("Value must not be null.");
+        }
+        return value.trim().replaceAll("\\s\\s+", " ");
+    }
+
+    /**
+     * Transform to StudlyCaps.
+     *
+     * @param value The input String
+     * @return String in StudlyCaps.
+     */
+    public static String toStudlyCase(final String value) {
+        if (value == null) {
+            throw new RuntimeException("Value must not be null.");
+        }
+
+        String[] words = collapseWhitespace(value.trim()).split("\\s*(_|-|\\s)\\s*");
+        StringBuilder buf = new StringBuilder(value.length());
+
+        if (words != null && words.length > 0) {
+            for (int i = 0; i < words.length; i++) {
+                buf.append(upperCaseFirstLetter(words[i]));
+            }
+        }
+        return buf.toString();
+    }
+    /**
+     * Transform to camelCase
+     *
+     * @param value The input String
+     * @return String in camelCase.
+     */
+    public static String toCamelCase(final String value) {
+        if (value == null) {
+            throw new RuntimeException("Value must not be null.");
+        }
+        String str = toStudlyCase(value);
+        return str.substring(0, 1).toLowerCase() + str.substring(1);
+    }
+
+
     public static final String upperCaseFirstLetter(String inputString) {
         if (inputString == null) {
             return null;

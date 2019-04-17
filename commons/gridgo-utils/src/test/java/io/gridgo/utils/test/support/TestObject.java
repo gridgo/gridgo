@@ -18,4 +18,9 @@ public class TestObject {
     private Map<String, Object> testMap;
 
     private int[] testArr;
+
+    private String snakeCaseToCamelCase;
+
+    private String fallback_snake_case_to_camel_case;
+
 }
