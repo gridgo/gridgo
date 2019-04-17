@@ -1,5 +1,6 @@
 package io.gridgo.format;
 
+@FunctionalInterface
 public interface FormatTransformer {
 
     /**

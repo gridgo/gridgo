@@ -3,6 +3,7 @@ package io.gridgo.format;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 import io.gridgo.utils.ObjectUtils;
@@ -77,11 +78,10 @@ public class StringFormatter {
                     var transformerNames = Arrays.copyOfRange(arr, 1, arr.length);
                     var chain = transformerRegistry.getChain(transformerNames);
                     for (var transformer : chain) {
-                        value = transformer.transform(value);
+                        value = transformer.transform(value instanceof Supplier ? ((Supplier<?>) value).get() : value);
                     }
                 }
-                result = result.replaceAll(StringUtils.normalizeForRegex(key),
-                        PrimitiveUtils.getStringValueFrom(value));
+                result = result.replaceAll(StringUtils.normalizeForRegex(key), PrimitiveUtils.getStringValueFrom(value));
             }
         }
 
