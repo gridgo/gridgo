@@ -26,7 +26,8 @@ public class BObjectUnitTest {
                          .setAny("str", "hello") //
                          .setAny("double", 1.11) //
                          .setAny("byte", (byte) 1) //
-                         .setAny("arr", new int[] { 1, 2, 3 }).set("obj", BObject.ofEmpty().setAny("int", 2));
+                         .setAny("arr", new int[] { 1, 2, 3 }) //
+                         .set("obj", BObject.ofEmpty().setAny("int", 2));
         assertObject(obj);
         assertObject(obj.deepClone());
         obj.setAnyIfAbsent("arr", 1);
