@@ -45,8 +45,10 @@ public class ParserUnitTest {
         var registry = new SimpleRegistry().register("xyz", 1) //
                                            .register("abc", 2) //
                                            .register("executionStrategy", new ExecutorExecutionStrategy(1))
-                                           .register("testInstrumenter", (ExecutionStrategyInstrumenter) r -> r)
-                                           .register("testInstrumenter2", (ExecutionStrategyInstrumenter) r -> r);
+                                           .register("testInstrumenter",
+                                                   (ExecutionStrategyInstrumenter) (msg, deferred, r) -> r)
+                                           .register("testInstrumenter2",
+                                                   (ExecutionStrategyInstrumenter) (msg, deferred, r) -> r);
         registry.register("connectorContextBuilder", new DefaultConnectorContextBuilder().setRegistry(registry));
         var configurator = JsonConfigurator.ofResource("test.json");
         var context = new ConfiguratorContextBuilder().setConfigurator(configurator).setRegistry(registry).build();
