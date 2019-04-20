@@ -5,6 +5,8 @@ import java.util.Properties;
 
 public interface ConnectorConfig {
     
+    public String getConnectorCategory();
+    
     public String getOriginalEndpoint();
 
     public String getNonQueryEndpoint();

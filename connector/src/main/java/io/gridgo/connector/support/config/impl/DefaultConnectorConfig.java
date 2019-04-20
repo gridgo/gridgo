@@ -18,6 +18,8 @@ public class DefaultConnectorConfig implements ConnectorConfig {
     private String originalEndpoint;
 
     private String remaining;
+    
+    private String connectorCategory;
 
     private Map<String, Object> parameters;
 

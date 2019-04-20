@@ -16,4 +16,6 @@ public @interface ConnectorEndpoint {
     public String scheme();
 
     public String syntax();
+
+    public String category() default "";
 }
