@@ -30,11 +30,15 @@ public interface Registry {
      * @return the value of the entry
      * @throws ClassCastException if the entry has a different type
      */
-    @SuppressWarnings("unchecked")
     public default <T> T lookup(String name, Class<T> type) {
         Object answer = lookup(name);
         if (answer == null)
             return null;
+        return convertAnswer(type, answer);
+    }
+
+    @SuppressWarnings("unchecked")
+    public default <T> T convertAnswer(Class<T> type, Object answer) {
         if (type == String.class)
             return (T) substituteRegistriesRecursive(toString(answer));
         if (PrimitiveUtils.isPrimitive(type))
