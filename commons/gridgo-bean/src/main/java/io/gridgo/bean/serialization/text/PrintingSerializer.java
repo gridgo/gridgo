@@ -10,16 +10,16 @@ import io.gridgo.bean.serialization.BSerializationPlugin;
 @BSerializationPlugin(PrintingSerializer.NAME)
 public class PrintingSerializer extends AbstractBSerializer {
 
-	public static final String NAME = "print";
+    public static final String NAME = "print";
 
-	@Override
-	public void serialize(BElement element, OutputStream out) {
-		BPrinter.print(out, element);
-	}
+    @Override
+    public void serialize(BElement element, OutputStream out) {
+        BPrinter.print(out, element);
+    }
 
-	@Override
-	public BElement deserialize(InputStream in) {
-		throw new UnsupportedOperationException("PrintingSerializer support only serialize method");
-	}
+    @Override
+    public BElement deserialize(InputStream in) {
+        throw new UnsupportedOperationException("PrintingSerializer support only serialize method");
+    }
 
 }

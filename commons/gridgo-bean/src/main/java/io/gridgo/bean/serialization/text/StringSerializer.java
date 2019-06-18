@@ -14,26 +14,26 @@ import io.gridgo.utils.exception.RuntimeIOException;
 @BSerializationPlugin(StringSerializer.NAME)
 public class StringSerializer implements BSerializer {
 
-	public static final String NAME = "string";
+    public static final String NAME = "string";
 
-	@Override
-	public void serialize(BElement element, OutputStream out) {
-		if (!element.isValue())
-			throw new BeanSerializationException(
-					String.format("Bean of type [%s] cannot be serialized as String", element.getType()));
-		try {
-			out.write(element.asValue().getRaw());
-		} catch (IOException e) {
-			throw new RuntimeIOException(e);
-		}
-	}
+    @Override
+    public void serialize(BElement element, OutputStream out) {
+        if (!element.isValue())
+            throw new BeanSerializationException(
+                    String.format("Bean of type [%s] cannot be serialized as String", element.getType()));
+        try {
+            out.write(element.asValue().getRaw());
+        } catch (IOException e) {
+            throw new RuntimeIOException(e);
+        }
+    }
 
-	@Override
-	public BElement deserialize(InputStream in) {
-		try {
-			return BValue.of(in.readAllBytes());
-		} catch (IOException e) {
-			throw new RuntimeIOException(e);
-		}
-	}
+    @Override
+    public BElement deserialize(InputStream in) {
+        try {
+            return BValue.of(in.readAllBytes());
+        } catch (IOException e) {
+            throw new RuntimeIOException(e);
+        }
+    }
 }

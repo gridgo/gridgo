@@ -23,54 +23,54 @@ import lombok.Getter;
 @Getter
 class SimpleBFactory implements BFactory, BFactoryConfigurable {
 
-	private Supplier<BValue> valueSupplier = MutableBValue::new;
-	private Supplier<BReference> referenceSupplier = MutableBReference::new;
+    private Supplier<BValue> valueSupplier = MutableBValue::new;
+    private Supplier<BReference> referenceSupplier = MutableBReference::new;
 
-	private Function<List<BElement>, BArray> arraySupplier = MutableBArray::new;
-	private Function<Collection<?>, BArray> wrappedArraySupplier = WrappedImmutableBArray::new;
+    private Function<List<BElement>, BArray> arraySupplier = MutableBArray::new;
+    private Function<Collection<?>, BArray> wrappedArraySupplier = WrappedImmutableBArray::new;
 
-	private Function<Map<String, BElement>, BObject> objectSupplier = MutableBObject::new;
-	private Function<Map<?, ?>, BObject> wrappedObjectSupplier = WrappedImmutableBObject::new;
+    private Function<Map<String, BElement>, BObject> objectSupplier = MutableBObject::new;
+    private Function<Map<?, ?>, BObject> wrappedObjectSupplier = WrappedImmutableBObject::new;
 
-	private BSerializerRegistry serializerRegistry = new BSerializerRegistry(this);
+    private BSerializerRegistry serializerRegistry = new BSerializerRegistry(this);
 
-	@Override
-	public BFactoryConfigurable setValueSupplier(Supplier<BValue> valueSupplier) {
-		this.valueSupplier = valueSupplier;
-		return this;
-	}
+    @Override
+    public BFactoryConfigurable setValueSupplier(Supplier<BValue> valueSupplier) {
+        this.valueSupplier = valueSupplier;
+        return this;
+    }
 
-	@Override
-	public BFactoryConfigurable setObjectSupplier(Function<Map<String, BElement>, BObject> objectSupplier) {
-		this.objectSupplier = objectSupplier;
-		return this;
-	}
+    @Override
+    public BFactoryConfigurable setObjectSupplier(Function<Map<String, BElement>, BObject> objectSupplier) {
+        this.objectSupplier = objectSupplier;
+        return this;
+    }
 
-	@Override
-	public BFactoryConfigurable setArraySupplier(Function<List<BElement>, BArray> arraySupplier) {
-		this.arraySupplier = arraySupplier;
-		return this;
-	}
+    @Override
+    public BFactoryConfigurable setArraySupplier(Function<List<BElement>, BArray> arraySupplier) {
+        this.arraySupplier = arraySupplier;
+        return this;
+    }
 
-	@Override
-	public BFactoryConfigurable setReferenceSupplier(Supplier<BReference> referenceSupplier) {
-		this.referenceSupplier = referenceSupplier;
-		return this;
-	}
+    @Override
+    public BFactoryConfigurable setReferenceSupplier(Supplier<BReference> referenceSupplier) {
+        this.referenceSupplier = referenceSupplier;
+        return this;
+    }
 
-	public BFactoryConfigurable setWrappedArraySupplier(Function<Collection<?>, BArray> wrappedArraySupplier) {
-		this.wrappedArraySupplier = wrappedArraySupplier;
-		return this;
-	}
+    public BFactoryConfigurable setWrappedArraySupplier(Function<Collection<?>, BArray> wrappedArraySupplier) {
+        this.wrappedArraySupplier = wrappedArraySupplier;
+        return this;
+    }
 
-	@Override
-	public BFactoryConfigurable setWrappedObjectSupplier(Function<Map<?, ?>, BObject> wrappedObjectSupplier) {
-		this.wrappedObjectSupplier = wrappedObjectSupplier;
-		return null;
-	}
+    @Override
+    public BFactoryConfigurable setWrappedObjectSupplier(Function<Map<?, ?>, BObject> wrappedObjectSupplier) {
+        this.wrappedObjectSupplier = wrappedObjectSupplier;
+        return null;
+    }
 
-	@Override
-	public BFactoryConfigurable asConfigurable() {
-		return this;
-	}
+    @Override
+    public BFactoryConfigurable asConfigurable() {
+        return this;
+    }
 }

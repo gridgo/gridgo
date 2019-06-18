@@ -11,23 +11,23 @@ import io.gridgo.utils.wrapper.ByteBufferOutputStream;
 
 public interface BSerializer {
 
-	void serialize(BElement element, OutputStream out);
+    void serialize(BElement element, OutputStream out);
 
-	BElement deserialize(InputStream in);
+    BElement deserialize(InputStream in);
 
-	default void serialize(BElement element, ByteBuffer out) {
-		this.serialize(element, new ByteBufferOutputStream(out));
-	}
+    default void serialize(BElement element, ByteBuffer out) {
+        this.serialize(element, new ByteBufferOutputStream(out));
+    }
 
-	default BElement deserialize(ByteBuffer buffer) {
-		return this.deserialize(new ByteBufferInputStream(buffer));
-	}
+    default BElement deserialize(ByteBuffer buffer) {
+        return this.deserialize(new ByteBufferInputStream(buffer));
+    }
 
-	default BElement deserialize(byte[] bytes) {
-		return this.deserialize(new ByteArrayInputStream(bytes));
-	}
+    default BElement deserialize(byte[] bytes) {
+        return this.deserialize(new ByteArrayInputStream(bytes));
+    }
 
-	default int getMinimumOutputCapactity() {
-		return 1024;
-	}
+    default int getMinimumOutputCapactity() {
+        return 1024;
+    }
 }

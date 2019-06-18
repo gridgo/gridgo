@@ -7,7 +7,7 @@ import lombok.Setter;
 
 public abstract class AbstractBElement implements BElement {
 
-	@Setter
-	@Getter
-	private BSerializerRegistry serializerRegistry;
+    @Setter
+    @Getter
+    private BSerializerRegistry serializerRegistry;
 }

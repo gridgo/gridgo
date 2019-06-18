@@ -7,7 +7,7 @@ import lombok.Setter;
 
 public abstract class AbstractBSerializer implements BSerializer, BFactoryAware {
 
-	@Setter
-	@Getter
-	private BFactory factory;
+    @Setter
+    @Getter
+    private BFactory factory;
 }

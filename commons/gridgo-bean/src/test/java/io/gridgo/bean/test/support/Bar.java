@@ -15,7 +15,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class Bar {
 
-	private boolean b;
+    private boolean b;
 
-	private Map<String, Integer> map;
+    private Map<String, Integer> map;
 }
