@@ -12,10 +12,10 @@ import lombok.NonNull;
 @SuppressWarnings("unchecked")
 public class WrappedImmutableBArray extends AbstractBArray implements WrappedBArray, ImmutableBArray {
 
-    @Getter
-    private final List<?> source;
+	@Getter
+	private final List<?> source;
 
-    public WrappedImmutableBArray(@NonNull Collection<?> collection) {
-        source = collection instanceof List ? ((List<?>) collection) : new ArrayList<>(collection);
-    }
+	public WrappedImmutableBArray(@NonNull Collection<?> collection) {
+		source = collection instanceof List ? ((List<?>) collection) : new ArrayList<>(collection);
+	}
 }

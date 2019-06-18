@@ -13,13 +13,13 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Foo {
 
-    private int i;
+	private int i;
 
-    private int[] arr;
+	private int[] arr;
 
-    private double d;
+	private double d;
 
-    private String s;
+	private String s;
 
-    private Bar b;
+	private Bar b;
 }

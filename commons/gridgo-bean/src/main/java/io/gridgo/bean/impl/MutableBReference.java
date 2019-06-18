@@ -12,33 +12,33 @@ import lombok.Setter;
 @SuppressWarnings("unchecked")
 public class MutableBReference extends AbstractBElement implements BReference {
 
-    @Setter
-    @Getter
-    private Object reference;
+	@Setter
+	@Getter
+	private Object reference;
 
-    @Override
-    public String toString() {
-        StringBuilder writer = new StringBuilder();
-        BPrinter.print(writer, this);
-        return writer.toString();
-    }
+	@Override
+	public String toString() {
+		StringBuilder writer = new StringBuilder();
+		BPrinter.print(writer, this);
+		return writer.toString();
+	}
 
-    @Override
-    public boolean equals(Object obj) {
-        final Object myValue = this.getReference();
-        final Object other;
-        if (obj instanceof BReference) {
-            other = ((BReference) obj).getReference();
-        } else {
-            other = obj;
-        }
-        return myValue == null //
-                ? other == null //
-                : myValue.equals(obj);
-    }
+	@Override
+	public boolean equals(Object obj) {
+		final Object myValue = this.getReference();
+		final Object other;
+		if (obj instanceof BReference) {
+			other = ((BReference) obj).getReference();
+		} else {
+			other = obj;
+		}
+		return myValue == null //
+				? other == null //
+				: myValue.equals(obj);
+	}
 
-    @Override
-    public int hashCode() {
-        return reference != null ? reference.hashCode() : super.hashCode();
-    }
+	@Override
+	public int hashCode() {
+		return reference != null ? reference.hashCode() : super.hashCode();
+	}
 }

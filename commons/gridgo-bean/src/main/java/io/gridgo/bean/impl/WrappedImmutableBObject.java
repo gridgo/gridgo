@@ -11,6 +11,6 @@ import lombok.Getter;
 @SuppressWarnings("unchecked")
 public class WrappedImmutableBObject extends AbstractBObject implements ImmutableBObject, WrappedBObject {
 
-    @Getter
-    private final Map<?, ?> source;
+	@Getter
+	private final Map<?, ?> source;
 }

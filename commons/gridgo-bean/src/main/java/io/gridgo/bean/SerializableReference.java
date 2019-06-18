@@ -2,7 +2,7 @@ package io.gridgo.bean;
 
 public interface SerializableReference {
 
-    String toXml();
+	String toXml();
 
-    String toJson();
+	String toJson();
 }

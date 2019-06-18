@@ -14,15 +14,15 @@ import io.gridgo.bean.BValue;
 
 public interface BFactoryConfigurable {
 
-    BFactoryConfigurable setValueSupplier(Supplier<BValue> valueSupplier);
+	BFactoryConfigurable setValueSupplier(Supplier<BValue> valueSupplier);
 
-    BFactoryConfigurable setObjectSupplier(Function<Map<String, BElement>, BObject> objectSupplier);
+	BFactoryConfigurable setObjectSupplier(Function<Map<String, BElement>, BObject> objectSupplier);
 
-    BFactoryConfigurable setWrappedObjectSupplier(Function<Map<?, ?>, BObject> wrappedObjectSupplier);
+	BFactoryConfigurable setWrappedObjectSupplier(Function<Map<?, ?>, BObject> wrappedObjectSupplier);
 
-    BFactoryConfigurable setArraySupplier(Function<List<BElement>, BArray> arraySupplier);
+	BFactoryConfigurable setArraySupplier(Function<List<BElement>, BArray> arraySupplier);
 
-    BFactoryConfigurable setWrappedArraySupplier(Function<Collection<?>, BArray> wrappedArraySupplier);
+	BFactoryConfigurable setWrappedArraySupplier(Function<Collection<?>, BArray> wrappedArraySupplier);
 
-    BFactoryConfigurable setReferenceSupplier(Supplier<BReference> referenceSupplier);
+	BFactoryConfigurable setReferenceSupplier(Supplier<BReference> referenceSupplier);
 }

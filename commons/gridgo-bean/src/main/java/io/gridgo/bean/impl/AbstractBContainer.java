@@ -7,7 +7,7 @@ import lombok.Setter;
 
 public abstract class AbstractBContainer extends AbstractBElement implements BContainer {
 
-    @Setter
-    @Getter
-    private BFactory factory;
+	@Setter
+	@Getter
+	private BFactory factory;
 }

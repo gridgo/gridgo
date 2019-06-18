@@ -21,32 +21,32 @@ import net.minidev.json.parser.ParseException;
 @BSerializationPlugin(JsonSerializer.NAME)
 public class JsonSerializer extends AbstractBSerializer {
 
-    public static final String NAME = "json";
+	public static final String NAME = "json";
 
-    @Override
-    public void serialize(@NonNull BElement element, @NonNull OutputStream out) {
-        var outWriter = new OutputStreamWriter(out);
-        try {
-            if (element.isArray()) {
-                JSONArray.writeJSONString(element.asArray().toJsonElement(), outWriter);
-            } else if (element.isObject()) {
-                JSONObject.writeJSON(element.asObject().toJsonElement(), outWriter);
-            } else {
-                JSONValue.writeJSONString(element.toJsonElement(), outWriter);
-            }
-            outWriter.flush();
-        } catch (IOException e) {
-            throw new RuntimeIOException("Error while write out json", e);
-        }
-    }
+	@Override
+	public void serialize(@NonNull BElement element, @NonNull OutputStream out) {
+		var outWriter = new OutputStreamWriter(out);
+		try {
+			if (element.isArray()) {
+				JSONArray.writeJSONString(element.asArray().toJsonElement(), outWriter);
+			} else if (element.isObject()) {
+				JSONObject.writeJSON(element.asObject().toJsonElement(), outWriter);
+			} else {
+				JSONValue.writeJSONString(element.toJsonElement(), outWriter);
+			}
+			outWriter.flush();
+		} catch (IOException e) {
+			throw new RuntimeIOException("Error while write out json", e);
+		}
+	}
 
-    @Override
-    public BElement deserialize(@NonNull InputStream in) {
-        try {
-            return getFactory().fromAny(new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE).parse(in));
-        } catch (UnsupportedEncodingException | ParseException e) {
-            throw new BeanSerializationException("Cannot parse json");
-        }
-    }
+	@Override
+	public BElement deserialize(@NonNull InputStream in) {
+		try {
+			return getFactory().fromAny(new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE).parse(in));
+		} catch (UnsupportedEncodingException | ParseException e) {
+			throw new BeanSerializationException("Cannot parse json");
+		}
+	}
 
 }
