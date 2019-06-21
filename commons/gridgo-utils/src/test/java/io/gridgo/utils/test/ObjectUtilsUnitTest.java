@@ -1,5 +1,6 @@
 package io.gridgo.utils.test;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +12,19 @@ import io.gridgo.utils.ObjectUtils;
 import io.gridgo.utils.test.support.TestObject;
 
 public class ObjectUtilsUnitTest {
+
+    @Test
+    public void testNestedMap()
+            throws InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+        Map<String, Object> map = new HashMap<>();
+        var innerMap = new HashMap<String, Object>();
+        innerMap.put("testInt", 2);
+        map.put("testMap", innerMap);
+        var pojo = ObjectUtils.fromMap(TestObject.class, map);
+        Assert.assertNotNull(pojo.getTestMap());
+        Assert.assertFalse(pojo.getTestMap().isEmpty());
+        Assert.assertEquals(2, pojo.getTestMap().get("testInt"));
+    }
 
     @SuppressWarnings("rawtypes")
     @Test
