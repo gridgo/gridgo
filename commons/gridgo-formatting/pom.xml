@@ -4,13 +4,8 @@
 
 	<parent>
 		<groupId>io.gridgo</groupId>
-<<<<<<< HEAD:commons/gridgo-formatting/pom.xml
 		<artifactId>gridgo-commons</artifactId>
 		<version>0.6.1-SNAPSHOT</version>
-=======
-		<artifactId>gridgo-extras</artifactId>
-		<version>0.5.0</version>
->>>>>>> master:extras/gridgo-extras-prometheus/pom.xml
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
