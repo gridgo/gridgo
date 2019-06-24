@@ -33,16 +33,20 @@ public class UriConnectorResolver implements ConnectorResolver {
 
     private final boolean raw;
 
+    private final String category;
+
     public UriConnectorResolver(String scheme, Class<? extends Connector> clazz) {
         this.scheme = scheme;
         this.clazz = clazz;
-        var annotations = clazz.getAnnotationsByType(ConnectorEndpoint.class);
-        if (annotations.length > 0) {
-            this.syntax = annotations[0].syntax();
-            this.raw = annotations[0].raw();
+        var annotation = clazz.getAnnotation(ConnectorEndpoint.class);
+        if (annotation != null) {
+            this.syntax = annotation.syntax();
+            this.raw = annotation.raw();
+            this.category = annotation.category();
         } else {
             this.syntax = null;
             this.raw = false;
+            this.category = null;
         }
     }
 
@@ -227,6 +231,7 @@ public class UriConnectorResolver implements ConnectorResolver {
         var placeholders = extractPlaceholders(schemePart);
         return DefaultConnectorConfig.builder() //
                                      .scheme(scheme) //
+                                     .connectorCategory(category) //
                                      .nonQueryEndpoint(scheme + ":" + schemePart) //
                                      .originalEndpoint(endpoint) //
                                      .remaining(schemePart) //

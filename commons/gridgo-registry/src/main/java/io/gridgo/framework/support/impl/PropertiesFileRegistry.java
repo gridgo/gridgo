@@ -3,6 +3,7 @@ package io.gridgo.framework.support.impl;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
 import io.gridgo.framework.support.Registry;
@@ -10,6 +11,15 @@ import io.gridgo.framework.support.Registry;
 public class PropertiesFileRegistry implements Registry {
 
     private Properties props;
+
+    public PropertiesFileRegistry(InputStream is) {
+        this.props = new Properties();
+        try {
+            props.load(is);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public PropertiesFileRegistry(String fileName) {
         this.props = new Properties();

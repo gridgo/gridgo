@@ -2,21 +2,23 @@ package io.gridgo.framework.support.impl;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import io.gridgo.framework.support.Registry;
 import lombok.NonNull;
 
 public class MultiSourceRegistry extends SimpleRegistry {
 
-    private Registry[] registries;
+    private List<Registry> registries = new CopyOnWriteArrayList<>();
 
     public MultiSourceRegistry(Registry... registries) {
-        this.registries = registries;
+        this.registries.addAll(Arrays.asList(registries));
     }
 
     public MultiSourceRegistry(@NonNull Collection<Registry> registries) {
-        this.registries = registries.toArray(new Registry[0]);
+        this.registries.addAll(registries);
     }
 
     @Override
@@ -24,17 +26,22 @@ public class MultiSourceRegistry extends SimpleRegistry {
         var answer = super.lookup(name);
         if (answer != null)
             return answer;
-        return Arrays.stream(registries) //
-                     .map(registry -> registry.lookup(name)) //
-                     .filter(Objects::nonNull) //
-                     .findAny().orElse(null);
+        return registries.stream() //
+                         .map(registry -> registry.lookup(name)) //
+                         .filter(Objects::nonNull) //
+                         .findAny().orElse(null);
     }
 
     @Override
     public Object lookupByType(Class<?> type) {
-        return Arrays.stream(registries) //
-                     .map(registry -> registry.lookupByType(type)) //
-                     .filter(Objects::nonNull) //
-                     .findAny().orElse(null);
+        return registries.stream() //
+                         .map(registry -> registry.lookupByType(type)) //
+                         .filter(Objects::nonNull) //
+                         .findAny().orElse(null);
+    }
+
+    public MultiSourceRegistry addRegistry(Registry registry) {
+        registries.add(registry);
+        return this;
     }
 }

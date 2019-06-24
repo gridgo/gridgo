@@ -8,6 +8,7 @@ import org.joo.promise4j.Deferred;
 import io.gridgo.bean.BElement;
 import io.gridgo.core.GridgoContext;
 import io.gridgo.core.support.RoutingContext;
+import io.gridgo.core.support.exceptions.SerializationException;
 import io.gridgo.framework.support.Message;
 
 public abstract class AbstractPojoProcessor<T> extends AbstractProcessor {
@@ -44,7 +45,15 @@ public abstract class AbstractPojoProcessor<T> extends AbstractProcessor {
             return (T) body.asReference().getReference();
         if (body.isValue())
             return (T) body.asValue().getData();
-        return body.asObject().toPojo(pojoType);
+        try {
+            return body.asObject().toPojo(pojoType);
+        } catch (Exception ex) {
+            return handleDeserializationException(ex, body);
+        }
+    }
+
+    protected T handleDeserializationException(Exception ex, BElement body) {
+        throw new SerializationException(ex);
     }
 
     protected void processSingle(T request, Message msg, Deferred<Message, Exception> deferred, GridgoContext gc) {

@@ -20,13 +20,14 @@ public class BObjectUnitTest {
     @Test
     public void testSetAny() {
         var obj = BObject.ofEmpty() //
-                .set("int", BValue.of(1)) //
-                .setAny("long", 1L) //
-                .setAny("char", 'a') //
-                .setAny("str", "hello") //
-                .setAny("double", 1.11) //
-                .setAny("byte", (byte) 1) //
-                .setAny("arr", new int[] { 1, 2, 3 }).set("obj", BObject.ofEmpty().setAny("int", 2));
+                         .set("int", BValue.of(1)) //
+                         .setAny("long", 1L) //
+                         .setAny("char", 'a') //
+                         .setAny("str", "hello") //
+                         .setAny("double", 1.11) //
+                         .setAny("byte", (byte) 1) //
+                         .setAny("arr", new int[] { 1, 2, 3 }) //
+                         .set("obj", BObject.ofEmpty().setAny("int", 2));
         assertObject(obj);
         assertObject(obj.deepClone());
         obj.setAnyIfAbsent("arr", 1);

@@ -30,16 +30,26 @@ public interface Registry {
      * @return the value of the entry
      * @throws ClassCastException if the entry has a different type
      */
-    @SuppressWarnings("unchecked")
     public default <T> T lookup(String name, Class<T> type) {
         Object answer = lookup(name);
         if (answer == null)
             return null;
+        return convertAnswer(type, answer);
+    }
+
+    @SuppressWarnings("unchecked")
+    public default <T> T convertAnswer(Class<T> type, Object answer) {
         if (type == String.class)
-            return (T) substituteRegistriesRecursive(answer.toString());
+            return (T) substituteRegistriesRecursive(toString(answer));
         if (PrimitiveUtils.isPrimitive(type))
             return PrimitiveUtils.getValueFrom(type, answer);
         return type.cast(answer);
+    }
+
+    public default String toString(Object answer) {
+        if (answer instanceof byte[])
+            return new String((byte[]) answer);
+        return answer.toString();
     }
 
     /**
@@ -97,7 +107,7 @@ public interface Registry {
             return text;
         return matcher.replaceAll(result -> {
             var obj = lookup(result.group(1));
-            return obj != null ? Matcher.quoteReplacement(obj.toString()) : "";
+            return obj != null ? Matcher.quoteReplacement(toString(obj)) : "";
         });
     }
 
@@ -118,7 +128,7 @@ public interface Registry {
                 return text;
             text = matcher.replaceAll(result -> {
                 var obj = lookup(result.group(1));
-                return obj != null ? Matcher.quoteReplacement(obj.toString()) : "";
+                return obj != null ? Matcher.quoteReplacement(toString(obj)) : "";
             });
         }
     }
