@@ -10,8 +10,6 @@
 	</parent>
 
 	<properties>
-		<gridgo.connector.core.version>0.5.0-SNAPSHOT</gridgo.connector.core.version>
-		<gridgo.config.core.version>0.5.0-SNAPSHOT</gridgo.config.core.version>
 		<joo.libra.version>2.0.0</joo.libra.version>
 	</properties>
 
