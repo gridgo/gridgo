@@ -16,8 +16,8 @@ public interface BObject extends BContainer, Map<String, BElement> {
     default <T> T toPojo(Class<T> clazz) {
         try {
             return ObjectUtils.fromMap(clazz, this.toMap());
-        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
-                | SecurityException e) {
+        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+                | NoSuchMethodException | SecurityException e) {
             throw new BeanSerializationException("Exception caught while converting BObject to POJO", e);
         }
     }
@@ -176,7 +176,8 @@ public interface BObject extends BContainer, Map<String, BElement> {
             if (element.isReference())
                 return element.asReference();
             if (!element.isNullValue())
-                throw new InvalidTypeException("BObject contains element with type " + element.getType() + " which cannot get as BReference");
+                throw new InvalidTypeException(
+                        "BObject contains element with type " + element.getType() + " which cannot get as BReference");
         }
         return null;
     }
@@ -192,7 +193,8 @@ public interface BObject extends BContainer, Map<String, BElement> {
             return null;
         if (element.isValue())
             return element.asValue();
-        throw new InvalidTypeException("BObject contains field " + field + " in type of " + element.getType() + " which cannot convert to BValue");
+        throw new InvalidTypeException("BObject contains field " + field + " in type of " + element.getType()
+                + " which cannot convert to BValue");
     }
 
     default BValue getValue(String field, BValue defaultValue) {
@@ -215,7 +217,8 @@ public interface BObject extends BContainer, Map<String, BElement> {
             return null;
         if (element.isObject())
             return element.asObject();
-        throw new InvalidTypeException("BObject contains element with type " + element.getType() + " which cannot get as BObject");
+        throw new InvalidTypeException(
+                "BObject contains element with type " + element.getType() + " which cannot get as BObject");
     }
 
     default BObject getObject(String field, BObject defaultValue) {
@@ -238,7 +241,8 @@ public interface BObject extends BContainer, Map<String, BElement> {
             return null;
         if (element.isArray())
             return element.asArray();
-        throw new InvalidTypeException("BObject contains element with type " + element.getType() + " which cannot get as BArray");
+        throw new InvalidTypeException(
+                "BObject contains element with type " + element.getType() + " which cannot get as BArray");
     }
 
     default BArray getArray(String field, BArray defaultValue) {
@@ -380,7 +384,8 @@ public interface BObject extends BContainer, Map<String, BElement> {
             } else {
                 if (entry.getValue() == null)
                     continue;
-                throw new InvalidTypeException("Found unrecognized BElement implementation: " + entry.getValue().getClass());
+                throw new InvalidTypeException(
+                        "Found unrecognized BElement implementation: " + entry.getValue().getClass());
             }
         }
         return result;

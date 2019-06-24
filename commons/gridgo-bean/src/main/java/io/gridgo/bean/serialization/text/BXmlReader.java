@@ -173,7 +173,8 @@ class BXmlReader {
         BArray result = this.factory.newArray();
         Node refNameAttr = node.getAttributes().getNamedItem(REF_NAME);
         if (refNameAttr != null) {
-            refManager.addRef(RefItem.builder().type(BType.ARRAY).name(refNameAttr.getNodeValue()).target(result).build());
+            refManager.addRef(
+                    RefItem.builder().type(BType.ARRAY).name(refNameAttr.getNodeValue()).target(result).build());
         }
         Node child = node.getFirstChild();
         while (child != null) {
@@ -189,14 +190,16 @@ class BXmlReader {
         BObject result = this.factory.newObject();
         Node refNameAttr = node.getAttributes().getNamedItem(REF_NAME);
         if (refNameAttr != null) {
-            refManager.addRef(RefItem.builder().type(BType.OBJECT).name(refNameAttr.getNodeValue()).target(result).build());
+            refManager.addRef(
+                    RefItem.builder().type(BType.OBJECT).name(refNameAttr.getNodeValue()).target(result).build());
         }
         Node child = node.getFirstChild();
         while (child != null) {
             if (child.getNodeType() == Element.ELEMENT_NODE) {
                 Node nameAttr = child.getAttributes().getNamedItem("name");
                 if (nameAttr == null) {
-                    throw new NameAttributeNotFoundException("Name attribute (which is required for any item in BObject's xml) cannot be found");
+                    throw new NameAttributeNotFoundException(
+                            "Name attribute (which is required for any item in BObject's xml) cannot be found");
                 }
                 result.put(nameAttr.getNodeValue(), parse(child, refManager));
             }
@@ -205,7 +208,6 @@ class BXmlReader {
         return result;
     }
 }
-
 
 class RefManager {
 
@@ -259,8 +261,8 @@ class RefItem {
 
     void resolve(Map<String, RefItem> refs) {
         if (this.isVisited()) {
-            throw new UnresolvableXmlRefException(
-                    "Circular reference found in expression: " + this.getContent() + (this.getName() == null ? "" : ", refName: " + this.getName()));
+            throw new UnresolvableXmlRefException("Circular reference found in expression: " + this.getContent()
+                    + (this.getName() == null ? "" : ", refName: " + this.getName()));
         }
         this.setVisited(true);
 

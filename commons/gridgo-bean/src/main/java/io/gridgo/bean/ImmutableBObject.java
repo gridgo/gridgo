@@ -6,7 +6,8 @@ import java.util.function.Function;
 
 public interface ImmutableBObject extends BObject {
 
-    static final UnsupportedOperationException UNSUPPORTED = new UnsupportedOperationException("Instance of ImmutableBObject cannot be modified");
+    static final UnsupportedOperationException UNSUPPORTED = new UnsupportedOperationException(
+            "Instance of ImmutableBObject cannot be modified");
 
     @Override
     default BElement put(String key, BElement value) {
@@ -59,17 +60,20 @@ public interface ImmutableBObject extends BObject {
     }
 
     @Override
-    default BElement computeIfPresent(String key, BiFunction<? super String, ? super BElement, ? extends BElement> remappingFunction) {
+    default BElement computeIfPresent(String key,
+            BiFunction<? super String, ? super BElement, ? extends BElement> remappingFunction) {
         throw UNSUPPORTED;
     }
 
     @Override
-    default BElement compute(String key, BiFunction<? super String, ? super BElement, ? extends BElement> remappingFunction) {
+    default BElement compute(String key,
+            BiFunction<? super String, ? super BElement, ? extends BElement> remappingFunction) {
         throw UNSUPPORTED;
     }
 
     @Override
-    default BElement merge(String key, BElement value, BiFunction<? super BElement, ? super BElement, ? extends BElement> remappingFunction) {
+    default BElement merge(String key, BElement value,
+            BiFunction<? super BElement, ? super BElement, ? extends BElement> remappingFunction) {
         throw UNSUPPORTED;
     }
 }

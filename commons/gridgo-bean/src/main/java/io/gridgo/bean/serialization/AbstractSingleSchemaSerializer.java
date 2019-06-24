@@ -9,7 +9,8 @@ import io.gridgo.bean.exceptions.BeanSerializationException;
 import lombok.Getter;
 import lombok.Setter;
 
-public abstract class AbstractSingleSchemaSerializer<S> extends AbstractBSerializer implements SingleSchemaSerializer<S> {
+public abstract class AbstractSingleSchemaSerializer<S> extends AbstractBSerializer
+        implements SingleSchemaSerializer<S> {
 
     @Setter
     @Getter

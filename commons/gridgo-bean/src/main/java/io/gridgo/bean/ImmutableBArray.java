@@ -5,7 +5,8 @@ import java.util.function.UnaryOperator;
 
 public interface ImmutableBArray extends BArray {
 
-    static final UnsupportedOperationException UNSUPPORTED = new UnsupportedOperationException("Instance of ImmutableBArray cannot be modified");
+    static final UnsupportedOperationException UNSUPPORTED = new UnsupportedOperationException(
+            "Instance of ImmutableBArray cannot be modified");
 
     @Override
     default void clear() {

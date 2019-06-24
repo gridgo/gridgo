@@ -50,9 +50,9 @@ public class MutableBObject extends AbstractBObject {
 
     public void putAll(@NonNull Map<? extends String, ? extends BElement> m) {
         holder.putAll(m.entrySet() //
-                       .stream() //
-                       .filter(entry -> entry.getKey() != null && entry.getValue() != null) //
-                       .collect(Collectors.toMap(Entry::getKey, Entry::getValue)));
+                .stream() //
+                .filter(entry -> entry.getKey() != null && entry.getValue() != null) //
+                .collect(Collectors.toMap(Entry::getKey, Entry::getValue)));
     }
 
     public void clear() {
@@ -103,15 +103,18 @@ public class MutableBObject extends AbstractBObject {
         return holder.computeIfAbsent(key, mappingFunction);
     }
 
-    public BElement computeIfPresent(String key, BiFunction<? super String, ? super BElement, ? extends BElement> remappingFunction) {
+    public BElement computeIfPresent(String key,
+            BiFunction<? super String, ? super BElement, ? extends BElement> remappingFunction) {
         return holder.computeIfPresent(key, remappingFunction);
     }
 
-    public BElement compute(String key, BiFunction<? super String, ? super BElement, ? extends BElement> remappingFunction) {
+    public BElement compute(String key,
+            BiFunction<? super String, ? super BElement, ? extends BElement> remappingFunction) {
         return holder.compute(key, remappingFunction);
     }
 
-    public BElement merge(String key, BElement value, BiFunction<? super BElement, ? super BElement, ? extends BElement> remappingFunction) {
+    public BElement merge(String key, BElement value,
+            BiFunction<? super BElement, ? super BElement, ? extends BElement> remappingFunction) {
         return holder.merge(key, value, remappingFunction);
     }
 

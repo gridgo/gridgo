@@ -80,17 +80,18 @@ class BXmlWriter {
             if (name != null) {
                 out.append(" name=\"").append(name).append("\"");
             }
-            String content = value.getData() instanceof byte[] ? ByteArrayUtils.toHex(value.getRaw(), "0x") : value.getString();
+            String content = value.getData() instanceof byte[] ? ByteArrayUtils.toHex(value.getRaw(), "0x")
+                    : value.getString();
             if (content.contains("<")) {
                 out.append(">") //
-                   .append("<![CDATA[")//
-                   .append(content) //
-                   .append("]]>") //
-                   .append("</").append(type).append(">");
+                        .append("<![CDATA[")//
+                        .append(content) //
+                        .append("]]>") //
+                        .append("</").append(type).append(">");
             } else if (content.contains("\"")) {
                 out.append(">") //
-                   .append(content) //
-                   .append("</").append(type).append(">");
+                        .append(content) //
+                        .append("</").append(type).append(">");
             } else {
                 out.append(" value=\"").append(content.replaceAll("\"", "\\\"")).append("\"/>");
             }
