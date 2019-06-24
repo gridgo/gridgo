@@ -91,7 +91,8 @@ public class MsgpackSerializer extends AbstractBSerializer {
             if (entry.getValue().isValue() || entry.getValue().isArray() || entry.getValue().isObject()) {
                 tobePacked.put(entry.getKey(), entry.getValue());
             } else if (log.isWarnEnabled()) {
-                log.warn("Ignore key {} while packing bObject because of value cannot be packed in msgpack format", entry.getKey());
+                log.warn("Ignore key {} while packing bObject because of value cannot be packed in msgpack format",
+                        entry.getKey());
             }
         }
         packer.packMapHeader(tobePacked.size());
@@ -166,7 +167,8 @@ public class MsgpackSerializer extends AbstractBSerializer {
                 value.setData(unpacker.unpackByte());
             } else if (format == MessageFormat.INT16 || format == MessageFormat.UINT8) {
                 value.setData(unpacker.unpackShort());
-            } else if (format == MessageFormat.UINT32 || format == MessageFormat.INT64 || format == MessageFormat.UINT64) {
+            } else if (format == MessageFormat.UINT32 || format == MessageFormat.INT64
+                    || format == MessageFormat.UINT64) {
                 value.setData(unpacker.unpackLong());
             } else {
                 value.setData(unpacker.unpackInt());

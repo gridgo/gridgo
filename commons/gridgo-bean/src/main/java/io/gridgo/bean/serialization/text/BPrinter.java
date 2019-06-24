@@ -35,7 +35,8 @@ public final class BPrinter {
         }
     }
 
-    private static final void printAny(Appendable writer, BElement element, String name, int numTabs) throws IOException {
+    private static final void printAny(Appendable writer, BElement element, String name, int numTabs)
+            throws IOException {
         if (element.isArray()) {
             printArray(writer, element.asArray(), name, numTabs);
         } else if (element.isObject()) {
@@ -49,7 +50,8 @@ public final class BPrinter {
         }
     }
 
-    private static final void printObject(Appendable writer, BObject object, String name, int numTab) throws IOException {
+    private static final void printObject(Appendable writer, BObject object, String name, int numTab)
+            throws IOException {
         StringUtils.tabs(numTab, writer);
         if (name != null) {
             writer.append(name).append(": OBJECT = {");
@@ -105,7 +107,8 @@ public final class BPrinter {
         }
     }
 
-    private static final void printReference(Appendable writer, BReference reference, String name, int numTab) throws IOException {
+    private static final void printReference(Appendable writer, BReference reference, String name, int numTab)
+            throws IOException {
         StringUtils.tabs(numTab, writer);
         BType type = reference.getType();
         Object refObj = reference.getReference();

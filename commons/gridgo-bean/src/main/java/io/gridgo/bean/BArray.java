@@ -60,7 +60,8 @@ public interface BArray extends BContainer, List<BElement> {
     default BValue getValue(int index) {
         BElement element = this.get(index);
         if (!element.isValue()) {
-            throw new InvalidTypeException("BArray contains element at " + index + " of type " + element.getType() + ", which cannot convert to BValue");
+            throw new InvalidTypeException("BArray contains element at " + index + " of type " + element.getType()
+                    + ", which cannot convert to BValue");
         }
         return element.asValue();
     }

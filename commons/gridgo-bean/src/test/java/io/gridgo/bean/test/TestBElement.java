@@ -15,7 +15,8 @@ import io.gridgo.bean.factory.BFactory;
 public class TestBElement {
 
     public static void main(String[] args) throws IOException {
-        try (InputStream in = TestBElement.class.getClassLoader().getResourceAsStream("test.xml"); Reader reader = new InputStreamReader(in)) {
+        try (InputStream in = TestBElement.class.getClassLoader().getResourceAsStream("test.xml");
+                Reader reader = new InputStreamReader(in)) {
 
             String xml = new BufferedReader(reader).lines().collect(Collectors.joining("\n"));
 

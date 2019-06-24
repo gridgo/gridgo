@@ -19,7 +19,8 @@ public class StringSerializer implements BSerializer {
     @Override
     public void serialize(BElement element, OutputStream out) {
         if (!element.isValue())
-            throw new BeanSerializationException(String.format("Bean of type [%s] cannot be serialized as String", element.getType()));
+            throw new BeanSerializationException(
+                    String.format("Bean of type [%s] cannot be serialized as String", element.getType()));
         try {
             out.write(element.asValue().getRaw());
         } catch (IOException e) {

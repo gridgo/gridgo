@@ -6,12 +6,15 @@ import io.gridgo.bean.BValue;
 import io.gridgo.bean.exceptions.InvalidTypeException;
 import io.gridgo.bean.serialization.text.BPrinter;
 import io.gridgo.utils.PrimitiveUtils;
+import io.gridgo.utils.hash.BinaryHashCodeCalculator;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @NoArgsConstructor
 public class MutableBValue extends AbstractBElement implements BValue {
+
+    private transient static final BinaryHashCodeCalculator binaryHashCodeCalculator = BinaryHashCodeCalculator.XXHASH32_JAVA_SAFE;
 
     @Setter
     @Getter
@@ -62,8 +65,19 @@ public class MutableBValue extends AbstractBElement implements BValue {
         return false;
     }
 
+    /**
+     * Optimized hash code calculating for binary
+     */
     @Override
     public int hashCode() {
-        return data != null ? data.hashCode() : super.hashCode();
+        if (data == null) {
+            return super.hashCode();
+        }
+
+        if (data instanceof byte[]) {
+            return binaryHashCodeCalculator.calcHashCode((byte[]) data);
+        }
+
+        return data.hashCode();
     }
 }

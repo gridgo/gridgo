@@ -267,7 +267,7 @@ public interface BFactory {
     }
 
     default BFactoryConfigurable asConfigurable() {
-        throw new UnsupportedOperationException(
-                "Instance of " + this.getClass().getName() + " cannot be used as a " + BFactoryConfigurable.class.getSimpleName());
+        throw new UnsupportedOperationException("Instance of " + this.getClass().getName() + " cannot be used as a "
+                + BFactoryConfigurable.class.getSimpleName());
     }
 }

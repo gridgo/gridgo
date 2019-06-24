@@ -65,8 +65,8 @@ public class BObjectUnitTest {
         obj.setAny("short", (short) 1);
         Assert.assertEquals((short) 1, (short) obj.getShort("short", (short) -1));
 
-        obj = BObject.ofSequence("int", 1, "str", "hello", "long", 1, "char", 'a', "double", 1.11, "arr", new int[] { 1, 2, 3 }, "byte", 1, "short", 1, "obj",
-                Collections.singletonMap("int", 2));
+        obj = BObject.ofSequence("int", 1, "str", "hello", "long", 1, "char", 'a', "double", 1.11, "arr",
+                new int[] { 1, 2, 3 }, "byte", 1, "short", 1, "obj", Collections.singletonMap("int", 2));
         assertObject(obj);
     }
 
@@ -75,8 +75,8 @@ public class BObjectUnitTest {
         Assert.assertEquals("hello", obj.getString("str", null));
         Assert.assertArrayEquals(new Integer[] { 1, 2, 3 }, //
                 obj.getArray("arr", BArray.ofEmpty()).stream() //
-                   .map(e -> e.asValue().getData()) //
-                   .toArray(size -> new Integer[size]));
+                        .map(e -> e.asValue().getData()) //
+                        .toArray(size -> new Integer[size]));
         Assert.assertEquals(Long.valueOf(1L), obj.getLong("long", -1));
         Assert.assertEquals(Character.valueOf('a'), obj.getChar("char", '\0'));
         Assert.assertEquals(1.11, obj.getDouble("double", -1), 0);
@@ -129,7 +129,7 @@ public class BObjectUnitTest {
         Assert.assertTrue(obj.isObject());
         Assert.assertNotNull(obj.asObject().get("id"));
     }
-    
+
     @Test
     public void testDate() {
         var beanWithDate = new BeanWithDate();

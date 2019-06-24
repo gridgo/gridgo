@@ -26,7 +26,8 @@ public final class BSerializerRegistry {
      * <b>'gridgo.bean.serializer.binary.default'</b>, in case it's not defined, use
      * default msgpack
      */
-    public static final String SYSTEM_DEFAULT_BINARY_SERIALIZER = System.getProperty("gridgo.bean.serializer.binary.default", MsgpackSerializer.NAME);
+    public static final String SYSTEM_DEFAULT_BINARY_SERIALIZER = System
+            .getProperty("gridgo.bean.serializer.binary.default", MsgpackSerializer.NAME);
 
     private final AtomicReference<String> defaultSerializerName = new AtomicReference<>(null);
     private BSerializer cachedDefaultSerializer = null;
@@ -119,7 +120,8 @@ public final class BSerializerRegistry {
         Set<Class<?>> types = reflections.getTypesAnnotatedWith(BSerializationPlugin.class);
         for (Class<?> clazz : types) {
             if (!BSerializer.class.isAssignableFrom(clazz)) {
-                throw new SerializationPluginException("Invalid serialization plugin, class must implement BSerializer");
+                throw new SerializationPluginException(
+                        "Invalid serialization plugin, class must implement BSerializer");
             }
             BSerializationPlugin annotation = clazz.getAnnotation(BSerializationPlugin.class);
             String[] names = annotation.value();
@@ -131,9 +133,10 @@ public final class BSerializerRegistry {
                 for (String name : names) {
                     this.register(name, serializer);
                 }
-            } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
-                    | SecurityException e) {
-                throw new SerializationPluginException("Cannot create instance for class " + clazz + ", require non-args constructor");
+            } catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+                    | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+                throw new SerializationPluginException(
+                        "Cannot create instance for class " + clazz + ", require non-args constructor");
             }
         }
     }
