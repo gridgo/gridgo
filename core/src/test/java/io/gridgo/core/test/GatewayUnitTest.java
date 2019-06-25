@@ -261,7 +261,7 @@ public class GatewayUnitTest {
                    latch1.countDown();
                }) //
                .when("payload.body.data == 1") //
-               .instrumentWith(runnable -> (() -> {
+               .instrumentWith((msg, deferred, runnable) -> (() -> {
                    atomic.incrementAndGet();
                    runnable.run();
                })) //
@@ -270,7 +270,7 @@ public class GatewayUnitTest {
                    latch1.countDown();
                }) //
                .when("payload.body.data == 2") //
-               .instrumentWith(runnable -> (() -> {
+               .instrumentWith((msg, deferred, runnable) -> (() -> {
                    runnable.run();
                }));
 

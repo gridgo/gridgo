@@ -1,15 +1,26 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>gridgo</artifactId>
+	<groupId>io.gridgo</groupId>
+	<artifactId>gridgo-base</artifactId>
 	<packaging>pom</packaging>
-	
+
+	<version>0.6.1</version>
+
 	<parent>
-		<groupId>io.gridgo</groupId>
-		<artifactId>gridgo-base</artifactId>
-		<version>0.5.0</version>
+		<groupId>org.sonatype.oss</groupId>
+		<artifactId>oss-parent</artifactId>
+		<version>9</version>
 	</parent>
 
 	<url>https://github.com/gridgo/gridgo.git</url>
+
+	<licenses>
+		<license>
+			<name>MIT License</name>
+			<url>https://github.com/gridgo/gridgo/blob/master/LICENSE</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
 
 	<scm>
 		<url>https://github.com/gridgo/gridgo.git</url>
@@ -18,22 +29,339 @@
 		<tag>HEAD</tag>
 	</scm>
 
-	<modules>
-		<module>core</module>
-		<module>extras</module>
-	</modules>
-
 	<properties>
-		<gridgo.version>0.5.0</gridgo.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<gridgo.base.version>${project.version}</gridgo.base.version>
+		<additionalparam>-Xdoclint:none</additionalparam>
+
+		<jdk.release>11</jdk.release>
+		<jdk.vendor>oracle</jdk.vendor>
+
+		<maven.compiler.plugin.version>3.8.0</maven.compiler.plugin.version>
+		<maven.compiler.target>11</maven.compiler.target>
+		<maven.compiler.source>11</maven.compiler.source>
+
+		<maven.source.plugin.version>3.0.1</maven.source.plugin.version>
+		<maven.javadoc.plugin.version>3.0.1</maven.javadoc.plugin.version>
+		<maven.deploy.plugin.version>3.0.0-M1</maven.deploy.plugin.version>
+		<jacoco.maven.plugin.version>0.8.2</jacoco.maven.plugin.version>
+		<coveralls.maven.plugin.version>4.3.0</coveralls.maven.plugin.version>
+
+		<delombok.output>${project.build.directory}/delombok</delombok.output>
+
+		<log4j2.version>2.11.1</log4j2.version>
+		<slf4j.version>1.7.25</slf4j.version>
+		<lombok.version>1.18.2</lombok.version>
+
+		<!-- Sonar -->
+		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
+		<sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
+		<sonar.jacoco.reportPath>${project.basedir}/../target/jacoco.exec</sonar.jacoco.reportPath>
+		<sonar.jacoco.outputDirectory>${project.reporting.outputEncoding}</sonar.jacoco.outputDirectory>
+		<sonar.language>java</sonar.language>
+
 		<junit.version>4.12</junit.version>
 	</properties>
 
+	<modules>
+		<module>core</module>
+		<module>commons</module>
+		<module>connector</module>
+		<module>configuration</module>
+	</modules>
+
+	<build>
+		<sourceDirectory>src/main/java</sourceDirectory>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+			</resource>
+		</resources>
+		<testSourceDirectory>src/test/java</testSourceDirectory>
+		<testResources>
+			<testResource>
+				<directory>src/test/resources</directory>
+			</testResource>
+		</testResources>
+
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>${maven.compiler.plugin.version}</version>
+				<configuration>
+					<source>${maven.compiler.source}</source>
+					<target>${maven.compiler.target}</target>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>${maven.source.plugin.version}</version>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar-no-fork</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>${maven.javadoc.plugin.version}</version>
+				<configuration>
+					<sourcepath>${delombok.output}</sourcepath>
+				</configuration>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+						<configuration>
+							<additionalparam>${javadoc.opts}</additionalparam>
+							<additionalOptions>-html5</additionalOptions>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-deploy-plugin</artifactId>
+				<version>${maven.deploy.plugin.version}</version>
+				<executions>
+					<execution>
+						<id>deploy</id>
+						<phase>deploy</phase>
+						<goals>
+							<goal>deploy</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.projectlombok</groupId>
+				<artifactId>lombok-maven-plugin</artifactId>
+				<version>1.18.0.0</version>
+				<configuration>
+					<sourceDirectory>${project.basedir}/src/main/java</sourceDirectory>
+					<outputDirectory>${delombok.output}</outputDirectory>
+					<addOutputDirectory>false</addOutputDirectory>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>delombok</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>${jacoco.maven.plugin.version}</version>
+				<configuration>
+					<outputDirectory>${sonar.jacoco.outputDirectory}</outputDirectory>
+					<dataFile>${sonar.jacoco.reportPath}</dataFile>
+					<destFile>${sonar.jacoco.reportPath}</destFile>
+					<append>true</append>
+				</configuration>
+				<executions>
+					<execution>
+						<id>prepare-agent</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>default-report</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.eluder.coveralls</groupId>
+				<artifactId>coveralls-maven-plugin</artifactId>
+				<version>${coveralls.maven.plugin.version}</version>
+				<configuration>
+					<jacocoReports>
+						<jacocoReport>${sonar.jacoco.reportPath}</jacocoReport>
+					</jacocoReports>
+				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>javax.xml.bind</groupId>
+						<artifactId>jaxb-api</artifactId>
+						<version>2.2.3</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+		</plugins>
+
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>org.projectlombok</groupId>
+										<artifactId>lombok-maven-plugin</artifactId>
+										<versionRange>[1,)</versionRange>
+										<goals>
+											<goal>delombok</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore />
+									</action>
+								</pluginExecution>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>org.apache.maven.plugins</groupId>
+										<artifactId>maven-enforcer-plugin</artifactId>
+										<versionRange>[1.0.0,)</versionRange>
+										<goals>
+											<goal>enforce</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore />
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-release-plugin</artifactId>
+					<version>2.5.3</version>
+					<configuration>
+						<autoVersionSubmodules>true</autoVersionSubmodules>
+						<useReleaseProfile>true</useReleaseProfile>
+						<releaseProfiles>release-sign-artifacts</releaseProfiles>
+						<goals>deploy</goals>
+					</configuration>
+					<dependencies>
+						<dependency>
+							<groupId>org.apache.maven.shared</groupId>
+							<artifactId>maven-invoker</artifactId>
+							<version>2.2</version>
+						</dependency>
+					</dependencies>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-gpg-plugin</artifactId>
+					<version>1.5</version>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+
+	<profiles>
+		<profile>
+			<id>release-sign-artifacts</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<version>1.5</version>
+						<executions>
+							<execution>
+								<id>sign-artifacts</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.apache.logging.log4j</groupId>
+				<artifactId>log4j-api</artifactId>
+				<version>${log4j2.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.logging.log4j</groupId>
+				<artifactId>log4j-core</artifactId>
+				<version>${log4j2.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.logging.log4j</groupId>
+				<artifactId>log4j-slf4j-impl</artifactId>
+				<version>${log4j2.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-api</artifactId>
+				<version>${slf4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.projectlombok</groupId>
+				<artifactId>lombok</artifactId>
+				<version>${lombok.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>${junit.version}</version>
+				<scope>test</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
 	<dependencies>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-slf4j-impl</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>${junit.version}</version>
-			<scope>test</scope>
 		</dependency>
 	</dependencies>
 </project>

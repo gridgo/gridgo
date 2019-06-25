@@ -1,0 +1,20 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>gridgo-commons</artifactId>
+	<packaging>pom</packaging>
+
+	<parent>
+		<groupId>io.gridgo</groupId>
+		<artifactId>gridgo-base</artifactId>
+		<version>0.6.1</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+
+	<modules>
+		<module>gridgo-utils</module>
+		<module>gridgo-bean</module>
+		<module>gridgo-formatting</module>
+		<module>gridgo-registry</module>
+		<module>gridgo-framework</module>
+	</modules>
+</project>

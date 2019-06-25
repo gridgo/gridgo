@@ -27,7 +27,7 @@ public class DefaultRoutingPolicyEnforcer implements RoutingPolicyEnforcer {
         var runnable = buildRunnable(rc, gc);
         var instrumenter = policy.getInstrumenter();
         if (instrumenter.isPresent() && isMatchInstrumenter(context))
-            runnable = instrumenter.get().instrument(runnable);
+            runnable = instrumenter.get().instrument(rc.getMessage(), rc.getDeferred(), runnable);
         execute(runnable, rc.getMessage());
     }
 

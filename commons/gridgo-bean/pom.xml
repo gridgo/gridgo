@@ -1,0 +1,51 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>gridgo-bean</artifactId>
+
+	<parent>
+		<groupId>io.gridgo</groupId>
+		<artifactId>gridgo-commons</artifactId>
+		<version>0.6.1</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+
+	<properties>
+		<msgpack.version>0.8.16</msgpack.version>
+		<jsonsmart.version>2.3</jsonsmart.version>
+		<evalex.version>2.0</evalex.version>
+		<reflections.version>0.9.11</reflections.version>
+		<junit.version>4.12</junit.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.msgpack</groupId>
+			<artifactId>msgpack-core</artifactId>
+			<version>${msgpack.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>io.gridgo</groupId>
+			<artifactId>gridgo-utils</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.minidev</groupId>
+			<artifactId>json-smart</artifactId>
+			<version>${jsonsmart.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.udojava</groupId>
+			<artifactId>EvalEx</artifactId>
+			<version>${evalex.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.reflections</groupId>
+			<artifactId>reflections</artifactId>
+			<version>${reflections.version}</version>
+		</dependency>
+	</dependencies>
+</project>
