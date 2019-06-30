@@ -1,6 +1,6 @@
 language: java
 jdk:
-- oraclejdk11
+- openjdk11
 notifications:
   slack: gridgo:7vQ2ec1IgZ0bjCN9w3wsUiIn
   
