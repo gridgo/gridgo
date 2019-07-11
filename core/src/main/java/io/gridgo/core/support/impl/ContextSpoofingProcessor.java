@@ -29,13 +29,13 @@ public class ContextSpoofingProcessor implements Processor {
         rc.getDeferred().resolve(Message.ofAny(result));
     }
 
-    private BObject spoofComponent(ContextAwareComponent component) {
+    protected BObject spoofComponent(ContextAwareComponent component) {
         return BObject.of("name", component.getName()) //
                       .setAny("class", component.getClass().getName()) //
                       .setAny("started", component.isStarted());
     }
 
-    private BObject spoofGateway(GatewaySubscription subscription) {
+    protected BObject spoofGateway(GatewaySubscription subscription) {
         var connectors = subscription.get() //
                                      .getConnectors().stream() //
                                      .map(this::spoofConnector) //
@@ -49,7 +49,7 @@ public class ContextSpoofingProcessor implements Processor {
                       .setAny("autoStart", subscription.get().isAutoStart());
     }
 
-    private BObject spoofConnector(Connector connector) {
+    protected BObject spoofConnector(Connector connector) {
         return BObject.of("endpoint", getFullEndpoint(connector)) //
                       .setAny("scheme", connector.getConnectorConfig().getScheme()) //
                       .setAny("started", connector.isStarted());
@@ -60,10 +60,14 @@ public class ContextSpoofingProcessor implements Processor {
         return config.getScheme() + ":" + config.getOriginalEndpoint();
     }
 
-    private BObject spoofSubscription(ProcessorSubscription sub) {
+    protected BObject spoofSubscription(ProcessorSubscription sub) {
         var policy = sub.getPolicy();
-        return BObject.of("processor", policy.getProcessor().getClass().getName()) //
+        return BObject.of("processor", spoofProcessor(policy.getProcessor())) //
                       .setAny("strategy", policy.getStrategy().map(s -> s.getName()).orElse(null)) //
                       .setAny("instrumenter", policy.getInstrumenter().map(i -> i.getClass().getName()).orElse(null));
+    }
+
+    protected BObject spoofProcessor(Processor processor) {
+        return BObject.of("class", processor.getClass().getName());
     }
 }
