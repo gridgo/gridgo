@@ -3,8 +3,10 @@ package io.gridgo.core.support.impl;
 import java.util.stream.Collectors;
 
 import io.gridgo.bean.BObject;
+import io.gridgo.connector.Connector;
 import io.gridgo.core.GridgoContext;
 import io.gridgo.core.Processor;
+import io.gridgo.core.support.ContextAwareComponent;
 import io.gridgo.core.support.RoutingContext;
 import io.gridgo.core.support.subscription.GatewaySubscription;
 import io.gridgo.core.support.subscription.ProcessorSubscription;
@@ -19,7 +21,7 @@ public class ContextSpoofingProcessor implements Processor {
             gateways.setAny(entry.getKey(), spoofGateway(entry.getValue()));
         }
         var components = gc.getComponents().stream() //
-                           .map(c -> c.getName()) //
+                           .map(this::spoofComponent) //
                            .collect(Collectors.toList());
         var result = BObject.of("name", gc.getName()) //
                             .setAny("gateways", gateways) //
@@ -27,22 +29,35 @@ public class ContextSpoofingProcessor implements Processor {
         rc.getDeferred().resolve(Message.ofAny(result));
     }
 
+    private BObject spoofComponent(ContextAwareComponent component) {
+        return BObject.of("name", component.getName()) //
+                      .setAny("class", component.getClass().getName()) //
+                      .setAny("started", component.isStarted());
+    }
+
     private BObject spoofGateway(GatewaySubscription subscription) {
         var connectors = subscription.get() //
                                      .getConnectors().stream() //
-                                     .map(this::getFullEndpoint) //
+                                     .map(this::spoofConnector) //
                                      .collect(Collectors.toList());
         var processors = subscription.getSubscriptions().stream() //
                                      .map(this::spoofSubscription) //
                                      .collect(Collectors.toList());
         return BObject.of("connectors", connectors) //
                       .setAny("subscriptions", processors) //
+                      .setAny("started", subscription.get().isStarted()) //
                       .setAny("autoStart", subscription.get().isAutoStart());
     }
 
-    protected String getFullEndpoint(io.gridgo.connector.Connector connector) {
-        return connector.getConnectorConfig().getScheme() + ":"
-                 + connector.getConnectorConfig().getOriginalEndpoint();
+    private BObject spoofConnector(Connector connector) {
+        return BObject.of("endpoint", getFullEndpoint(connector)) //
+                      .setAny("scheme", connector.getConnectorConfig().getScheme()) //
+                      .setAny("started", connector.isStarted());
+    }
+
+    private String getFullEndpoint(Connector connector) {
+        var config = connector.getConnectorConfig();
+        return config.getScheme() + ":" + config.getOriginalEndpoint();
     }
 
     private BObject spoofSubscription(ProcessorSubscription sub) {
