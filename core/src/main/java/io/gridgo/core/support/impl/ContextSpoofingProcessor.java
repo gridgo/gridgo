@@ -18,6 +18,10 @@ public class ContextSpoofingProcessor implements Processor {
 
     @Override
     public void process(RoutingContext rc, GridgoContext gc) {
+        rc.getDeferred().resolve(spoofContext(gc));
+    }
+
+    protected Message spoofContext(GridgoContext gc) {
         var gateways = BObject.ofEmpty();
         for (var entry : gc.getGatewaysWithNames().entrySet()) {
             gateways.setAny(entry.getKey(), spoofGateway(entry.getValue()));
@@ -28,7 +32,8 @@ public class ContextSpoofingProcessor implements Processor {
         var result = BObject.of("name", gc.getName()) //
                             .setAny("gateways", gateways) //
                             .setAny("components", components);
-        rc.getDeferred().resolve(Message.ofAny(result));
+        var msg = Message.ofAny(result);
+        return msg;
     }
 
     protected BObject spoofComponent(ContextAwareComponent component) {
