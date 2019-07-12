@@ -1,5 +1,6 @@
 package io.gridgo.core.support.impl;
 
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import io.gridgo.bean.BObject;
@@ -10,6 +11,7 @@ import io.gridgo.core.support.ContextAwareComponent;
 import io.gridgo.core.support.RoutingContext;
 import io.gridgo.core.support.subscription.GatewaySubscription;
 import io.gridgo.core.support.subscription.ProcessorSubscription;
+import io.gridgo.framework.ComponentLifecycle;
 import io.gridgo.framework.support.Message;
 
 public class ContextSpoofingProcessor implements Processor {
@@ -52,7 +54,9 @@ public class ContextSpoofingProcessor implements Processor {
     protected BObject spoofConnector(Connector connector) {
         return BObject.of("endpoint", getFullEndpoint(connector)) //
                       .setAny("scheme", connector.getConnectorConfig().getScheme()) //
-                      .setAny("started", connector.isStarted());
+                      .setAny("started", connector.isStarted()) //
+                      .setAny("consumer", extractName(connector.getConsumer())) //
+                      .setAny("producer", extractName(connector.getProducer()));
     }
 
     private String getFullEndpoint(Connector connector) {
@@ -63,11 +67,15 @@ public class ContextSpoofingProcessor implements Processor {
     protected BObject spoofSubscription(ProcessorSubscription sub) {
         var policy = sub.getPolicy();
         return BObject.of("processor", spoofProcessor(policy.getProcessor())) //
-                      .setAny("strategy", policy.getStrategy().map(s -> s.getName()).orElse(null)) //
+                      .setAny("strategy", extractName(policy.getStrategy())) //
                       .setAny("instrumenter", policy.getInstrumenter().map(i -> i.getClass().getName()).orElse(null));
     }
 
     protected BObject spoofProcessor(Processor processor) {
         return BObject.of("class", processor.getClass().getName());
+    }
+
+    private String extractName(Optional<? extends ComponentLifecycle> component) {
+        return component.map(c -> c.getName()).orElse(null);
     }
 }
