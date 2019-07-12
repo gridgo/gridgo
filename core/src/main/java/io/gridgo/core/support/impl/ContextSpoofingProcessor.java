@@ -57,16 +57,19 @@ public class ContextSpoofingProcessor implements Processor {
     }
 
     protected BObject spoofConnector(Connector connector) {
-        return BObject.of("endpoint", getFullEndpoint(connector)) //
+        return BObject.of("endpoint", spoofEndpoint(connector)) //
                       .setAny("scheme", connector.getConnectorConfig().getScheme()) //
                       .setAny("started", connector.isStarted()) //
                       .setAny("consumer", extractName(connector.getConsumer())) //
                       .setAny("producer", extractName(connector.getProducer()));
     }
 
-    private String getFullEndpoint(Connector connector) {
+    protected BObject spoofEndpoint(Connector connector) {
         var config = connector.getConnectorConfig();
-        return config.getScheme() + ":" + config.getOriginalEndpoint();
+        return BObject.of("scheme", config.getScheme()) //
+                      .setAny("rawEndpoint", config.getScheme() + ":" + config.getOriginalEndpoint()) //
+                      .setAny("placeholders", config.getPlaceholders()) //
+                      .setAny("parameters", config.getParameters());
     }
 
     protected BObject spoofSubscription(ProcessorSubscription sub) {
