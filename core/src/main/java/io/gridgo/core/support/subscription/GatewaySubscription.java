@@ -1,5 +1,7 @@
 package io.gridgo.core.support.subscription;
 
+import java.util.List;
+
 import io.gridgo.connector.Connector;
 import io.gridgo.connector.ConnectorResolver;
 import io.gridgo.connector.support.config.ConnectorContext;
@@ -85,6 +87,13 @@ public interface GatewaySubscription extends ProducerTemplateAware<GatewaySubscr
      * @return the GatewaySubscription itself
      */
     public GatewaySubscription setAutoStart(boolean autoStart);
+
+    /**
+     * Get the list of subscriptions attached to this gateway
+     * 
+     * @return the list of subscriptions
+     */
+    public List<ProcessorSubscription> getSubscriptions();
 
     /**
      * Get the Gateway associated with this subscription.
