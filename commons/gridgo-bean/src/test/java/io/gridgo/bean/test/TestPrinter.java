@@ -23,6 +23,7 @@ public class TestPrinter {
                 .setAny("byte", (byte) 1) //
                 .setAny("raw", raw) //
                 .setAny("arr", new int[] { 1, 2, 3 }) //
+                .setAny("emptyArray", BArray.ofEmpty()) //
                 .set("obj", BObject.ofEmpty().setAny("int", 2)) //
         ;
         var arr = BArray.ofSequence(obj, 1, true, new byte[] { 4, 5, 6, 7 }, bar);
