@@ -48,7 +48,7 @@ public class DefaultGridgoContext extends AbstractComponentLifecycle implements 
     private Consumer<Throwable> exceptionHandler = DEFAULT_EXCEPTION_HANDLER;
 
     @Getter
-    private List<ComponentLifecycle> components = new CopyOnWriteArrayList<>();
+    private List<ContextAwareComponent> components = new CopyOnWriteArrayList<>();
 
     protected DefaultGridgoContext(String name, ConnectorFactory connectorFactory, Registry registry,
             Consumer<Throwable> exceptionHandler) {
