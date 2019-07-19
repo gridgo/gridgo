@@ -26,8 +26,8 @@ public final class BSerializerRegistry {
      * <b>'gridgo.bean.serializer.binary.default'</b>, in case it's not defined, use
      * default msgpack
      */
-    public static final String SYSTEM_DEFAULT_BINARY_SERIALIZER = System
-            .getProperty("gridgo.bean.serializer.binary.default", MsgpackSerializer.NAME);
+    public static final String SYSTEM_DEFAULT_BINARY_SERIALIZER = System.getProperty(
+            "gridgo.bean.serializer.binary.default", MsgpackSerializer.NAME);
 
     private final AtomicReference<String> defaultSerializerName = new AtomicReference<>(null);
     private BSerializer cachedDefaultSerializer = null;
