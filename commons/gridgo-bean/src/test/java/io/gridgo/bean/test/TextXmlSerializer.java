@@ -18,16 +18,16 @@ public class TextXmlSerializer {
     @Test
     public void testXmlSerializer() {
         var obj = BObject.ofEmpty() //
-                .setAny("bool", false) //
-                .set("int", BValue.of(1)) //
-                .setAny("long", 1L) //
-                .setAny("char", 'a') //
-                .setAny("str", "hello") //
-                .setAny("double", 1.11) //
-                .setAny("byte", (byte) 1) //
-                .setAny("raw", new byte[] { 1, 2, 3, 4, 5, 6 }) //
-                .setAny("arr", new int[] { 1, 2, 3 }) //
-                .set("obj", BObject.ofEmpty().setAny("int", 2)) //
+                         .setAny("bool", false) //
+                         .set("int", BValue.of(1)) //
+                         .setAny("long", 1L) //
+                         .setAny("char", 'a') //
+                         .setAny("str", "hello") //
+                         .setAny("double", 1.11) //
+                         .setAny("byte", (byte) 1) //
+                         .setAny("raw", new byte[] { 1, 2, 3, 4, 5, 6 }) //
+                         .setAny("arr", new int[] { 1, 2, 3 }) //
+                         .set("obj", BObject.ofEmpty().setAny("int", 2)) //
         ;
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();

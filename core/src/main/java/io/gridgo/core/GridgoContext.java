@@ -53,6 +53,6 @@ public interface GridgoContext extends GatewayContainer, ComponentLifecycle {
     public ConnectorFactory getConnectorFactory();
 
     public Consumer<Throwable> getExceptionHandler();
-    
+
     public List<ContextAwareComponent> getComponents();
 }

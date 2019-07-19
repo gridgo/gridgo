@@ -50,9 +50,9 @@ public class MutableBObject extends AbstractBObject {
 
     public void putAll(@NonNull Map<? extends String, ? extends BElement> m) {
         holder.putAll(m.entrySet() //
-                .stream() //
-                .filter(entry -> entry.getKey() != null && entry.getValue() != null) //
-                .collect(Collectors.toMap(Entry::getKey, Entry::getValue)));
+                       .stream() //
+                       .filter(entry -> entry.getKey() != null && entry.getValue() != null) //
+                       .collect(Collectors.toMap(Entry::getKey, Entry::getValue)));
     }
 
     public void clear() {

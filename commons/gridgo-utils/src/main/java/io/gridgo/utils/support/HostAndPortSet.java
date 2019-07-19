@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Function;
 
-import org.apache.commons.lang3.StringUtils;
+import io.gridgo.utils.StringUtils;
 
 public class HostAndPortSet extends HashSet<HostAndPort> {
 
@@ -33,7 +33,7 @@ public class HostAndPortSet extends HashSet<HostAndPort> {
 
     @Override
     public String toString() {
-        return StringUtils.join(this.toArray(new HostAndPort[0]), ",");
+        return StringUtils.implodeWithGlue(",", this);
     }
 
     public <T> List<T> convert(Function<HostAndPort, T> processor) {

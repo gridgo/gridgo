@@ -6,9 +6,8 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
-
 import io.gridgo.utils.InetAddressUtils;
+import io.gridgo.utils.StringUtils;
 import io.gridgo.utils.exception.MalformedHostAndPortException;
 import lombok.Getter;
 import lombok.NonNull;
@@ -189,7 +188,7 @@ public class HostAndPort {
             result.setHost(arr[0]);
         } else if (arr.length > 1) {
             result.setPort(Integer.parseInt(arr[arr.length - 1]));
-            result.setHost(StringUtils.join(arr, ":", 0, arr.length - 1));
+            result.setHost(StringUtils.implodeWithGlue(":", arr, 0, arr.length - 1));
         }
         return result;
     }

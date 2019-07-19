@@ -25,7 +25,8 @@ public final class Assert {
 
     public static void errorIf(boolean expectedFalse, String errorMessageFormat, Object... args) {
         if (expectedFalse) {
-            throw new AssertionException(errorMessageFormat == null ? "Assertion error" : String.format(errorMessageFormat, args));
+            throw new AssertionException(
+                    errorMessageFormat == null ? "Assertion error" : String.format(errorMessageFormat, args));
         }
     }
 

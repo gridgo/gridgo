@@ -72,6 +72,23 @@ public class ThreadUtils {
     }
 
     /**
+     * Sleep current thread without exception throwing
+     * 
+     * @param millis time to sleep
+     * 
+     * @return false if current thread got interrupted, true otherwise
+     */
+    public static final boolean sleepSilence(long millis) {
+        try {
+            Thread.sleep(millis);
+            return true;
+        } catch (InterruptedException e) {
+            // ignore
+        }
+        return false;
+    }
+
+    /**
      * Stop current thread using LockSupport.parkNanos(nanoSegment) calling inside a
      * while loop <br>
      * Break if process is shutdown or breakSignal return true

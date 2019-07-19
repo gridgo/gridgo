@@ -52,6 +52,13 @@ public class StringUtilsUnitTest {
     }
 
     @Test
+    public void testImplodeWithGlueWithBound() {
+        String text = "string to bind them";
+        String[] array = new String[] { "one", "string", "to", "bind", "them", "all" };
+        Assert.assertEquals(text, StringUtils.implodeWithGlue(" ", array, 1, array.length - 1));
+    }
+
+    @Test
     public void testTab() {
         Assert.assertEquals("\t\t\t\t", StringUtils.tabs(4));
     }
