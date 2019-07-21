@@ -1,5 +1,7 @@
 package io.gridgo.connector;
 
+import java.util.Optional;
+
 /**
  * Represents a datasource provider
  *
@@ -7,5 +9,5 @@ package io.gridgo.connector;
  */
 public interface DataSourceProvider<T> {
 
-    public T getDataSource();
+    public Optional<T> getDataSource();
 }
