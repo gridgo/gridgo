@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -129,22 +130,6 @@ public final class ObjectUtils {
 
         public void apply(Object target, Object value) {
             try {
-                if (Set.class == this.getParamType() && !(value instanceof Set)) {
-                    var set = new HashSet<>();
-                    if (value instanceof Collection<?>) {
-                        set.addAll((Collection<?>) value);
-                    } else if (value.getClass().isArray()) {
-                        if (this.componentType == value.getClass()) {
-                            set.add(value);
-                        } else {
-                            ArrayUtils.foreach(value, ele -> set.add(ele));
-                        }
-                    } else {
-                        set.add(value);
-                    }
-                    value = set;
-                }
-
                 if (this.usingMethod) {
                     this.method.invoke(target, value);
                 } else {
@@ -210,25 +195,27 @@ public final class ObjectUtils {
                     }
                 } else if (ArrayUtils.isArrayOrCollection(setter.getParamType())
                         && ArrayUtils.isArrayOrCollection(value.getClass())) {
-                    final List list = new ArrayList<>();
+                    final Collection collection = Set.class.isAssignableFrom(setter.getParamType()) ? new HashSet<>()
+                            : new LinkedList<>();
                     ArrayUtils.foreach(value, element -> {
                         try {
                             if (PrimitiveUtils.isPrimitive(element.getClass())) {
-                                list.add(PrimitiveUtils.getValueFrom(setter.getComponentType(), element));
+                                collection.add(PrimitiveUtils.getValueFrom(setter.getComponentType(), element));
                             } else if (element instanceof Map) {
-                                list.add(fromMap(setter.getComponentType(), (Map) element));
+                                collection.add(fromMap(setter.getComponentType(), (Map) element));
                             }
                         } catch (Exception e) {
                             throw new RuntimeException(e);
                         }
                     });
                     if (Collection.class.isAssignableFrom(setter.getParamType())) {
-                        setter.apply(result, list);
+                        setter.apply(result, collection);
                     } else if (setter.getParamType().isArray()) {
                         if (setter.getComponentType().isPrimitive()) {
-                            setter.apply(result, ArrayUtils.toPrimitiveTypeArray(setter.getComponentType(), list));
+                            setter.apply(result,
+                                    ArrayUtils.toPrimitiveTypeArray(setter.getComponentType(), (List) collection));
                         } else {
-                            setter.apply(result, ArrayUtils.toArray(setter.getComponentType(), list));
+                            setter.apply(result, ArrayUtils.toArray(setter.getComponentType(), (List) collection));
                         }
                     }
                 } else {
