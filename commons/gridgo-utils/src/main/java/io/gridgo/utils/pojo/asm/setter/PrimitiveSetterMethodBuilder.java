@@ -58,7 +58,7 @@ public class PrimitiveSetterMethodBuilder extends AbstractSetterMethodBuilder {
 
     @Override
     protected String extractParamDescriptor(Class<?> type) {
-        return this.target;
+        return this.target != null ? this.target : super.extractParamDescriptor(type);
     }
 
     @Override
