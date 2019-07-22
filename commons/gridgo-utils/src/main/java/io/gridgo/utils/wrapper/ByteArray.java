@@ -40,11 +40,11 @@ public class ByteArray implements Serializable, Comparable<ByteArray> {
     private final int hashCodeCalculatorId;
 
     private transient String cachedString = null;
-    
+
     private transient String cachedBase64 = null;
-    
+
     private transient Integer cachedHashCode = null;
-    
+
     private transient BinaryHashCodeCalculator hashCodeCalculator = null;
 
     private ByteArray(byte[] source) {

@@ -38,7 +38,8 @@ public final class ArrayUtils {
                     callback.apply((T) element);
                 }
             } else {
-                throw new IllegalArgumentException("cannot perform foreach for unsupported type: " + arrayOrCollection.getClass().getName());
+                throw new IllegalArgumentException(
+                        "cannot perform foreach for unsupported type: " + arrayOrCollection.getClass().getName());
             }
         }
     }
@@ -132,6 +133,7 @@ public final class ArrayUtils {
             return ((List) arrayOrList).get(index);
         if (arrayOrList.getClass().isArray())
             return Array.get(arrayOrList, index);
-        throw new IllegalArgumentException("First argument expected an array or a list, got: " + arrayOrList.getClass());
+        throw new IllegalArgumentException(
+                "First argument expected an array or a list, got: " + arrayOrList.getClass());
     }
 }

@@ -75,8 +75,8 @@ public class BObjectUnitTest {
         Assert.assertEquals("hello", obj.getString("str", null));
         Assert.assertArrayEquals(new Integer[] { 1, 2, 3 }, //
                 obj.getArray("arr", BArray.ofEmpty()).stream() //
-                        .map(e -> e.asValue().getData()) //
-                        .toArray(size -> new Integer[size]));
+                   .map(e -> e.asValue().getData()) //
+                   .toArray(size -> new Integer[size]));
         Assert.assertEquals(Long.valueOf(1L), obj.getLong("long", -1));
         Assert.assertEquals(Character.valueOf('a'), obj.getChar("char", '\0'));
         Assert.assertEquals(1.11, obj.getDouble("double", -1), 0);

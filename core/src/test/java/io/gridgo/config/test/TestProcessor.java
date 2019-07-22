@@ -6,13 +6,13 @@ import io.gridgo.core.support.RoutingContext;
 import io.gridgo.framework.support.Registry;
 
 public class TestProcessor implements Processor {
-    
+
     public TestProcessor(Registry registry) {
-        
+
     }
 
     @Override
     public void process(RoutingContext rc, GridgoContext gc) {
-        
+
     }
 }

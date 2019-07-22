@@ -5,7 +5,7 @@ import io.gridgo.core.support.ContextAwareComponent;
 import lombok.Setter;
 
 public class TestComponent implements ContextAwareComponent {
-    
+
     @Setter
     private GridgoContext context;
 

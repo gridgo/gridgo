@@ -127,7 +127,8 @@ public class PrimitiveUtilsUnitTest {
     public void testGetString() {
         Assert.assertEquals(null, PrimitiveUtils.getStringValueFrom(null));
         Assert.assertEquals("abc", PrimitiveUtils.getStringValueFrom("abc"));
-        Assert.assertEquals(new String(new byte[] { 100, 50, 25, 75, 90 }), PrimitiveUtils.getStringValueFrom(new byte[] { 100, 50, 25, 75, 90 }));
+        Assert.assertEquals(new String(new byte[] { 100, 50, 25, 75, 90 }),
+                PrimitiveUtils.getStringValueFrom(new byte[] { 100, 50, 25, 75, 90 }));
         Assert.assertEquals("127", PrimitiveUtils.getStringValueFrom(127));
         Assert.assertEquals("class io.gridgo.utils.PrimitiveUtils", PrimitiveUtils.class.toString());
     }
