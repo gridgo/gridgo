@@ -82,4 +82,13 @@ public class TestPojoSetterSimple2 {
         PojoUtils.setValue(target, fieldName, value);
         assertEquals(value, target.getDoubleValue(), 0.01);
     }
+
+    @Test
+    public void testSimpleString() throws Exception {
+        String fieldName = "stringValue";
+        String value = "test text";
+
+        PojoUtils.setValue(target, fieldName, value);
+        assertEquals(value, target.getStringValue());
+    }
 }

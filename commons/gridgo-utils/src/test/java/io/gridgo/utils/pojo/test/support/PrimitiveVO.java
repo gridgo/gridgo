@@ -20,4 +20,6 @@ public class PrimitiveVO {
     private float floatValue;
 
     private double doubleValue;
+    
+    private String stringValue;
 }

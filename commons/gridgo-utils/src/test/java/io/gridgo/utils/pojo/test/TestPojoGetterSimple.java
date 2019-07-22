@@ -98,4 +98,15 @@ public class TestPojoGetterSimple {
         var got = PojoUtils.getValue(target, fieldName);
         assertEquals(value, got);
     }
+
+    @Test
+    public void testPrimitiveString() {
+        String fieldName = "stringValue";
+        String value = "test text";
+
+        target.setStringValue(value);
+
+        var got = PojoUtils.getValue(target, fieldName);
+        assertEquals(value, got);
+    }
 }
