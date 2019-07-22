@@ -1,4 +1,4 @@
-package io.gridgo.utils.pojo;
+package io.gridgo.utils.pojo.asm;
 
 import lombok.Getter;
 
@@ -8,10 +8,10 @@ public class DynamicClassLoader extends ClassLoader {
     private static final DynamicClassLoader instance = new DynamicClassLoader();
 
     private DynamicClassLoader() {
-        super(DynamicClassLoader.class.getClassLoader());
+        super(Thread.currentThread().getContextClassLoader());
     }
 
-    public Class<?> define(String className, byte[] bytecode) {
+    public Class<?> loadByteCode(String className, byte[] bytecode) {
         return super.defineClass(className, bytecode, 0, bytecode.length);
     }
 }
