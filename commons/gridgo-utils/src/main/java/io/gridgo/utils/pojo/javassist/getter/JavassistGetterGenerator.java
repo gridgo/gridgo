@@ -1,4 +1,4 @@
-package io.gridgo.utils.pojo.getter.javassist;
+package io.gridgo.utils.pojo.javassist.getter;
 
 import java.util.UUID;
 

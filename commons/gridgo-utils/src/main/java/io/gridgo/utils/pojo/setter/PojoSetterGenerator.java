@@ -2,6 +2,7 @@ package io.gridgo.utils.pojo.setter;
 
 import io.gridgo.utils.pojo.PojoMethodSignature;
 import io.gridgo.utils.pojo.asm.setter.AsmSetterGenerator;
+import io.gridgo.utils.pojo.javassist.setter.JavassistSetterGenerator;
 
 public interface PojoSetterGenerator {
 

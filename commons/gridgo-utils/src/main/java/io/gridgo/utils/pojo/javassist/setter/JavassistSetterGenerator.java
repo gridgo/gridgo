@@ -1,14 +1,16 @@
-package io.gridgo.utils.pojo.setter;
+package io.gridgo.utils.pojo.javassist.setter;
 
 import java.util.UUID;
 
 import io.gridgo.utils.pojo.PojoMethodSignature;
+import io.gridgo.utils.pojo.setter.PojoSetter;
+import io.gridgo.utils.pojo.setter.PojoSetterGenerator;
 import javassist.ClassClassPath;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
 
-class JavassistSetterGenerator implements PojoSetterGenerator {
+public class JavassistSetterGenerator implements PojoSetterGenerator {
 
     @Override
     @SuppressWarnings("unchecked")

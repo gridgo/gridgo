@@ -2,7 +2,7 @@ package io.gridgo.utils.pojo.getter;
 
 import io.gridgo.utils.pojo.PojoMethodSignature;
 import io.gridgo.utils.pojo.asm.getter.AsmGetterGenerator;
-import io.gridgo.utils.pojo.getter.javassist.JavassistGetterGenerator;
+import io.gridgo.utils.pojo.javassist.getter.JavassistGetterGenerator;
 
 public interface PojoGetterGenerator {
 
