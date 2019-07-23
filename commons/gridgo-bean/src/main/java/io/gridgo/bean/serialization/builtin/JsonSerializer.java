@@ -1,4 +1,4 @@
-package io.gridgo.bean.serialization.text;
+package io.gridgo.bean.serialization.builtin;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,14 +18,15 @@ import net.minidev.json.JSONValue;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
 
-@BSerializationPlugin(ImmutableJsonSerializer.NAME)
-public class ImmutableJsonSerializer extends AbstractBSerializer {
+@BSerializationPlugin(JsonSerializer.NAME)
+public class JsonSerializer extends AbstractBSerializer {
 
-    public static final String NAME = "jsonro";
+    public static final String NAME = "json";
 
     @Override
     public void serialize(@NonNull BElement element, @NonNull OutputStream out) {
-        try (var outWriter = new OutputStreamWriter(out)) {
+        var outWriter = new OutputStreamWriter(out);
+        try {
             if (element.isArray()) {
                 JSONArray.writeJSONString(element.asArray().toJsonElement(), outWriter);
             } else if (element.isObject()) {
@@ -33,6 +34,7 @@ public class ImmutableJsonSerializer extends AbstractBSerializer {
             } else {
                 JSONValue.writeJSONString(element.toJsonElement(), outWriter);
             }
+            outWriter.flush();
         } catch (IOException e) {
             throw new RuntimeIOException("Error while write out json", e);
         }
@@ -41,7 +43,7 @@ public class ImmutableJsonSerializer extends AbstractBSerializer {
     @Override
     public BElement deserialize(@NonNull InputStream in) {
         try {
-            return getFactory().wrap(new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE).parse(in));
+            return getFactory().fromAny(new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE).parse(in));
         } catch (UnsupportedEncodingException | ParseException e) {
             throw new BeanSerializationException("Cannot parse json");
         }

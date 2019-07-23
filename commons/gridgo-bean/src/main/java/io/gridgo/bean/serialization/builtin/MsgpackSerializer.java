@@ -1,4 +1,4 @@
-package io.gridgo.bean.serialization.raw;
+package io.gridgo.bean.serialization.builtin;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,10 +20,8 @@ import io.gridgo.bean.exceptions.InvalidTypeException;
 import io.gridgo.bean.serialization.AbstractBSerializer;
 import io.gridgo.bean.serialization.BSerializationPlugin;
 import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
-@BSerializationPlugin({ MsgpackSerializer.NAME, "raw" })
+@BSerializationPlugin(MsgpackSerializer.NAME)
 public class MsgpackSerializer extends AbstractBSerializer {
 
     public static final String NAME = "msgpack";
@@ -36,8 +34,7 @@ public class MsgpackSerializer extends AbstractBSerializer {
         } else if (element instanceof BObject) {
             this.packObject(element.asObject(), packer);
         } else {
-            if (log.isWarnEnabled())
-                log.warn("Unrecoginzed BElement implementation: {}", element.getClass());
+            // ignore
         }
     }
 
@@ -90,9 +87,8 @@ public class MsgpackSerializer extends AbstractBSerializer {
         for (var entry : object.entrySet()) {
             if (entry.getValue().isValue() || entry.getValue().isArray() || entry.getValue().isObject()) {
                 tobePacked.put(entry.getKey(), entry.getValue());
-            } else if (log.isWarnEnabled()) {
-                log.warn("Ignore key {} while packing bObject because of value cannot be packed in msgpack format",
-                        entry.getKey());
+            } else {
+                // ignore
             }
         }
         packer.packMapHeader(tobePacked.size());

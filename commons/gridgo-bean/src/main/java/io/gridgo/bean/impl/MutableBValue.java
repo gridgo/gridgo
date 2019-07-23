@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 import io.gridgo.bean.BValue;
 import io.gridgo.bean.exceptions.InvalidTypeException;
-import io.gridgo.bean.serialization.text.BPrinter;
+import io.gridgo.bean.serialization.builtin.BPrinter;
 import io.gridgo.utils.PrimitiveUtils;
 import io.gridgo.utils.hash.BinaryHashCodeCalculator;
 import lombok.Getter;

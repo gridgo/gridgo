@@ -9,6 +9,7 @@ import org.cliffc.high_scale_lib.NonBlockingHashMap;
 import io.gridgo.bean.exceptions.SerializationPluginException;
 import io.gridgo.bean.factory.BFactory;
 import io.gridgo.bean.factory.BFactoryAware;
+import io.gridgo.bean.serialization.builtin.MsgpackSerializer;
 import io.gridgo.utils.helper.ClasspathScanner;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +26,7 @@ public final class BSerializerRegistry implements ClasspathScanner {
      * default raw
      */
     public static final String SYSTEM_DEFAULT_BINARY_SERIALIZER = System
-            .getProperty("gridgo.bean.serializer.binary.default", "raw");
+            .getProperty("gridgo.bean.serializer.binary.default", MsgpackSerializer.NAME);
 
     private final AtomicReference<String> defaultSerializerName = new AtomicReference<>();
     private BSerializer cachedDefaultSerializer = null;
@@ -39,7 +40,7 @@ public final class BSerializerRegistry implements ClasspathScanner {
     public BSerializerRegistry(@NonNull BFactory factory, @NonNull String defaultSerializerName) {
         this.factory = factory;
         this.setDefaultSerializerName(defaultSerializerName);
-        this.scan("", this.getClass().getClassLoader());
+        this.scan(this.getClass().getPackageName());
     }
 
     public Set<String> availableSerializers() {

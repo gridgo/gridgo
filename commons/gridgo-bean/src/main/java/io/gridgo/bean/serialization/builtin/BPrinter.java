@@ -1,4 +1,4 @@
-package io.gridgo.bean.serialization.text;
+package io.gridgo.bean.serialization.builtin;
 
 import java.io.IOException;
 import java.io.OutputStream;
