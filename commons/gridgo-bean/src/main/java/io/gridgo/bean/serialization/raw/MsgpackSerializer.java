@@ -1,4 +1,4 @@
-package io.gridgo.bean.serialization.msgpack;
+package io.gridgo.bean.serialization.raw;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -1,35 +1,33 @@
 package io.gridgo.bean.serialization;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.cliffc.high_scale_lib.NonBlockingHashMap;
-import org.reflections.Reflections;
 
 import io.gridgo.bean.exceptions.SerializationPluginException;
 import io.gridgo.bean.factory.BFactory;
 import io.gridgo.bean.factory.BFactoryAware;
-import io.gridgo.bean.serialization.msgpack.MsgpackSerializer;
+import io.gridgo.utils.helper.ClasspathScanner;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @SuppressWarnings("unchecked")
-public final class BSerializerRegistry {
+public final class BSerializerRegistry implements ClasspathScanner {
 
     private final BFactory factory;
 
     /**
      * take value from system property
      * <b>'gridgo.bean.serializer.binary.default'</b>, in case it's not defined, use
-     * default msgpack
+     * default raw
      */
-    public static final String SYSTEM_DEFAULT_BINARY_SERIALIZER = System.getProperty(
-            "gridgo.bean.serializer.binary.default", MsgpackSerializer.NAME);
+    public static final String SYSTEM_DEFAULT_BINARY_SERIALIZER = System
+            .getProperty("gridgo.bean.serializer.binary.default", "raw");
 
-    private final AtomicReference<String> defaultSerializerName = new AtomicReference<>(null);
+    private final AtomicReference<String> defaultSerializerName = new AtomicReference<>();
     private BSerializer cachedDefaultSerializer = null;
 
     private final Map<String, BSerializer> registry = new NonBlockingHashMap<String, BSerializer>();
@@ -41,7 +39,7 @@ public final class BSerializerRegistry {
     public BSerializerRegistry(@NonNull BFactory factory, @NonNull String defaultSerializerName) {
         this.factory = factory;
         this.setDefaultSerializerName(defaultSerializerName);
-        this.scan(this.getClass().getPackageName());
+        this.scan("", this.getClass().getClassLoader());
     }
 
     public Set<String> availableSerializers() {
@@ -75,6 +73,10 @@ public final class BSerializerRegistry {
                     if (this.cachedDefaultSerializer == null) {
                         if (log.isWarnEnabled()) {
                             log.warn("Serializer for default name " + currDefaultSerializerName + " doesn't exist");
+                        } else {
+                            new NullPointerException(
+                                    "Serializer for default name " + currDefaultSerializerName + " doesn't exist")
+                                            .printStackTrace();
                         }
                     }
                 }
@@ -115,15 +117,13 @@ public final class BSerializerRegistry {
         }
     }
 
+    @Override
     public void scan(@NonNull String packageName, ClassLoader... classLoaders) {
-        Reflections reflections = new Reflections(packageName, classLoaders);
-        Set<Class<?>> types = reflections.getTypesAnnotatedWith(BSerializationPlugin.class);
-        for (Class<?> clazz : types) {
-            if (!BSerializer.class.isAssignableFrom(clazz)) {
-                throw new SerializationPluginException(
-                        "Invalid serialization plugin, class must implement BSerializer");
-            }
-            BSerializationPlugin annotation = clazz.getAnnotation(BSerializationPlugin.class);
+        if (classLoaders == null || classLoaders.length == 0) {
+            classLoaders = new ClassLoader[] { Thread.currentThread().getContextClassLoader() };
+        }
+
+        scanForAnnotatedTypes(packageName, BSerializationPlugin.class, (clazz, annotation) -> {
             String[] names = annotation.value();
             if (names == null || names.length == 0) {
                 throw new SerializationPluginException("serialization plugin's name(s) must not be empty");
@@ -133,11 +133,10 @@ public final class BSerializerRegistry {
                 for (String name : names) {
                     this.register(name, serializer);
                 }
-            } catch (InstantiationException | IllegalAccessException | IllegalArgumentException
-                    | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+            } catch (Exception e) {
                 throw new SerializationPluginException(
                         "Cannot create instance for class " + clazz + ", require non-args constructor");
             }
-        }
+        }, classLoaders);
     }
 }
