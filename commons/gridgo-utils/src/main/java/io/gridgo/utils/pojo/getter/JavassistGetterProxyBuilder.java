@@ -17,11 +17,11 @@ class JavassistGetterProxyBuilder implements PojoGetterProxyBuilder {
     @Override
     @SuppressWarnings("unchecked")
     public PojoGetterProxy buildGetterWalker(Class<?> target) {
+        String className = target.getName().replaceAll("\\.", "_") + "_getter_proxy_" + System.nanoTime();
         try {
             ClassPool pool = ClassPool.getDefault();
             pool.insertClassPath(new ClassClassPath(target));
 
-            String className = target.getName().replaceAll("\\.", "_") + "_getter_proxy_" + System.nanoTime();
             CtClass cc = pool.makeClass(className);
 
             cc.defrost();
@@ -41,17 +41,17 @@ class JavassistGetterProxyBuilder implements PojoGetterProxyBuilder {
 
             buildGetFieldsMethod(cc, allFields);
 
-            buildGetValueMethod(typeName, cc, methodSignatures);
+            buildGetValueMethod(cc, typeName, methodSignatures);
 
-            buildWalkThroughMethod(typeName, cc, methodSignatures, allFields);
+            buildWalkThroughMethod(cc, typeName, methodSignatures, allFields);
 
             return (PojoGetterProxy) cc.toClass().getConstructor().newInstance();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("error while trying to build getter proxy: " + className, e);
         }
     }
 
-    private void buildGetValueMethod(String typeName, CtClass cc, List<PojoMethodSignature> methodSignatures)
+    private void buildGetValueMethod(CtClass cc, String typeName, List<PojoMethodSignature> methodSignatures)
             throws CannotCompileException {
         String castedTarget = "((" + typeName + ") target)";
         String method = "public Object getValue(Object target, String fieldName) { \n" //
@@ -72,7 +72,7 @@ class JavassistGetterProxyBuilder implements PojoGetterProxyBuilder {
         cc.addMethod(CtMethod.make(method, cc));
     }
 
-    private void buildWalkThroughMethod(String typeName, CtClass cc, List<PojoMethodSignature> methodSignatures,
+    private void buildWalkThroughMethod(CtClass cc, String typeName, List<PojoMethodSignature> methodSignatures,
             String allFields) throws CannotCompileException {
 
         String castedTarget = "((" + typeName + ") target)";
@@ -97,11 +97,10 @@ class JavassistGetterProxyBuilder implements PojoGetterProxyBuilder {
     }
 
     private void buildGetFieldsMethod(CtClass cc, String allFields) throws CannotCompileException {
-        CtField field = CtField.make("private final String[] fields = new String[] {" + allFields + "};", cc);
+        CtField field = CtField.make("private String[] fields = new String[] {" + allFields + "};", cc);
         cc.addField(field);
 
-        String method = "public void getFields() {return this.fields;}";
+        String method = "public String[] getFields() { return this.fields; }";
         cc.addMethod(CtMethod.make(method, cc));
     }
-
 }
