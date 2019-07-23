@@ -43,7 +43,7 @@ class JavassistGetterProxyBuilder implements PojoGetterProxyBuilder {
 
             buildGetValueMethod(typeName, cc, methodSignatures);
 
-            buildWalkThroughFieldsMethod(typeName, cc, methodSignatures, allFields);
+            buildWalkThroughMethod(typeName, cc, methodSignatures, allFields);
 
             return (PojoGetterProxy) cc.toClass().getConstructor().newInstance();
         } catch (Exception e) {
@@ -72,11 +72,11 @@ class JavassistGetterProxyBuilder implements PojoGetterProxyBuilder {
         cc.addMethod(CtMethod.make(method, cc));
     }
 
-    private void buildWalkThroughFieldsMethod(String typeName, CtClass cc, List<PojoMethodSignature> methodSignatures,
+    private void buildWalkThroughMethod(String typeName, CtClass cc, List<PojoMethodSignature> methodSignatures,
             String allFields) throws CannotCompileException {
 
         String castedTarget = "((" + typeName + ") target)";
-        String method = "public void walkThroughFields(Object target, io.gridgo.utils.pojo.getter.PojoGetterConsumer valueConsumer, String[] fields) { \n" //
+        String method = "public void walkThrough(Object target, io.gridgo.utils.pojo.getter.PojoGetterConsumer valueConsumer, String[] fields) { \n" //
                 + "\tif (fields == null || fields.length == 0) fields = new String[] {" + allFields + "};\n" //
                 + "\t" + typeName + " castedTarget = " + castedTarget + ";\n" //
                 + "\tfor (int i=0; i<fields.length; i++) { \n" //

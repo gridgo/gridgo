@@ -12,7 +12,7 @@ public class TestJavassistGetterWalker {
     public void testSimple() {
         PojoGetterProxyBuilder builder = PojoGetterProxyBuilder.newJavassist();
         PojoGetterProxy walker = builder.buildGetterWalker(PrimitiveVO.class);
-        walker.walkThroughFields(new PrimitiveVO(), (fieldName, value) -> {
+        walker.walkThrough(new PrimitiveVO(), (fieldName, value) -> {
             System.out.println(fieldName + " = " + value);
         }, "booleanValue", "intValue");
     }

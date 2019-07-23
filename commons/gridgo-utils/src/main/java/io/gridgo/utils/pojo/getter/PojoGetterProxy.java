@@ -6,5 +6,5 @@ public interface PojoGetterProxy {
 
     Object getValue(Object target, String fieldName);
 
-    void walkThroughFields(Object target, PojoGetterConsumer consumer, String... fields);
+    void walkThrough(Object target, PojoGetterConsumer consumer, String... fields);
 }

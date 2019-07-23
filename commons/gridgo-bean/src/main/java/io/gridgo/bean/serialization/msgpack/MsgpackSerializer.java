@@ -21,6 +21,7 @@ import io.gridgo.bean.exceptions.InvalidTypeException;
 import io.gridgo.bean.serialization.AbstractBSerializer;
 import io.gridgo.bean.serialization.BDeserializationConfig;
 import io.gridgo.bean.serialization.BSerializationPlugin;
+import io.gridgo.utils.exception.RuntimeIOException;
 import io.gridgo.utils.pojo.getter.PojoGetterProxy;
 import io.gridgo.utils.pojo.getter.PojoGetterRegistry;
 import lombok.NonNull;
@@ -30,17 +31,22 @@ public class MsgpackSerializer extends AbstractBSerializer {
 
     public static final String NAME = "msgpack";
 
-    private void packAny(BElement element, MessagePacker packer) throws IOException {
-        if (element instanceof BValue) {
-            this.packValue(element.asValue(), packer);
-        } else if (element instanceof BArray) {
-            this.packArray(element.asArray(), packer);
-        } else if (element instanceof BObject) {
-            this.packObject(element.asObject(), packer);
-        } else if (element instanceof BReference) {
-
+    private void packAny(Object obj, MessagePacker packer) throws IOException {
+        if (obj instanceof BElement) {
+            BElement element = (BElement) obj;
+            if (element instanceof BValue) {
+                this.packValue(element.asValue(), packer);
+            } else if (element instanceof BArray) {
+                this.packArray(element.asArray(), packer);
+            } else if (element instanceof BObject) {
+                this.packObject(element.asObject(), packer);
+            } else if (element instanceof BReference) {
+                this.packPojo(element.asReference().getReference(), packer);
+            } else {
+                throw new InvalidTypeException("Cannot serialize belement which instance of: " + element.getClass());
+            }
         } else {
-            // ignore
+            packPojo(obj, packer);
         }
     }
 
@@ -117,12 +123,17 @@ public class MsgpackSerializer extends AbstractBSerializer {
         }
     }
 
-    private void packReference(BReference ref, MessagePacker packer) throws IOException {
-        Object target = ref.getReference();
+    private void packPojo(Object target, MessagePacker packer) throws IOException {
         if (target != null) {
-            PojoGetterProxy walker = PojoGetterRegistry.getInstance().getGetterProxy(target.getClass());
-            walker.walkThroughFields(target, (fieldName, value) -> {
-
+            PojoGetterProxy proxy = PojoGetterRegistry.getInstance().getGetterProxy(target.getClass());
+            packer.packMapHeader(proxy.getFields().length);
+            proxy.walkThrough(target, (fieldName, value) -> {
+                try {
+                    packer.packString(fieldName);
+                    packAny(value, packer);
+                } catch (IOException e) {
+                    throw new RuntimeIOException(e);
+                }
             });
         } else {
             packer.packNil();
