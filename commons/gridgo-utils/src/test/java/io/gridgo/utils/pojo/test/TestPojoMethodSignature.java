@@ -7,11 +7,12 @@ import java.lang.reflect.Method;
 import org.junit.Test;
 
 import io.gridgo.utils.pojo.PojoMethodSignature;
+import io.gridgo.utils.pojo.test.support.AbstractTest;
 import io.gridgo.utils.pojo.test.support.CollectionVO;
 import io.gridgo.utils.pojo.test.support.PrimitiveArrayVO;
 import io.gridgo.utils.pojo.test.support.PrimitiveVO;
 
-public class TestPojoMethodSignature {
+public class TestPojoMethodSignature extends AbstractTest {
 
     @Test
     public void testMethodDescriptor() throws NoSuchMethodException, SecurityException {

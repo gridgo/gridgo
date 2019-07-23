@@ -34,7 +34,7 @@ public abstract class AbstractSingleSchemaSerializer<S> extends AbstractBSeriali
     }
 
     @Override
-    public final BElement deserialize(InputStream in) {
+    public final BElement deserialize(InputStream in, BDeserializationConfig config) {
         try {
             return BElement.wrapAny(doDeserialize(in));
         } catch (Exception e) {

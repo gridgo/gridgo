@@ -1,7 +1,7 @@
 package io.gridgo.bean.impl;
 
 import io.gridgo.bean.BReference;
-import io.gridgo.bean.serialization.builtin.BPrinter;
+import io.gridgo.bean.serialization.text.BPrinter;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

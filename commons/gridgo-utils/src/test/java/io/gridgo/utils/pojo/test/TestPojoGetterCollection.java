@@ -13,10 +13,11 @@ import java.util.Set;
 import org.junit.Test;
 
 import io.gridgo.utils.pojo.PojoUtils;
+import io.gridgo.utils.pojo.test.support.AbstractTest;
 import io.gridgo.utils.pojo.test.support.CollectionVO;
 import io.gridgo.utils.pojo.test.support.PrimitiveVO;
 
-public class TestPojoGetterCollection {
+public class TestPojoGetterCollection extends AbstractTest {
 
     private CollectionVO target = new CollectionVO();
 

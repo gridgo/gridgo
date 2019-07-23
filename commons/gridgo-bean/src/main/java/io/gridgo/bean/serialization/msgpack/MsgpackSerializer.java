@@ -1,4 +1,4 @@
-package io.gridgo.bean.serialization.builtin;
+package io.gridgo.bean.serialization.msgpack;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,14 +14,18 @@ import org.msgpack.core.MessageUnpacker;
 import io.gridgo.bean.BArray;
 import io.gridgo.bean.BElement;
 import io.gridgo.bean.BObject;
+import io.gridgo.bean.BReference;
 import io.gridgo.bean.BValue;
 import io.gridgo.bean.exceptions.BeanSerializationException;
 import io.gridgo.bean.exceptions.InvalidTypeException;
 import io.gridgo.bean.serialization.AbstractBSerializer;
+import io.gridgo.bean.serialization.BDeserializationConfig;
 import io.gridgo.bean.serialization.BSerializationPlugin;
+import io.gridgo.utils.pojo.getter.PojoGetterProxy;
+import io.gridgo.utils.pojo.getter.PojoGetterRegistry;
 import lombok.NonNull;
 
-@BSerializationPlugin(MsgpackSerializer.NAME)
+@BSerializationPlugin({ "raw", MsgpackSerializer.NAME })
 public class MsgpackSerializer extends AbstractBSerializer {
 
     public static final String NAME = "msgpack";
@@ -33,6 +37,8 @@ public class MsgpackSerializer extends AbstractBSerializer {
             this.packArray(element.asArray(), packer);
         } else if (element instanceof BObject) {
             this.packObject(element.asObject(), packer);
+        } else if (element instanceof BReference) {
+
         } else {
             // ignore
         }
@@ -108,6 +114,18 @@ public class MsgpackSerializer extends AbstractBSerializer {
         packer.packArrayHeader(tobePacked.size());
         for (var entry : tobePacked) {
             packAny(entry, packer);
+        }
+    }
+
+    private void packReference(BReference ref, MessagePacker packer) throws IOException {
+        Object target = ref.getReference();
+        if (target != null) {
+            PojoGetterProxy walker = PojoGetterRegistry.getInstance().getGetterProxy(target.getClass());
+            walker.walkThroughFields(target, (fieldName, value) -> {
+
+            });
+        } else {
+            packer.packNil();
         }
     }
 
@@ -204,7 +222,7 @@ public class MsgpackSerializer extends AbstractBSerializer {
     }
 
     @Override
-    public BElement deserialize(InputStream in) {
+    public BElement deserialize(InputStream in, BDeserializationConfig config) {
         try (var unpacker = MessagePack.newDefaultUnpacker(in)) {
             return this.unpackAny(unpacker);
         } catch (IOException e) {

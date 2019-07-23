@@ -1,11 +1,13 @@
 package io.gridgo.connector.support.transaction;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.joo.promise4j.Promise;
+import org.joo.promise4j.impl.SimpleDonePromise;
+
 import io.gridgo.connector.impl.AbstractProducer;
 import io.gridgo.connector.support.config.ConnectorContext;
 import io.gridgo.framework.support.Message;
-import org.joo.promise4j.Promise;
-import org.joo.promise4j.impl.SimpleDonePromise;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class AbstractTransaction extends AbstractProducer implements Transaction {
 

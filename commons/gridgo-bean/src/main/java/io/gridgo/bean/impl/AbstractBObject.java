@@ -4,7 +4,7 @@ import java.util.Map;
 
 import io.gridgo.bean.BElement;
 import io.gridgo.bean.BObject;
-import io.gridgo.bean.serialization.builtin.BPrinter;
+import io.gridgo.bean.serialization.text.BPrinter;
 
 @SuppressWarnings("unchecked")
 public abstract class AbstractBObject extends AbstractBContainer implements BObject {

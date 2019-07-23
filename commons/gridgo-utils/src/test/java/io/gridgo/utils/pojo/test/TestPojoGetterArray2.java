@@ -5,9 +5,10 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import io.gridgo.utils.pojo.PojoUtils;
+import io.gridgo.utils.pojo.test.support.AbstractTest;
 import io.gridgo.utils.pojo.test.support.PrimitiveArrayVO2;
 
-public class TestPojoGetterArray2 {
+public class TestPojoGetterArray2 extends AbstractTest {
 
     private PrimitiveArrayVO2 target = new PrimitiveArrayVO2();
 

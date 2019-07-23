@@ -1,7 +1,7 @@
 package io.gridgo.bean.impl;
 
 import io.gridgo.bean.BArray;
-import io.gridgo.bean.serialization.builtin.BPrinter;
+import io.gridgo.bean.serialization.text.BPrinter;
 import io.gridgo.utils.ArrayUtils;
 
 @SuppressWarnings("unchecked")

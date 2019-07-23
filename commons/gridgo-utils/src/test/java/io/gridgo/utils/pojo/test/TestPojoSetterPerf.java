@@ -4,9 +4,10 @@ import org.junit.Test;
 
 import io.gridgo.utils.ObjectUtils;
 import io.gridgo.utils.pojo.PojoUtils;
+import io.gridgo.utils.pojo.test.support.AbstractTest;
 import io.gridgo.utils.pojo.test.support.PrimitiveVO;
 
-public class TestPojoSetterPerf {
+public class TestPojoSetterPerf extends AbstractTest {
 
     private static final int TOTAL = 1000000;
 

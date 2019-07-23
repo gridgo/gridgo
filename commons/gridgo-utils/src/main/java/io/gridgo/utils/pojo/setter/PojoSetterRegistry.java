@@ -4,31 +4,31 @@ import java.util.Map;
 
 import org.cliffc.high_scale_lib.NonBlockingHashMap;
 
-import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NonNull;
 
-@AllArgsConstructor
 public class PojoSetterRegistry {
 
-    private final Map<String, PojoSetterSignatures> CACHED_SIGNATURES = new NonBlockingHashMap<>();
+    @Getter
+    private final static PojoSetterRegistry instance = new PojoSetterRegistry();
 
-    private final PojoSetterGenerator setterGenerator;
+    private final Map<String, PojoSetterProxy> CACHED_PROXIES = new NonBlockingHashMap<>();
 
-    public PojoSetterSignature getSetterMethodSignature(Class<?> type, String fieldName) {
-        PojoSetterSignatures setters = CACHED_SIGNATURES.get(type.getName());
-        if (setters == null) {
-            synchronized (CACHED_SIGNATURES) {
-                if (!CACHED_SIGNATURES.containsKey(type.getName())) {
-                    setters = new PojoSetterSignatures(type, setterGenerator);
-                    CACHED_SIGNATURES.put(type.getName(), setters);
-                } else {
-                    setters = CACHED_SIGNATURES.get(type.getName());
+    private final PojoSetterProxyBuilder proxyBuilder = PojoSetterProxyBuilder.newJavassist();
+
+    private PojoSetterRegistry() {
+        // do nothing
+    }
+
+    public PojoSetterProxy getSetterProxy(@NonNull Class<?> type) {
+        String typeName = type.getName();
+        if (!CACHED_PROXIES.containsKey(typeName)) {
+            synchronized (CACHED_PROXIES) {
+                if (!CACHED_PROXIES.containsKey(typeName)) {
+                    CACHED_PROXIES.put(typeName, this.proxyBuilder.buildSetterProxy(type));
                 }
             }
         }
-        return setters.getMethodSignature(fieldName);
-    }
-
-    public PojoSetterSignatures getSetterSignatures(Class<?> type) {
-        return CACHED_SIGNATURES.get(type.getName());
+        return CACHED_PROXIES.get(typeName);
     }
 }

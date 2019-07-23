@@ -9,7 +9,7 @@ import org.cliffc.high_scale_lib.NonBlockingHashMap;
 import io.gridgo.bean.exceptions.SerializationPluginException;
 import io.gridgo.bean.factory.BFactory;
 import io.gridgo.bean.factory.BFactoryAware;
-import io.gridgo.bean.serialization.builtin.MsgpackSerializer;
+import io.gridgo.bean.serialization.msgpack.MsgpackSerializer;
 import io.gridgo.utils.helper.ClasspathScanner;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;

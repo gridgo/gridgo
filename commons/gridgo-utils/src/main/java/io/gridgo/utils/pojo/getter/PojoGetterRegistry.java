@@ -4,31 +4,31 @@ import java.util.Map;
 
 import org.cliffc.high_scale_lib.NonBlockingHashMap;
 
-import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NonNull;
 
-@AllArgsConstructor
 public class PojoGetterRegistry {
 
-    private final Map<Class<?>, PojoGetterSignatures> CACHED_SIGNATURES = new NonBlockingHashMap<>();
+    @Getter
+    private static final PojoGetterRegistry instance = new PojoGetterRegistry();
 
-    private final PojoGetterGenerator getterGenerator;
+    private final Map<String, PojoGetterProxy> CACHED_PROXIES = new NonBlockingHashMap<>();
 
-    public PojoGetterSignature getGetterMethodSignature(Class<?> type, String fieldName) {
-        return getGetterSignatures(type).getMethodSignature(fieldName);
+    private final PojoGetterProxyBuilder walkerBuilder = PojoGetterProxyBuilder.newJavassist();
+
+    private PojoGetterRegistry() {
+        // do nothing
     }
 
-    public PojoGetterSignatures getGetterSignatures(Class<?> type) {
-        PojoGetterSignatures getterSignatures = CACHED_SIGNATURES.get(type);
-        if (getterSignatures == null) {
-            synchronized (CACHED_SIGNATURES) {
-                if (!CACHED_SIGNATURES.containsKey(type)) {
-                    getterSignatures = new PojoGetterSignatures(type, getterGenerator);
-                    CACHED_SIGNATURES.put(type, getterSignatures);
-                } else {
-                    getterSignatures = CACHED_SIGNATURES.get(type);
+    public PojoGetterProxy getGetterProxy(@NonNull Class<?> type) {
+        String typeName = type.getName();
+        if (!CACHED_PROXIES.containsKey(typeName)) {
+            synchronized (CACHED_PROXIES) {
+                if (!CACHED_PROXIES.containsKey(typeName)) {
+                    CACHED_PROXIES.put(typeName, walkerBuilder.buildGetterWalker(type));
                 }
             }
         }
-        return getterSignatures;
+        return CACHED_PROXIES.get(typeName);
     }
 }

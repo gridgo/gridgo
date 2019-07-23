@@ -1,6 +1,6 @@
 package io.gridgo.utils.pojo.getter;
 
-public interface PojoGetterWalkerConsumer {
+public interface PojoGetterConsumer {
 
     void accept(String fieldName, Object value);
 }

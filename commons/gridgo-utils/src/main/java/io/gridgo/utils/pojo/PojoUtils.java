@@ -1,55 +1,78 @@
 package io.gridgo.utils.pojo;
 
-import java.util.Map.Entry;
-import java.util.function.BiConsumer;
+import static io.gridgo.utils.StringUtils.lowerCaseFirstLetter;
 
-import io.gridgo.utils.pojo.getter.PojoGetter;
-import io.gridgo.utils.pojo.getter.PojoGetterGenerator;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+
+import io.gridgo.utils.StringUtils;
 import io.gridgo.utils.pojo.getter.PojoGetterRegistry;
-import io.gridgo.utils.pojo.getter.PojoGetterSignature;
-import io.gridgo.utils.pojo.getter.PojoGetterSignatures;
-import io.gridgo.utils.pojo.setter.PojoSetter;
-import io.gridgo.utils.pojo.setter.PojoSetterGenerator;
 import io.gridgo.utils.pojo.setter.PojoSetterRegistry;
-import io.gridgo.utils.pojo.setter.PojoSetterSignature;
-import io.gridgo.utils.pojo.setter.PojoSetterSignatures;
+import lombok.NonNull;
 
 public class PojoUtils {
 
-    private static final PojoGetterRegistry GETTER_REGISTRY = new PojoGetterRegistry(
-            PojoGetterGenerator.newJavassist());
+    private static final PojoGetterRegistry GETTER_REGISTRY = PojoGetterRegistry.getInstance();
+    private static final PojoSetterRegistry SETTER_REGISTRY = PojoSetterRegistry.getInstance();
 
-    private static final PojoSetterRegistry SETTER_REGISTRY = new PojoSetterRegistry(
-            PojoSetterGenerator.newJavassist());
+    private static final String SETTER_PREFIX = "set";
+    private final static Set<String> GETTER_PREFIXES = new HashSet<String>(Arrays.asList("get", "is"));
 
-    public static final void walkThroughGetters(Class<?> targetType, BiConsumer<String, PojoGetter> getterConsumer) {
-        PojoGetterSignatures getters = GETTER_REGISTRY.getGetterSignatures(targetType);
-        for (Entry<String, PojoGetterSignature> entry : getters) {
-            getterConsumer.accept(entry.getKey(), entry.getValue().getGetter());
+    public static List<PojoMethodSignature> extractSetterMethodSignatures(Class<?> targetType) {
+        var results = new LinkedList<PojoMethodSignature>();
+        Method[] methods = targetType.getDeclaredMethods();
+        for (Method method : methods) {
+            if (method.getParameterCount() == 1 && method.getReturnType() == Void.TYPE
+                    && method.getName().startsWith(SETTER_PREFIX)) {
+
+                String _fieldName = StringUtils.lowerCaseFirstLetter(method.getName().substring(3));
+
+                Parameter param = method.getParameters()[0];
+                Class<?> paramType = param.getType();
+
+                results.add(PojoMethodSignature.builder() //
+                        .fieldName(_fieldName) //
+                        .method(method) //
+                        .fieldType(paramType) //
+                        .build());
+            }
         }
+        return results;
     }
 
-    public static final void walkThroughValueFromGetters(Object target, BiConsumer<String, Object> valueConsumer) {
-        walkThroughGetters(target.getClass(),
-                (fieldName, getter) -> valueConsumer.accept(fieldName, getter.get(target)));
-    }
+    public static final List<PojoMethodSignature> extractGetterMethodSignatures(@NonNull Class<?> targetType) {
+        var results = new LinkedList<PojoMethodSignature>();
+        Method[] methods = targetType.getDeclaredMethods();
+        for (Method method : methods) {
+            if (method.getParameterCount() == 0 //
+                    && method.getReturnType() != Void.TYPE //
+                    && GETTER_PREFIXES.stream().anyMatch(prefix -> method.getName().startsWith(prefix))) {
 
-    public static final Object getValue(Object target, String fieldName) {
-        return GETTER_REGISTRY.getGetterMethodSignature(target.getClass(), fieldName).getGetter().get(target);
-    }
+                String _fieldName = lowerCaseFirstLetter(
+                        method.getName().substring(method.getName().startsWith("is") ? 2 : 3));
 
-    public static final void setValue(Object target, String fieldName, Object value) {
-        SETTER_REGISTRY.getSetterMethodSignature(target.getClass(), fieldName).getSetter().set(target, value);
-    }
+                Class<?> fieldType = method.getReturnType();
 
-    public static final void walkThroughSetters(Class<?> targetType, BiConsumer<String, PojoSetter> setterConsumer) {
-        PojoSetterSignatures setters = SETTER_REGISTRY.getSetterSignatures(targetType);
-        for (Entry<String, PojoSetterSignature> entry : setters) {
-            setterConsumer.accept(entry.getKey(), entry.getValue().getSetter());
+                results.add(PojoMethodSignature.builder() //
+                        .fieldName(_fieldName) //
+                        .method(method) //
+                        .fieldType(fieldType) //
+                        .build());
+            }
         }
+        return results;
     }
 
-    public static final void walkThroughAndSet(Object target, ValueProvider valueProvider) {
-        walkThroughSetters(target.getClass(), (fieldName, setter) -> setter.set(target, valueProvider.get(fieldName)));
+    public static final Object getValue(@NonNull Object target, @NonNull String fieldName) {
+        return GETTER_REGISTRY.getGetterProxy(target.getClass()).getValue(target, fieldName);
+    }
+
+    public static final void setValue(@NonNull Object target, @NonNull String fieldName, Object value) {
+        SETTER_REGISTRY.getSetterProxy(target.getClass()).applyValue(target, fieldName, value);
     }
 }
