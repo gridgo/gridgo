@@ -14,21 +14,21 @@ public class PojoGetterRegistry {
     private final PojoGetterGenerator getterGenerator;
 
     public PojoGetterSignature getGetterMethodSignature(Class<?> type, String fieldName) {
-        PojoGetterSignatures getterSignatures = getGetterSignatures(type);
+        return getGetterSignatures(type).getMethodSignature(fieldName);
+    }
+
+    public PojoGetterSignatures getGetterSignatures(Class<?> type) {
+        PojoGetterSignatures getterSignatures = CACHED_SIGNATURES.get(type);
         if (getterSignatures == null) {
             synchronized (CACHED_SIGNATURES) {
                 if (!CACHED_SIGNATURES.containsKey(type)) {
                     getterSignatures = new PojoGetterSignatures(type, getterGenerator);
                     CACHED_SIGNATURES.put(type, getterSignatures);
                 } else {
-                    getterSignatures = getGetterSignatures(type);
+                    getterSignatures = CACHED_SIGNATURES.get(type);
                 }
             }
         }
-        return getterSignatures.getMethodSignature(fieldName);
-    }
-
-    public PojoGetterSignatures getGetterSignatures(Class<?> type) {
-        return CACHED_SIGNATURES.get(type);
+        return getterSignatures;
     }
 }

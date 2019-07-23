@@ -1,7 +1,5 @@
 package io.gridgo.utils.pojo.javassist.setter;
 
-import java.util.UUID;
-
 import io.gridgo.utils.pojo.PojoMethodSignature;
 import io.gridgo.utils.pojo.setter.PojoSetter;
 import io.gridgo.utils.pojo.setter.PojoSetterGenerator;
@@ -19,20 +17,33 @@ public class JavassistSetterGenerator implements PojoSetterGenerator {
             ClassPool pool = ClassPool.getDefault();
             pool.insertClassPath(new ClassClassPath(type));
 
-            CtClass cc = pool.makeClass(UUID.randomUUID().toString());
+            String className = type.getName().replaceAll("\\.", "_") + "_" + signature.getMethodName() + "_invoker";
+            CtClass cc = pool.makeClass(className);
+
             CtClass implementedInterface = pool.get(PojoSetter.class.getName());
             cc.addInterface(implementedInterface);
 
-            StringBuffer method = new StringBuffer() //
-                    .append("public void set(Object target, Object value) {") //
-                    .append("((").append(type.getName()).append(") target).").append(signature.getMethodName()) //
-                    .append("((").append(signature.getFieldType().getName()).append(") value);") //
-                    .append("}");
+            var method = new StringBuilder() //
+                    .append("public void set(Object target, Object value) { \n") //
+                    .append("\t((").append(type.getName()).append(") target).").append(signature.getMethodName())
+                    .append("(");
+
+            Class<?> fieldType = signature.getFieldType();
+            if (fieldType.isPrimitive()) {
+                Class<?> wrapperType = signature.getWrapperType();
+                method.append("((" + wrapperType.getTypeName() + ") value)." + fieldType.getTypeName() + "Value()");
+            } else {
+                method.append("(" + fieldType.getTypeName() + ") value");
+            }
+
+            method.append(");\n}");
 
             cc.addMethod(CtMethod.make(method.toString(), cc));
             return (PojoSetter) cc.toClass().getConstructor().newInstance();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(
+                    "error while building setter, target: " + type.getName() + ", field: " + signature.getFieldName(),
+                    e);
         }
     }
 }

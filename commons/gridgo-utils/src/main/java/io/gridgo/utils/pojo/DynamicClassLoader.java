@@ -1,4 +1,4 @@
-package io.gridgo.utils.pojo.asm;
+package io.gridgo.utils.pojo;
 
 import lombok.Getter;
 

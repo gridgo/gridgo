@@ -16,9 +16,11 @@ import io.gridgo.utils.pojo.setter.PojoSetterSignatures;
 
 public class PojoUtils {
 
-    private static final PojoGetterRegistry GETTER_REGISTRY = new PojoGetterRegistry(PojoGetterGenerator.newAsm());
+    private static final PojoGetterRegistry GETTER_REGISTRY = new PojoGetterRegistry(
+            PojoGetterGenerator.newJavassist());
 
-    private static final PojoSetterRegistry SETTER_REGISTRY = new PojoSetterRegistry(PojoSetterGenerator.newAsm());
+    private static final PojoSetterRegistry SETTER_REGISTRY = new PojoSetterRegistry(
+            PojoSetterGenerator.newJavassist());
 
     public static final void walkThroughGetters(Class<?> targetType, BiConsumer<String, PojoGetter> getterConsumer) {
         PojoGetterSignatures getters = GETTER_REGISTRY.getGetterSignatures(targetType);

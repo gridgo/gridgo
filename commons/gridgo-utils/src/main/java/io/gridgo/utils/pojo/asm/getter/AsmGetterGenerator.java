@@ -10,9 +10,9 @@ import static org.objectweb.asm.Opcodes.V1_7;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 
+import io.gridgo.utils.pojo.DynamicClassLoader;
 import io.gridgo.utils.pojo.PojoMethodSignature;
 import io.gridgo.utils.pojo.asm.AsmMethodBuilder;
-import io.gridgo.utils.pojo.asm.DynamicClassLoader;
 import io.gridgo.utils.pojo.getter.PojoGetter;
 import io.gridgo.utils.pojo.getter.PojoGetterGenerator;
 

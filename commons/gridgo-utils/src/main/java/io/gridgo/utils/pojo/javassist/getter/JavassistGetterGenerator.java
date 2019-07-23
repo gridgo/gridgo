@@ -23,11 +23,30 @@ public class JavassistGetterGenerator implements PojoGetterGenerator {
             CtClass implementedInterface = pool.get(PojoGetter.class.getName());
             cc.addInterface(implementedInterface);
 
-            StringBuffer method = new StringBuffer() //
-                    .append("public Object get(Object target) {") //
-                    .append("return ((").append(type.getName()).append(") target).").append(signature.getMethodName())
-                    .append("();") //
-                    .append("}");
+            String methodName = signature.getMethodName();
+            String targetType = type.getName();
+            String castedTarget = "((" + targetType + ") target)";
+            var method = new StringBuilder() //
+                    .append("public Object get(Object target) {\n");
+
+            Class<?> fieldType = signature.getFieldType();
+            if (fieldType.isPrimitive()) {
+                Class<?> wrapperType = signature.getWrapperType();
+                method.append("\treturn ") //
+                        .append(wrapperType.getName()) //
+                        .append(".valueOf(") //
+                        .append(castedTarget) //
+                        .append(".") //
+                        .append(methodName) //
+                        .append("());");
+            } else {
+                method.append("\treturn ") //
+                        .append(castedTarget) //
+                        .append(".") //
+                        .append(methodName) //
+                        .append("();");
+            }
+            method.append("\n}");
 
             cc.addMethod(CtMethod.make(method.toString(), cc));
             return (PojoGetter) cc.toClass().getConstructor().newInstance();

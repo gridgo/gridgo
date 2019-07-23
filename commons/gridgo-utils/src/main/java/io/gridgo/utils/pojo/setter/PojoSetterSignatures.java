@@ -2,8 +2,9 @@ package io.gridgo.utils.pojo.setter;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.lang.reflect.Type;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -28,7 +29,8 @@ public class PojoSetterSignatures implements Iterable<Entry<String, PojoSetterSi
         this.init();
     }
 
-    private void init() {
+    public static List<PojoMethodSignature> extractMethodSignatures(Class<?> targetType) {
+        var results = new LinkedList<PojoMethodSignature>();
         Method[] methods = targetType.getDeclaredMethods();
         for (Method method : methods) {
             if (method.getParameterCount() == 1 && method.getReturnType() == Void.TYPE
@@ -38,24 +40,26 @@ public class PojoSetterSignatures implements Iterable<Entry<String, PojoSetterSi
 
                 Parameter param = method.getParameters()[0];
                 Class<?> paramType = param.getType();
-                Type parameterizedType = param.getParameterizedType();
-                Class<?> parameterized = parameterizedType == null ? null : parameterizedType.getClass();
 
-                PojoMethodSignature methodSignature = PojoMethodSignature.builder() //
+                results.add(PojoMethodSignature.builder() //
                         .fieldName(_fieldName) //
                         .method(method) //
                         .fieldType(paramType) //
-                        .fieldParameterizedType(parameterized) //
-                        .build();
-
-                methodMap.put(_fieldName, PojoSetterSignature.builder() //
-                        .fieldName(_fieldName) //
-                        .method(method) //
-                        .fieldType(paramType) //
-                        .fieldParameterizedType(parameterized) //
-                        .setter(setterGenerator.generateSetter(targetType, methodSignature)) //
                         .build());
             }
+        }
+        return results;
+    }
+
+    private void init() {
+        List<PojoMethodSignature> methodSignatures = extractMethodSignatures(targetType);
+        for (PojoMethodSignature methodSignature : methodSignatures) {
+            methodMap.put(methodSignature.getFieldName(), PojoSetterSignature.builder() //
+                    .fieldName(methodSignature.getFieldName()) //
+                    .method(methodSignature.getMethod()) //
+                    .fieldType(methodSignature.getFieldType()) //
+                    .setter(setterGenerator.generateSetter(targetType, methodSignature)) //
+                    .build());
         }
     }
 
