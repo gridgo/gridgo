@@ -110,6 +110,9 @@ public class BElementPojoHelper {
                 }
 
                 if (signature.isKeyValueType()) {
+                    if (value.isReference() && signature.isPojoType()) {
+                        return value.asReference().getReference();
+                    }
                     if (!value.isObject()) {
                         throw new InvalidTypeException("Expected BObject, got: " + value.getType());
                     }
