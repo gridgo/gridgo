@@ -175,7 +175,7 @@ public class MsgpackSerializer extends AbstractBSerializer {
             packer.packMapHeader(proxy.getFields().length);
             proxy.walkThrough(target, (signature, value) -> {
                 try {
-                    packer.packString(signature.getFieldName());
+                    packer.packString(signature.getTransformedOrDefaultFieldName());
                     packAny(value, packer);
                 } catch (IOException e) {
                     throw new RuntimeIOException(e);

@@ -64,9 +64,9 @@ public class BElementPojoHelper {
         var result = BObject.ofEmpty();
         GETTER_REGISTRY.getGetterProxy(type).walkThrough(any, (signature, value) -> {
             if (value != null && IGNORE_TYPES.contains(value.getClass())) {
-                result.put(signature.getFieldName(), BReference.of(value));
+                result.put(signature.getTransformedOrDefaultFieldName(), BReference.of(value));
             } else {
-                result.put(signature.getFieldName(), anyToBElement(value));
+                result.put(signature.getTransformedOrDefaultFieldName(), anyToBElement(value));
             }
         });
         return result;
@@ -82,7 +82,11 @@ public class BElementPojoHelper {
             var proxy = SETTER_REGISTRY.getSetterProxy(type);
             proxy.walkThrough(result, (signature) -> {
                 var fieldName = signature.getFieldName();
-                BElement value = src.getOrDefault(fieldName, () -> null);
+                var transformedFieldName = signature.getTransformedFieldName();
+
+                BElement value = transformedFieldName != null && !transformedFieldName.isBlank() //
+                        ? src.getOrDefault(transformedFieldName, () -> src.getOrDefault(fieldName, () -> null)) //
+                        : src.getOrDefault(fieldName, () -> null);
 
                 if (value == null) {
                     return ValueHolder.NO_VALUE;

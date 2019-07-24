@@ -22,6 +22,7 @@ public final class PojoMethodSignature {
     private Method method;
     private String fieldName;
     private Class<?> fieldType;
+    private String transformedFieldName;
 
     public String getMethodName() {
         return this.method.getName();
@@ -134,5 +135,11 @@ public final class PojoMethodSignature {
      */
     public boolean isSequenceType() {
         return this.isCollectionType() || this.isArrayType();
+    }
+
+    public String getTransformedOrDefaultFieldName() {
+        return transformedFieldName == null || transformedFieldName.isBlank() //
+                ? fieldName //
+                : transformedFieldName;
     }
 }

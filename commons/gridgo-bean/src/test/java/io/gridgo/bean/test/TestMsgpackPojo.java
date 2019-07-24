@@ -1,6 +1,7 @@
 package io.gridgo.bean.test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 import org.junit.Test;
 
@@ -23,10 +24,21 @@ public class TestMsgpackPojo {
                         .build()) //
                 .build();
 
-        byte[] bytes = BReference.of(foo).toBytes();
+        BReference reference = BReference.of(foo);
+
+        System.out.println(reference);
+
+        byte[] bytes = reference.toBytes();
+
+        System.out.println(new String(bytes));
+
         BObject obj = BElement.ofBytes(bytes);
 
         Foo foo2 = BElementPojoHelper.toPojo(obj, Foo.class);
+
+        assertNotEquals(foo, foo2);
+
+        foo.setArr(null);
 
         assertEquals(foo, foo2);
     }
