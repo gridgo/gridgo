@@ -124,7 +124,7 @@ public abstract class AbstractMultiSchemaSerializer<S> extends AbstractBSerializ
     }
 
     @Override
-    public final BElement deserialize(InputStream in) {
+    public final BElement deserialize(InputStream in, BDeserializationConfig config) {
         try {
             var id = extractSchemaId(in);
             var obj = doDeserialize(in, id);

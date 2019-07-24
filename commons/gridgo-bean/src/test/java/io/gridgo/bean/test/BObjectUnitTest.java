@@ -89,6 +89,7 @@ public class BObjectUnitTest {
     public void testPojoRecursive() {
         var bar = Bar.builder().b(true).build();
         var pojo = Foo.builder().d(1.0).i(1).s("hello").b(bar).build();
+        @SuppressWarnings("deprecation")
         var deserialized = BObject.ofPojoRecursive(pojo).toPojo(Foo.class);
         Assert.assertEquals(pojo.getD(), deserialized.getD(), 0.0);
         Assert.assertEquals(pojo.getI(), deserialized.getI());

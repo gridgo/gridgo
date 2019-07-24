@@ -14,6 +14,44 @@ public class PrimitiveUtils {
         // make constructor private to prevent other where create new instance
     }
 
+    public static boolean isWrapperType(Class<?> type) {
+        return type == Void.class // this case may never reached...
+                || type == Boolean.class //
+                || type == Character.class //
+                || type == Byte.class //
+                || type == Short.class //
+                || type == Integer.class //
+                || type == Long.class //
+                || type == Float.class //
+                || type == Double.class;
+    }
+
+    public static Class<?> getWrapperType(Class<?> primitiveType) {
+        if (primitiveType.isPrimitive()) {
+            switch (primitiveType.getName()) {
+            case "void": // this case may never reach...
+                return Void.class;
+            case "boolean":
+                return Boolean.class;
+            case "char":
+                return Character.class;
+            case "byte":
+                return Byte.class;
+            case "short":
+                return Short.class;
+            case "int":
+                return Integer.class;
+            case "long":
+                return Long.class;
+            case "float":
+                return Float.class;
+            case "double":
+                return Double.class;
+            }
+        }
+        return null;
+    }
+
     public static boolean isNumberClass(@NonNull Class<?> clazz) {
         if (Number.class.isAssignableFrom(clazz)) {
             return true;
@@ -32,6 +70,9 @@ public class PrimitiveUtils {
     }
 
     public static final boolean isPrimitive(Class<?> resultType) {
+        if (resultType.isPrimitive()) {
+            return true;
+        }
         return (resultType == String.class //
                 || isNumberClass(resultType) //
                 || resultType == Character.TYPE || resultType == Character.class //

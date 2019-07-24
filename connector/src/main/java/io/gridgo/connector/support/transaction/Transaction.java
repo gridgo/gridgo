@@ -1,8 +1,9 @@
 package io.gridgo.connector.support.transaction;
 
+import org.joo.promise4j.Promise;
+
 import io.gridgo.connector.support.MessageProducer;
 import io.gridgo.framework.support.Message;
-import org.joo.promise4j.Promise;
 
 /**
  * Represent an asychronous transaction. It can be used to call requests inside

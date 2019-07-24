@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.msgpack.core.MessageFormat;
 import org.msgpack.core.MessagePack;
@@ -14,34 +16,62 @@ import org.msgpack.core.MessageUnpacker;
 import io.gridgo.bean.BArray;
 import io.gridgo.bean.BElement;
 import io.gridgo.bean.BObject;
+import io.gridgo.bean.BReference;
 import io.gridgo.bean.BValue;
 import io.gridgo.bean.exceptions.BeanSerializationException;
 import io.gridgo.bean.exceptions.InvalidTypeException;
 import io.gridgo.bean.serialization.AbstractBSerializer;
+import io.gridgo.bean.serialization.BDeserializationConfig;
 import io.gridgo.bean.serialization.BSerializationPlugin;
+import io.gridgo.utils.ArrayUtils;
+import io.gridgo.utils.PrimitiveUtils;
+import io.gridgo.utils.exception.RuntimeIOException;
+import io.gridgo.utils.pojo.getter.PojoGetterProxy;
+import io.gridgo.utils.pojo.getter.PojoGetterRegistry;
 import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
-@BSerializationPlugin({ MsgpackSerializer.NAME, "raw" })
+@BSerializationPlugin({ "raw", MsgpackSerializer.NAME })
 public class MsgpackSerializer extends AbstractBSerializer {
 
     public static final String NAME = "msgpack";
 
-    private void packAny(BElement element, MessagePacker packer) throws IOException {
-        if (element instanceof BValue) {
-            this.packValue(element.asValue(), packer);
-        } else if (element instanceof BArray) {
-            this.packArray(element.asArray(), packer);
-        } else if (element instanceof BObject) {
-            this.packObject(element.asObject(), packer);
+    private void packAny(Object obj, MessagePacker packer) throws IOException {
+        if (obj instanceof BElement) {
+            BElement element = (BElement) obj;
+            if (element instanceof BValue) {
+                this.packValue(element.asValue(), packer);
+            } else if (element instanceof BArray) {
+                this.packArray(element.asArray(), packer);
+            } else if (element instanceof BObject) {
+                this.packMap(element.asObject(), packer);
+            } else if (element instanceof BReference) {
+                this.packPojo(element.asReference().getReference(), packer);
+            } else {
+                throw new InvalidTypeException("Cannot serialize belement which instance of: " + element.getClass());
+            }
         } else {
-            if (log.isWarnEnabled())
-                log.warn("Unrecoginzed BElement implementation: {}", element.getClass());
+            if (obj == null) {
+                packer.packNil();
+            } else if (ArrayUtils.isArrayOrCollection(obj.getClass())) {
+                packArray(obj, packer);
+            } else if (obj instanceof Map) {
+                packMap(obj, packer);
+            } else if (PrimitiveUtils.isPrimitive(obj.getClass())) {
+                packValue(obj, packer);
+            } else {
+                packPojo(obj, packer);
+            }
         }
     }
 
-    private void packValue(BValue value, MessagePacker packer) throws IOException {
+    private void packValue(Object obj, MessagePacker packer) throws IOException {
+        BValue value;
+        if (obj instanceof BValue) {
+            value = (BValue) obj;
+        } else {
+            value = BValue.of(obj);
+        }
+
         var type = value.getType();
         if (type != null) {
             switch (type) {
@@ -85,33 +115,74 @@ public class MsgpackSerializer extends AbstractBSerializer {
         throw new InvalidTypeException("Cannot writeValue object type: " + type);
     }
 
-    private void packObject(BObject object, MessagePacker packer) throws IOException {
-        var tobePacked = new HashMap<String, BElement>();
-        for (var entry : object.entrySet()) {
-            if (entry.getValue().isValue() || entry.getValue().isArray() || entry.getValue().isObject()) {
-                tobePacked.put(entry.getKey(), entry.getValue());
-            } else if (log.isWarnEnabled()) {
-                log.warn("Ignore key {} while packing bObject because of value cannot be packed in msgpack format",
-                        entry.getKey());
+    private void packMap(Object obj, MessagePacker packer) throws IOException {
+        if (obj instanceof BObject) {
+            BObject object = (BObject) obj;
+            var tobePacked = new HashMap<String, BElement>();
+            for (var entry : object.entrySet()) {
+                if (entry.getValue().isValue() || entry.getValue().isArray() || entry.getValue().isObject()) {
+                    tobePacked.put(entry.getKey(), entry.getValue());
+                } else {
+                    // ignore
+                }
             }
-        }
-        packer.packMapHeader(tobePacked.size());
-        for (var entry : tobePacked.entrySet()) {
-            packer.packString(entry.getKey());
-            packAny(entry.getValue(), packer);
+            packer.packMapHeader(tobePacked.size());
+            for (var entry : tobePacked.entrySet()) {
+                packer.packString(entry.getKey());
+                packAny(entry.getValue(), packer);
+            }
+        } else if (obj instanceof Map) {
+            Map<?, ?> map = (Map<?, ?>) obj;
+            packer.packMapHeader(map.size());
+            for (Entry<?, ?> entry : map.entrySet()) {
+                packer.packString(entry.getKey().toString());
+                packAny(entry.getValue(), packer);
+            }
+        } else {
+            throw new InvalidTypeException(
+                    "Cannot serialize as key-value object of: " + (obj == null ? null : obj.getClass()));
         }
     }
 
-    private void packArray(BArray array, MessagePacker packer) throws IOException {
-        var tobePacked = new LinkedList<BElement>();
-        for (var entry : array) {
-            if (entry.isValue() || entry.isArray() || entry.isObject()) {
-                tobePacked.add(entry);
+    private void packArray(Object obj, MessagePacker packer) throws IOException {
+        if (obj instanceof BArray) {
+            BArray array = (BArray) obj;
+            var tobePacked = new LinkedList<BElement>();
+            for (var entry : array) {
+                if (entry.isValue() || entry.isArray() || entry.isObject()) {
+                    tobePacked.add(entry);
+                }
             }
+            packer.packArrayHeader(tobePacked.size());
+            for (var entry : tobePacked) {
+                packAny(entry, packer);
+            }
+        } else if (ArrayUtils.isArrayOrCollection(obj.getClass())) {
+            packer.packArrayHeader(ArrayUtils.length(obj));
+            ArrayUtils.foreach(obj, ele -> {
+                try {
+                    packAny(ele, packer);
+                } catch (IOException e) {
+                    throw new RuntimeIOException(e);
+                }
+            });
         }
-        packer.packArrayHeader(tobePacked.size());
-        for (var entry : tobePacked) {
-            packAny(entry, packer);
+    }
+
+    private void packPojo(Object target, MessagePacker packer) throws IOException {
+        if (target != null) {
+            PojoGetterProxy proxy = PojoGetterRegistry.getInstance().getGetterProxy(target.getClass());
+            packer.packMapHeader(proxy.getFields().length);
+            proxy.walkThrough(target, (signature, value) -> {
+                try {
+                    packer.packString(signature.getFieldName());
+                    packAny(value, packer);
+                } catch (IOException e) {
+                    throw new RuntimeIOException(e);
+                }
+            });
+        } else {
+            packer.packNil();
         }
     }
 
@@ -208,7 +279,7 @@ public class MsgpackSerializer extends AbstractBSerializer {
     }
 
     @Override
-    public BElement deserialize(InputStream in) {
+    public BElement deserialize(InputStream in, BDeserializationConfig config) {
         try (var unpacker = MessagePack.newDefaultUnpacker(in)) {
             return this.unpackAny(unpacker);
         } catch (IOException e) {

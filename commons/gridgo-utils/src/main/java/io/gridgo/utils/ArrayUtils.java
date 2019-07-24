@@ -60,10 +60,52 @@ public final class ArrayUtils {
         return (T[]) Array.newInstance(clazz, length);
     }
 
+    @SuppressWarnings("unchecked")
+    public static <T> T createPrimitiveArray(Class<?> type, int length) {
+        if (type.isPrimitive()) {
+            if (type == Boolean.TYPE) {
+                return (T) new boolean[length];
+            }
+            if (type == Character.TYPE) {
+                return (T) new char[length];
+            }
+            if (type == Byte.TYPE) {
+                return (T) new byte[length];
+            }
+            if (type == Short.TYPE) {
+                return (T) new short[length];
+            }
+            if (type == Integer.TYPE) {
+                return (T) new int[length];
+            }
+            if (type == Long.TYPE) {
+                return (T) new long[length];
+            }
+            if (type == Float.TYPE) {
+                return (T) new float[length];
+            }
+            if (type == Double.TYPE) {
+                return (T) new double[length];
+            }
+            throw new UnsupportedTypeException("cannot create primitive type for: " + type);
+        }
+        throw new IllegalArgumentException("Expected primitive type, got: " + type);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> T[] toArray(Class<T> clazz, List<?> list) {
+        T[] result = createArray(clazz, list.size());
+        for (int i = 0; i < result.length; i++) {
+            result[i] = (T) list.get(i);
+        }
+        return (T[]) result;
+    }
+
     @SuppressWarnings("rawtypes")
     public static Object toPrimitiveTypeArray(Class<?> clazz, List list) {
         if (!clazz.isPrimitive())
-            throw new IllegalArgumentException("first parameter, clazz, must be primitive type, got " + clazz);
+            throw new IllegalArgumentException("expected primitive type, got " + clazz);
+
         if (clazz == Integer.TYPE) {
             int[] arr = new int[list.size()];
             for (int i = 0; i < arr.length; i++) {
@@ -114,15 +156,6 @@ public final class ArrayUtils {
             return arr;
         }
         throw new UnsupportedTypeException("Unsupported type: " + clazz.getName());
-    }
-
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public static <T> T[] toArray(Class<T> clazz, List list) {
-        T[] arr = (T[]) Array.newInstance(clazz, list.size());
-        for (int i = 0; i < arr.length; i++) {
-            arr[i] = (T) list.get(i);
-        }
-        return arr;
     }
 
     @SuppressWarnings("rawtypes")

@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -127,19 +128,21 @@ public final class ObjectUtils {
             this.apply(obj, PrimitiveUtils.getValueFrom(this.getParamType(), value));
         }
 
-        public void apply(Object obj, Object value) {
+        public void apply(Object target, Object value) {
             try {
                 if (this.usingMethod) {
-                    this.method.invoke(obj, value);
+                    this.method.invoke(target, value);
                 } else {
                     if (field.trySetAccessible()) {
-                        field.set(obj, value);
+                        field.set(target, value);
                     } else {
                         throw new ObjectReflectiveException("Cannot access field " + field.getName());
                     }
                 }
             } catch (Exception ex) {
-                throw new ObjectReflectiveException(ex);
+                throw new ObjectReflectiveException("error while trying to set value to field: "
+                        + (usingMethod ? method.getName() : field.getName()) + ", target: " + target + ", value: "
+                        + value, ex);
             }
         }
 
@@ -192,25 +195,27 @@ public final class ObjectUtils {
                     }
                 } else if (ArrayUtils.isArrayOrCollection(setter.getParamType())
                         && ArrayUtils.isArrayOrCollection(value.getClass())) {
-                    final List list = new ArrayList<>();
+                    final Collection collection = Set.class.isAssignableFrom(setter.getParamType()) ? new HashSet<>()
+                            : new LinkedList<>();
                     ArrayUtils.foreach(value, element -> {
                         try {
                             if (PrimitiveUtils.isPrimitive(element.getClass())) {
-                                list.add(PrimitiveUtils.getValueFrom(setter.getComponentType(), element));
+                                collection.add(PrimitiveUtils.getValueFrom(setter.getComponentType(), element));
                             } else if (element instanceof Map) {
-                                list.add(fromMap(setter.getComponentType(), (Map) element));
+                                collection.add(fromMap(setter.getComponentType(), (Map) element));
                             }
                         } catch (Exception e) {
                             throw new RuntimeException(e);
                         }
                     });
                     if (Collection.class.isAssignableFrom(setter.getParamType())) {
-                        setter.apply(result, list);
+                        setter.apply(result, collection);
                     } else if (setter.getParamType().isArray()) {
                         if (setter.getComponentType().isPrimitive()) {
-                            setter.apply(result, ArrayUtils.toPrimitiveTypeArray(setter.getComponentType(), list));
+                            setter.apply(result,
+                                    ArrayUtils.toPrimitiveTypeArray(setter.getComponentType(), (List) collection));
                         } else {
-                            setter.apply(result, ArrayUtils.toArray(setter.getComponentType(), list));
+                            setter.apply(result, ArrayUtils.toArray(setter.getComponentType(), (List) collection));
                         }
                     }
                 } else {
@@ -255,8 +260,8 @@ public final class ObjectUtils {
                 }
                 Method setter = null;
                 if (setters.size() > 0) {
-                    String fieldName = StringUtils.lowerCaseFirstLetter(
-                            potentialSetter.substring(SETTER_PREFIX.length()));
+                    String fieldName = StringUtils
+                            .lowerCaseFirstLetter(potentialSetter.substring(SETTER_PREFIX.length()));
                     switch (setters.size()) {
                     case 1:
                         setter = setters.get(0);
@@ -387,8 +392,8 @@ public final class ObjectUtils {
             if (method.getParameterCount() == 0) {
                 if (methodName.startsWith(GETTER_PREFIX) && methodName.length() > GETTER_PREFIX.length()) {
                     try {
-                        String fieldName = StringUtils.lowerCaseFirstLetter(
-                                methodName.substring(GETTER_PREFIX.length()));
+                        String fieldName = StringUtils
+                                .lowerCaseFirstLetter(methodName.substring(GETTER_PREFIX.length()));
                         classGetter.put(fieldName, new Getter(method));
                     } catch (IllegalArgumentException e) {
                         throw e;
@@ -396,8 +401,8 @@ public final class ObjectUtils {
                 } else if (methodName.startsWith(BOOLEAN_GETTER_PREFIX)
                         && methodName.length() > BOOLEAN_GETTER_PREFIX.length()) {
                     try {
-                        String fieldName = StringUtils.lowerCaseFirstLetter(
-                                methodName.substring(BOOLEAN_GETTER_PREFIX.length()));
+                        String fieldName = StringUtils
+                                .lowerCaseFirstLetter(methodName.substring(BOOLEAN_GETTER_PREFIX.length()));
                         classGetter.put(fieldName, new Getter(method));
                     } catch (IllegalArgumentException e) {
                         throw e;
@@ -519,7 +524,7 @@ public final class ObjectUtils {
 
     public static void assembleFromMap(Class<?> clazz, Object config, Map<String, Object> parameters) {
         var fieldMap = Arrays.stream(clazz.getDeclaredFields())
-                             .collect(Collectors.toMap(field -> field.getName(), field -> field.getType()));
+                .collect(Collectors.toMap(field -> field.getName(), field -> field.getType()));
         for (String attr : parameters.keySet()) {
             if (!fieldMap.containsKey(attr))
                 continue;
@@ -529,7 +534,7 @@ public final class ObjectUtils {
     }
 
     public static void setValue(Object config, String attr, Object value) {
-        var setter = "set" + attr.substring(0, 1).toUpperCase() + attr.substring(1);
+        var setter = "set" + StringUtils.upperCaseFirstLetter(attr);
         var stmt = new Statement(config, setter, new Object[] { value });
         try {
             stmt.execute();

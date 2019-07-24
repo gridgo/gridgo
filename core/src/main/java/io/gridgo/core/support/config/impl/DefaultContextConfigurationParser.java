@@ -7,13 +7,13 @@ import java.util.stream.Collectors;
 import io.gridgo.bean.BArray;
 import io.gridgo.bean.BElement;
 import io.gridgo.bean.BObject;
-import io.gridgo.core.support.config.ContextConfiguratorParser;
 import io.gridgo.core.support.config.ConfiguratorNode.ComponentNode;
 import io.gridgo.core.support.config.ConfiguratorNode.ConnectorNode;
 import io.gridgo.core.support.config.ConfiguratorNode.GatewayNode;
 import io.gridgo.core.support.config.ConfiguratorNode.InstrumenterNode;
 import io.gridgo.core.support.config.ConfiguratorNode.RootNode;
 import io.gridgo.core.support.config.ConfiguratorNode.SubscriberNode;
+import io.gridgo.core.support.config.ContextConfiguratorParser;
 
 public class DefaultContextConfigurationParser implements ContextConfiguratorParser {
 
