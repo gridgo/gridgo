@@ -5,15 +5,16 @@ import static io.gridgo.utils.pojo.PojoUtils.extractSetterMethodSignatures;
 import java.util.List;
 
 import io.gridgo.utils.pojo.PojoMethodSignature;
+import javassist.CannotCompileException;
 import javassist.ClassClassPath;
 import javassist.ClassPool;
 import javassist.CtClass;
+import javassist.CtField;
 import javassist.CtMethod;
 
 class JavassistSetterProxyBuilder implements PojoSetterProxyBuilder {
 
     @Override
-    @SuppressWarnings("unchecked")
     public PojoSetterProxy buildSetterProxy(Class<?> target) {
         try {
             ClassPool pool = ClassPool.getDefault();
@@ -26,40 +27,187 @@ class JavassistSetterProxyBuilder implements PojoSetterProxyBuilder {
             cc.addInterface(pool.get(PojoSetterProxy.class.getName()));
 
             List<PojoMethodSignature> methodSignatures = extractSetterMethodSignatures(target);
-            StringBuilder allFields = new StringBuilder();
-            for (PojoMethodSignature signature : methodSignatures) {
-                if (allFields.length() > 0) {
-                    allFields.append(",");
-                }
-                allFields.append("\"").append(signature.getFieldName()).append("\"");
-            }
-            String castedTarget = "((" + target.getName() + ") target)";
-            String method = "public void applyValue(Object target, String fieldName, Object value) { \n"; //
-            method += "\t" + target.getName() + " castedTarget = " + castedTarget + ";\n";
+
+            StringBuilder allFieldsBuilder = new StringBuilder();
             for (PojoMethodSignature methodSignature : methodSignatures) {
-                String fieldName = methodSignature.getFieldName();
-                String invoked = "castedTarget." + methodSignature.getMethodName();
-
-                if (methodSignature.getFieldType().isPrimitive()) {
-                    invoked += "(((" + methodSignature.getWrapperType().getName() + ") value)."
-                            + methodSignature.getFieldType().getTypeName() + "Value());";
-                } else if (methodSignature.getFieldType().isArray()) {
-                    invoked += "((" + methodSignature.getComponentType().getName() + "[]) value);";
-                } else {
-                    invoked += "((" + methodSignature.getFieldType().getName() + ") value);";
+                if (allFieldsBuilder.length() > 0) {
+                    allFieldsBuilder.append(",");
                 }
-
-                method += "\tif (\"" + fieldName + "\".equals(fieldName)) " + invoked + "\n"; //
+                allFieldsBuilder.append('"').append(methodSignature.getFieldName()).append('"');
             }
-            method += "\n}";
+            String allFields = allFieldsBuilder.toString();
 
-            cc.addMethod(CtMethod.make(method, cc));
+            String targetType = target.getName();
 
-            return (PojoSetterProxy) cc.toClass().getConstructor().newInstance();
+            buildGetFieldsMethod(cc, allFields);
+            buildSetSignatureMethod(cc, methodSignatures);
+            buildApplyValueMethod(cc, methodSignatures, targetType);
+            buildWalkthroughAllMethod(cc, methodSignatures, targetType);
+            buildWalkthroughMethod(cc, methodSignatures, targetType, allFields);
+
+            Class<?> resultClass = cc.toClass();
+            var result = (PojoSetterProxy) resultClass.getConstructor().newInstance();
+            var signatureSetter = resultClass.getMethod("setMethodSignature", String.class, PojoMethodSignature.class);
+            for (PojoMethodSignature methodSignature : methodSignatures) {
+                signatureSetter.invoke(result, methodSignature.getFieldName(), methodSignature);
+            }
+            return result;
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException(e);
         }
     }
 
+    private void buildSetSignatureMethod(CtClass cc, List<PojoMethodSignature> methodSignatures)
+            throws CannotCompileException {
+        String type = "io.gridgo.utils.pojo.PojoMethodSignature";
+        String subfix = "Signature";
+        for (PojoMethodSignature methodSignature : methodSignatures) {
+            String fieldName = methodSignature.getFieldName() + subfix;
+            cc.addField(CtField.make("private " + type + " " + fieldName + ";", cc));
+        }
+
+        String method = "public void setMethodSignature(String fieldName, " + type + " value) {\n";
+        method += "\tfor (int i=0; i<this.fields.length; i++) {"; // start for loop via all field
+        for (PojoMethodSignature methodSignature : methodSignatures) {
+            String fieldName = methodSignature.getFieldName();
+            String signFieldName = fieldName + subfix;
+            method += "\t\tif (\"" + fieldName + "\".equals(fieldName)) " + signFieldName + " = value;\n";
+        }
+        method += "\t}\n"; // end of for
+        method += "}"; // end of method
+
+        cc.addMethod(CtMethod.make(method, cc));
+    }
+
+    private void buildGetFieldsMethod(CtClass cc, String allFields) throws CannotCompileException {
+        String initValue = allFields.length() == 0 ? "new String[0];" : "new String[] {" + allFields + "};";
+        CtField field = CtField.make("private String[] fields = " + initValue, cc);
+        cc.addField(field);
+
+        String method = "public String[] getFields() { return this.fields; }";
+        cc.addMethod(CtMethod.make(method, cc));
+    }
+
+    private void buildApplyValueMethod(CtClass cc, List<PojoMethodSignature> methodSignatures, String targetType)
+            throws CannotCompileException {
+        String castedTarget = "((" + targetType + ") target)";
+        String method = "public void applyValue(Object target, String fieldName, Object value) { \n"; //
+        method += "\t" + targetType + " castedTarget = " + castedTarget + ";\n";
+        for (PojoMethodSignature methodSignature : methodSignatures) {
+            String fieldName = methodSignature.getFieldName();
+            String invoked = "castedTarget." + methodSignature.getMethodName();
+
+            if (methodSignature.getFieldType().isPrimitive()) {
+                invoked += "(((" + methodSignature.getWrapperType().getName() + ") value)."
+                        + methodSignature.getFieldType().getTypeName() + "Value());";
+            } else if (methodSignature.getFieldType().isArray()) {
+                invoked += "((" + methodSignature.getComponentType().getName() + "[]) value);";
+            } else {
+                invoked += "((" + methodSignature.getFieldType().getName() + ") value);";
+            }
+
+            method += "\tif (\"" + fieldName + "\".equals(fieldName)) " + invoked + "\n"; //
+        }
+        method += "\n}";
+
+        cc.addMethod(CtMethod.make(method, cc));
+    }
+
+    private void buildWalkthroughMethod(CtClass cc, List<PojoMethodSignature> methodSignatures, String targetType,
+            String allFields) throws CannotCompileException {
+
+        String signatureFieldSubfix = "Signature";
+        String holderType = ValueHolder.class.getName();
+
+        String castedTarget = "(" + targetType + ") target";
+
+        String method = "public void walkThrough(Object target, io.gridgo.utils.pojo.setter.PojoSetterConsumer consumer, String[] fields) { \n"; //
+        method += "    if (fields == null || fields.length == 0) this.walkThroughAll(target, consumer); return;\n";
+        method += "    " + targetType + " castedTarget = " + castedTarget + ";\n";
+        method += "    for (int i=0; i < fields.length; i++) {\n"; // start for loop via fields
+        method += "        String fieldName = fields[i];\n"; // create temp variable `fieldName`
+
+        for (PojoMethodSignature methodSignature : methodSignatures) {
+            String fieldName = methodSignature.getFieldName();
+
+            Class<?> fieldType = methodSignature.getFieldType();
+            String invokeSetter = "castedTarget." + methodSignature.getMethodName();
+            if (fieldType.isPrimitive()) {
+                String wrapperType = methodSignature.getWrapperType().getName();
+                invokeSetter += "(((" + wrapperType + ") value)." + fieldType.getTypeName() + "Value())";
+            } else if (fieldType.isArray()) {
+                String componentType = methodSignature.getComponentType().getName();
+                invokeSetter += "((" + componentType + "[]) value)";
+            } else {
+                invokeSetter += "((" + fieldType.getName() + ") value)";
+            }
+
+            String signatureFieldName = fieldName + signatureFieldSubfix;
+            method += "        if (fieldName.equals(\"" + fieldName + "\")) {\n"; // start if 1
+            method += "            Object value = consumer.apply(this." + signatureFieldName + ");\n";
+            method += "            if (!(value instanceof " + holderType + ")) {\n"; // start if 2
+            method += "                " + invokeSetter + ";\n";
+            method += "            } else { \n"; // else if 2
+            method += "                " + holderType + " holder = (" + holderType + ") value; \n";
+            method += "                if (holder.hasValue()) {\n"; // start if 4
+            method += "                    value = holder.getValue();\n";
+            method += "                    " + invokeSetter + ";\n";
+            method += "                }\n"; // end if 4
+            method += "            }\n"; // end if 2
+            method += "        }\n"; // end if 1
+        }
+
+        method += "    }"; // end of for
+        method += "\n}"; // end of method
+
+        cc.addMethod(CtMethod.make(method, cc));
+    }
+
+    private void buildWalkthroughAllMethod(CtClass cc, List<PojoMethodSignature> methodSignatures, String targetType)
+            throws CannotCompileException {
+
+        String signatureFieldSubfix = "Signature";
+        String holderType = ValueHolder.class.getName();
+
+        String castedTarget = "(" + targetType + ") target";
+
+        String method = "private void walkThroughAll(Object target, io.gridgo.utils.pojo.setter.PojoSetterConsumer consumer) { \n"; //
+        method += "    " + targetType + " castedTarget = " + castedTarget + ";\n";
+        method += "    Object value = null;\n";
+
+        for (PojoMethodSignature methodSignature : methodSignatures) {
+            String fieldName = methodSignature.getFieldName();
+
+            Class<?> fieldType = methodSignature.getFieldType();
+            String invokeSetter = "castedTarget." + methodSignature.getMethodName();
+
+            if (fieldType.isPrimitive()) {
+                String wrapperType = methodSignature.getWrapperType().getName();
+                invokeSetter += "(((" + wrapperType + ") value)." + fieldType.getTypeName() + "Value())";
+            } else if (fieldType.isArray()) {
+                String componentType = methodSignature.getComponentType().getName();
+                invokeSetter += "((" + componentType + "[]) value)";
+            } else {
+                invokeSetter += "((" + fieldType.getName() + ") value)";
+            }
+
+            String signatureFieldName = fieldName + signatureFieldSubfix;
+            method += "    value = consumer.apply(this." + signatureFieldName + ");\n";
+            method += "    if (!(value instanceof " + holderType + ")) {\n"; // start if 2
+            method += "        " + invokeSetter + ";\n";
+            method += "    } else { \n"; // else if 2
+            method += "        " + holderType + " holder = (" + holderType + ") value; \n";
+            method += "        if (holder.hasValue()) {\n"; // start if 4
+            method += "            value = holder.getValue();\n";
+            method += "            " + invokeSetter + ";\n";
+            method += "        }\n"; // end if 4
+            method += "    }\n"; // end if 2
+        }
+
+        method += "    }\n"; // end of for
+        method += "}"; // end of method
+
+        cc.addMethod(CtMethod.make(method, cc));
+    }
 }

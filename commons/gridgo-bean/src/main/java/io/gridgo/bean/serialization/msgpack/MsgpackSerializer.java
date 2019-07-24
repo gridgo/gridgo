@@ -173,9 +173,9 @@ public class MsgpackSerializer extends AbstractBSerializer {
         if (target != null) {
             PojoGetterProxy proxy = PojoGetterRegistry.getInstance().getGetterProxy(target.getClass());
             packer.packMapHeader(proxy.getFields().length);
-            proxy.walkThrough(target, (fieldName, value) -> {
+            proxy.walkThrough(target, (signature, value) -> {
                 try {
-                    packer.packString(fieldName);
+                    packer.packString(signature.getFieldName());
                     packAny(value, packer);
                 } catch (IOException e) {
                     throw new RuntimeIOException(e);

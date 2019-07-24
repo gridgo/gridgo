@@ -8,6 +8,7 @@ import java.util.function.Supplier;
 import io.gridgo.bean.exceptions.BeanSerializationException;
 import io.gridgo.bean.exceptions.InvalidTypeException;
 import io.gridgo.bean.factory.BFactory;
+import io.gridgo.bean.support.BElementPojoHelper;
 import io.gridgo.utils.ObjectUtils;
 import lombok.NonNull;
 
@@ -43,15 +44,12 @@ public interface BObject extends BContainer, Map<String, BElement> {
     }
 
     static BObject ofPojo(Object pojo) {
-        BObject result = ofEmpty();
-        result.putAnyAllPojo(pojo);
-        return result;
+        return BElementPojoHelper.anyToBElement(pojo).asObject();
     }
 
+    @Deprecated
     static BObject ofPojoRecursive(Object pojo) {
-        BObject result = ofEmpty();
-        result.putAnyAllPojoRecursive(pojo);
-        return result;
+        return BElementPojoHelper.anyToBElement(pojo).asObject();
     }
 
     static BObject ofSequence(Object... sequence) {

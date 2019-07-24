@@ -5,18 +5,23 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+import io.gridgo.utils.PrimitiveUtils;
 import io.gridgo.utils.exception.RuntimeReflectiveOperationException;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 
 @Getter
 @SuperBuilder
-public class PojoMethodSignature {
+public final class PojoMethodSignature {
 
+    private Method method;
     private String fieldName;
     private Class<?> fieldType;
-    private Method method;
 
     public String getMethodName() {
         return this.method.getName();
@@ -34,29 +39,8 @@ public class PojoMethodSignature {
     }
 
     public Class<?> getWrapperType() {
-        if (this.fieldType.isPrimitive()) {
-            switch (this.fieldType.getName()) {
-            case "void": // this case may never reach...
-                return Void.class;
-            case "boolean":
-                return Boolean.class;
-            case "char":
-                return Character.class;
-            case "byte":
-                return Byte.class;
-            case "short":
-                return Short.class;
-            case "int":
-                return Integer.class;
-            case "long":
-                return Long.class;
-            case "float":
-                return Float.class;
-            case "double":
-                return Double.class;
-            }
-        }
-        return this.fieldType;
+        var result = PrimitiveUtils.getWrapperType(this.fieldType);
+        return result == null ? this.fieldType : result;
     }
 
     /**
@@ -97,5 +81,58 @@ public class PojoMethodSignature {
         } catch (Exception e) {
             throw new RuntimeReflectiveOperationException(e);
         }
+    }
+
+    public boolean isCollectionType() {
+        return Collection.class.isAssignableFrom(fieldType);
+    }
+
+    public boolean isListType() {
+        return List.class.isAssignableFrom(this.fieldType);
+    }
+
+    public boolean isSetType() {
+        return Set.class.isAssignableFrom(this.fieldType);
+    }
+
+    public boolean isMapType() {
+        return Map.class.isAssignableFrom(this.fieldType);
+    }
+
+    public boolean isArrayType() {
+        return this.fieldType.isArray();
+    }
+
+    public boolean isPrimitiveType() {
+        return this.fieldType.isPrimitive();
+    }
+
+    public boolean isWrapperType() {
+        return PrimitiveUtils.isWrapperType(fieldType);
+    }
+
+    public boolean isPrimitiveOrWrapperType() {
+        return this.isPrimitiveType() || this.isWrapperType();
+    }
+
+    public boolean isPojoType() {
+        return !this.isPrimitiveOrWrapperType() && //
+                !this.isArrayType() && //
+                !this.isCollectionType() && //
+                !this.isMapType();
+    }
+
+    /**
+     * @return whether this fieldType is Map or Pojo
+     */
+    public boolean isKeyValueType() {
+        return this.isMapType() || this.isPojoType();
+    }
+
+    /**
+     * @return whether this fieldType is Collection or Array
+     */
+    public boolean isSequenceType() {
+        return this.isCollectionType() || this.isArrayType();
     }
 }

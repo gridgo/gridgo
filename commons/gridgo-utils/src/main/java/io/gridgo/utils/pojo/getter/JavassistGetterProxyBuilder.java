@@ -15,7 +15,6 @@ import javassist.CtMethod;
 class JavassistGetterProxyBuilder implements PojoGetterProxyBuilder {
 
     @Override
-    @SuppressWarnings("unchecked")
     public PojoGetterProxy buildGetterWalker(Class<?> target) {
         String className = target.getName().replaceAll("\\.", "_") + "_getter_proxy_" + System.nanoTime();
         try {
@@ -40,15 +39,44 @@ class JavassistGetterProxyBuilder implements PojoGetterProxyBuilder {
             String allFields = allFieldsBuilder.toString();
 
             buildGetFieldsMethod(cc, allFields);
-
+            buildSetSignatureMethod(cc, methodSignatures);
             buildGetValueMethod(cc, typeName, methodSignatures);
-
+            buildWalkThroughAllMethod(cc, typeName, methodSignatures);
             buildWalkThroughMethod(cc, typeName, methodSignatures, allFields);
 
-            return (PojoGetterProxy) cc.toClass().getConstructor().newInstance();
+            Class<?> resultClass = cc.toClass();
+            PojoGetterProxy result = (PojoGetterProxy) resultClass.getConstructor().newInstance();
+            var signatureSetter = resultClass.getMethod("setMethodSignature", String.class, PojoMethodSignature.class);
+            for (PojoMethodSignature signature : methodSignatures) {
+                signatureSetter.invoke(result, signature.getFieldName(), signature);
+            }
+
+            return result;
         } catch (Exception e) {
             throw new RuntimeException("error while trying to build getter proxy: " + className, e);
         }
+    }
+
+    private void buildSetSignatureMethod(CtClass cc, List<PojoMethodSignature> methodSignatures)
+            throws CannotCompileException {
+        String type = "io.gridgo.utils.pojo.PojoMethodSignature";
+        String subfix = "Signature";
+        for (PojoMethodSignature methodSignature : methodSignatures) {
+            String fieldName = methodSignature.getFieldName() + subfix;
+            cc.addField(CtField.make("private " + type + " " + fieldName + ";", cc));
+        }
+
+        String method = "public void setMethodSignature(String fieldName, " + type + " value) {\n";
+        method += "\tfor (int i=0; i<this.fields.length; i++) {"; // start for loop via all field
+        for (PojoMethodSignature methodSignature : methodSignatures) {
+            String fieldName = methodSignature.getFieldName();
+            String signFieldName = fieldName + subfix;
+            method += "\t\tif (\"" + fieldName + "\".equals(fieldName)) " + signFieldName + " = value;\n";
+        }
+        method += "\t}\n"; // end of for
+        method += "}"; // end of method
+
+        cc.addMethod(CtMethod.make(method, cc));
     }
 
     private void buildGetValueMethod(CtClass cc, String typeName, List<PojoMethodSignature> methodSignatures)
@@ -72,15 +100,49 @@ class JavassistGetterProxyBuilder implements PojoGetterProxyBuilder {
         cc.addMethod(CtMethod.make(method, cc));
     }
 
+    private void buildGetFieldsMethod(CtClass cc, String allFields) throws CannotCompileException {
+        String initValue = allFields.length() == 0 ? "new String[0];" : "new String[] {" + allFields + "};";
+        CtField field = CtField.make("private String[] fields = " + initValue, cc);
+        cc.addField(field);
+
+        String method = "public String[] getFields() { return this.fields; }";
+        cc.addMethod(CtMethod.make(method, cc));
+    }
+
     private void buildWalkThroughMethod(CtClass cc, String typeName, List<PojoMethodSignature> methodSignatures,
             String allFields) throws CannotCompileException {
 
-        String castedTarget = "((" + typeName + ") target)";
-        String method = "public void walkThrough(Object target, io.gridgo.utils.pojo.getter.PojoGetterConsumer valueConsumer, String[] fields) { \n" //
-                + "\tif (fields == null || fields.length == 0) fields = new String[] {" + allFields + "};\n" //
-                + "\t" + typeName + " castedTarget = " + castedTarget + ";\n" //
-                + "\tfor (int i=0; i<fields.length; i++) { \n" //
-                + "\t\tString field = fields[i];\n"; //
+        String signatureFieldSubfix = "Signature";
+
+        String method = "public void walkThrough(Object target, io.gridgo.utils.pojo.getter.PojoGetterConsumer consumer, String[] fields) { \n";
+        method += "    if (fields == null || fields.length == 0) this.walkThroughAll(target, consumer); return;\n";
+        method += "    " + typeName + " castedTarget = (" + typeName + ") target;\n";
+        method += "    for (int i=0; i<fields.length; i++) { \n";
+        method += "        String field = fields[i];\n";
+
+        for (PojoMethodSignature methodSignature : methodSignatures) {
+            String fieldName = methodSignature.getFieldName();
+            String invokeGetter = "castedTarget." + methodSignature.getMethodName() + "()";
+            if (methodSignature.getFieldType().isPrimitive()) {
+                invokeGetter = methodSignature.getWrapperType().getName() + ".valueOf(" + invokeGetter + ")";
+            }
+            String signatureField = fieldName + signatureFieldSubfix;
+            method += "        if (\"" + fieldName + "\".equals(field))\n";
+            method += "            consumer.accept(this." + signatureField + ", " + invokeGetter + "); \n"; //
+        }
+        method += "    }\n";
+        method += "}";
+
+        cc.addMethod(CtMethod.make(method, cc));
+    }
+
+    private void buildWalkThroughAllMethod(CtClass cc, String typeName, List<PojoMethodSignature> methodSignatures)
+            throws CannotCompileException {
+
+        String signatureFieldSubfix = "Signature";
+
+        String method = "private void walkThroughAll(Object target, io.gridgo.utils.pojo.getter.PojoGetterConsumer consumer) { \n";
+        method += "    " + typeName + " castedTarget = (" + typeName + ") target;\n";
 
         for (PojoMethodSignature methodSignature : methodSignatures) {
             String fieldName = methodSignature.getFieldName();
@@ -88,19 +150,11 @@ class JavassistGetterProxyBuilder implements PojoGetterProxyBuilder {
             if (methodSignature.getFieldType().isPrimitive()) {
                 invoked = methodSignature.getWrapperType().getName() + ".valueOf(" + invoked + ")";
             }
-            method += "\t\tif (\"" + fieldName + "\".equals(field))\n" //
-                    + "\t\t\tvalueConsumer.accept(\"" + fieldName + "\", " + invoked + "); \n"; //
+            String signatureField = fieldName + signatureFieldSubfix;
+            method += "    consumer.accept(this." + signatureField + ", " + invoked + "); \n"; //
         }
-        method += "\t}\n}";
+        method += "}";
 
-        cc.addMethod(CtMethod.make(method, cc));
-    }
-
-    private void buildGetFieldsMethod(CtClass cc, String allFields) throws CannotCompileException {
-        CtField field = CtField.make("private String[] fields = new String[] {" + allFields + "};", cc);
-        cc.addField(field);
-
-        String method = "public String[] getFields() { return this.fields; }";
         cc.addMethod(CtMethod.make(method, cc));
     }
 }

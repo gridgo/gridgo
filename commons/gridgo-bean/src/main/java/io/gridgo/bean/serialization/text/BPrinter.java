@@ -125,16 +125,16 @@ public final class BPrinter {
             if (refObj.getClass().isAnnotationPresent(BReferenceBeautifulPrint.class)) {
                 if (name != null) {
                     writer.append(name).append(": ") //
-                          .append(type.name()) //
-                          .append(" = ") //
-                          .append(refObj.getClass().getName()) //
-                          .append(" ");
+                            .append(type.name()) //
+                            .append(" = ") //
+                            .append(refObj.getClass().getName()) //
+                            .append(" ");
 
-                    printObject(writer, BObject.ofPojoRecursive(refObj), null, numTab);
+                    printObject(writer, BObject.ofPojo(refObj), null, numTab);
                 } else {
                     writer.append('(').append(type.name()).append(" = ").append(refObj.getClass().getName())
-                          .append(' ');
-                    printObject(writer, BObject.ofPojoRecursive(refObj), null, numTab);
+                            .append(' ');
+                    printObject(writer, BObject.ofPojo(refObj), null, numTab);
                     writer.append(')');
                 }
             } else {
