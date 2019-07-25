@@ -135,8 +135,12 @@ class JavassistSetterProxyBuilder implements PojoSetterProxyBuilder {
             Class<?> fieldType = methodSignature.getFieldType();
             String invokeSetter = "castedTarget." + methodSignature.getMethodName();
             if (fieldType.isPrimitive()) {
-                String wrapperType = methodSignature.getWrapperType().getName();
-                invokeSetter += "(((" + wrapperType + ") value)." + fieldType.getTypeName() + "Value())";
+                if (PrimitiveUtils.isNumber(methodSignature.getFieldType())) {
+                    invokeSetter += "(((" + Number.class.getName() + ") value)." + fieldType.getTypeName() + "Value())";
+                } else {
+                    String wrapperType = methodSignature.getWrapperType().getName();
+                    invokeSetter += "(((" + wrapperType + ") value)." + fieldType.getTypeName() + "Value())";
+                }
             } else if (fieldType.isArray()) {
                 String componentType = methodSignature.getComponentType().getName();
                 invokeSetter += "((" + componentType + "[]) value)";
