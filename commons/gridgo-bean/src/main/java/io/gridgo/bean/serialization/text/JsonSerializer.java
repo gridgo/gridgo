@@ -33,7 +33,7 @@ public class JsonSerializer extends AbstractBSerializer {
             } else if (element.isObject()) {
                 JSONObject.writeJSON(element.asObject().toJsonElement(), outWriter);
             } else if (element.isReference()) {
-                JSONObject.writeJSON(element.asReference().toBObject().toJsonElement(), outWriter);
+                JSONObject.writeJSON(element.asReference().toJsonElement(), outWriter);
             } else {
                 JSONValue.writeJSONString(element.toJsonElement(), outWriter);
             }

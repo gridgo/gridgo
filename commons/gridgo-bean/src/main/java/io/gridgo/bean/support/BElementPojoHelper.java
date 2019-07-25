@@ -72,6 +72,41 @@ public class BElementPojoHelper {
         return result;
     }
 
+    public static Object pojoToJsonElement(Object any) {
+        if (any == null) {
+            return null;
+        }
+
+        if (any instanceof BElement) {
+            return ((BElement) any).toJsonElement();
+        }
+
+        var type = any.getClass();
+        if (any instanceof Map) {
+            var result = new HashMap<String, Object>();
+            for (Entry<?, ?> entry : ((Map<?, ?>) any).entrySet()) {
+                result.put(entry.getKey().toString(), pojoToJsonElement(entry.getValue()));
+            }
+            return result;
+        } else if (ArrayUtils.isArrayOrCollection(type)) {
+            var result = new LinkedList<Object>();
+            ArrayUtils.foreach(any, ele -> result.add(pojoToJsonElement(ele)));
+            return result;
+        } else if (PrimitiveUtils.isPrimitive(type)) {
+            return any;
+        }
+
+        var result = new HashMap<String, Object>();
+        GETTER_REGISTRY.getGetterProxy(type).walkThrough(any, (signature, value) -> {
+            if (value != null && IGNORE_TYPES.contains(value.getClass())) {
+                result.put(signature.getTransformedOrDefaultFieldName(), BReference.of(value));
+            } else {
+                result.put(signature.getTransformedOrDefaultFieldName(), pojoToJsonElement(value));
+            }
+        });
+        return result;
+    }
+
     public static <T> T toPojo(BObject src, @NonNull Class<T> type) {
         if (src == null) {
             return null;
