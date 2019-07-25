@@ -27,29 +27,40 @@ public class PrimitiveUtils {
     }
 
     public static Class<?> getWrapperType(Class<?> primitiveType) {
-        if (primitiveType.isPrimitive()) {
-            switch (primitiveType.getName()) {
-            case "void": // this case may never reach...
-                return Void.class;
-            case "boolean":
-                return Boolean.class;
-            case "char":
-                return Character.class;
-            case "byte":
-                return Byte.class;
-            case "short":
-                return Short.class;
-            case "int":
-                return Integer.class;
-            case "long":
-                return Long.class;
-            case "float":
-                return Float.class;
-            case "double":
-                return Double.class;
-            }
+        switch (primitiveType.getName()) {
+        case "void": // this case may never reach...
+            return Void.class;
+        case "boolean":
+            return Boolean.class;
+        case "char":
+            return Character.class;
+        case "byte":
+            return Byte.class;
+        case "short":
+            return Short.class;
+        case "int":
+            return Integer.class;
+        case "long":
+            return Long.class;
+        case "float":
+            return Float.class;
+        case "double":
+            return Double.class;
         }
         return null;
+    }
+
+    public static Class<?> getPrimitiveFromWrapperType(Class<?> type) {
+        return type == Void.class ? Void.TYPE : // this case may never reached...
+                type == Boolean.class ? Boolean.TYPE : //
+                        type == Character.class ? Character.TYPE : //
+                                type == Byte.class ? Byte.TYPE : //
+                                        type == Short.class ? Short.TYPE : //
+                                                type == Integer.class ? Integer.TYPE : //
+                                                        type == Long.class ? Long.TYPE : //
+                                                                type == Float.class ? Float.TYPE : //
+                                                                        type == Double.class ? Double.TYPE : //
+                                                                                null;
     }
 
     public static boolean isNumberClass(@NonNull Class<?> clazz) {

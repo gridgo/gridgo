@@ -1,5 +1,9 @@
 package io.gridgo.bean.test.support;
 
+import io.gridgo.bean.impl.BReferenceBeautifulPrint;
+import io.gridgo.utils.annotations.Transient;
+import io.gridgo.utils.pojo.FieldName;
+import io.gridgo.utils.pojo.FieldNameTransform;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,15 +13,19 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@BReferenceBeautifulPrint
+@FieldNameTransform(value = "anything_{{packageName}}_{{fieldName > camelToSnake}}", ignore = { "barValue" })
 public class Foo {
 
-    private int i;
+    private int intValue;
 
-    private int[] arr;
+    @Transient
+    private int[] intArrayValue;
 
-    private double d;
+    private double doubleValue;
 
-    private String s;
+    @FieldName("string_value_override")
+    private String stringValue;
 
-    private Bar b;
+    private Bar barValue;
 }

@@ -1,5 +1,7 @@
 package io.gridgo.bean;
 
+import static io.gridgo.bean.support.BElementPojoHelper.anyToBElement;
+
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Supplier;
@@ -41,12 +43,12 @@ public interface BObject extends BContainer, Map<String, BElement> {
     }
 
     static BObject ofPojo(Object pojo) {
-        return BElementPojoHelper.anyToBElement(pojo).asObject();
+        return anyToBElement(pojo).asObject();
     }
 
     @Deprecated
     static BObject ofPojoRecursive(Object pojo) {
-        return BElementPojoHelper.anyToBElement(pojo).asObject();
+        return anyToBElement(pojo).asObject();
     }
 
     static BObject ofSequence(Object... sequence) {
@@ -271,27 +273,30 @@ public interface BObject extends BContainer, Map<String, BElement> {
     }
 
     default BElement putAnyPojo(String name, Object pojo) {
-        return this.putAny(name, BElementPojoHelper.anyToBElement(pojo).asObject());
+        return this.putAny(name, anyToBElement(pojo).asObject());
     }
 
+    @Deprecated
     default BElement putAnyPojoRecursive(String name, Object pojo) {
-        return this.putAny(name, BElementPojoHelper.anyToBElement(pojo).asObject());
+        return this.putAny(name, anyToBElement(pojo).asObject());
     }
 
     default BElement putAnyPojoIfAbsent(String name, Object pojo) {
-        return this.putAnyIfAbsent(name, BElementPojoHelper.anyToBElement(pojo).asObject());
+        return this.putAnyIfAbsent(name, anyToBElement(pojo).asObject());
     }
 
+    @Deprecated
     default BElement putAnyPojoRecursiveIfAbsent(String name, Object pojo) {
-        return this.putAnyIfAbsent(name, BElementPojoHelper.anyToBElement(pojo).asObject());
+        return this.putAnyIfAbsent(name, anyToBElement(pojo).asObject());
     }
 
     default void putAnyAllPojo(Object pojo) {
-        this.putAnyAll(BElementPojoHelper.anyToBElement(pojo).asObject());
+        this.putAnyAll(anyToBElement(pojo).asObject());
     }
 
+    @Deprecated
     default void putAnyAllPojoRecursive(Object pojo) {
-        this.putAnyAll(BElementPojoHelper.anyToBElement(pojo).asObject());
+        this.putAnyAll(anyToBElement(pojo).asObject());
     }
 
     default void putAnySequence(Object... elements) {

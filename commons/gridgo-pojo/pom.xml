@@ -1,7 +1,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>gridgo-formatting</artifactId>
 
 	<parent>
 		<groupId>io.gridgo</groupId>
@@ -10,27 +9,18 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<properties>
-		<evalex.version>2.0</evalex.version>
-		<apache.common.text.version>1.4</apache.common.text.version>
-	</properties>
+	<artifactId>gridgo-pojo</artifactId>
 
 	<dependencies>
 		<dependency>
-			<groupId>io.gridgo</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>gridgo-utils</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-text</artifactId>
-			<version>${apache.common.text.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.udojava</groupId>
-			<artifactId>EvalEx</artifactId>
-			<version>${evalex.version}</version>
-			<scope>provided</scope>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>gridgo-formatting</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
 </project>

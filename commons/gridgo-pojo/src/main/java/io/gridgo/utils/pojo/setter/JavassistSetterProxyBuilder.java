@@ -4,6 +4,7 @@ import static io.gridgo.utils.pojo.PojoUtils.extractSetterMethodSignatures;
 
 import java.util.List;
 
+import io.gridgo.utils.PrimitiveUtils;
 import io.gridgo.utils.pojo.PojoMethodSignature;
 import javassist.CannotCompileException;
 import javassist.ClassClassPath;
@@ -96,22 +97,39 @@ class JavassistSetterProxyBuilder implements PojoSetterProxyBuilder {
         method += "\t" + targetType + " castedTarget = " + castedTarget + ";\n";
         for (PojoMethodSignature methodSignature : methodSignatures) {
             String fieldName = methodSignature.getFieldName();
-            String invoked = "castedTarget." + methodSignature.getMethodName();
-
-            if (methodSignature.getFieldType().isPrimitive()) {
-                invoked += "(((" + methodSignature.getWrapperType().getName() + ") value)."
-                        + methodSignature.getFieldType().getTypeName() + "Value());";
-            } else if (methodSignature.getFieldType().isArray()) {
-                invoked += "((" + methodSignature.getComponentType().getName() + "[]) value);";
-            } else {
-                invoked += "((" + methodSignature.getFieldType().getName() + ") value);";
-            }
-
-            method += "\tif (\"" + fieldName + "\".equals(fieldName)) " + invoked + "\n"; //
+            String invokeSetter = buildInvokeSetter(methodSignature);
+            method += "\tif (\"" + fieldName + "\".equals(fieldName)) " + invokeSetter + ";\n"; //
         }
         method += "\n}";
 
         cc.addMethod(CtMethod.make(method, cc));
+    }
+
+    private String buildInvokeSetter(PojoMethodSignature methodSignature) {
+        String invokeSetter = "castedTarget." + methodSignature.getMethodName();
+        Class<?> fieldType = methodSignature.getFieldType();
+        if (methodSignature.isPrimitiveOrWrapperType()) {
+            String wrapperTypeName = methodSignature.getWrapperType().getName();
+            if (PrimitiveUtils.isNumberClass(fieldType)) { // if method receive number
+                String numberType = Number.class.getName();
+                if (methodSignature.isPrimitiveType()) { // receive primitive number
+                    invokeSetter += "(((" + numberType + ") value)." + fieldType.getTypeName() + "Value())";
+                } else { // receive wrapper type
+                    var primitiveTypeName = methodSignature.getPrimitiveTypeFromWrapperType().getName();
+                    invokeSetter += "(" + wrapperTypeName + ".valueOf(((" + numberType + ") value)." + primitiveTypeName
+                            + "Value()))";
+                }
+            } else if (fieldType.isPrimitive()) {
+                invokeSetter += "(((" + wrapperTypeName + ") value)." + fieldType.getName() + "Value())";
+            } else {
+                invokeSetter += "((" + wrapperTypeName + ") value)";
+            }
+        } else if (fieldType.isArray()) {
+            invokeSetter += "((" + methodSignature.getComponentType().getName() + "[]) value)";
+        } else {
+            invokeSetter += "((" + fieldType.getName() + ") value)";
+        }
+        return invokeSetter;
     }
 
     private void buildWalkthroughMethod(CtClass cc, List<PojoMethodSignature> methodSignatures, String targetType,
@@ -130,19 +148,7 @@ class JavassistSetterProxyBuilder implements PojoSetterProxyBuilder {
 
         for (PojoMethodSignature methodSignature : methodSignatures) {
             String fieldName = methodSignature.getFieldName();
-
-            Class<?> fieldType = methodSignature.getFieldType();
-            String invokeSetter = "castedTarget." + methodSignature.getMethodName();
-            if (fieldType.isPrimitive()) {
-                String wrapperType = methodSignature.getWrapperType().getName();
-                invokeSetter += "(((" + wrapperType + ") value)." + fieldType.getTypeName() + "Value())";
-            } else if (fieldType.isArray()) {
-                String componentType = methodSignature.getComponentType().getName();
-                invokeSetter += "((" + componentType + "[]) value)";
-            } else {
-                invokeSetter += "((" + fieldType.getName() + ") value)";
-            }
-
+            String invokeSetter = buildInvokeSetter(methodSignature);
             String signatureFieldName = fieldName + signatureFieldSubfix;
             method += "        if (fieldName.equals(\"" + fieldName + "\")) {\n"; // start if 1
             method += "            Object value = consumer.apply(this." + signatureFieldName + ");\n";
@@ -179,18 +185,7 @@ class JavassistSetterProxyBuilder implements PojoSetterProxyBuilder {
         for (PojoMethodSignature methodSignature : methodSignatures) {
             String fieldName = methodSignature.getFieldName();
 
-            Class<?> fieldType = methodSignature.getFieldType();
-            String invokeSetter = "castedTarget." + methodSignature.getMethodName();
-
-            if (fieldType.isPrimitive()) {
-                String wrapperType = methodSignature.getWrapperType().getName();
-                invokeSetter += "(((" + wrapperType + ") value)." + fieldType.getTypeName() + "Value())";
-            } else if (fieldType.isArray()) {
-                String componentType = methodSignature.getComponentType().getName();
-                invokeSetter += "((" + componentType + "[]) value)";
-            } else {
-                invokeSetter += "((" + fieldType.getName() + ") value)";
-            }
+            String invokeSetter = buildInvokeSetter(methodSignature);
 
             String signatureFieldName = fieldName + signatureFieldSubfix;
             method += "    value = consumer.apply(this." + signatureFieldName + ");\n";

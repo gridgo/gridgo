@@ -60,10 +60,10 @@ public class TestPojoSetterSimple extends AbstractTest {
     @Test
     public void testSimpleLong() throws Exception {
         String fieldName = "longValue";
-        var value = (long) 10;
+        Integer value = 10;
 
         PojoUtils.setValue(target, fieldName, value);
-        assertEquals(value, target.getLongValue());
+        assertEquals(value.longValue(), target.getLongValue());
     }
 
     @Test

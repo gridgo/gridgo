@@ -22,6 +22,7 @@ public final class PojoMethodSignature {
     private Method method;
     private String fieldName;
     private Class<?> fieldType;
+    private String transformedFieldName;
 
     public String getMethodName() {
         return this.method.getName();
@@ -111,6 +112,10 @@ public final class PojoMethodSignature {
         return PrimitiveUtils.isWrapperType(fieldType);
     }
 
+    public Class<?> getPrimitiveTypeFromWrapperType() {
+        return PrimitiveUtils.getPrimitiveFromWrapperType(this.fieldType);
+    }
+
     public boolean isPrimitiveOrWrapperType() {
         return this.isPrimitiveType() || this.isWrapperType();
     }
@@ -134,5 +139,11 @@ public final class PojoMethodSignature {
      */
     public boolean isSequenceType() {
         return this.isCollectionType() || this.isArrayType();
+    }
+
+    public String getTransformedOrDefaultFieldName() {
+        return transformedFieldName == null || transformedFieldName.isBlank() //
+                ? fieldName //
+                : transformedFieldName;
     }
 }
