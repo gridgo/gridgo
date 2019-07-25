@@ -27,27 +27,25 @@ public class PrimitiveUtils {
     }
 
     public static Class<?> getWrapperType(Class<?> primitiveType) {
-        if (primitiveType.isPrimitive()) {
-            switch (primitiveType.getName()) {
-            case "void": // this case may never reach...
-                return Void.class;
-            case "boolean":
-                return Boolean.class;
-            case "char":
-                return Character.class;
-            case "byte":
-                return Byte.class;
-            case "short":
-                return Short.class;
-            case "int":
-                return Integer.class;
-            case "long":
-                return Long.class;
-            case "float":
-                return Float.class;
-            case "double":
-                return Double.class;
-            }
+        switch (primitiveType.getName()) {
+        case "void": // this case may never reach...
+            return Void.class;
+        case "boolean":
+            return Boolean.class;
+        case "char":
+            return Character.class;
+        case "byte":
+            return Byte.class;
+        case "short":
+            return Short.class;
+        case "int":
+            return Integer.class;
+        case "long":
+            return Long.class;
+        case "float":
+            return Float.class;
+        case "double":
+            return Double.class;
         }
         return null;
     }

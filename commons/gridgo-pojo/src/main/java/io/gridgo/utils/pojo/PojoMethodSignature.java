@@ -113,7 +113,7 @@ public final class PojoMethodSignature {
     }
 
     public Class<?> getPrimitiveTypeFromWrapperType() {
-        return PrimitiveUtils.getWrapperType(this.fieldType);
+        return PrimitiveUtils.getPrimitiveFromWrapperType(this.fieldType);
     }
 
     public boolean isPrimitiveOrWrapperType() {

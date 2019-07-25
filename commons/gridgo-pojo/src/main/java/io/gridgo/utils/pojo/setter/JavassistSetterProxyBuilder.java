@@ -107,26 +107,27 @@ class JavassistSetterProxyBuilder implements PojoSetterProxyBuilder {
 
     private String buildInvokeSetter(PojoMethodSignature methodSignature) {
         String invokeSetter = "castedTarget." + methodSignature.getMethodName();
-        String fieldTypeName = methodSignature.getFieldType().getName();
+        Class<?> fieldType = methodSignature.getFieldType();
         if (methodSignature.isPrimitiveOrWrapperType()) {
-            Class<?> wrapperType = methodSignature.getWrapperType();
-            if (PrimitiveUtils.isNumberClass(methodSignature.getFieldType())) { // if method receive number
+            String wrapperTypeName = methodSignature.getWrapperType().getName();
+            if (PrimitiveUtils.isNumberClass(fieldType)) { // if method receive number
                 String numberType = Number.class.getName();
                 if (methodSignature.isPrimitiveType()) { // receive primitive number
-                    invokeSetter += "(((" + numberType + ") value)." + fieldTypeName + "Value())";
+                    invokeSetter += "(((" + numberType + ") value)." + fieldType.getTypeName() + "Value())";
                 } else { // receive wrapper type
-                    var primitiveTypeName = methodSignature.getPrimitiveTypeFromWrapperType().getTypeName();
-                    invokeSetter += "(" + wrapperType + ".valueOf(((" + numberType + ") value)." + primitiveTypeName
+                    var primitiveTypeName = methodSignature.getPrimitiveTypeFromWrapperType().getName();
+                    invokeSetter += "(" + wrapperTypeName + ".valueOf(((" + numberType + ") value)." + primitiveTypeName
                             + "Value()))";
                 }
+            } else if (fieldType.isPrimitive()) {
+                invokeSetter += "(((" + wrapperTypeName + ") value)." + fieldType.getName() + "Value())";
             } else {
-                String wrapperTypeName = wrapperType.getName();
-                invokeSetter += "(((" + wrapperTypeName + ") value)." + fieldTypeName + "Value())";
+                invokeSetter += "((" + wrapperTypeName + ") value)";
             }
-        } else if (methodSignature.getFieldType().isArray()) {
+        } else if (fieldType.isArray()) {
             invokeSetter += "((" + methodSignature.getComponentType().getName() + "[]) value)";
         } else {
-            invokeSetter += "((" + methodSignature.getFieldType().getName() + ") value)";
+            invokeSetter += "((" + fieldType.getName() + ") value)";
         }
         return invokeSetter;
     }
