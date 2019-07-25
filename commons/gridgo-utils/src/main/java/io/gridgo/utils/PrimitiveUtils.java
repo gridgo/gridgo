@@ -52,6 +52,19 @@ public class PrimitiveUtils {
         return null;
     }
 
+    public static Class<?> getPrimitiveFromWrapperType(Class<?> type) {
+        return type == Void.class ? Void.TYPE : // this case may never reached...
+                type == Boolean.class ? Boolean.TYPE : //
+                        type == Character.class ? Character.TYPE : //
+                                type == Byte.class ? Byte.TYPE : //
+                                        type == Short.class ? Short.TYPE : //
+                                                type == Integer.class ? Integer.TYPE : //
+                                                        type == Long.class ? Long.TYPE : //
+                                                                type == Float.class ? Float.TYPE : //
+                                                                        type == Double.class ? Double.TYPE : //
+                                                                                null;
+    }
+
     public static boolean isNumberClass(@NonNull Class<?> clazz) {
         if (Number.class.isAssignableFrom(clazz)) {
             return true;
