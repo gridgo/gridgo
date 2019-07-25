@@ -25,7 +25,7 @@ public class PojoGetterRegistry {
         if (!CACHED_PROXIES.containsKey(typeName)) {
             synchronized (CACHED_PROXIES) {
                 if (!CACHED_PROXIES.containsKey(typeName)) {
-                    CACHED_PROXIES.put(typeName, walkerBuilder.buildGetterWalker(type));
+                    CACHED_PROXIES.put(typeName, walkerBuilder.buildGetterProxy(type));
                 }
             }
         }

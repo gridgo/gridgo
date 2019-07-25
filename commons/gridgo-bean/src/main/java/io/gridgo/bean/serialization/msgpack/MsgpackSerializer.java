@@ -171,16 +171,24 @@ public class MsgpackSerializer extends AbstractBSerializer {
 
     private void packPojo(Object target, MessagePacker packer) throws IOException {
         if (target != null) {
-            PojoGetterProxy proxy = PojoGetterRegistry.getInstance().getGetterProxy(target.getClass());
-            packer.packMapHeader(proxy.getFields().length);
-            proxy.walkThrough(target, (signature, value) -> {
-                try {
-                    packer.packString(signature.getTransformedOrDefaultFieldName());
-                    packAny(value, packer);
-                } catch (IOException e) {
-                    throw new RuntimeIOException(e);
-                }
-            });
+            if (ArrayUtils.isArrayOrCollection(target.getClass())) {
+                packArray(target, packer);
+            } else if (Map.class.isAssignableFrom(target.getClass())) {
+                packMap(target, packer);
+            } else if (PrimitiveUtils.isPrimitive(target.getClass())) {
+                packValue(target, packer);
+            } else {
+                PojoGetterProxy proxy = PojoGetterRegistry.getInstance().getGetterProxy(target.getClass());
+                packer.packMapHeader(proxy.getFields().length);
+                proxy.walkThrough(target, (signature, value) -> {
+                    try {
+                        packer.packString(signature.getTransformedOrDefaultFieldName());
+                        packAny(value, packer);
+                    } catch (IOException e) {
+                        throw new RuntimeIOException(e);
+                    }
+                });
+            }
         } else {
             packer.packNil();
         }

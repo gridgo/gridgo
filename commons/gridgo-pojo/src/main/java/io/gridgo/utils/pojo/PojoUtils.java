@@ -6,6 +6,7 @@ import static io.gridgo.utils.StringUtils.lowerCaseFirstLetter;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import io.gridgo.utils.PrimitiveUtils;
 import io.gridgo.utils.annotations.Transient;
 import io.gridgo.utils.exception.InvalidFieldNameException;
 import io.gridgo.utils.pojo.getter.PojoGetterRegistry;
@@ -28,6 +30,12 @@ public class PojoUtils {
     private final static Set<String> GETTER_PREFIXES = new HashSet<String>(Arrays.asList("get", "is"));
 
     public static List<PojoMethodSignature> extractSetterMethodSignatures(Class<?> targetType) {
+        if (Collection.class.isAssignableFrom(targetType) //
+                || Map.class.isAssignableFrom(targetType) //
+                || PrimitiveUtils.isPrimitive(targetType)) {
+            throw new IllegalArgumentException("Cannot extract method signature from " + targetType.getName());
+        }
+
         var results = new LinkedList<PojoMethodSignature>();
 
         String transformRule = null;
@@ -38,7 +46,8 @@ public class PojoUtils {
             ignoredFields = new HashSet<String>(Arrays.asList(annotation.ignore()));
         }
 
-        Method[] methods = targetType.getDeclaredMethods();
+        Collection<Method> methods = extractAllMethods(targetType);
+
         for (Method method : methods) {
             if (method.getParameterCount() == 1 && method.getReturnType() == Void.TYPE
                     && method.getName().startsWith(SETTER_PREFIX)) {
@@ -117,6 +126,12 @@ public class PojoUtils {
     }
 
     public static final List<PojoMethodSignature> extractGetterMethodSignatures(@NonNull Class<?> targetType) {
+        if (Collection.class.isAssignableFrom(targetType) //
+                || Map.class.isAssignableFrom(targetType) //
+                || PrimitiveUtils.isPrimitive(targetType)) {
+            throw new IllegalArgumentException("Cannot extract method signature from " + targetType.getName());
+        }
+
         var results = new LinkedList<PojoMethodSignature>();
 
         String transformRule = null;
@@ -127,9 +142,11 @@ public class PojoUtils {
             ignoredFields = new HashSet<String>(Arrays.asList(annotation.ignore()));
         }
 
-        Method[] methods = targetType.getDeclaredMethods();
+        Collection<Method> methods = extractAllMethods(targetType);
+
         for (Method method : methods) {
             String methodName = method.getName();
+
             if (method.getParameterCount() == 0 //
                     && method.getReturnType() != Void.TYPE //
                     && GETTER_PREFIXES.stream().anyMatch(prefix -> methodName.startsWith(prefix))) {
@@ -160,6 +177,21 @@ public class PojoUtils {
             }
         }
         return results;
+    }
+
+    private static Collection<Method> extractAllMethods(Class<?> targetType) {
+        Map<String, Method> nameToMethod = new HashMap<String, Method>();
+        Class<?> t = targetType;
+        do {
+            Method[] methods = t.getDeclaredMethods();
+            for (Method method : methods) {
+                if (!nameToMethod.containsKey(method.getName())) {
+                    nameToMethod.put(method.getName(), method);
+                }
+            }
+            t = t.getSuperclass();
+        } while (t != Object.class);
+        return nameToMethod.values();
     }
 
     public static final Object getValue(@NonNull Object target, @NonNull String fieldName) {

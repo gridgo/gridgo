@@ -2,7 +2,7 @@ package io.gridgo.utils.pojo.getter;
 
 public interface PojoGetterProxyBuilder {
 
-    PojoGetterProxy buildGetterWalker(Class<?> target);
+    PojoGetterProxy buildGetterProxy(Class<?> target);
 
     static PojoGetterProxyBuilder newJavassist() {
         return new JavassistGetterProxyBuilder();
