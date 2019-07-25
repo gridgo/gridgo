@@ -112,58 +112,63 @@ public class BElementPojoHelper {
             return null;
         }
 
+        T result = null;
+
         try {
-            T result = type.getConstructor().newInstance();
-            var proxy = SETTER_REGISTRY.getSetterProxy(type);
-            proxy.walkThrough(result, (signature) -> {
-                var fieldName = signature.getFieldName();
-                var transformedFieldName = signature.getTransformedFieldName();
+            result = type.getConstructor().newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException("Cannot convert BObject to POJO, cannot create instance of: " + type.getName(),
+                    e);
+        }
 
-                BElement value = transformedFieldName != null && !transformedFieldName.isBlank() //
-                        ? src.getOrDefault(transformedFieldName, () -> src.getOrDefault(fieldName, () -> null)) //
-                        : src.getOrDefault(fieldName, () -> null);
+        var proxy = SETTER_REGISTRY.getSetterProxy(type);
+        proxy.walkThrough(result, (signature) -> {
+            var fieldName = signature.getFieldName();
+            var transformedFieldName = signature.getTransformedFieldName();
 
-                if (value == null) {
+            BElement value = transformedFieldName != null && !transformedFieldName.isBlank() //
+                    ? src.getOrDefault(transformedFieldName, () -> src.getOrDefault(fieldName, () -> null)) //
+                    : src.getOrDefault(fieldName, () -> null);
+
+            if (value == null) {
+                return ValueHolder.NO_VALUE;
+            }
+
+            if (value.isNullValue()) {
+                if (signature.getFieldType().isPrimitive()) {
                     return ValueHolder.NO_VALUE;
                 }
+                return null;
+            }
 
-                if (value.isNullValue()) {
-                    if (signature.getFieldType().isPrimitive()) {
-                        return ValueHolder.NO_VALUE;
-                    }
-                    return null;
+            if (PrimitiveUtils.isPrimitive(signature.getFieldType())) {
+                if (!value.isValue()) {
+                    throw new InvalidTypeException("Expected BValue, got: " + value.getType());
                 }
+                return PrimitiveUtils.getValueFrom(signature.getFieldType(), value.asValue().getData());
+            }
 
-                if (PrimitiveUtils.isPrimitive(signature.getFieldType())) {
-                    if (!value.isValue()) {
-                        throw new InvalidTypeException("Expected BValue, got: " + value.getType());
-                    }
-                    return value.asValue().getData();
+            if (signature.isSequenceType()) {
+                if (!value.isArray()) {
+                    throw new InvalidTypeException("Expected BArray for field: " + signature.getFieldName() + ", type: "
+                            + type + ", got: " + value);
                 }
+                return toSequence(value.asArray(), signature);
+            }
 
-                if (signature.isSequenceType()) {
-                    if (!value.isArray()) {
-                        throw new InvalidTypeException("Expected BArray, got: " + value.getType());
-                    }
-                    return toSequence(value.asArray(), signature);
+            if (signature.isKeyValueType()) {
+                if (value.isReference() && signature.isPojoType()) {
+                    return value.asReference().getReference();
                 }
-
-                if (signature.isKeyValueType()) {
-                    if (value.isReference() && signature.isPojoType()) {
-                        return value.asReference().getReference();
-                    }
-                    if (!value.isObject()) {
-                        throw new InvalidTypeException("Expected BObject, got: " + value.getType());
-                    }
-                    return bObjectToKeyValue(value.asObject(), signature);
+                if (!value.isObject()) {
+                    throw new InvalidTypeException("Expected BObject, got: " + value.getType());
                 }
+                return bObjectToKeyValue(value.asObject(), signature);
+            }
 
-                return ValueHolder.NO_VALUE;
-            });
-            return result;
-        } catch (Exception e) {
-            throw new RuntimeException("Cannot convert BObject to POJO", e);
-        }
+            return ValueHolder.NO_VALUE;
+        });
+        return result;
     }
 
     private static Object toSequence(BArray array, PojoMethodSignature signature) {

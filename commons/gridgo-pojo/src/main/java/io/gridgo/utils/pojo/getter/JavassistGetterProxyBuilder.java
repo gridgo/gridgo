@@ -15,7 +15,7 @@ import javassist.CtMethod;
 class JavassistGetterProxyBuilder implements PojoGetterProxyBuilder {
 
     @Override
-    public PojoGetterProxy buildGetterWalker(Class<?> target) {
+    public PojoGetterProxy buildGetterProxy(Class<?> target) {
         String className = target.getName().replaceAll("\\.", "_") + "_getter_proxy_" + System.nanoTime();
         try {
             ClassPool pool = ClassPool.getDefault();

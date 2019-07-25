@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Supplier;
 
-import io.gridgo.bean.exceptions.BeanSerializationException;
 import io.gridgo.bean.exceptions.InvalidTypeException;
 import io.gridgo.bean.factory.BFactory;
 import io.gridgo.bean.support.BElementPojoHelper;
@@ -15,11 +14,7 @@ import lombok.NonNull;
 public interface BObject extends BContainer, Map<String, BElement> {
 
     default <T> T toPojo(Class<T> clazz) {
-        try {
-            return BElementPojoHelper.toPojo(this, clazz);
-        } catch (Exception e) {
-            throw new BeanSerializationException("Exception caught while converting BObject to POJO", e);
-        }
+        return BElementPojoHelper.toPojo(this, clazz);
     }
 
     static BObject wrap(Map<?, ?> source) {
