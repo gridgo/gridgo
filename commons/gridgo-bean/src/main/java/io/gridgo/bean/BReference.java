@@ -1,5 +1,7 @@
 package io.gridgo.bean;
 
+import static io.gridgo.bean.support.BElementPojoHelper.pojoToJsonElement;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -100,8 +102,12 @@ public interface BReference extends BElement {
 
     @Override
     @SuppressWarnings("unchecked")
-    default String toJsonElement() {
+    default <T> T toJsonElement() {
         var ref = this.getReference();
-        return ref == null ? "null" : ref.toString();
+        return ref == null ? null : (T) pojoToJsonElement(this.getReference());
+    }
+
+    default BObject toBObject() {
+        return BObject.ofPojo(this.getReference());
     }
 }

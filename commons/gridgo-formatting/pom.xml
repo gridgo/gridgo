@@ -21,13 +21,11 @@
 			<artifactId>gridgo-utils</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-text</artifactId>
 			<version>${apache.common.text.version}</version>
 		</dependency>
-
 		<dependency>
 			<groupId>com.udojava</groupId>
 			<artifactId>EvalEx</artifactId>

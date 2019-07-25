@@ -1,25 +1,20 @@
 package io.gridgo.bean;
 
-import java.lang.reflect.InvocationTargetException;
+import static io.gridgo.bean.support.BElementPojoHelper.anyToBElement;
+
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Supplier;
 
-import io.gridgo.bean.exceptions.BeanSerializationException;
 import io.gridgo.bean.exceptions.InvalidTypeException;
 import io.gridgo.bean.factory.BFactory;
-import io.gridgo.utils.ObjectUtils;
+import io.gridgo.bean.support.BElementPojoHelper;
 import lombok.NonNull;
 
 public interface BObject extends BContainer, Map<String, BElement> {
 
     default <T> T toPojo(Class<T> clazz) {
-        try {
-            return ObjectUtils.fromMap(clazz, this.toMap());
-        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
-                | NoSuchMethodException | SecurityException e) {
-            throw new BeanSerializationException("Exception caught while converting BObject to POJO", e);
-        }
+        return BElementPojoHelper.toPojo(this, clazz);
     }
 
     static BObject wrap(Map<?, ?> source) {
@@ -43,15 +38,12 @@ public interface BObject extends BContainer, Map<String, BElement> {
     }
 
     static BObject ofPojo(Object pojo) {
-        BObject result = ofEmpty();
-        result.putAnyAllPojo(pojo);
-        return result;
+        return anyToBElement(pojo).asObject();
     }
 
+    @Deprecated
     static BObject ofPojoRecursive(Object pojo) {
-        BObject result = ofEmpty();
-        result.putAnyAllPojoRecursive(pojo);
-        return result;
+        return anyToBElement(pojo).asObject();
     }
 
     static BObject ofSequence(Object... sequence) {
@@ -269,32 +261,37 @@ public interface BObject extends BContainer, Map<String, BElement> {
 
     default void putAnyAll(Map<?, ?> map) {
         for (Entry<?, ?> entry : map.entrySet()) {
-            this.putAny(entry.getKey().toString(), entry.getValue());
+            Object entryKey = entry.getKey();
+            String field = entryKey instanceof byte[] ? new String((byte[]) entryKey) : entryKey.toString();
+            this.putAny(field, entry.getValue());
         }
     }
 
     default BElement putAnyPojo(String name, Object pojo) {
-        return this.putAny(name, ObjectUtils.toMap(pojo));
+        return this.putAny(name, anyToBElement(pojo).asObject());
     }
 
+    @Deprecated
     default BElement putAnyPojoRecursive(String name, Object pojo) {
-        return this.putAny(name, ObjectUtils.toMapRecursive(pojo));
+        return this.putAny(name, anyToBElement(pojo).asObject());
     }
 
     default BElement putAnyPojoIfAbsent(String name, Object pojo) {
-        return this.putAnyIfAbsent(name, ObjectUtils.toMap(pojo));
+        return this.putAnyIfAbsent(name, anyToBElement(pojo).asObject());
     }
 
+    @Deprecated
     default BElement putAnyPojoRecursiveIfAbsent(String name, Object pojo) {
-        return this.putAnyIfAbsent(name, ObjectUtils.toMapRecursive(pojo));
+        return this.putAnyIfAbsent(name, anyToBElement(pojo).asObject());
     }
 
     default void putAnyAllPojo(Object pojo) {
-        this.putAnyAll(ObjectUtils.toMap(pojo));
+        this.putAnyAll(anyToBElement(pojo).asObject());
     }
 
+    @Deprecated
     default void putAnyAllPojoRecursive(Object pojo) {
-        this.putAnyAll(ObjectUtils.toMapRecursive(pojo));
+        this.putAnyAll(anyToBElement(pojo).asObject());
     }
 
     default void putAnySequence(Object... elements) {

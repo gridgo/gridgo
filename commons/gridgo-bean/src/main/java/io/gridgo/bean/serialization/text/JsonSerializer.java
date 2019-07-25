@@ -5,10 +5,14 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.Map;
 
 import io.gridgo.bean.BElement;
 import io.gridgo.bean.exceptions.BeanSerializationException;
 import io.gridgo.bean.serialization.AbstractBSerializer;
+import io.gridgo.bean.serialization.BDeserializationConfig;
 import io.gridgo.bean.serialization.BSerializationPlugin;
 import io.gridgo.utils.exception.RuntimeIOException;
 import lombok.NonNull;
@@ -23,6 +27,7 @@ public class JsonSerializer extends AbstractBSerializer {
 
     public static final String NAME = "json";
 
+    @SuppressWarnings("unchecked")
     @Override
     public void serialize(@NonNull BElement element, @NonNull OutputStream out) {
         var outWriter = new OutputStreamWriter(out);
@@ -31,6 +36,15 @@ public class JsonSerializer extends AbstractBSerializer {
                 JSONArray.writeJSONString(element.asArray().toJsonElement(), outWriter);
             } else if (element.isObject()) {
                 JSONObject.writeJSON(element.asObject().toJsonElement(), outWriter);
+            } else if (element.isReference()) {
+                Object jsonElement = element.asReference().toJsonElement();
+                if (jsonElement instanceof Collection) {
+                    JSONArray.writeJSONString(new LinkedList<>((Collection<?>) jsonElement), outWriter);
+                } else if (jsonElement instanceof Map) {
+                    JSONObject.writeJSON((Map<String, ? extends Object>) jsonElement, outWriter);
+                } else {
+                    JSONValue.writeJSONString(jsonElement, outWriter);
+                }
             } else {
                 JSONValue.writeJSONString(element.toJsonElement(), outWriter);
             }
@@ -41,7 +55,7 @@ public class JsonSerializer extends AbstractBSerializer {
     }
 
     @Override
-    public BElement deserialize(@NonNull InputStream in) {
+    public BElement deserialize(@NonNull InputStream in, BDeserializationConfig config) {
         try {
             return getFactory().fromAny(new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE).parse(in));
         } catch (UnsupportedEncodingException | ParseException e) {

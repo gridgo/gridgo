@@ -13,7 +13,11 @@ public interface BSerializer {
 
     void serialize(BElement element, OutputStream out);
 
-    BElement deserialize(InputStream in);
+    BElement deserialize(InputStream in, BDeserializationConfig config);
+
+    default BElement deserialize(InputStream in) {
+        return this.deserialize(in, null);
+    }
 
     default void serialize(BElement element, ByteBuffer out) {
         this.serialize(element, new ByteBufferOutputStream(out));

@@ -20,14 +20,14 @@ public class BObjectUnitTest {
     @Test
     public void testSetAny() {
         var obj = BObject.ofEmpty() //
-                         .set("int", BValue.of(1)) //
-                         .setAny("long", 1L) //
-                         .setAny("char", 'a') //
-                         .setAny("str", "hello") //
-                         .setAny("double", 1.11) //
-                         .setAny("byte", (byte) 1) //
-                         .setAny("arr", new int[] { 1, 2, 3 }) //
-                         .set("obj", BObject.ofEmpty().setAny("int", 2));
+                .set("int", BValue.of(1)) //
+                .setAny("long", 1L) //
+                .setAny("char", 'a') //
+                .setAny("str", "hello") //
+                .setAny("double", 1.11) //
+                .setAny("byte", (byte) 1) //
+                .setAny("arr", new int[] { 1, 2, 3 }) //
+                .set("obj", BObject.ofEmpty().setAny("int", 2));
         assertObject(obj);
         assertObject(obj.deepClone());
         obj.setAnyIfAbsent("arr", 1);
@@ -75,8 +75,8 @@ public class BObjectUnitTest {
         Assert.assertEquals("hello", obj.getString("str", null));
         Assert.assertArrayEquals(new Integer[] { 1, 2, 3 }, //
                 obj.getArray("arr", BArray.ofEmpty()).stream() //
-                   .map(e -> e.asValue().getData()) //
-                   .toArray(size -> new Integer[size]));
+                        .map(e -> e.asValue().getData()) //
+                        .toArray(size -> new Integer[size]));
         Assert.assertEquals(Long.valueOf(1L), obj.getLong("long", -1));
         Assert.assertEquals(Character.valueOf('a'), obj.getChar("char", '\0'));
         Assert.assertEquals(1.11, obj.getDouble("double", -1), 0);
@@ -88,26 +88,27 @@ public class BObjectUnitTest {
     @Test
     public void testPojoRecursive() {
         var bar = Bar.builder().b(true).build();
-        var pojo = Foo.builder().d(1.0).i(1).s("hello").b(bar).build();
-        var deserialized = BObject.ofPojoRecursive(pojo).toPojo(Foo.class);
-        Assert.assertEquals(pojo.getD(), deserialized.getD(), 0.0);
-        Assert.assertEquals(pojo.getI(), deserialized.getI());
-        Assert.assertEquals(pojo.getS(), deserialized.getS());
-        Assert.assertEquals(pojo.getB().isB(), deserialized.getB().isB());
+        var pojo = Foo.builder().doubleValue(1.0).intValue(1).stringValue("hello").barValue(bar).build();
+        var deserialized = BObject.ofPojo(pojo).toPojo(Foo.class);
+        Assert.assertEquals(pojo.getDoubleValue(), deserialized.getDoubleValue(), 0.0);
+        Assert.assertEquals(pojo.getIntValue(), deserialized.getIntValue());
+        Assert.assertEquals(pojo.getStringValue(), deserialized.getStringValue());
+        Assert.assertEquals(pojo.getBarValue().isB(), deserialized.getBarValue().isB());
     }
 
     @Test
     public void testPojo() {
-        var pojo = Foo.builder().d(1.0).i(1).s("hello").build();
+        var pojo = Foo.builder().doubleValue(1.0).intValue(1).stringValue("hello").build();
         var deserialized = BObject.ofPojo(pojo).toPojo(Foo.class);
-        Assert.assertEquals(pojo.getD(), deserialized.getD(), 0.0);
-        Assert.assertEquals(pojo.getI(), deserialized.getI());
-        Assert.assertEquals(pojo.getS(), deserialized.getS());
+        Assert.assertEquals(pojo.getDoubleValue(), deserialized.getDoubleValue(), 0.0);
+        Assert.assertEquals(pojo.getIntValue(), deserialized.getIntValue());
+        Assert.assertEquals(pojo.getStringValue(), deserialized.getStringValue());
     }
 
     @Test
     public void testWriteString() {
-        var pojo = Foo.builder().d(1.0).i(1).arr(new int[] { 1, 2 }).s("hello").build();
+        var pojo = Foo.builder().doubleValue(1.0).intValue(1).intArrayValue(new int[] { 1, 2 }).stringValue("hello")
+                .build();
         var obj = BObject.ofPojo(pojo);
         Assert.assertNotNull(obj.toString());
     }

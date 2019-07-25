@@ -52,11 +52,11 @@ public class TestImmutable {
         System.out.println(obj.toString());
 
         assertTrue(obj instanceof ImmutableBObject);
-        assertEquals(Integer.valueOf(foo.getI()), obj.asObject().getInteger("i"));
-        assertTrue(obj.asObject().getArray("arr").equals(foo.getArr()));
-        assertEquals(Double.valueOf(foo.getD()), obj.asObject().getDouble("d"));
-        assertEquals(foo.getS(), obj.asObject().getString("s"));
-        assertEquals(foo.getB(), obj.asObject().getReference("b").getReference());
+        assertEquals(Integer.valueOf(foo.getIntValue()), obj.asObject().getInteger("intValue"));
+        assertTrue(obj.asObject().getArray("intArrayValue").equals(foo.getIntArrayValue()));
+        assertEquals(Double.valueOf(foo.getDoubleValue()), obj.asObject().getDouble("doubleValue"));
+        assertEquals(foo.getStringValue(), obj.asObject().getString("stringValue"));
+        assertEquals(foo.getBarValue(), obj.asObject().getReference("barValue").getReference());
 
         assertTrue(obj.equals(fooMap));
     }
