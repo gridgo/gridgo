@@ -4,6 +4,7 @@ import static io.gridgo.utils.pojo.PojoUtils.extractSetterMethodSignatures;
 
 import java.util.List;
 
+import io.gridgo.utils.PrimitiveUtils;
 import io.gridgo.utils.pojo.PojoMethodSignature;
 import javassist.CannotCompileException;
 import javassist.ClassClassPath;
@@ -183,8 +184,12 @@ class JavassistSetterProxyBuilder implements PojoSetterProxyBuilder {
             String invokeSetter = "castedTarget." + methodSignature.getMethodName();
 
             if (fieldType.isPrimitive()) {
-                String wrapperType = methodSignature.getWrapperType().getName();
-                invokeSetter += "(((" + wrapperType + ") value)." + fieldType.getTypeName() + "Value())";
+                if (PrimitiveUtils.isNumber(methodSignature.getFieldType())) {
+                    invokeSetter += "(((" + Number.class.getName() + ") value)." + fieldType.getTypeName() + "Value())";
+                } else {
+                    String wrapperType = methodSignature.getWrapperType().getName();
+                    invokeSetter += "(((" + wrapperType + ") value)." + fieldType.getTypeName() + "Value())";
+                }
             } else if (fieldType.isArray()) {
                 String componentType = methodSignature.getComponentType().getName();
                 invokeSetter += "((" + componentType + "[]) value)";

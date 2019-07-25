@@ -54,6 +54,8 @@ public class PojoUtils {
                         map.put("fieldName", fieldName);
                         map.put("methodName", method.getName());
                         map.put("fieldType", paramType.getName());
+                        map.put("packageName", targetType.getPackageName());
+                        map.put("typeName", targetType.getName());
                         transformedFieldName = transform(transformRule, map);
                     }
                 }
@@ -143,6 +145,7 @@ public class PojoUtils {
                             map.put("fieldName", fieldName);
                             map.put("methodName", method.getName());
                             map.put("fieldType", fieldType.getName());
+                            map.put("packageName", targetType.getPackageName());
                             transformedFieldName = transform(transformRule, map);
                         }
                     }
