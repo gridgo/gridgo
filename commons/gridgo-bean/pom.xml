@@ -24,30 +24,21 @@
 			<artifactId>msgpack-core</artifactId>
 			<version>${msgpack.version}</version>
 		</dependency>
-
 		<dependency>
-			<groupId>io.gridgo</groupId>
-			<artifactId>gridgo-utils</artifactId>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>gridgo-pojo</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-
 		<dependency>
 			<groupId>net.minidev</groupId>
 			<artifactId>json-smart</artifactId>
 			<version>${jsonsmart.version}</version>
 		</dependency>
-
 		<dependency>
 			<groupId>com.udojava</groupId>
 			<artifactId>EvalEx</artifactId>
 			<version>${evalex.version}</version>
 			<scope>provided</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.reflections</groupId>
-			<artifactId>reflections</artifactId>
-			<version>${reflections.version}</version>
 		</dependency>
 	</dependencies>
 </project>

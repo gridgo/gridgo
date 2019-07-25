@@ -2,7 +2,7 @@ package io.gridgo.bean.test.support;
 
 import io.gridgo.bean.impl.BReferenceBeautifulPrint;
 import io.gridgo.utils.annotations.Transient;
-import io.gridgo.utils.pojo.FieldName;
+import io.gridgo.utils.pojo.FieldNameTransform;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,21 +13,17 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @BReferenceBeautifulPrint
+@FieldNameTransform(value = "{{fieldName > camelToSnake}}", ignore = { "barValue" })
 public class Foo {
 
-    @FieldName("int_value")
-    private int i;
+    private int intValue;
 
     @Transient
-    @FieldName("int_array_value")
-    private int[] arr;
+    private int[] intArrayValue;
 
-    @FieldName("double_value")
-    private double d;
+    private double doubleValue;
 
-    @FieldName("string_value")
-    private String s;
+    private String stringValue;
 
-    @FieldName("bar")
-    private Bar b;
+    private Bar barValue;
 }

@@ -1,5 +1,7 @@
 package io.gridgo.format;
 
+import static com.google.common.base.CaseFormat.*;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.WordUtils;
 
@@ -27,6 +29,9 @@ public class CommonTextTransformerRegistry extends DefaultFormatTransformerRegis
             ? StringUtils.stripAccents((String) source)
             : source;
 
+    public static FormatTransformer CAMEL_TO_SNAKE_CASE = source -> UPPER_CAMEL.to(LOWER_UNDERSCORE, (String) source);
+    public static FormatTransformer SNAKE_TO_CAMEL_CASE = source -> LOWER_UNDERSCORE.to(UPPER_CAMEL, (String) source);
+
     public static final CommonTextTransformerRegistry newInstance() {
         return new CommonTextTransformerRegistry();
     }
@@ -38,5 +43,7 @@ public class CommonTextTransformerRegistry extends DefaultFormatTransformerRegis
         this.addTransformer("lowerCase", LOWER_CASE);
         this.addTransformer("capitalize", CAPITALIZE);
         this.addTransformer("stripAccents", STRIP_ACCENTS);
+        this.addTransformer("camelToSnake", CAMEL_TO_SNAKE_CASE);
+        this.addTransformer("snakeToCamel", SNAKE_TO_CAMEL_CASE);
     }
 }

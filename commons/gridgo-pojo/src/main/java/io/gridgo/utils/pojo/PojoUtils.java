@@ -1,13 +1,16 @@
 package io.gridgo.utils.pojo;
 
+import static io.gridgo.format.StringFormatter.transform;
 import static io.gridgo.utils.StringUtils.lowerCaseFirstLetter;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import io.gridgo.utils.annotations.Transient;
@@ -26,15 +29,34 @@ public class PojoUtils {
 
     public static List<PojoMethodSignature> extractSetterMethodSignatures(Class<?> targetType) {
         var results = new LinkedList<PojoMethodSignature>();
+
+        String transformRule = null;
+        Set<String> ignoredFields = null;
+        if (targetType.isAnnotationPresent(FieldNameTransform.class)) {
+            var annotation = targetType.getAnnotation(FieldNameTransform.class);
+            transformRule = annotation.value();
+            ignoredFields = new HashSet<String>(Arrays.asList(annotation.ignore()));
+        }
+
         Method[] methods = targetType.getDeclaredMethods();
         for (Method method : methods) {
             if (method.getParameterCount() == 1 && method.getReturnType() == Void.TYPE
                     && method.getName().startsWith(SETTER_PREFIX)) {
 
-                String fieldName = lowerCaseFirstLetter(method.getName().substring(3));
-                String transformedFieldName = findTransformedFieldName(targetType, method, fieldName);
                 Parameter param = method.getParameters()[0];
                 Class<?> paramType = param.getType();
+                String fieldName = lowerCaseFirstLetter(method.getName().substring(3));
+
+                String transformedFieldName = findTransformedFieldName(targetType, method, fieldName);
+                if (transformedFieldName == null && transformRule != null) {
+                    if (ignoredFields == null || ignoredFields.size() == 0 || !ignoredFields.contains(fieldName)) {
+                        Map<String, String> map = new HashMap<>();
+                        map.put("fieldName", fieldName);
+                        map.put("methodName", method.getName());
+                        map.put("fieldType", paramType.getName());
+                        transformedFieldName = transform(transformRule, map);
+                    }
+                }
 
                 results.add(PojoMethodSignature.builder() //
                         .fieldName(fieldName) //
@@ -94,6 +116,15 @@ public class PojoUtils {
 
     public static final List<PojoMethodSignature> extractGetterMethodSignatures(@NonNull Class<?> targetType) {
         var results = new LinkedList<PojoMethodSignature>();
+
+        String transformRule = null;
+        Set<String> ignoredFields = null;
+        if (targetType.isAnnotationPresent(FieldNameTransform.class)) {
+            var annotation = targetType.getAnnotation(FieldNameTransform.class);
+            transformRule = annotation.value();
+            ignoredFields = new HashSet<String>(Arrays.asList(annotation.ignore()));
+        }
+
         Method[] methods = targetType.getDeclaredMethods();
         for (Method method : methods) {
             String methodName = method.getName();
@@ -103,8 +134,18 @@ public class PojoUtils {
 
                 String fieldName = lowerCaseFirstLetter(methodName.substring(methodName.startsWith("is") ? 2 : 3));
                 if (!isTransient(targetType, method, fieldName)) {
-                    String transformedFieldName = findTransformedFieldName(targetType, method, fieldName);
                     Class<?> fieldType = method.getReturnType();
+
+                    String transformedFieldName = findTransformedFieldName(targetType, method, fieldName);
+                    if (transformedFieldName == null && transformRule != null) {
+                        if (ignoredFields == null || ignoredFields.size() == 0 || !ignoredFields.contains(fieldName)) {
+                            Map<String, String> map = new HashMap<>();
+                            map.put("fieldName", fieldName);
+                            map.put("methodName", method.getName());
+                            map.put("fieldType", fieldType.getName());
+                            transformedFieldName = transform(transformRule, map);
+                        }
+                    }
 
                     results.add(PojoMethodSignature.builder() //
                             .fieldName(fieldName) //
