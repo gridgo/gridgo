@@ -104,4 +104,8 @@ public interface BReference extends BElement {
         var ref = this.getReference();
         return ref == null ? "null" : ref.toString();
     }
+
+    default BObject toBObject() {
+        return BObject.ofPojo(this.getReference());
+    }
 }
