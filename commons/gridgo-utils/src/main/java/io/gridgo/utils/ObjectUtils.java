@@ -465,6 +465,7 @@ public final class ObjectUtils {
         return list;
     }
 
+    @Deprecated
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public static final Map<String, Object> toMapRecursive(Object obj) {
         if (obj == null) {
