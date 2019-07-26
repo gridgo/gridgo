@@ -27,6 +27,10 @@ public class TestPojo {
                         .add(new int[] { 1, 2, 3 }) //
                         .add(new int[] { 5, 7, 6 }) //
                         .build()) //
+                .longArrayMap(MapUtils.newMapStringKeyBuilder(long[].class) //
+                        .put("longarr1", new long[] { 4l, 5l }) //
+                        .put("longarr1", new long[] { 6l, 9l }) //
+                        .build()) //
                 .barMap((MapUtils.newMapStringKeyBuilder(Bar.class) //
                         .put("key", Bar.builder() //
                                 .b(true) //

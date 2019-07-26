@@ -15,6 +15,8 @@ public class SuperFoo {
 
     private Map<String, Bar> barMap;
 
+    private Map<String, long[]> longArrayMap;
+
     private List<int[]> intArrayList;
 
     private Set<Bar> barSet;
