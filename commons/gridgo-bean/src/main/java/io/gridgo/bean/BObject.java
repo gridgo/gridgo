@@ -9,12 +9,17 @@ import java.util.function.Supplier;
 import io.gridgo.bean.exceptions.InvalidTypeException;
 import io.gridgo.bean.factory.BFactory;
 import io.gridgo.bean.support.BElementPojoHelper;
+import io.gridgo.utils.pojo.setter.PojoSetterProxy;
 import lombok.NonNull;
 
 public interface BObject extends BContainer, Map<String, BElement> {
 
     default <T> T toPojo(Class<T> clazz) {
-        return BElementPojoHelper.toPojo(this, clazz);
+        return BElementPojoHelper.bObjectToPojo(this, clazz);
+    }
+
+    default <T> T toPojo(Class<T> clazz, PojoSetterProxy setterProxy) {
+        return BElementPojoHelper.bObjectToPojo(this, clazz, setterProxy);
     }
 
     static BObject wrap(Map<?, ?> source) {

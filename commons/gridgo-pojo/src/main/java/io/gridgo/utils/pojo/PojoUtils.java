@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -17,22 +18,31 @@ import java.util.Set;
 import io.gridgo.utils.PrimitiveUtils;
 import io.gridgo.utils.annotations.Transient;
 import io.gridgo.utils.exception.InvalidFieldNameException;
+import io.gridgo.utils.pojo.getter.PojoGetterProxy;
 import io.gridgo.utils.pojo.getter.PojoGetterRegistry;
+import io.gridgo.utils.pojo.setter.PojoSetterProxy;
 import io.gridgo.utils.pojo.setter.PojoSetterRegistry;
 import lombok.NonNull;
 
 public class PojoUtils {
 
-    private static final PojoGetterRegistry GETTER_REGISTRY = PojoGetterRegistry.getInstance();
-    private static final PojoSetterRegistry SETTER_REGISTRY = PojoSetterRegistry.getInstance();
+    private static final PojoGetterRegistry GETTER_REGISTRY = PojoGetterRegistry.DEFAULT;
+    private static final PojoSetterRegistry SETTER_REGISTRY = PojoSetterRegistry.DEFAULT;
 
     private static final String SETTER_PREFIX = "set";
     private final static Set<String> GETTER_PREFIXES = new HashSet<String>(Arrays.asList("get", "is"));
 
-    public static List<PojoMethodSignature> extractSetterMethodSignatures(Class<?> targetType) {
-        if (Collection.class.isAssignableFrom(targetType) //
+    public static boolean isSupported(@NonNull Class<?> targetType) {
+        return !(Collection.class.isAssignableFrom(targetType) //
                 || Map.class.isAssignableFrom(targetType) //
-                || PrimitiveUtils.isPrimitive(targetType)) {
+                || PrimitiveUtils.isPrimitive(targetType) //
+                || targetType.isArray() //
+                || targetType == Date.class //
+                || targetType == java.sql.Date.class);
+    }
+
+    public static List<PojoMethodSignature> extractSetterMethodSignatures(Class<?> targetType) {
+        if (!isSupported(targetType)) {
             throw new IllegalArgumentException("Cannot extract method signature from " + targetType.getName());
         }
 
@@ -52,29 +62,32 @@ public class PojoUtils {
             if (method.getParameterCount() == 1 && method.getReturnType() == Void.TYPE
                     && method.getName().startsWith(SETTER_PREFIX)) {
 
-                Parameter param = method.getParameters()[0];
-                Class<?> paramType = param.getType();
                 String fieldName = lowerCaseFirstLetter(method.getName().substring(3));
 
-                String transformedFieldName = findTransformedFieldName(targetType, method, fieldName);
-                if (transformedFieldName == null && transformRule != null) {
-                    if (ignoredFields == null || ignoredFields.size() == 0 || !ignoredFields.contains(fieldName)) {
-                        Map<String, String> map = new HashMap<>();
-                        map.put("fieldName", fieldName);
-                        map.put("methodName", method.getName());
-                        map.put("fieldType", paramType.getName());
-                        map.put("packageName", targetType.getPackageName());
-                        map.put("typeName", targetType.getName());
-                        transformedFieldName = transform(transformRule, map);
-                    }
-                }
+                if (!isTransient(targetType, method, fieldName)) {
+                    Parameter param = method.getParameters()[0];
+                    Class<?> paramType = param.getType();
 
-                results.add(PojoMethodSignature.builder() //
-                        .fieldName(fieldName) //
-                        .transformedFieldName(transformedFieldName) //
-                        .method(method) //
-                        .fieldType(paramType) //
-                        .build());
+                    String transformedFieldName = findTransformedFieldName(targetType, method, fieldName);
+                    if (transformedFieldName == null && transformRule != null) {
+                        if (ignoredFields == null || ignoredFields.size() == 0 || !ignoredFields.contains(fieldName)) {
+                            Map<String, String> map = new HashMap<>();
+                            map.put("fieldName", fieldName);
+                            map.put("methodName", method.getName());
+                            map.put("fieldType", paramType.getName());
+                            map.put("packageName", targetType.getPackageName());
+                            map.put("typeName", targetType.getName());
+                            transformedFieldName = transform(transformRule, map);
+                        }
+                    }
+
+                    results.add(PojoMethodSignature.builder() //
+                            .fieldName(fieldName) //
+                            .transformedFieldName(transformedFieldName) //
+                            .method(method) //
+                            .fieldType(paramType) //
+                            .build());
+                }
             }
         }
         return results;
@@ -126,9 +139,7 @@ public class PojoUtils {
     }
 
     public static final List<PojoMethodSignature> extractGetterMethodSignatures(@NonNull Class<?> targetType) {
-        if (Collection.class.isAssignableFrom(targetType) //
-                || Map.class.isAssignableFrom(targetType) //
-                || PrimitiveUtils.isPrimitive(targetType)) {
+        if (!isSupported(targetType)) {
             throw new IllegalArgumentException("Cannot extract method signature from " + targetType.getName());
         }
 
@@ -200,5 +211,13 @@ public class PojoUtils {
 
     public static final void setValue(@NonNull Object target, @NonNull String fieldName, Object value) {
         SETTER_REGISTRY.getSetterProxy(target.getClass()).applyValue(target, fieldName, value);
+    }
+
+    public static final PojoGetterProxy getGetterProxy(Class<?> type) {
+        return GETTER_REGISTRY.getGetterProxy(type);
+    }
+
+    public static final PojoSetterProxy getSetterProxy(Class<?> type) {
+        return SETTER_REGISTRY.getSetterProxy(type);
     }
 }

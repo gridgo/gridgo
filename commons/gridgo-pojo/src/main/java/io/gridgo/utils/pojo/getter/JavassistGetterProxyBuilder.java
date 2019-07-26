@@ -38,6 +38,7 @@ class JavassistGetterProxyBuilder implements PojoGetterProxyBuilder {
             String typeName = target.getName();
             String allFields = allFieldsBuilder.toString();
 
+            buildGetSignaturesMethod(cc);
             buildGetFieldsMethod(cc, allFields);
             buildSetSignatureMethod(cc, methodSignatures);
             buildGetValueMethod(cc, typeName, methodSignatures);
@@ -57,6 +58,14 @@ class JavassistGetterProxyBuilder implements PojoGetterProxyBuilder {
         }
     }
 
+    private void buildGetSignaturesMethod(CtClass cc) throws CannotCompileException {
+        CtField field = CtField.make("private java.util.List signatures = new java.util.ArrayList();", cc);
+        cc.addField(field);
+
+        String method = "public java.util.List getSignatures() { return this.signatures; }";
+        cc.addMethod(CtMethod.make(method, cc));
+    }
+
     private void buildSetSignatureMethod(CtClass cc, List<PojoMethodSignature> methodSignatures)
             throws CannotCompileException {
         String type = "io.gridgo.utils.pojo.PojoMethodSignature";
@@ -71,7 +80,10 @@ class JavassistGetterProxyBuilder implements PojoGetterProxyBuilder {
         for (PojoMethodSignature methodSignature : methodSignatures) {
             String fieldName = methodSignature.getFieldName();
             String signFieldName = fieldName + subfix;
-            method += "\t\tif (\"" + fieldName + "\".equals(fieldName)) " + signFieldName + " = value;\n";
+            method += "\t\tif (\"" + fieldName + "\".equals(fieldName)) {\n";
+            method += "\t\t\t" + signFieldName + " = value;\n";
+            method += "\t\t\tthis.signatures.add(value); \n";
+            method += "\t\t}\n";
         }
         method += "\t}\n"; // end of for
         method += "}"; // end of method
