@@ -416,6 +416,7 @@ public final class ObjectUtils {
         return classGetter;
     }
 
+    @Deprecated
     @SuppressWarnings("unchecked")
     public static final Map<String, Object> toMap(Object obj) {
         if (obj == null) {
