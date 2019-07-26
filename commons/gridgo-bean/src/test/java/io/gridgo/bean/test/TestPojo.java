@@ -12,6 +12,7 @@ import io.gridgo.bean.BObject;
 import io.gridgo.bean.support.BElementPojoHelper;
 import io.gridgo.bean.test.support.Bar;
 import io.gridgo.bean.test.support.Foo;
+import io.gridgo.bean.test.support.PrimitiveVO;
 import io.gridgo.utils.CollectionUtils;
 import io.gridgo.utils.MapUtils;
 import io.gridgo.utils.ObjectUtils;
@@ -63,35 +64,57 @@ public class TestPojo {
 
     @Test
     public void testPerf() {
-        int count = (int) 1e5;
+        PrimitiveVO vo = PrimitiveVO.builder() //
+                .booleanValue(true) //
+                .byteValue((byte) 1) //
+                .intValue(2) //
+                .doubleValue(0.2)//
+                .build();
 
         // warm up
-        ObjectUtils.toMapRecursive(original);
-        BElementPojoHelper.anyToJsonElement(original);
+        ObjectUtils.toMapRecursive(vo);
+        BElementPojoHelper.anyToJsonElement(vo);
 
         long start = 0;
 
+        int testRound = (int) 1e5;
         int numRounds = 10;
+
+        double[] directResults = new double[numRounds];
         double[] objUtilResults = new double[numRounds];
         double[] pojoUtilsResults = new double[numRounds];
 
         for (int i = 0; i < numRounds; i++) {
             start = System.nanoTime();
-            for (int j = 0; j < count; j++) {
-                ObjectUtils.toMapRecursive(original);
+            for (int j = 0; j < testRound; j++) {
+                vo.toMap();
+            }
+            double directSec = Double.valueOf(System.nanoTime() - start) / 1e9;
+            double directPace = Double.valueOf(testRound) / directSec;
+            directResults[i] = directPace;
+
+            start = System.nanoTime();
+            for (int j = 0; j < testRound; j++) {
+                ObjectUtils.toMapRecursive(vo);
             }
             double objUtilsSec = Double.valueOf(System.nanoTime() - start) / 1e9;
-            double objUtilsPace = Double.valueOf(count) / objUtilsSec;
+            double objUtilsPace = Double.valueOf(testRound) / objUtilsSec;
             objUtilResults[i] = objUtilsPace;
 
             start = System.nanoTime();
-            for (int j = 0; j < count; j++) {
-                BElementPojoHelper.anyToJsonElement(original);
+            for (int j = 0; j < testRound; j++) {
+                BElementPojoHelper.anyToJsonElement(vo);
             }
             double pojoUtilsSec = Double.valueOf(System.nanoTime() - start) / 1e9;
-            double pojoUtilsPace = Double.valueOf(count) / pojoUtilsSec;
+            double pojoUtilsPace = Double.valueOf(testRound) / pojoUtilsSec;
             pojoUtilsResults[i] = pojoUtilsPace;
         }
+
+        double directPace = 0;
+        for (int i = 0; i < directResults.length; i++) {
+            directPace += directResults[i];
+        }
+        directPace /= directResults.length;
 
         double objUtilsPace = 0;
         for (int i = 0; i < objUtilResults.length; i++) {
@@ -108,6 +131,7 @@ public class TestPojo {
         DecimalFormat df = new DecimalFormat("###,###.##");
 
         System.out.println("[Object utils] throughput: " + df.format(objUtilsPace) + " ops/s");
-        System.out.println("[Pojo utils]   throughput: " + df.format(pojoUtilsPace) + "ops/s");
+        System.out.println("[Pojo utils]   throughput: " + df.format(pojoUtilsPace) + " ops/s");
+        System.out.println("[Direct]       throughput: " + df.format(directPace) + " ops/s");
     }
 }

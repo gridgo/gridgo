@@ -1,8 +1,13 @@
 package io.gridgo.bean.test.support;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import lombok.Builder;
 import lombok.Data;
 
 @Data
+@Builder
 public class PrimitiveVO {
 
     private boolean booleanValue;
@@ -22,4 +27,18 @@ public class PrimitiveVO {
     private double doubleValue;
 
     private String stringValue;
+
+    public Map<String, Object> toMap() {
+        var map = new HashMap<String, Object>();
+        map.put("booleanValue", booleanValue);
+        map.put("charValue", charValue);
+        map.put("byteValue", byteValue);
+        map.put("shortValue", shortValue);
+        map.put("intValue", intValue);
+        map.put("longValue", longValue);
+        map.put("floatValue", floatValue);
+        map.put("doubleValue", doubleValue);
+        map.put("stringValue", stringValue);
+        return map;
+    }
 }
