@@ -3,11 +3,15 @@ package io.gridgo.bean.test.support;
 import java.util.HashMap;
 import java.util.Map;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class PrimitiveVO {
 
     private boolean booleanValue;
@@ -27,7 +31,7 @@ public class PrimitiveVO {
     private double doubleValue;
 
     private String stringValue;
-
+    
     public Map<String, Object> toMap() {
         var map = new HashMap<String, Object>();
         map.put("booleanValue", booleanValue);

@@ -58,4 +58,8 @@ public class MapUtils {
     public static <K, V> Map<K, V> newMap(Class<K> keyType, Class<V> valueType) {
         return new HashMap<K, V>();
     }
+
+    public static boolean isMap(Class<?> type) {
+        return Map.class.isAssignableFrom(type);
+    }
 }

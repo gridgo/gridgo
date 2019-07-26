@@ -24,6 +24,7 @@ import io.gridgo.bean.BReference;
 import io.gridgo.bean.BValue;
 import io.gridgo.bean.exceptions.InvalidTypeException;
 import io.gridgo.utils.ArrayUtils;
+import io.gridgo.utils.MapUtils;
 import io.gridgo.utils.PrimitiveUtils;
 import io.gridgo.utils.exception.UnsupportedTypeException;
 import io.gridgo.utils.pojo.PojoMethodSignature;
@@ -97,25 +98,25 @@ public class BElementPojoHelper {
             return null;
         }
 
-        if (any instanceof BElement) {
+        var type = any.getClass();
+        if (PrimitiveUtils.isPrimitive(type)) {
+            return any;
+        }
+        if (BElement.class.isAssignableFrom(type)) {
             return ((BElement) any).toJsonElement();
         }
-
-        var type = any.getClass();
-        if (any instanceof Map) {
+        if (MapUtils.isMap(type)) {
             var result = new HashMap<String, Object>();
             for (Entry<?, ?> entry : ((Map<?, ?>) any).entrySet()) {
                 result.put(entry.getKey().toString(), toJsonElement(entry.getValue(), null));
             }
             return result;
-        } else if (ArrayUtils.isArrayOrCollection(type)) {
+        }
+        if (ArrayUtils.isArrayOrCollection(type)) {
             var result = new LinkedList<Object>();
             ArrayUtils.foreach(any, ele -> result.add(toJsonElement(ele, null)));
             return result;
-        } else if (PrimitiveUtils.isPrimitive(type)) {
-            return any;
         }
-
         if (proxy == null) {
             proxy = GETTER_REGISTRY.getGetterProxy(type);
         }
@@ -126,11 +127,11 @@ public class BElementPojoHelper {
             if (value != null && IGNORE_TYPES.contains(value.getClass())) {
                 result.put(fieldName, BReference.of(value));
             } else {
-                result.put(fieldName, toJsonElement(value, signature.getGetterProxy()));
+                Object jsonElement = toJsonElement(value, signature.getGetterProxy());
+                result.put(fieldName, jsonElement);
             }
         });
         return result;
-
     }
 
     public static <T> T bObjectToPojo(BObject src, @NonNull Class<T> type) {
