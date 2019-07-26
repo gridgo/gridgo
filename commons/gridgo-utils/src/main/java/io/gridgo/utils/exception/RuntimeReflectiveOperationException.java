@@ -12,6 +12,10 @@ public class RuntimeReflectiveOperationException extends RuntimeException {
         super(e);
     }
 
+    public RuntimeReflectiveOperationException(String message) {
+        super(message);
+    }
+
     public RuntimeReflectiveOperationException(String message, Throwable e) {
         super(message, e);
     }

@@ -12,6 +12,8 @@ import java.util.Set;
 
 import io.gridgo.utils.PrimitiveUtils;
 import io.gridgo.utils.exception.RuntimeReflectiveOperationException;
+import io.gridgo.utils.pojo.getter.PojoGetterProxy;
+import io.gridgo.utils.pojo.setter.PojoSetterProxy;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 
@@ -23,6 +25,12 @@ public final class PojoMethodSignature {
     private String fieldName;
     private Class<?> fieldType;
     private String transformedFieldName;
+
+    private PojoGetterProxy getterProxy;
+    private PojoSetterProxy setterProxy;
+
+    private PojoGetterProxy elementGetterProxy;
+    private PojoSetterProxy elementSetterProxy;
 
     public String getMethodName() {
         return this.method.getName();
@@ -64,24 +72,38 @@ public final class PojoMethodSignature {
      *                                             found
      */
     public Class<?>[] getGenericTypes() {
+        Class<?> clazz = method.getDeclaringClass();
+
+        Field field = null;
         try {
-            Class<?> clazz = method.getDeclaringClass();
-            Field field = clazz.getDeclaredField(fieldName);
-            if (field == null) {
-                throw new ReflectiveOperationException(
-                        "Field not found: " + fieldName + " in type: " + clazz.getName());
-            }
-            ParameterizedType parameterizedType = (ParameterizedType) field.getGenericType();
+            field = clazz.getDeclaredField(fieldName);
+        } catch (NoSuchFieldException e) {
+            return null;
+        } catch (Exception e) {
+            throw new RuntimeReflectiveOperationException(
+                    "Error while get declared field name `" + fieldName + "` in type: " + clazz.getName(), e);
+        }
+
+        Type genericType = field.getGenericType();
+        if (genericType instanceof ParameterizedType) {
+            ParameterizedType parameterizedType = (ParameterizedType) genericType;
             Type[] actualTypes = parameterizedType.getActualTypeArguments();
             Class<?>[] results = new Class<?>[actualTypes.length];
             int i = 0;
             for (Type type : actualTypes) {
-                results[i++] = Class.forName(type.getTypeName());
+                if (type instanceof Class<?>) {
+                    results[i++] = (Class<?>) type;
+                } else {
+                    try {
+                        results[i++] = Class.forName(type.getTypeName());
+                    } catch (ClassNotFoundException e) {
+                        throw new RuntimeReflectiveOperationException("Cannot get class for type: " + type);
+                    }
+                }
             }
             return results;
-        } catch (Exception e) {
-            throw new RuntimeReflectiveOperationException(e);
         }
+        return null;
     }
 
     public boolean isCollectionType() {
@@ -130,7 +152,7 @@ public final class PojoMethodSignature {
     /**
      * @return whether this fieldType is Map or Pojo
      */
-    public boolean isKeyValueType() {
+    public boolean isMapOrPojoType() {
         return this.isMapType() || this.isPojoType();
     }
 

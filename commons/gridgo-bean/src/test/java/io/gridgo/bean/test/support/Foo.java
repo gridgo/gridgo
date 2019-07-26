@@ -1,25 +1,28 @@
 package io.gridgo.bean.test.support;
 
 import io.gridgo.bean.impl.BReferenceBeautifulPrint;
-import io.gridgo.utils.annotations.Transient;
 import io.gridgo.utils.pojo.FieldName;
 import io.gridgo.utils.pojo.FieldNameTransform;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 
 @Data
-@Builder
-@AllArgsConstructor
+@SuperBuilder
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
+@AllArgsConstructor
 @BReferenceBeautifulPrint
-@FieldNameTransform(value = "anything_{{packageName}}_{{fieldName > camelToSnake}}", ignore = { "barValue" })
-public class Foo {
+@FieldNameTransform(value = "{{fieldName > camelToSnake}}")
+public class Foo extends SuperFoo {
 
     private int intValue;
 
-    @Transient
+    // @Transient
     private int[] intArrayValue;
 
     private double doubleValue;

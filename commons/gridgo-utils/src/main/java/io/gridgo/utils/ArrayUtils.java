@@ -92,6 +92,70 @@ public final class ArrayUtils {
         throw new IllegalArgumentException("Expected primitive type, got: " + type);
     }
 
+    public static Object createPrimitiveArray(Class<?> type, List<?> list) {
+        if (type.isPrimitive()) {
+            int length = list.size();
+            if (type == Boolean.TYPE) {
+                var arr = new boolean[length];
+                for (int i = 0; i < arr.length; i++) {
+                    arr[i] = PrimitiveUtils.getBooleanValueFrom(list.get(i));
+                }
+                return arr;
+            }
+            if (type == Character.TYPE) {
+                var arr = new char[length];
+                for (int i = 0; i < arr.length; i++) {
+                    arr[i] = PrimitiveUtils.getCharValueFrom(list.get(i));
+                }
+                return arr;
+            }
+            if (type == Byte.TYPE) {
+                var arr = new byte[length];
+                for (int i = 0; i < arr.length; i++) {
+                    arr[i] = PrimitiveUtils.getByteValueFrom(list.get(i));
+                }
+                return arr;
+            }
+            if (type == Short.TYPE) {
+                var arr = new short[length];
+                for (int i = 0; i < arr.length; i++) {
+                    arr[i] = PrimitiveUtils.getShortValueFrom(list.get(i));
+                }
+                return arr;
+            }
+            if (type == Integer.TYPE) {
+                var arr = new int[length];
+                for (int i = 0; i < arr.length; i++) {
+                    arr[i] = PrimitiveUtils.getIntegerValueFrom(list.get(i));
+                }
+                return arr;
+            }
+            if (type == Long.TYPE) {
+                var arr = new long[length];
+                for (int i = 0; i < arr.length; i++) {
+                    arr[i] = PrimitiveUtils.getLongValueFrom(list.get(i));
+                }
+                return arr;
+            }
+            if (type == Float.TYPE) {
+                var arr = new float[length];
+                for (int i = 0; i < arr.length; i++) {
+                    arr[i] = PrimitiveUtils.getFloatValueFrom(list.get(i));
+                }
+                return arr;
+            }
+            if (type == Double.TYPE) {
+                var arr = new double[length];
+                for (int i = 0; i < arr.length; i++) {
+                    arr[i] = PrimitiveUtils.getDoubleValueFrom(list.get(i));
+                }
+                return arr;
+            }
+            throw new UnsupportedTypeException("cannot create primitive type for: " + type);
+        }
+        throw new IllegalArgumentException("Expected primitive type, got: " + type);
+    }
+
     @SuppressWarnings("unchecked")
     public static <T> T[] toArray(Class<T> clazz, List<?> list) {
         T[] result = createArray(clazz, list.size());
