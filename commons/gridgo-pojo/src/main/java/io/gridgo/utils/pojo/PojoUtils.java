@@ -26,8 +26,8 @@ import lombok.NonNull;
 
 public class PojoUtils {
 
-    private static final PojoGetterRegistry GETTER_REGISTRY = PojoGetterRegistry.getInstance();
-    private static final PojoSetterRegistry SETTER_REGISTRY = PojoSetterRegistry.getInstance();
+    private static final PojoGetterRegistry GETTER_REGISTRY = PojoGetterRegistry.DEFAULT;
+    private static final PojoSetterRegistry SETTER_REGISTRY = PojoSetterRegistry.DEFAULT;
 
     private static final String SETTER_PREFIX = "set";
     private final static Set<String> GETTER_PREFIXES = new HashSet<String>(Arrays.asList("get", "is"));

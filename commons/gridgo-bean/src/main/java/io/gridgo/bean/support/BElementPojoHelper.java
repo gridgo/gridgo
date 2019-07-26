@@ -39,8 +39,8 @@ public class BElementPojoHelper {
 
     private static final Set<Class<?>> IGNORE_TYPES = new HashSet<>(Arrays.asList(Date.class, java.util.Date.class));
 
-    private static final PojoSetterRegistry SETTER_REGISTRY = PojoSetterRegistry.getInstance();
-    private static final PojoGetterRegistry GETTER_REGISTRY = PojoGetterRegistry.getInstance();
+    private static final PojoSetterRegistry SETTER_REGISTRY = PojoSetterRegistry.DEFAULT;
+    private static final PojoGetterRegistry GETTER_REGISTRY = PojoGetterRegistry.DEFAULT;
 
     public static BElement anyToBElement(Object any) {
         return anyToBElement(any, null);

@@ -1,5 +1,7 @@
 package io.gridgo.utils.pojo;
 
+import static lombok.AccessLevel.PACKAGE;
+
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -15,6 +17,7 @@ import io.gridgo.utils.exception.RuntimeReflectiveOperationException;
 import io.gridgo.utils.pojo.getter.PojoGetterProxy;
 import io.gridgo.utils.pojo.setter.PojoSetterProxy;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 @Getter
@@ -26,10 +29,16 @@ public final class PojoMethodSignature {
     private Class<?> fieldType;
     private String transformedFieldName;
 
+    @Setter(PACKAGE)
     private PojoGetterProxy getterProxy;
+
+    @Setter(PACKAGE)
     private PojoSetterProxy setterProxy;
 
+    @Setter(PACKAGE)
     private PojoGetterProxy elementGetterProxy;
+
+    @Setter(PACKAGE)
     private PojoSetterProxy elementSetterProxy;
 
     public String getMethodName() {
