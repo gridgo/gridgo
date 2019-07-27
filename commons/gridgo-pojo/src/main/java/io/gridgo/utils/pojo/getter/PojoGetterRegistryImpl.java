@@ -12,40 +12,40 @@ import lombok.NonNull;
 
 class PojoGetterRegistryImpl implements PojoGetterRegistry, MethodSignatureProxyInjector {
 
-	@Getter
-	private static final PojoGetterRegistry instance = new PojoGetterRegistryImpl();
+    @Getter
+    private static final PojoGetterRegistry instance = new PojoGetterRegistryImpl();
 
-	private final Map<String, PojoGetterProxy> CACHED_PROXIES = new NonBlockingHashMap<>();
+    private final Map<String, PojoGetterProxy> CACHED_PROXIES = new NonBlockingHashMap<>();
 
-	private final PojoGetterProxyBuilder getterProxyBuilder = PojoGetterProxyBuilder.newJavassist();
+    private final PojoGetterProxyBuilder getterProxyBuilder = PojoGetterProxyBuilder.newJavassist();
 
-	private PojoGetterRegistryImpl() {
-	}
+    private PojoGetterRegistryImpl() {
+    }
 
-	public PojoGetterProxy getGetterProxy(@NonNull Class<?> type) {
-		return CACHED_PROXIES.computeIfAbsent(type.getName(), k -> buildGetterProxy(type));
-	}
+    public PojoGetterProxy getGetterProxy(@NonNull Class<?> type) {
+        return CACHED_PROXIES.computeIfAbsent(type.getName(), k -> buildGetterProxy(type));
+    }
 
-	private PojoGetterProxy buildGetterProxy(Class<?> type) {
-		PojoGetterProxy proxy = getterProxyBuilder.buildGetterProxy(type);
-		for (PojoMethodSignature signature : proxy.getSignatures()) {
-			setProxyForMethod(signature);
-		}
-		return proxy;
-	}
+    private PojoGetterProxy buildGetterProxy(Class<?> type) {
+        PojoGetterProxy proxy = getterProxyBuilder.buildGetterProxy(type);
+        for (PojoMethodSignature signature : proxy.getSignatures()) {
+            setProxyForMethod(signature);
+        }
+        return proxy;
+    }
 
-	private void setProxyForMethod(PojoMethodSignature signature) {
-		if (PojoUtils.isSupported(signature.getFieldType())) {
-			setGetterProxy(signature, getGetterProxy(signature.getFieldType()));
-		} else {
-			setProxyForUnsupportedTypes(signature);
-		}
-	}
+    private void setProxyForMethod(PojoMethodSignature signature) {
+        if (PojoUtils.isSupported(signature.getFieldType())) {
+            setGetterProxy(signature, getGetterProxy(signature.getFieldType()));
+        } else {
+            setProxyForUnsupportedTypes(signature);
+        }
+    }
 
-	private void setProxyForUnsupportedTypes(PojoMethodSignature signature) {
-		var elementType = PojoUtils.getElementTypeForGeneric(signature);
-		if (elementType != null && PojoUtils.isSupported(elementType)) {
-			setElementGetterProxy(signature, getGetterProxy(elementType));
-		}
-	}
+    private void setProxyForUnsupportedTypes(PojoMethodSignature signature) {
+        var elementType = PojoUtils.getElementTypeForGeneric(signature);
+        if (elementType != null && PojoUtils.isSupported(elementType)) {
+            setElementGetterProxy(signature, getGetterProxy(elementType));
+        }
+    }
 }
