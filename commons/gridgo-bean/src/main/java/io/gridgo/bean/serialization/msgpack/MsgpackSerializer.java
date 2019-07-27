@@ -178,7 +178,7 @@ public class MsgpackSerializer extends AbstractBSerializer {
             } else if (PrimitiveUtils.isPrimitive(target.getClass())) {
                 packValue(target, packer);
             } else {
-                PojoGetterProxy proxy = PojoGetterRegistry.getInstance().getGetterProxy(target.getClass());
+                PojoGetterProxy proxy = PojoGetterRegistry.DEFAULT.getGetterProxy(target.getClass());
                 packer.packMapHeader(proxy.getFields().length);
                 proxy.walkThrough(target, (signature, value) -> {
                     try {

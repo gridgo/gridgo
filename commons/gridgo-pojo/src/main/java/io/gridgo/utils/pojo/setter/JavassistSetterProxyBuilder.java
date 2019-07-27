@@ -40,6 +40,7 @@ class JavassistSetterProxyBuilder implements PojoSetterProxyBuilder {
 
             String targetType = target.getName();
 
+            buildGetSignaturesMethod(cc);
             buildGetFieldsMethod(cc, allFields);
             buildSetSignatureMethod(cc, methodSignatures);
             buildApplyValueMethod(cc, methodSignatures, targetType);
@@ -73,7 +74,10 @@ class JavassistSetterProxyBuilder implements PojoSetterProxyBuilder {
         for (PojoMethodSignature methodSignature : methodSignatures) {
             String fieldName = methodSignature.getFieldName();
             String signFieldName = fieldName + subfix;
-            method += "\t\tif (\"" + fieldName + "\".equals(fieldName)) " + signFieldName + " = value;\n";
+            method += "\t\tif (\"" + fieldName + "\".equals(fieldName)) {\n";
+            method += "\t\t\t" + signFieldName + " = value;\n";
+            method += "\t\t\tthis.signatures.add(value); \n";
+            method += "\t\t}\n";
         }
         method += "\t}\n"; // end of for
         method += "}"; // end of method
@@ -87,6 +91,14 @@ class JavassistSetterProxyBuilder implements PojoSetterProxyBuilder {
         cc.addField(field);
 
         String method = "public String[] getFields() { return this.fields; }";
+        cc.addMethod(CtMethod.make(method, cc));
+    }
+
+    private void buildGetSignaturesMethod(CtClass cc) throws CannotCompileException {
+        CtField field = CtField.make("private java.util.List signatures = new java.util.ArrayList();", cc);
+        cc.addField(field);
+
+        String method = "public java.util.List getSignatures() { return this.signatures; }";
         cc.addMethod(CtMethod.make(method, cc));
     }
 
