@@ -5,16 +5,17 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.Map;
 
 import io.gridgo.bean.BElement;
 import io.gridgo.bean.exceptions.BeanSerializationException;
 import io.gridgo.bean.serialization.AbstractBSerializer;
 import io.gridgo.bean.serialization.BDeserializationConfig;
 import io.gridgo.bean.serialization.BSerializationPlugin;
+import io.gridgo.utils.ArrayUtils;
+import io.gridgo.utils.PrimitiveUtils;
 import io.gridgo.utils.exception.RuntimeIOException;
+import io.gridgo.utils.pojo.PojoUtils;
+import io.gridgo.utils.pojo.setter.PojoSetterProxy;
 import lombok.NonNull;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
@@ -27,30 +28,50 @@ public class JsonSerializer extends AbstractBSerializer {
 
     public static final String NAME = "json";
 
-    @SuppressWarnings("unchecked")
     @Override
     public void serialize(@NonNull BElement element, @NonNull OutputStream out) {
         var outWriter = new OutputStreamWriter(out);
         try {
+            writeAny(element, outWriter);
+            outWriter.flush();
+        } catch (IOException e) {
+            throw new RuntimeIOException("Error while write out json", e);
+        }
+    }
+
+    private void writeAny(Object obj, Appendable outWriter) throws IOException {
+        if (obj instanceof BElement) {
+            BElement element = (BElement) obj;
             if (element.isArray()) {
                 JSONArray.writeJSONString(element.asArray().toJsonElement(), outWriter);
             } else if (element.isObject()) {
                 JSONObject.writeJSON(element.asObject().toJsonElement(), outWriter);
             } else if (element.isReference()) {
-                Object jsonElement = element.asReference().toJsonElement();
-                if (jsonElement instanceof Collection) {
-                    JSONArray.writeJSONString(new LinkedList<>((Collection<?>) jsonElement), outWriter);
-                } else if (jsonElement instanceof Map) {
-                    JSONObject.writeJSON((Map<String, ? extends Object>) jsonElement, outWriter);
-                } else {
-                    JSONValue.writeJSONString(jsonElement, outWriter);
-                }
+                Object ref = element.asReference().getReference();
+                writeAnyPojo(ref, null, outWriter);
             } else {
                 JSONValue.writeJSONString(element.toJsonElement(), outWriter);
             }
-            outWriter.flush();
-        } catch (IOException e) {
-            throw new RuntimeIOException("Error while write out json", e);
+        } else {
+            writeAnyPojo(obj, null, outWriter);
+        }
+    }
+
+    private void writeAnyPojo(Object pojo, PojoSetterProxy proxy, Appendable outWriter) throws IOException {
+        Class<?> type = pojo.getClass();
+
+        if (PrimitiveUtils.isPrimitive(type)) {
+            JSONValue.writeJSONString(pojo, outWriter);
+        }
+
+        if (proxy == null) {
+            proxy = PojoUtils.getSetterProxy(type);
+        }
+        if (ArrayUtils.isArrayOrCollection(type)) {
+            outWriter.append('[');
+            ArrayUtils.foreach(pojo, (ele, index, end) -> {
+                
+            });
         }
     }
 

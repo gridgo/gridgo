@@ -1,7 +1,15 @@
 package io.gridgo.utils.pojo;
 
 import static io.gridgo.format.StringFormatter.transform;
+import static io.gridgo.utils.ArrayUtils.foreachArray;
+import static io.gridgo.utils.PrimitiveUtils.isPrimitive;
 import static io.gridgo.utils.StringUtils.lowerCaseFirstLetter;
+import static io.gridgo.utils.pojo.PojoFlattenIndicator.END_ARRAY;
+import static io.gridgo.utils.pojo.PojoFlattenIndicator.END_MAP;
+import static io.gridgo.utils.pojo.PojoFlattenIndicator.KEY;
+import static io.gridgo.utils.pojo.PojoFlattenIndicator.START_ARRAY;
+import static io.gridgo.utils.pojo.PojoFlattenIndicator.START_MAP;
+import static io.gridgo.utils.pojo.PojoFlattenIndicator.VALUE;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -15,11 +23,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import io.gridgo.utils.PrimitiveUtils;
+import io.gridgo.utils.ArrayUtils;
 import io.gridgo.utils.annotations.Transient;
 import io.gridgo.utils.exception.InvalidFieldNameException;
 import io.gridgo.utils.pojo.getter.PojoGetterProxy;
 import io.gridgo.utils.pojo.getter.PojoGetterRegistry;
+import io.gridgo.utils.pojo.getter.PojoGetterWalker;
 import io.gridgo.utils.pojo.setter.PojoSetterProxy;
 import io.gridgo.utils.pojo.setter.PojoSetterRegistry;
 import lombok.NonNull;
@@ -35,7 +44,7 @@ public class PojoUtils {
     public static boolean isSupported(@NonNull Class<?> targetType) {
         return !(Collection.class.isAssignableFrom(targetType) //
                 || Map.class.isAssignableFrom(targetType) //
-                || PrimitiveUtils.isPrimitive(targetType) //
+                || isPrimitive(targetType) //
                 || targetType.isArray() //
                 || targetType == Date.class //
                 || targetType == java.sql.Date.class);
@@ -219,5 +228,69 @@ public class PojoUtils {
 
     public static final PojoSetterProxy getSetterProxy(Class<?> type) {
         return SETTER_REGISTRY.getSetterProxy(type);
+    }
+
+    public static final void walkThroughGetter(Object target, PojoGetterWalker walker) {
+        walkThroughGetter(target, null, walker);
+    }
+
+    @SuppressWarnings({ "rawtypes" })
+    public static final void walkThroughGetter(Object target, PojoGetterProxy proxy, PojoGetterWalker walker) {
+        final Class<?> type;
+
+        if (target == null //
+                || isPrimitive(type = target.getClass()) //
+                || type == Date.class //
+                || type == java.sql.Date.class) {
+
+            walker.accept(VALUE, target);
+            return;
+        }
+
+        if (type.isArray()) {
+            int length = ArrayUtils.length(target);
+            walker.accept(START_ARRAY, length);
+            foreachArray(target, ele -> {
+                walkThroughGetter(ele, proxy, walker);
+            });
+            walker.accept(END_ARRAY, length);
+            return;
+        }
+
+        if (Collection.class.isInstance(target)) {
+            int length = ((Collection) target).size();
+            walker.accept(START_ARRAY, length);
+            var it = ((Collection) target).iterator();
+            while (it.hasNext()) {
+                walkThroughGetter(it.next(), proxy, walker);
+            }
+            walker.accept(END_ARRAY, length);
+            return;
+        }
+
+        if (Map.class.isInstance(target)) {
+            Map<?, ?> map = (Map<?, ?>) target;
+            int size = map.size();
+            walker.accept(START_MAP, size);
+            var it = map.entrySet().iterator();
+            while (it.hasNext()) {
+                var entry = it.next();
+                var key = entry.getKey();
+                var value = entry.getValue();
+                walker.accept(KEY, key);
+                walkThroughGetter(value, proxy, walker);
+            }
+            walker.accept(END_MAP, size);
+            return;
+        }
+
+        var _proxy = proxy != null ? proxy : getGetterProxy(type);
+        int length = _proxy.getFields().length;
+        walker.accept(START_MAP, length);
+        _proxy.walkThrough(target, (signature, value) -> {
+            walker.accept(KEY, signature.getTransformedOrDefaultFieldName());
+            walkThroughGetter(value, signature.getElementGetterProxy(), walker);
+        });
+        walker.accept(END_MAP, length);
     }
 }

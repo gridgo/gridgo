@@ -14,6 +14,11 @@ public final class ArrayUtils {
         void apply(T element);
     }
 
+    @FunctionalInterface
+    public static interface ForeachCallback2<T> {
+        void apply(T element, int index, boolean isEnd);
+    }
+
     public static boolean isArrayOrCollection(Class<?> clazz) {
         if (clazz != null) {
             return clazz.isArray() || Collection.class.isAssignableFrom(clazz);
@@ -23,14 +28,140 @@ public final class ArrayUtils {
 
     @SuppressWarnings("unchecked")
     public static <T> void foreach(Object arrayOrCollection, ForeachCallback<T> callback) {
+        foreach(arrayOrCollection, (ele, index, isEnd) -> callback.apply((T) ele));
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    private static void foreachArrayPrimitive(@NonNull Object obj, @NonNull ForeachCallback callback) {
+        foreachArrayPrimitive(obj, (ele, index, end) -> callback.apply(ele));
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    private static void foreachArrayPrimitive(@NonNull Object obj, @NonNull ForeachCallback2 callback) {
+        Class<? extends Object> type = obj.getClass();
+
+        if (type == boolean[].class) {
+            boolean[] arr = (boolean[]) obj;
+            int length = arr.length;
+            int end = length - 1;
+            for (int i = 0; i < length; i++) {
+                callback.apply(arr[i], i, i == end);
+            }
+            return;
+        }
+
+        if (type == char[].class) {
+            char[] arr = (char[]) obj;
+            int length = arr.length;
+            int end = length - 1;
+            for (int i = 0; i < length; i++) {
+                callback.apply(arr[i], i, i == end);
+            }
+            return;
+        }
+
+        if (type == byte[].class) {
+            byte[] arr = (byte[]) obj;
+            int length = arr.length;
+            int end = length - 1;
+            for (int i = 0; i < length; i++) {
+                callback.apply(arr[i], i, i == end);
+            }
+            return;
+        }
+
+        if (type == short[].class) {
+            short[] arr = (short[]) obj;
+            int length = arr.length;
+            int end = length - 1;
+            for (int i = 0; i < length; i++) {
+                callback.apply(arr[i], i, i == end);
+            }
+            return;
+        }
+
+        if (type == int[].class) {
+            int[] arr = (int[]) obj;
+            int length = arr.length;
+            int end = length - 1;
+            for (int i = 0; i < length; i++) {
+                callback.apply(arr[i], i, i == end);
+            }
+            return;
+        }
+
+        if (type == long[].class) {
+            long[] arr = (long[]) obj;
+            int length = arr.length;
+            int end = length - 1;
+            for (int i = 0; i < length; i++) {
+                callback.apply(arr[i], i, i == end);
+            }
+            return;
+        }
+
+        if (type == float[].class) {
+            float[] arr = (float[]) obj;
+            int length = arr.length;
+            int end = length - 1;
+            for (int i = 0; i < length; i++) {
+                callback.apply(arr[i], i, i == end);
+            }
+            return;
+        }
+
+        if (type == double[].class) {
+            double[] arr = (double[]) obj;
+            int length = arr.length;
+            int end = length - 1;
+            for (int i = 0; i < length; i++) {
+                callback.apply(arr[i], i, i == end);
+            }
+            return;
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> void foreachArray(@NonNull Object obj, @NonNull ForeachCallback2<T> callback) {
+        Class<T> componentType = (Class<T>) obj.getClass().getComponentType();
+        if (componentType.isPrimitive()) {
+            foreachArrayPrimitive(obj, callback);
+            return;
+        }
+
+        T[] arr = (T[]) obj;
+        int length = arr.length;
+        int end = length - 1;
+        for (int i = 0; i < length; i++) {
+            callback.apply(arr[i], i, i == end);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> void foreachArray(@NonNull Object obj, @NonNull ForeachCallback<T> callback) {
+        Class<T> componentType = (Class<T>) obj.getClass().getComponentType();
+        if (componentType.isPrimitive()) {
+            foreachArrayPrimitive(obj, callback);
+            return;
+        }
+
+        T[] arr = (T[]) obj;
+        int length = arr.length;
+        for (int i = 0; i < length; i++) {
+            callback.apply(arr[i]);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> void foreach(Object arrayOrCollection, ForeachCallback2<T> callback) {
         if (arrayOrCollection != null && callback != null) {
             if (arrayOrCollection.getClass().isArray()) {
-                for (int i = 0; i < Array.getLength(arrayOrCollection); i++) {
-                    callback.apply((T) Array.get(arrayOrCollection, i));
-                }
+                foreachArray(arrayOrCollection, callback);
             } else if (arrayOrCollection instanceof Collection) {
+                int length = ((Collection<?>) arrayOrCollection).size();
+                int i = 0;
                 for (Object element : (Collection<?>) arrayOrCollection) {
-                    callback.apply((T) element);
+                    callback.apply((T) element, i++, i == length - 1);
                 }
             } else {
                 throw new IllegalArgumentException(
@@ -227,5 +358,19 @@ public final class ArrayUtils {
             return Array.get(arrayOrList, index);
         throw new IllegalArgumentException(
                 "First argument expected an array or a list, got: " + arrayOrList.getClass());
+    }
+
+    public static String toString(Object value) {
+        if (value != null) {
+            StringBuilder sb = new StringBuilder();
+            foreachArray(value, (ele, index, end) -> {
+                sb.append(value);
+                if (!end) {
+                    sb.append(", ");
+                }
+            });
+            return sb.toString();
+        }
+        return null;
     }
 }

@@ -9,9 +9,7 @@ import io.gridgo.utils.pojo.PojoMethodSignature;
 import io.gridgo.utils.pojo.PojoUtils;
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 class PojoSetterRegistryImpl implements PojoSetterRegistry, MethodSignatureProxyInjector {
 
     @Getter
@@ -45,7 +43,8 @@ class PojoSetterRegistryImpl implements PojoSetterRegistry, MethodSignatureProxy
                                     } else if (genericTypes.length == 2) {
                                         elementType = genericTypes[1];
                                     } else {
-                                        log.warn("field with more than 2 generic types isn't supported");
+                                        throw new RuntimeException(
+                                                "field with more than 2 generic types isn't supported");
                                     }
                                 } else if (signature.getFieldType().isArray()) {
                                     elementType = signature.getComponentType();
