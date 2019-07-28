@@ -163,6 +163,7 @@ public final class ObjectUtils {
         }
     }
 
+    @Deprecated
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public static final <T> T fromMap(Class<T> clazz, Map<String, ?> data)
             throws InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
@@ -415,6 +416,7 @@ public final class ObjectUtils {
         return classGetter;
     }
 
+    @Deprecated
     @SuppressWarnings("unchecked")
     public static final Map<String, Object> toMap(Object obj) {
         if (obj == null) {
@@ -464,6 +466,7 @@ public final class ObjectUtils {
         return list;
     }
 
+    @Deprecated
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public static final Map<String, Object> toMapRecursive(Object obj) {
         if (obj == null) {
@@ -475,7 +478,7 @@ public final class ObjectUtils {
         if (ArrayUtils.isArrayOrCollection(obj.getClass())) {
             throw new RuntimeException("cannot convert array|collection : " + obj.getClass() + " to Map");
         }
-//        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz");
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz");
 
         Map<?, Object> rawMap = obj instanceof Map ? (Map) obj : toMap(obj);
         Map<String, Object> map = new HashMap<String, Object>();
@@ -502,15 +505,15 @@ public final class ObjectUtils {
                     } else if (ArrayUtils.isArrayOrCollection(entry.getValue().getClass())) {
                         childMap.put(String.valueOf(entry.getKey()),
                                 entry.getValue() instanceof byte[] ? entry.getValue() : toList(entry.getValue()));
-//                    } else if (entry.getValue() instanceof Date) {
-//                        map.put(field, df.format(entry.getValue()));
+                    } else if (entry.getValue() instanceof Date) {
+                        map.put(field, df.format(entry.getValue()));
                     } else {
                         childMap.put(String.valueOf(entry.getKey()), toMapRecursive(entry.getValue()));
                     }
                 }
                 map.put(field, childMap);
-//            } else if (value instanceof Date) {
-//                map.put(field, df.format(value));
+            } else if (value instanceof Date) {
+                map.put(field, df.format(value));
             } else if (value.getClass().isEnum()) {
                 map.put(field, value.toString());
             } else if (value instanceof Throwable) {
