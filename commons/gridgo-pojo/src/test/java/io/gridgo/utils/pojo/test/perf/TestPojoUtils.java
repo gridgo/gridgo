@@ -1,4 +1,4 @@
-package io.gridgo.utils.pojo.test.getter;
+package io.gridgo.utils.pojo.test.perf;
 
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.END_ARRAY;
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.END_MAP;
@@ -7,6 +7,9 @@ import static io.gridgo.utils.pojo.PojoFlattenIndicator.START_ARRAY;
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.START_MAP;
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.VALUE;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.text.DecimalFormat;
 
 import org.junit.Before;
@@ -14,12 +17,13 @@ import org.junit.Test;
 
 import io.gridgo.utils.CollectionUtils;
 import io.gridgo.utils.MapUtils;
+import io.gridgo.utils.exception.RuntimeIOException;
 import io.gridgo.utils.pojo.PojoUtils;
 import io.gridgo.utils.pojo.getter.PojoGetterProxy;
 import io.gridgo.utils.pojo.test.support.Bar;
 import io.gridgo.utils.pojo.test.support.Foo;
 
-public class TestGetterWalker {
+public class TestPojoUtils {
 
     private Foo obj;
 
@@ -56,62 +60,39 @@ public class TestGetterWalker {
     }
 
     private void walk(int indicator, Object value) {
-//        AtomicInteger tab = new AtomicInteger(0);
-        switch (indicator) {
-        case START_MAP:
-//            StringUtils.tabs(tab.get(), sb);
-            // sb.append("{");
-//            if ((int) value > 0) {
-//                sb.append("\n");
-//                tab.incrementAndGet();
-//            }
-            break;
-        case KEY:
-//            StringUtils.softTabs(tab.get(), sb);
-            // sb.append(value.toString()).append(": ");
-            break;
-        case VALUE:
-//            if (isNested.get()) {
-//                StringUtils.softTabs(tab.get(), sb);
-//            }
-//            if (value != null && value.getClass().isArray()) {
-//                value = ArrayUtils.toString(value);
-//            }
-            // sb.append(value == null ? "null" : value).append(", ");
-            break;
-        case END_MAP:
-//            if ((int) value > 0) {
-//                tab.decrementAndGet();
-//            }
-//            StringUtils.softTabs(tab.get(), sb);
-            // sb.append("}");
-            break;
-        case START_ARRAY:
-//            isNested.set(true);
-            // sb.append("[");
-//            if ((int) value > 0) {
-//                sb.append("");
-//                tab.incrementAndGet();
-//            }
-            break;
-        case END_ARRAY:
-//            isNested.set(false);
-//            if ((int) value > 0) {
-//                tab.decrementAndGet();
-//            }
-//            StringUtils.softTabs(tab.get(), sb);
-            // sb.append("]");
-            break;
-        default:
-            break;
+        try (var output = new ByteArrayOutputStream(512)) {
+            var sb = new OutputStreamWriter(output);
+            switch (indicator) {
+            case START_MAP:
+                sb.append("{");
+                break;
+            case KEY:
+                sb.append(String.valueOf(value)).append(":");
+                break;
+            case VALUE:
+                sb.append(value == null ? "null" : String.valueOf(value)).append(",");
+                break;
+            case END_MAP:
+                sb.append("}");
+                break;
+            case START_ARRAY:
+                sb.append("[");
+                break;
+            case END_ARRAY:
+                sb.append("]");
+                break;
+            default:
+                break;
+            }
+        } catch (IOException e) {
+            throw new RuntimeIOException(e);
         }
     }
 
     @Test
-    public void testSimple() {
-
+    public void testPojoUtils() {
         PojoGetterProxy proxy = PojoUtils.getGetterProxy(Foo.class);
-        int round = (int) 1e7;
+        int round = (int) 1;
         long nanoTime = System.nanoTime();
 
         long start = nanoTime;
@@ -121,6 +102,6 @@ public class TestGetterWalker {
         double seconds = Double.valueOf(System.nanoTime() - start) / 1e9;
         double pace = Double.valueOf(round) / seconds;
 
-        System.out.println("pace: " + new DecimalFormat("###,###.##").format(pace) + " ops/s");
+        System.out.println("pojo-utils pace: " + new DecimalFormat("###,###.##").format(pace) + " ops/s");
     }
 }

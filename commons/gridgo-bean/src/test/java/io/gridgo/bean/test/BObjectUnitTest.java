@@ -89,7 +89,9 @@ public class BObjectUnitTest {
     public void testPojoRecursive() {
         var bar = Bar.builder().b(true).build();
         var pojo = Foo.builder().doubleValue(1.0).intValue(1).stringValue("hello").barValue(bar).build();
-        var deserialized = BObject.ofPojo(pojo).toPojo(Foo.class);
+        BObject bObject = BObject.ofPojo(pojo);
+        System.out.println(bObject);
+        var deserialized = bObject.toPojo(Foo.class);
         Assert.assertEquals(pojo.getDoubleValue(), deserialized.getDoubleValue(), 0.0);
         Assert.assertEquals(pojo.getIntValue(), deserialized.getIntValue());
         Assert.assertEquals(pojo.getStringValue(), deserialized.getStringValue());

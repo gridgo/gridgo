@@ -218,70 +218,6 @@ public final class ArrayUtils {
         throw new IllegalArgumentException("Expected primitive type, got: " + type);
     }
 
-    public static Object createPrimitiveArray(Class<?> type, List<?> list) {
-        if (type.isPrimitive()) {
-            int length = list.size();
-            if (type == Boolean.TYPE) {
-                var arr = new boolean[length];
-                for (int i = 0; i < arr.length; i++) {
-                    arr[i] = PrimitiveUtils.getBooleanValueFrom(list.get(i));
-                }
-                return arr;
-            }
-            if (type == Character.TYPE) {
-                var arr = new char[length];
-                for (int i = 0; i < arr.length; i++) {
-                    arr[i] = PrimitiveUtils.getCharValueFrom(list.get(i));
-                }
-                return arr;
-            }
-            if (type == Byte.TYPE) {
-                var arr = new byte[length];
-                for (int i = 0; i < arr.length; i++) {
-                    arr[i] = PrimitiveUtils.getByteValueFrom(list.get(i));
-                }
-                return arr;
-            }
-            if (type == Short.TYPE) {
-                var arr = new short[length];
-                for (int i = 0; i < arr.length; i++) {
-                    arr[i] = PrimitiveUtils.getShortValueFrom(list.get(i));
-                }
-                return arr;
-            }
-            if (type == Integer.TYPE) {
-                var arr = new int[length];
-                for (int i = 0; i < arr.length; i++) {
-                    arr[i] = PrimitiveUtils.getIntegerValueFrom(list.get(i));
-                }
-                return arr;
-            }
-            if (type == Long.TYPE) {
-                var arr = new long[length];
-                for (int i = 0; i < arr.length; i++) {
-                    arr[i] = PrimitiveUtils.getLongValueFrom(list.get(i));
-                }
-                return arr;
-            }
-            if (type == Float.TYPE) {
-                var arr = new float[length];
-                for (int i = 0; i < arr.length; i++) {
-                    arr[i] = PrimitiveUtils.getFloatValueFrom(list.get(i));
-                }
-                return arr;
-            }
-            if (type == Double.TYPE) {
-                var arr = new double[length];
-                for (int i = 0; i < arr.length; i++) {
-                    arr[i] = PrimitiveUtils.getDoubleValueFrom(list.get(i));
-                }
-                return arr;
-            }
-            throw new UnsupportedTypeException("cannot create primitive type for: " + type);
-        }
-        throw new IllegalArgumentException("Expected primitive type, got: " + type);
-    }
-
     @SuppressWarnings("unchecked")
     public static <T> T[] toArray(Class<T> clazz, List<?> list) {
         T[] result = createArray(clazz, list.size());
@@ -291,57 +227,66 @@ public final class ArrayUtils {
         return (T[]) result;
     }
 
-    @SuppressWarnings("rawtypes")
-    public static Object toPrimitiveTypeArray(Class<?> clazz, List list) {
+    public static Object toPrimitiveArray(List<?> list, Class<?> clazz) {
+        if (list == null)
+            return null;
+
         if (!clazz.isPrimitive())
             throw new IllegalArgumentException("expected primitive type, got " + clazz);
 
         if (clazz == Integer.TYPE) {
             int[] arr = new int[list.size()];
-            for (int i = 0; i < arr.length; i++) {
-                arr[i] = (int) list.get(i);
+            int index = 0;
+            for (Object obj : list) {
+                arr[index++] = obj == null ? 0 : (int) obj;
             }
             return arr;
         }
         if (clazz == Long.TYPE) {
             long[] arr = new long[list.size()];
-            for (int i = 0; i < arr.length; i++) {
-                arr[i] = (long) list.get(i);
+            int index = 0;
+            for (Object obj : list) {
+                arr[index++] = obj == null ? 0 : (long) obj;
             }
             return arr;
         }
         if (clazz == Double.TYPE) {
             double[] arr = new double[list.size()];
-            for (int i = 0; i < arr.length; i++) {
-                arr[i] = (double) list.get(i);
+            int index = 0;
+            for (Object obj : list) {
+                arr[index++] = obj == null ? 0 : (double) obj;
             }
             return arr;
         }
         if (clazz == Float.TYPE) {
             float[] arr = new float[list.size()];
-            for (int i = 0; i < arr.length; i++) {
-                arr[i] = (float) list.get(i);
+            int index = 0;
+            for (Object obj : list) {
+                arr[index++] = obj == null ? 0 : (float) obj;
             }
             return arr;
         }
         if (clazz == Byte.TYPE) {
             byte[] arr = new byte[list.size()];
-            for (int i = 0; i < arr.length; i++) {
-                arr[i] = (byte) list.get(i);
+            int index = 0;
+            for (Object obj : list) {
+                arr[index++] = obj == null ? 0 : (byte) obj;
             }
             return arr;
         }
         if (clazz == Short.TYPE) {
             short[] arr = new short[list.size()];
-            for (int i = 0; i < arr.length; i++) {
-                arr[i] = (short) list.get(i);
+            int index = 0;
+            for (Object obj : list) {
+                arr[index++] = obj == null ? 0 : (short) obj;
             }
             return arr;
         }
         if (clazz == Character.TYPE) {
             char[] arr = new char[list.size()];
-            for (int i = 0; i < arr.length; i++) {
-                arr[i] = (char) list.get(i);
+            int index = 0;
+            for (Object obj : list) {
+                arr[index++] = obj == null ? 0 : (char) obj;
             }
             return arr;
         }

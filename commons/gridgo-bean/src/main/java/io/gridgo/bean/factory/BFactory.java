@@ -61,10 +61,10 @@ public interface BFactory {
     Supplier<BValue> getValueSupplier();
 
     @SuppressWarnings("rawtypes")
-    default <T extends BElement> T wrap(@NonNull Object data) {
-        Class<?> clazz = data.getClass();
+    default <T extends BElement> T wrap(Object data) {
+        Class<?> clazz;
 
-        if (PrimitiveUtils.isPrimitive(clazz))
+        if (data == null || PrimitiveUtils.isPrimitive(clazz = data.getClass()))
             return (T) newValue(data);
 
         if (Collection.class.isAssignableFrom(clazz))

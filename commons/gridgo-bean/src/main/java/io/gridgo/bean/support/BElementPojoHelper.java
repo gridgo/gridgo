@@ -1,13 +1,13 @@
 package io.gridgo.bean.support;
 
-import static io.gridgo.utils.ArrayUtils.createPrimitiveArray;
+import static io.gridgo.utils.ArrayUtils.foreachArray;
 import static io.gridgo.utils.ArrayUtils.toArray;
-import static io.gridgo.utils.ArrayUtils.toPrimitiveTypeArray;
+import static io.gridgo.utils.ArrayUtils.toPrimitiveArray;
 import static io.gridgo.utils.PrimitiveUtils.getWrapperType;
+import static io.gridgo.utils.PrimitiveUtils.isPrimitive;
 
 import java.sql.Date;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -15,7 +15,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import io.gridgo.bean.BArray;
 import io.gridgo.bean.BElement;
@@ -23,122 +22,90 @@ import io.gridgo.bean.BObject;
 import io.gridgo.bean.BReference;
 import io.gridgo.bean.BValue;
 import io.gridgo.bean.exceptions.InvalidTypeException;
-import io.gridgo.utils.ArrayUtils;
-import io.gridgo.utils.MapUtils;
 import io.gridgo.utils.PrimitiveUtils;
 import io.gridgo.utils.exception.UnsupportedTypeException;
 import io.gridgo.utils.pojo.PojoMethodSignature;
 import io.gridgo.utils.pojo.PojoUtils;
 import io.gridgo.utils.pojo.getter.PojoGetterProxy;
-import io.gridgo.utils.pojo.getter.PojoGetterRegistry;
 import io.gridgo.utils.pojo.setter.PojoSetterProxy;
-import io.gridgo.utils.pojo.setter.PojoSetterRegistry;
 import io.gridgo.utils.pojo.setter.ValueHolder;
 import lombok.NonNull;
 
 public class BElementPojoHelper {
 
-    private static final Set<Class<?>> IGNORE_TYPES = new HashSet<>(Arrays.asList(Date.class, java.util.Date.class));
-
-    private static final PojoSetterRegistry SETTER_REGISTRY = PojoSetterRegistry.DEFAULT;
-    private static final PojoGetterRegistry GETTER_REGISTRY = PojoGetterRegistry.DEFAULT;
-
     public static BElement anyToBElement(Object any) {
         return anyToBElement(any, null);
     }
 
-    public static BElement anyToBElement(Object any, PojoGetterProxy proxy) {
-        if (any == null) {
-            return BValue.ofEmpty();
+    public static BElement anyToBElement(Object target, PojoGetterProxy proxy) {
+        Class<?> type;
+        if (target == null //
+                || isPrimitive(type = target.getClass())) {
+            return BValue.of(target);
         }
 
-        if (any instanceof BElement) {
-            return (BElement) any;
+        if (type == Date.class //
+                || type == java.sql.Date.class) {
+            return BReference.of(target);
         }
 
-        var type = any.getClass();
+        if (BElement.class.isInstance(target)) {
+            return (BElement) target;
+        }
 
-        if (any instanceof Map) {
+        if (type.isArray()) {
+            var list = BArray.ofEmpty();
+            var _proxy = proxy;
+            foreachArray(target, ele -> {
+                list.add(anyToBElement(ele, _proxy));
+            });
+            return list;
+        }
+
+        if (Collection.class.isInstance(target)) {
+            var it = ((Collection<?>) target).iterator();
+            var list = BArray.ofEmpty();
+            while (it.hasNext()) {
+                list.add(anyToBElement(it.next(), proxy));
+            }
+            return list;
+        }
+
+        if (Map.class.isInstance(target)) {
             var result = BObject.ofEmpty();
-            for (Entry<?, ?> entry : ((Map<?, ?>) any).entrySet()) {
-                result.put(entry.getKey().toString(), anyToBElement(entry.getValue(), null));
+            var map = (Map<?, ?>) target;
+            var it = map.entrySet().iterator();
+            while (it.hasNext()) {
+                var entry = it.next();
+                var key = entry.getKey();
+                var value = entry.getValue();
+                result.put(key.toString(), anyToBElement(value, proxy));
             }
             return result;
-        } else if (ArrayUtils.isArrayOrCollection(type)) {
-            var result = BArray.ofEmpty();
-            ArrayUtils.foreach(any, ele -> result.add(anyToBElement(ele, null)));
-            return result;
-        } else if (PrimitiveUtils.isPrimitive(type)) {
-            return BValue.of(any);
         }
 
-        if (proxy == null) {
-            proxy = PojoUtils.getGetterProxy(type);
-        }
+        proxy = proxy == null ? PojoUtils.getGetterProxy(type) : proxy;
 
         var result = BObject.ofEmpty();
-        proxy.walkThrough(any, (signature, value) -> {
-            if (value != null && IGNORE_TYPES.contains(value.getClass())) {
-                result.put(signature.getTransformedOrDefaultFieldName(), BReference.of(value));
-            } else {
-                result.put(signature.getTransformedOrDefaultFieldName(),
-                        anyToBElement(value, signature.getGetterProxy()));
-            }
+        proxy.walkThrough(target, (signature, value) -> {
+            String fieldName = signature.getTransformedOrDefaultFieldName();
+            PojoGetterProxy elementGetterProxy = signature.getElementGetterProxy();
+            BElement entryValue = anyToBElement(value,
+                    elementGetterProxy == null ? signature.getGetterProxy() : elementGetterProxy);
+            result.put(fieldName, entryValue);
         });
         return result;
     }
 
     public static Object anyToJsonElement(Object any) {
-        return toJsonElement(any, null);
-    }
-
-    private static Object toJsonElement(Object any, PojoGetterProxy proxy) {
-
-        if (any == null) {
-            return null;
-        }
-
-        var type = any.getClass();
-        if (PrimitiveUtils.isPrimitive(type)) {
-            return any;
-        }
-        if (BElement.class.isAssignableFrom(type)) {
-            return ((BElement) any).toJsonElement();
-        }
-        if (MapUtils.isMap(type)) {
-            var result = new HashMap<String, Object>();
-            for (Entry<?, ?> entry : ((Map<?, ?>) any).entrySet()) {
-                result.put(entry.getKey().toString(), toJsonElement(entry.getValue(), null));
-            }
-            return result;
-        }
-        if (ArrayUtils.isArrayOrCollection(type)) {
-            var result = new LinkedList<Object>();
-            ArrayUtils.foreach(any, ele -> result.add(toJsonElement(ele, null)));
-            return result;
-        }
-        if (proxy == null) {
-            proxy = GETTER_REGISTRY.getGetterProxy(type);
-        }
-
-        var result = new HashMap<String, Object>();
-        proxy.walkThrough(any, (signature, value) -> {
-            String fieldName = signature.getTransformedOrDefaultFieldName();
-            if (value != null && IGNORE_TYPES.contains(value.getClass())) {
-                result.put(fieldName, BReference.of(value));
-            } else {
-                Object jsonElement = toJsonElement(value, signature.getGetterProxy());
-                result.put(fieldName, jsonElement);
-            }
-        });
-        return result;
+        return anyToBElement(any, null);
     }
 
     public static <T> T bObjectToPojo(BObject src, @NonNull Class<T> type) {
         if (src == null) {
             return null;
         }
-        var proxy = SETTER_REGISTRY.getSetterProxy(type);
+        var proxy = PojoUtils.getSetterProxy(type);
         T result = bObjectToPojo(src, type, proxy);
         return result;
     }
@@ -226,7 +193,7 @@ public class BElementPojoHelper {
                         if (resultElementType.isArray()) {
                             var compType = resultElementType.getComponentType();
                             if (compType.isPrimitive()) {
-                                coll.add(createPrimitiveArray(compType, list));
+                                coll.add(toPrimitiveArray(list, compType));
                             } else {
                                 coll.add(toArray(compType, list));
                             }
@@ -268,7 +235,7 @@ public class BElementPojoHelper {
                 }
             }
             return componentType.isPrimitive() //
-                    ? toPrimitiveTypeArray(componentType, results) //
+                    ? toPrimitiveArray(results, componentType) //
                     : toArray(componentType, results);
         }
 
