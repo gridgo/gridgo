@@ -16,12 +16,7 @@ public final class ArrayUtils {
 
     public static boolean isArrayOrCollection(Class<?> clazz) {
         if (clazz != null) {
-            if (clazz.isArray()) {
-                return true;
-            }
-            if (Collection.class.isAssignableFrom(clazz)) {
-                return true;
-            }
+            return clazz.isArray() || Collection.class.isAssignableFrom(clazz);
         }
         return false;
     }

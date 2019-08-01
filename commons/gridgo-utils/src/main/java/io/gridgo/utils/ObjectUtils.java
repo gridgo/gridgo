@@ -163,6 +163,7 @@ public final class ObjectUtils {
         }
     }
 
+    @Deprecated
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public static final <T> T fromMap(Class<T> clazz, Map<String, ?> data)
             throws InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
@@ -415,6 +416,7 @@ public final class ObjectUtils {
         return classGetter;
     }
 
+    @Deprecated
     @SuppressWarnings("unchecked")
     public static final Map<String, Object> toMap(Object obj) {
         if (obj == null) {
@@ -464,6 +466,7 @@ public final class ObjectUtils {
         return list;
     }
 
+    @Deprecated
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public static final Map<String, Object> toMapRecursive(Object obj) {
         if (obj == null) {
