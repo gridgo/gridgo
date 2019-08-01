@@ -23,6 +23,6 @@ public interface ConnectorContext extends RegistryAware {
     public IdGenerator getIdGenerator();
 
     public Optional<ExecutionStrategy> getProducerExecutionStrategy();
-
+    
     public Registry getRegistry();
 }
