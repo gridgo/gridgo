@@ -8,7 +8,7 @@ import io.gridgo.connector.support.config.ConnectorContext;
 import io.gridgo.core.Gateway;
 import io.gridgo.core.Processor;
 import io.gridgo.core.support.ProducerTemplateAware;
-import io.gridgo.framework.execution.ExecutionStrategyInstrumenter;
+import io.gridgo.framework.execution.ProducerInstrumenter;
 
 /**
  * Represents a gateway subscription. After a gateway is opened, you can attach
@@ -89,7 +89,7 @@ public interface GatewaySubscription extends ProducerTemplateAware<GatewaySubscr
      */
     public GatewaySubscription setAutoStart(boolean autoStart);
 
-    public GatewaySubscription setProducerInstrumenter(ExecutionStrategyInstrumenter instrumenter);
+    public GatewaySubscription setProducerInstrumenter(ProducerInstrumenter instrumenter);
 
     /**
      * Get the list of subscriptions attached to this gateway

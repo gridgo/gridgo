@@ -9,7 +9,7 @@ import io.gridgo.core.GridgoContext;
 import io.gridgo.core.support.ProducerJoinMode;
 import io.gridgo.core.support.subscription.GatewaySubscription;
 import io.gridgo.core.support.template.ProducerTemplate;
-import io.gridgo.framework.execution.ExecutionStrategyInstrumenter;
+import io.gridgo.framework.execution.ProducerInstrumenter;
 import io.gridgo.framework.support.Message;
 import lombok.Getter;
 import lombok.NonNull;
@@ -24,7 +24,7 @@ public class DefaultGateway extends AbstractGatewaySubscription {
     @Getter
     private boolean autoStart = true;
 
-    private Optional<ExecutionStrategyInstrumenter> producerInstrumenter = Optional.empty();
+    private Optional<ProducerInstrumenter> producerInstrumenter = Optional.empty();
 
     public DefaultGateway(GridgoContext context, String name) {
         super(context, name);
@@ -89,7 +89,7 @@ public class DefaultGateway extends AbstractGatewaySubscription {
     }
 
     @Override
-    public GatewaySubscription setProducerInstrumenter(ExecutionStrategyInstrumenter instrumenter) {
+    public GatewaySubscription setProducerInstrumenter(ProducerInstrumenter instrumenter) {
         this.producerInstrumenter = Optional.ofNullable(instrumenter);
         return this;
     }
