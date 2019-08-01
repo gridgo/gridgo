@@ -16,4 +16,6 @@ public class Bar {
     private boolean b;
 
     private Map<String, Integer> map;
+
+    private Map<String, Object> genericMap;
 }

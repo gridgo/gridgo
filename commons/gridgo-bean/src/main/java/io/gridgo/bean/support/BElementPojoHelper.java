@@ -118,6 +118,15 @@ public class BElementPojoHelper {
             throw new RuntimeException("Cannot convert BObject to POJO, cannot create instance of: " + type.getName(),
                     e);
         }
+        fillToPojo(src, result, proxy);
+        return result;
+    }
+
+    public static <T> void fillToPojo(BObject src, T result) {
+        fillToPojo(src, result, PojoUtils.getSetterProxy(result.getClass()));
+    }
+
+    public static <T> void fillToPojo(BObject src, T result, PojoSetterProxy proxy) {
         proxy.walkThrough(result, (signature) -> {
             var fieldName = signature.getFieldName();
             var transformedFieldName = signature.getTransformedFieldName();
@@ -146,8 +155,8 @@ public class BElementPojoHelper {
 
             if (signature.isSequenceType()) {
                 if (!value.isArray()) {
-                    throw new InvalidTypeException("Expected BArray for field: " + signature.getFieldName() + ", type: "
-                            + type + ", got: " + value);
+                    throw new InvalidTypeException(
+                            "Expected BArray for field: " + signature.getFieldName() + ", got: " + value);
                 }
                 return toSequence(value.asArray(), signature);
             }
@@ -164,7 +173,6 @@ public class BElementPojoHelper {
 
             return ValueHolder.NO_VALUE;
         });
-        return result;
     }
 
     private static Object toSequence(BArray array, PojoMethodSignature signature) {

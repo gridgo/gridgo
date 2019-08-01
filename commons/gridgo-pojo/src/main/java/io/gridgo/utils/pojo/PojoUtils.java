@@ -42,7 +42,8 @@ public class PojoUtils {
     private final static Set<String> GETTER_PREFIXES = new HashSet<String>(Arrays.asList("get", "is"));
 
     public static boolean isSupported(@NonNull Class<?> targetType) {
-        return !(Collection.class.isAssignableFrom(targetType) //
+        return !(targetType == Object.class //
+                || Collection.class.isAssignableFrom(targetType) //
                 || Map.class.isAssignableFrom(targetType) //
                 || isPrimitive(targetType) //
                 || targetType.isArray() //

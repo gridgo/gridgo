@@ -5,16 +5,15 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.Map;
 
 import io.gridgo.bean.BElement;
 import io.gridgo.bean.exceptions.BeanSerializationException;
 import io.gridgo.bean.serialization.AbstractBSerializer;
 import io.gridgo.bean.serialization.BDeserializationConfig;
 import io.gridgo.bean.serialization.BSerializationPlugin;
-import io.gridgo.utils.ArrayUtils;
-import io.gridgo.utils.PrimitiveUtils;
+import io.gridgo.bean.support.BElementPojoHelper;
 import io.gridgo.utils.exception.RuntimeIOException;
-import io.gridgo.utils.pojo.PojoUtils;
 import io.gridgo.utils.pojo.setter.PojoSetterProxy;
 import lombok.NonNull;
 import net.minidev.json.JSONArray;
@@ -57,22 +56,9 @@ public class JsonSerializer extends AbstractBSerializer {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void writeAnyPojo(Object pojo, PojoSetterProxy proxy, Appendable outWriter) throws IOException {
-        Class<?> type = pojo.getClass();
-
-        if (PrimitiveUtils.isPrimitive(type)) {
-            JSONValue.writeJSONString(pojo, outWriter);
-        }
-
-        if (proxy == null) {
-            proxy = PojoUtils.getSetterProxy(type);
-        }
-        if (ArrayUtils.isArrayOrCollection(type)) {
-            outWriter.append('[');
-            ArrayUtils.foreach(pojo, (ele, index, end) -> {
-                
-            });
-        }
+        JSONObject.writeJSON((Map<String, ? extends Object>) BElementPojoHelper.anyToJsonElement(pojo), outWriter);
     }
 
     @Override
