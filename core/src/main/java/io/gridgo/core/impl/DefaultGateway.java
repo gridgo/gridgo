@@ -38,7 +38,7 @@ public class DefaultGateway extends AbstractGatewaySubscription {
     @Override
     public Promise<Message, Exception> sendWithAck(Message message) {
         if (producerInstrumenter.isPresent())
-            return producerInstrumenter.get().instrument(message, this::doSendWithAck);
+            return producerInstrumenter.get().instrument(message, this::doSendWithAck, getName());
         return doSendWithAck(message);
     }
 
@@ -49,7 +49,7 @@ public class DefaultGateway extends AbstractGatewaySubscription {
     @Override
     public Promise<Message, Exception> call(Message message) {
         if (producerInstrumenter.isPresent())
-            return producerInstrumenter.get().instrument(message, this::doCall);
+            return producerInstrumenter.get().instrument(message, this::doCall, getName());
         return doCall(message);
     }
 
