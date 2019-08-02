@@ -173,7 +173,7 @@ public final class PojoMethodSignature {
     }
 
     public String getTransformedOrDefaultFieldName() {
-        return transformedFieldName == null || transformedFieldName.isBlank() //
+        return transformedFieldName == null //
                 ? fieldName //
                 : transformedFieldName;
     }

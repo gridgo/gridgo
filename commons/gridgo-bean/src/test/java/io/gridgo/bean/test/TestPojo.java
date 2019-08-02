@@ -16,7 +16,9 @@ import io.gridgo.bean.test.support.PrimitiveVO;
 import io.gridgo.utils.CollectionUtils;
 import io.gridgo.utils.MapUtils;
 import io.gridgo.utils.ObjectUtils;
+import io.gridgo.utils.pojo.PojoUtils;
 
+@SuppressWarnings("deprecation")
 public class TestPojo {
 
     private Foo original;
@@ -24,28 +26,28 @@ public class TestPojo {
     @Before
     public void setup() {
         original = Foo.builder() //
-                      .intArrayValue(new int[] { 1, 2, 3, 4 }) //
-                      .doubleValue(0.123) //
-                      .barValue(Bar.builder() //
-                                   .b(true) //
-                                   .build()) //
-                      .intArrayList(CollectionUtils.newListBuilder(int[].class) //
-                                                   .add(new int[] { 1, 2, 3 }) //
-                                                   .add(new int[] { 5, 7, 6 }) //
-                                                   .build()) //
-                      .longArrayMap(MapUtils.newMapStringKeyBuilder(long[].class) //
-                                            .put("longarr1", new long[] { 4l, 5l }) //
-                                            .put("longarr1", new long[] { 6l, 9l }) //
-                                            .build()) //
-                      .barMap((MapUtils.newMapStringKeyBuilder(Bar.class) //
-                                       .put("key", Bar.builder() //
-                                                      .b(true) //
-                                                      .map(MapUtils.newMapStringKeyBuilder(Integer.class) //
-                                                                   .put("key1", 10) //
-                                                                   .build()) //
-                                                      .build()) //
-                                       .build())) //
-                      .build();
+                .intArrayValue(new int[] { 1, 2, 3, 4 }) //
+                .doubleValue(0.123) //
+                .barValue(Bar.builder() //
+                        .b(true) //
+                        .build()) //
+                .intArrayList(CollectionUtils.newListBuilder(int[].class) //
+                        .add(new int[] { 1, 2, 3 }) //
+                        .add(new int[] { 5, 7, 6 }) //
+                        .build()) //
+                .longArrayMap(MapUtils.newMapStringKeyBuilder(long[].class) //
+                        .put("longarr1", new long[] { 4l, 5l }) //
+                        .put("longarr1", new long[] { 6l, 9l }) //
+                        .build()) //
+                .barMap((MapUtils.newMapStringKeyBuilder(Bar.class) //
+                        .put("key", Bar.builder() //
+                                .b(true) //
+                                .map(MapUtils.newMapStringKeyBuilder(Integer.class) //
+                                        .put("key1", 10) //
+                                        .build()) //
+                                .build()) //
+                        .build())) //
+                .build();
     }
 
     @Test
@@ -65,15 +67,15 @@ public class TestPojo {
     @Test
     public void testPerfToMap() throws Exception {
         PrimitiveVO vo = PrimitiveVO.builder() //
-                                    .booleanValue(true) //
-                                    .byteValue((byte) 1) //
-                                    .intValue(2) //
-                                    .doubleValue(0.2)//
-                                    .build();
+                .booleanValue(true) //
+                .byteValue((byte) 1) //
+                .intValue(2) //
+                .doubleValue(0.2)//
+                .build();
 
         // warm up
         ObjectUtils.toMapRecursive(vo);
-        BElementPojoHelper.anyToJsonElement(vo);
+        PojoUtils.toJsonElement(vo);
 
         long start = 0;
 
@@ -103,7 +105,7 @@ public class TestPojo {
 
             start = System.nanoTime();
             for (int j = 0; j < testRound; j++) {
-                BElementPojoHelper.anyToJsonElement(vo);
+                PojoUtils.toJsonElement(vo);
             }
             double pojoUtilsSec = Double.valueOf(System.nanoTime() - start) / 1e9;
             double pojoUtilsPace = Double.valueOf(testRound) / pojoUtilsSec;
@@ -134,15 +136,15 @@ public class TestPojo {
         System.out.println("[Pojo utils toMap]   throughput: " + df.format(pojoUtilsPace) + " ops/s");
         System.out.println("[Direct toMap]       throughput: " + df.format(directPace) + " ops/s");
     }
-    
+
     @Test
     public void testPerfToPojo() throws Exception {
         PrimitiveVO vo = PrimitiveVO.builder() //
-                                    .booleanValue(true) //
-                                    .byteValue((byte) 1) //
-                                    .intValue(2) //
-                                    .doubleValue(0.2)//
-                                    .build();
+                .booleanValue(true) //
+                .byteValue((byte) 1) //
+                .intValue(2) //
+                .doubleValue(0.2)//
+                .build();
 
         // warm up
         var bobj = BObject.ofPojo(vo);

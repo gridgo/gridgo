@@ -15,7 +15,7 @@ class PojoGetterRegistryImpl implements PojoGetterRegistry, MethodSignatureProxy
     @Getter
     private static final PojoGetterRegistry instance = new PojoGetterRegistryImpl();
 
-    private final Map<String, PojoGetterProxy> CACHED_PROXIES = new NonBlockingHashMap<>();
+    private final Map<String, PojoGetterProxy> cache = new NonBlockingHashMap<>();
 
     private final PojoGetterProxyBuilder getterProxyBuilder = PojoGetterProxyBuilder.newJavassist();
 
@@ -24,18 +24,18 @@ class PojoGetterRegistryImpl implements PojoGetterRegistry, MethodSignatureProxy
 
     public PojoGetterProxy getGetterProxy(@NonNull Class<?> type) {
         var name = type.getName();
-        if (CACHED_PROXIES.containsKey(name))
-            return CACHED_PROXIES.get(name);
-        synchronized (CACHED_PROXIES) {
-            if (CACHED_PROXIES.containsKey(name))
-                return CACHED_PROXIES.get(name);
+        if (cache.containsKey(name))
+            return cache.get(name);
+        synchronized (cache) {
+            if (cache.containsKey(name))
+                return cache.get(name);
             return buildProxy(type);
         }
     }
 
     private PojoGetterProxy buildProxy(Class<?> type) {
         PojoGetterProxy proxy = getterProxyBuilder.buildGetterProxy(type);
-        CACHED_PROXIES.put(type.getName(), proxy);
+        cache.put(type.getName(), proxy);
         for (PojoMethodSignature signature : proxy.getSignatures()) {
             setProxyForMethod(signature);
         }

@@ -43,12 +43,14 @@ public interface BObject extends BContainer, Map<String, BElement> {
     }
 
     static BObject ofPojo(Object pojo) {
+        if (pojo == null)
+            return null;
         return anyToBElement(pojo).asObject();
     }
 
     @Deprecated
     static BObject ofPojoRecursive(Object pojo) {
-        return anyToBElement(pojo).asObject();
+        return ofPojo(pojo);
     }
 
     static BObject ofSequence(Object... sequence) {
@@ -273,30 +275,32 @@ public interface BObject extends BContainer, Map<String, BElement> {
     }
 
     default BElement putAnyPojo(String name, Object pojo) {
-        return this.putAny(name, anyToBElement(pojo).asObject());
+        return this.putAny(name, pojo == null ? null : anyToBElement(pojo).asObject());
     }
 
     @Deprecated
     default BElement putAnyPojoRecursive(String name, Object pojo) {
-        return this.putAny(name, anyToBElement(pojo).asObject());
+        return this.putAnyPojo(name, pojo);
     }
 
     default BElement putAnyPojoIfAbsent(String name, Object pojo) {
-        return this.putAnyIfAbsent(name, anyToBElement(pojo).asObject());
+        return this.putAnyIfAbsent(name, pojo == null ? null : anyToBElement(pojo).asObject());
     }
 
     @Deprecated
     default BElement putAnyPojoRecursiveIfAbsent(String name, Object pojo) {
-        return this.putAnyIfAbsent(name, anyToBElement(pojo).asObject());
+        return putAnyPojoIfAbsent(name, pojo);
     }
 
     default void putAnyAllPojo(Object pojo) {
-        this.putAnyAll(anyToBElement(pojo).asObject());
+        if (pojo != null) {
+            this.putAnyAll(anyToBElement(pojo).asObject());
+        }
     }
 
     @Deprecated
     default void putAnyAllPojoRecursive(Object pojo) {
-        this.putAnyAll(anyToBElement(pojo).asObject());
+        this.putAnyAllPojo(pojo);
     }
 
     default void putAnySequence(Object... elements) {
