@@ -15,7 +15,7 @@ class PojoSetterRegistryImpl implements PojoSetterRegistry, MethodSignatureProxy
     @Getter
     private final static PojoSetterRegistryImpl instance = new PojoSetterRegistryImpl();
 
-    private final Map<String, PojoSetterProxy> cache = new NonBlockingHashMap<>();
+    private final Map<String, PojoSetterProxy> CACHED_PROXIES = new NonBlockingHashMap<>();
 
     private final PojoSetterProxyBuilder proxyBuilder = PojoSetterProxyBuilder.newJavassist();
 
@@ -23,46 +23,41 @@ class PojoSetterRegistryImpl implements PojoSetterRegistry, MethodSignatureProxy
     }
 
     public PojoSetterProxy getSetterProxy(@NonNull Class<?> type) {
-        String typeName = type.getName();
-        if (!cache.containsKey(typeName)) {
-            synchronized (cache) {
-                if (!cache.containsKey(typeName)) {
-                    init(type);
-                }
-            }
+        var name = type.getName();
+        if (CACHED_PROXIES.containsKey(name))
+            return CACHED_PROXIES.get(name);
+        synchronized (type) {
+            if (CACHED_PROXIES.containsKey(name))
+                return CACHED_PROXIES.get(name);
+            return buildProxy(type);
         }
-        return cache.get(typeName);
     }
 
-    private void init(Class<?> type) {
-        String typeName = type.getName();
-
+    private PojoSetterProxy buildProxy(Class<?> type) {
         PojoSetterProxy proxy = proxyBuilder.buildSetterProxy(type);
-        cache.put(typeName, proxy);
-
+        CACHED_PROXIES.put(type.getName(), proxy);
         for (PojoMethodSignature signature : proxy.getSignatures()) {
-            if (PojoUtils.isSupported(signature.getFieldType())) {
-                setSetterProxy(signature, getSetterProxy(signature.getFieldType()));
+            try {
+                setProxyForMethod(signature);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
+        }
+        return proxy;
+    }
 
-            Class<?>[] genericTypes = signature.getGenericTypes();
-            Class<?> elementType = null;
+    private void setProxyForMethod(PojoMethodSignature signature) {
+        if (PojoUtils.isSupported(signature.getFieldType())) {
+            setSetterProxy(signature, getSetterProxy(signature.getFieldType()));
+        } else {
+            setSetterProxyForUnsupportedTypes(signature);
+        }
+    }
 
-            if (genericTypes != null && genericTypes.length > 0) {
-                if (genericTypes.length == 1) {
-                    elementType = genericTypes[0];
-                } else if (genericTypes.length == 2) {
-                    elementType = genericTypes[1];
-                } else {
-                    throw new RuntimeException("field with more than 2 generic types isn't supported");
-                }
-            } else if (signature.getFieldType().isArray()) {
-                elementType = signature.getComponentType();
-            }
-
-            if (elementType != null && PojoUtils.isSupported(elementType)) {
-                setElementSetterProxy(signature, getSetterProxy(elementType));
-            }
+    private void setSetterProxyForUnsupportedTypes(PojoMethodSignature signature) {
+        Class<?> elementType = PojoUtils.getElementTypeForGeneric(signature);
+        if (elementType != null && PojoUtils.isSupported(elementType)) {
+            setElementSetterProxy(signature, getSetterProxy(elementType));
         }
     }
 }

@@ -38,10 +38,14 @@ public class ClasspathConnectorResolver implements ConnectorResolver {
         for (String scheme : schemes) {
             scheme = scheme.trim();
             if (classMappings.containsKey(scheme)) {
-                if (log.isWarnEnabled())
-                    log.warn("Duplicate scheme {} when processing connector {}. Existing connector: {}", scheme, clzz.getClass().getName(),
-                            classMappings.get(scheme).getName());
+                if (log.isWarnEnabled()) {
+                    log.warn("Duplicate scheme {} when processing connector {}. Existing connector: {}", scheme,
+                            clzz.getClass().getName(), classMappings.get(scheme).getName());
+                }
             } else {
+                if (log.isInfoEnabled()) {
+                    log.info("Register scheme {} with connector", scheme, clzz.getClass().getName());
+                }
                 classMappings.put(scheme, clzz);
             }
         }

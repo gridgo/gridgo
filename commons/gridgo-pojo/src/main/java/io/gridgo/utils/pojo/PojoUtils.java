@@ -1,15 +1,7 @@
 package io.gridgo.utils.pojo;
 
 import static io.gridgo.format.StringFormatter.transform;
-import static io.gridgo.utils.ArrayUtils.foreachArray;
-import static io.gridgo.utils.PrimitiveUtils.isPrimitive;
 import static io.gridgo.utils.StringUtils.lowerCaseFirstLetter;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.END_ARRAY;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.END_MAP;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.KEY;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.START_ARRAY;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.START_MAP;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.VALUE;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -23,10 +15,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import io.gridgo.utils.ArrayUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.gridgo.utils.PrimitiveUtils;
 import io.gridgo.utils.annotations.Transient;
 import io.gridgo.utils.exception.InvalidFieldNameException;
-import io.gridgo.utils.pojo.getter.PojoFlattenWalker;
 import io.gridgo.utils.pojo.getter.PojoGetterProxy;
 import io.gridgo.utils.pojo.getter.PojoGetterRegistry;
 import io.gridgo.utils.pojo.setter.PojoSetterProxy;
@@ -35,17 +29,35 @@ import lombok.NonNull;
 
 public class PojoUtils {
 
+    private static final Logger log = LoggerFactory.getLogger(PojoUtils.class);
+
     private static final PojoGetterRegistry GETTER_REGISTRY = PojoGetterRegistry.DEFAULT;
     private static final PojoSetterRegistry SETTER_REGISTRY = PojoSetterRegistry.DEFAULT;
 
     private static final String SETTER_PREFIX = "set";
     private final static Set<String> GETTER_PREFIXES = new HashSet<String>(Arrays.asList("get", "is"));
 
+    public static Class<?> getElementTypeForGeneric(PojoMethodSignature signature) {
+        Class<?>[] genericTypes = signature.getGenericTypes();
+        Class<?> elementType = null;
+        if (genericTypes != null && genericTypes.length > 0) {
+            if (genericTypes.length == 1) {
+                elementType = genericTypes[0];
+            } else if (genericTypes.length == 2) {
+                elementType = genericTypes[1];
+            } else {
+                log.warn("field with more than 2 generic types isn't supported");
+            }
+        } else if (signature.getFieldType().isArray()) {
+            elementType = signature.getComponentType();
+        }
+        return elementType;
+    }
+
     public static boolean isSupported(@NonNull Class<?> targetType) {
-        return !(targetType == Object.class //
-                || Collection.class.isAssignableFrom(targetType) //
+        return !(Collection.class.isAssignableFrom(targetType) //
                 || Map.class.isAssignableFrom(targetType) //
-                || isPrimitive(targetType) //
+                || PrimitiveUtils.isPrimitive(targetType) //
                 || targetType.isArray() //
                 || targetType == Date.class //
                 || targetType == java.sql.Date.class);
@@ -229,125 +241,5 @@ public class PojoUtils {
 
     public static final PojoSetterProxy getSetterProxy(Class<?> type) {
         return SETTER_REGISTRY.getSetterProxy(type);
-    }
-
-    public static final void walkThroughGetter(Object target, PojoFlattenWalker walker) {
-        walkThroughGetter(target, null, walker);
-    }
-
-    @SuppressWarnings({ "rawtypes" })
-    public static final void walkThroughGetter(Object target, PojoGetterProxy proxy, PojoFlattenWalker walker) {
-        final Class<?> type;
-
-        if (target == null //
-                || isPrimitive(type = target.getClass()) //
-                || type == Date.class //
-                || type == java.sql.Date.class) {
-
-            walker.accept(VALUE, target);
-            return;
-        }
-
-        if (type.isArray()) {
-            int length = ArrayUtils.length(target);
-            walker.accept(START_ARRAY, length);
-            foreachArray(target, ele -> {
-                walkThroughGetter(ele, proxy, walker);
-            });
-            walker.accept(END_ARRAY, length);
-            return;
-        }
-
-        if (Collection.class.isInstance(target)) {
-            int length = ((Collection) target).size();
-            walker.accept(START_ARRAY, length);
-            var it = ((Collection) target).iterator();
-            while (it.hasNext()) {
-                walkThroughGetter(it.next(), proxy, walker);
-            }
-            walker.accept(END_ARRAY, length);
-            return;
-        }
-
-        if (Map.class.isInstance(target)) {
-            Map<?, ?> map = (Map<?, ?>) target;
-            int size = map.size();
-            walker.accept(START_MAP, size);
-            var it = map.entrySet().iterator();
-            while (it.hasNext()) {
-                var entry = it.next();
-                var key = entry.getKey();
-                var value = entry.getValue();
-                walker.accept(KEY, key);
-                walkThroughGetter(value, proxy, walker);
-            }
-            walker.accept(END_MAP, size);
-            return;
-        }
-
-        var _proxy = proxy != null ? proxy : getGetterProxy(type);
-        int length = _proxy.getFields().length;
-        walker.accept(START_MAP, length);
-        _proxy.walkThrough(target, (signature, value) -> {
-            walker.accept(KEY, signature.getTransformedOrDefaultFieldName());
-            walkThroughGetter(value, signature.getElementGetterProxy(), walker);
-        });
-        walker.accept(END_MAP, length);
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <T> T toJsonElement(Object any) {
-        return (T) toJsonElement(any, null);
-    }
-
-    private static Object toJsonElement(Object target, PojoGetterProxy proxy) {
-        Class<?> type;
-        if (target == null //
-                || isPrimitive(type = target.getClass()) //
-                || type == Date.class //
-                || type == java.sql.Date.class) {
-            return target;
-        }
-
-        if (type.isArray()) {
-            var list = new LinkedList<Object>();
-            var _proxy = proxy;
-            foreachArray(target, ele -> {
-                list.add(toJsonElement(ele, _proxy));
-            });
-            return list;
-        }
-
-        if (Collection.class.isInstance(target)) {
-            var it = ((Collection<?>) target).iterator();
-            var list = new LinkedList<Object>();
-            while (it.hasNext()) {
-                list.add(toJsonElement(it.next(), proxy));
-            }
-            return list;
-        }
-
-        if (Map.class.isInstance(target)) {
-            var result = new HashMap<String, Object>();
-            var map = (Map<?, ?>) target;
-            var it = map.entrySet().iterator();
-            while (it.hasNext()) {
-                var entry = it.next();
-                var key = entry.getKey();
-                var value = entry.getValue();
-                result.put(key.toString(), toJsonElement(value, proxy));
-            }
-            return result;
-        }
-
-        proxy = proxy == null ? getGetterProxy(type) : proxy;
-
-        var result = new HashMap<String, Object>();
-        proxy.walkThrough(target, (signature, value) -> {
-            String fieldName = signature.getTransformedOrDefaultFieldName();
-            Object entryValue = toJsonElement(value, signature.getGetterProxy());
-            result.put(fieldName, entryValue);
-        });
-        return result;
     }
 }
