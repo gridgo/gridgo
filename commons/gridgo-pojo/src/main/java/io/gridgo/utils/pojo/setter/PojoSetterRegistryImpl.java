@@ -24,24 +24,20 @@ class PojoSetterRegistryImpl implements PojoSetterRegistry, MethodSignatureProxy
 
     public PojoSetterProxy getSetterProxy(@NonNull Class<?> type) {
         var name = type.getName();
-        if (CACHED_PROXIES.containsKey(name))
-            return CACHED_PROXIES.get(name);
-        synchronized (type) {
-            if (CACHED_PROXIES.containsKey(name))
-                return CACHED_PROXIES.get(name);
+        if (cache.containsKey(name))
+            return cache.get(name);
+        synchronized (cache) {
+            if (cache.containsKey(name))
+                return cache.get(name);
             return buildProxy(type);
         }
     }
 
     private PojoSetterProxy buildProxy(Class<?> type) {
         PojoSetterProxy proxy = proxyBuilder.buildSetterProxy(type);
-        CACHED_PROXIES.put(type.getName(), proxy);
+        cache.put(type.getName(), proxy);
         for (PojoMethodSignature signature : proxy.getSignatures()) {
-            try {
-                setProxyForMethod(signature);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            setProxyForMethod(signature);
         }
         return proxy;
     }
