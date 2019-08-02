@@ -1,5 +1,9 @@
 package io.gridgo.utils;
 
+import static io.gridgo.utils.ArrayUtils.toArray;
+import static io.gridgo.utils.ArrayUtils.toPrimitiveArray;
+import static io.gridgo.utils.PrimitiveUtils.isPrimitive;
+
 import java.beans.Statement;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -163,6 +167,7 @@ public final class ObjectUtils {
         }
     }
 
+    @Deprecated
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public static final <T> T fromMap(Class<T> clazz, Map<String, ?> data)
             throws InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
@@ -181,8 +186,8 @@ public final class ObjectUtils {
                 final Setter setter = classSetter.get(potentialClassSetter);
                 if (value == null) {
                     setter.apply(result, null);
-                } else if (PrimitiveUtils.isPrimitive(value.getClass())) {
-                    if (!PrimitiveUtils.isPrimitive(setter.getParamType())) {
+                } else if (isPrimitive(value.getClass())) {
+                    if (!isPrimitive(setter.getParamType())) {
                         throw new TypeMismatchException("Cannot set value " + value.getClass()
                                 + " to a setter which accept " + setter.getParamType());
                     }
@@ -199,7 +204,7 @@ public final class ObjectUtils {
                             : new LinkedList<>();
                     ArrayUtils.foreach(value, element -> {
                         try {
-                            if (PrimitiveUtils.isPrimitive(element.getClass())) {
+                            if (isPrimitive(element.getClass())) {
                                 collection.add(PrimitiveUtils.getValueFrom(setter.getComponentType(), element));
                             } else if (element instanceof Map) {
                                 collection.add(fromMap(setter.getComponentType(), (Map) element));
@@ -212,10 +217,9 @@ public final class ObjectUtils {
                         setter.apply(result, collection);
                     } else if (setter.getParamType().isArray()) {
                         if (setter.getComponentType().isPrimitive()) {
-                            setter.apply(result,
-                                    ArrayUtils.toPrimitiveTypeArray(setter.getComponentType(), (List) collection));
+                            setter.apply(result, toPrimitiveArray((List) collection, setter.getComponentType()));
                         } else {
-                            setter.apply(result, ArrayUtils.toArray(setter.getComponentType(), (List) collection));
+                            setter.apply(result, toArray(setter.getComponentType(), (List) collection));
                         }
                     }
                 } else {
@@ -415,6 +419,7 @@ public final class ObjectUtils {
         return classGetter;
     }
 
+    @Deprecated
     @SuppressWarnings("unchecked")
     public static final Map<String, Object> toMap(Object obj) {
         if (obj == null) {
@@ -445,7 +450,7 @@ public final class ObjectUtils {
                 public void apply(Object element) {
                     if (element == null) {
                         list.add(null);
-                    } else if (PrimitiveUtils.isPrimitive(element.getClass())) {
+                    } else if (isPrimitive(element.getClass())) {
                         list.add(element);
                     } else if (ArrayUtils.isArrayOrCollection(element.getClass())) {
                         list.add(toList(element));
@@ -464,12 +469,13 @@ public final class ObjectUtils {
         return list;
     }
 
+    @Deprecated
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public static final Map<String, Object> toMapRecursive(Object obj) {
         if (obj == null) {
             return null;
         }
-        if (PrimitiveUtils.isPrimitive(obj.getClass())) {
+        if (isPrimitive(obj.getClass())) {
             throw new RuntimeException("cannot convert primitive type : " + obj.getClass() + " to Map");
         }
         if (ArrayUtils.isArrayOrCollection(obj.getClass())) {
@@ -484,7 +490,7 @@ public final class ObjectUtils {
             Object value = child.getValue();
             if (value == null) {
                 map.put(field, null);
-            } else if (PrimitiveUtils.isPrimitive(value.getClass())) {
+            } else if (isPrimitive(value.getClass())) {
                 map.put(field, value);
             } else if (ArrayUtils.isArrayOrCollection(value.getClass())) {
                 if (value.getClass() == byte[].class) {
@@ -497,7 +503,7 @@ public final class ObjectUtils {
                 for (Entry<?, ?> entry : ((Map<?, ?>) value).entrySet()) {
                     if (entry.getValue() == null) {
                         childMap.put(String.valueOf(entry.getKey()), null);
-                    } else if (PrimitiveUtils.isPrimitive(((Object) entry.getValue()).getClass())) {
+                    } else if (isPrimitive(((Object) entry.getValue()).getClass())) {
                         childMap.put(String.valueOf(entry.getKey()), (Object) entry.getValue());
                     } else if (ArrayUtils.isArrayOrCollection(entry.getValue().getClass())) {
                         childMap.put(String.valueOf(entry.getKey()),

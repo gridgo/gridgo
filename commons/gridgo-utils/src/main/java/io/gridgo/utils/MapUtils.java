@@ -2,6 +2,8 @@ package io.gridgo.utils;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -21,6 +23,21 @@ public class MapUtils {
 
         public MapBuilder<K, V> putIfAbsent(K key, V value) {
             this.map.putIfAbsent(key, value);
+            return this;
+        }
+
+        public MapBuilder<K, V> compute(K key, BiFunction<? super K, ? super V, ? extends V> reFn) {
+            this.map.compute(key, reFn);
+            return this;
+        }
+
+        public MapBuilder<K, V> computeIfAbsent(K key, Function<? super K, ? extends V> mFn) {
+            this.map.computeIfAbsent(key, mFn);
+            return this;
+        }
+
+        public MapBuilder<K, V> computeIfPresent(K key, BiFunction<? super K, ? super V, ? extends V> reFn) {
+            this.map.computeIfPresent(key, reFn);
             return this;
         }
 
@@ -57,5 +74,9 @@ public class MapUtils {
 
     public static <K, V> Map<K, V> newMap(Class<K> keyType, Class<V> valueType) {
         return new HashMap<K, V>();
+    }
+
+    public static boolean isMap(Class<?> type) {
+        return Map.class.isAssignableFrom(type);
     }
 }

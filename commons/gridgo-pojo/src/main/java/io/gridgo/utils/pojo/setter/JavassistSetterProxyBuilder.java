@@ -128,8 +128,8 @@ class JavassistSetterProxyBuilder implements PojoSetterProxyBuilder {
                     invokeSetter += "(((" + numberType + ") value)." + fieldType.getTypeName() + "Value())";
                 } else { // receive wrapper type
                     var primitiveTypeName = methodSignature.getPrimitiveTypeFromWrapperType().getName();
-                    invokeSetter += "(" + wrapperTypeName + ".valueOf(((" + numberType + ") value)." + primitiveTypeName
-                            + "Value()))";
+                    invokeSetter += "(value == null ? (" + wrapperTypeName + ") null : " + wrapperTypeName
+                            + ".valueOf(((" + numberType + ") value)." + primitiveTypeName + "Value()))";
                 }
             } else if (fieldType.isPrimitive()) {
                 invokeSetter += "(((" + wrapperTypeName + ") value)." + fieldType.getName() + "Value())";
@@ -137,7 +137,8 @@ class JavassistSetterProxyBuilder implements PojoSetterProxyBuilder {
                 invokeSetter += "((" + wrapperTypeName + ") value)";
             }
         } else if (fieldType.isArray()) {
-            invokeSetter += "((" + methodSignature.getComponentType().getName() + "[]) value)";
+            String componentType = methodSignature.getComponentType().getName() + "[]";
+            invokeSetter += "((" + componentType + ") value)";
         } else {
             invokeSetter += "((" + fieldType.getName() + ") value)";
         }
@@ -217,4 +218,5 @@ class JavassistSetterProxyBuilder implements PojoSetterProxyBuilder {
 
         cc.addMethod(CtMethod.make(method, cc));
     }
+
 }

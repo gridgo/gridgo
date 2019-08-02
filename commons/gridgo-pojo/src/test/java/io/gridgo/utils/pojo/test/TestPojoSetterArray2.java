@@ -19,6 +19,8 @@ public class TestPojoSetterArray2 extends AbstractTest {
 
         PojoUtils.setValue(target, fieldName, value);
         assertArrayEquals(value, target.getBooleanValue());
+
+        PojoUtils.setValue(target, fieldName, null);
     }
 
     @Test
@@ -28,6 +30,8 @@ public class TestPojoSetterArray2 extends AbstractTest {
 
         PojoUtils.setValue(target, fieldName, value);
         assertArrayEquals(value, target.getCharValue());
+
+        PojoUtils.setValue(target, fieldName, null);
     }
 
     @Test
@@ -37,6 +41,8 @@ public class TestPojoSetterArray2 extends AbstractTest {
 
         PojoUtils.setValue(target, fieldName, value);
         assertArrayEquals(value, target.getByteValue());
+
+        PojoUtils.setValue(target, fieldName, null);
     }
 
     @Test
@@ -46,6 +52,8 @@ public class TestPojoSetterArray2 extends AbstractTest {
 
         PojoUtils.setValue(target, fieldName, value);
         assertArrayEquals(value, target.getShortValue());
+
+        PojoUtils.setValue(target, fieldName, null);
     }
 
     @Test
@@ -55,6 +63,8 @@ public class TestPojoSetterArray2 extends AbstractTest {
 
         PojoUtils.setValue(target, fieldName, value);
         assertArrayEquals(value, target.getIntValue());
+
+        PojoUtils.setValue(target, fieldName, null);
     }
 
     @Test
@@ -64,6 +74,8 @@ public class TestPojoSetterArray2 extends AbstractTest {
 
         PojoUtils.setValue(target, fieldName, value);
         assertArrayEquals(value, target.getLongValue());
+
+        PojoUtils.setValue(target, fieldName, null);
     }
 
     @Test
@@ -73,6 +85,8 @@ public class TestPojoSetterArray2 extends AbstractTest {
 
         PojoUtils.setValue(target, fieldName, value);
         assertArrayEquals(value, target.getFloatValue());
+
+        PojoUtils.setValue(target, fieldName, null);
     }
 
     @Test
@@ -82,6 +96,8 @@ public class TestPojoSetterArray2 extends AbstractTest {
 
         PojoUtils.setValue(target, fieldName, value);
         assertArrayEquals(value, target.getDoubleValue());
+
+        PojoUtils.setValue(target, fieldName, null);
     }
 
     @Test
@@ -91,5 +107,7 @@ public class TestPojoSetterArray2 extends AbstractTest {
 
         PojoUtils.setValue(target, fieldName, value);
         assertArrayEquals(value, target.getStringValue());
+
+        PojoUtils.setValue(target, fieldName, null);
     }
 }

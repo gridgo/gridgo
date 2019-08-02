@@ -1,4 +1,4 @@
-package io.gridgo.utils.pojo.test;
+package io.gridgo.utils.pojo.test.perf;
 
 import org.junit.Test;
 
@@ -48,4 +48,5 @@ public class TestPojoSetterPerf extends AbstractTest {
         var throughput = (long) ((double) TOTAL / elapsed * 1e9);
         System.out.println("[" + type + "] Elapsed: " + elapsed / 1e6 + "ms. Throughput: " + throughput);
     }
+    
 }
