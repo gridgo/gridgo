@@ -37,11 +37,7 @@ class PojoSetterRegistryImpl implements PojoSetterRegistry, MethodSignatureProxy
         PojoSetterProxy proxy = proxyBuilder.buildSetterProxy(type);
         CACHED_PROXIES.put(type.getName(), proxy);
         for (PojoMethodSignature signature : proxy.getSignatures()) {
-            try {
-                setProxyForMethod(signature);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            setProxyForMethod(signature);
         }
         return proxy;
     }
