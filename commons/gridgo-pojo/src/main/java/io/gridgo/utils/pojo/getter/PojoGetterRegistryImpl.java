@@ -26,7 +26,7 @@ class PojoGetterRegistryImpl implements PojoGetterRegistry, MethodSignatureProxy
         var name = type.getName();
         if (CACHED_PROXIES.containsKey(name))
             return CACHED_PROXIES.get(name);
-        synchronized (type) {
+        synchronized (CACHED_PROXIES) {
             if (CACHED_PROXIES.containsKey(name))
                 return CACHED_PROXIES.get(name);
             return buildProxy(type);
