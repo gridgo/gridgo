@@ -220,6 +220,16 @@ public final class StringUtils {
             throw new RuntimeIOException("Error while append tab(s)", e);
         }
     }
+    
+    public static void softTabs(int num, Appendable sb) {
+        try {
+            for (int i = 0; i < num; i++) {
+                sb.append("    ");
+            }
+        } catch (IOException e) {
+            throw new RuntimeIOException("Error while append tab(s)", e);
+        }
+    }
 
     public static String tabs(int num) {
         StringBuilder sb = new StringBuilder();

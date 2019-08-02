@@ -11,11 +11,12 @@ import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtField;
 import javassist.CtMethod;
+import lombok.NonNull;
 
 class JavassistGetterProxyBuilder implements PojoGetterProxyBuilder {
 
     @Override
-    public PojoGetterProxy buildGetterProxy(Class<?> target) {
+    public PojoGetterProxy buildGetterProxy(@NonNull Class<?> target) {
         String className = target.getName().replaceAll("\\.", "_") + "_getter_proxy_" + System.nanoTime();
         try {
             ClassPool pool = ClassPool.getDefault();
