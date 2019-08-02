@@ -15,7 +15,7 @@ class PojoSetterRegistryImpl implements PojoSetterRegistry, MethodSignatureProxy
     @Getter
     private final static PojoSetterRegistryImpl instance = new PojoSetterRegistryImpl();
 
-    private final Map<String, PojoSetterProxy> CACHED_PROXIES = new NonBlockingHashMap<>();
+    private final Map<String, PojoSetterProxy> cache = new NonBlockingHashMap<>();
 
     private final PojoSetterProxyBuilder proxyBuilder = PojoSetterProxyBuilder.newJavassist();
 
