@@ -42,34 +42,30 @@ class PojoGetterRegistryImpl implements PojoGetterRegistry, MethodSignatureProxy
         cache.put(typeName, proxy);
 
         for (PojoMethodSignature signature : proxy.getSignatures()) {
-            try {
-                if (isSupported(signature.getFieldType())) {
-                    setGetterProxy(signature, getGetterProxy(signature.getFieldType()));
+            if (isSupported(signature.getFieldType())) {
+                setGetterProxy(signature, getGetterProxy(signature.getFieldType()));
+            }
+
+            Class<?> elementType = null;
+            if (signature.isArrayType()) {
+                elementType = signature.getComponentType();
+            } else {
+                Class<?>[] genericTypes = signature.getGenericTypes();
+                if (genericTypes == null || genericTypes.length == 0) {
+                    continue;
                 }
 
-                Class<?> elementType = null;
-                if (signature.isArrayType()) {
-                    elementType = signature.getComponentType();
+                if (genericTypes.length == 1) {
+                    elementType = genericTypes[0];
+                } else if (genericTypes.length == 2) {
+                    elementType = genericTypes[1];
                 } else {
-                    Class<?>[] genericTypes = signature.getGenericTypes();
-                    if (genericTypes == null || genericTypes.length == 0) {
-                        continue;
-                    }
-
-                    if (genericTypes.length == 1) {
-                        elementType = genericTypes[0];
-                    } else if (genericTypes.length == 2) {
-                        elementType = genericTypes[1];
-                    } else {
-                        throw new RuntimeException("more than 2 generic types isn't supported");
-                    }
+                    throw new RuntimeException("more than 2 generic types isn't supported");
                 }
+            }
 
-                if (elementType != null && isSupported(elementType)) {
-                    setElementGetterProxy(signature, getGetterProxy(elementType));
-                }
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+            if (elementType != null && isSupported(elementType)) {
+                setElementGetterProxy(signature, getGetterProxy(elementType));
             }
         }
     }

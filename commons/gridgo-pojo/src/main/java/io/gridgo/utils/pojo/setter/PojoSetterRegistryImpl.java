@@ -15,7 +15,7 @@ class PojoSetterRegistryImpl implements PojoSetterRegistry, MethodSignatureProxy
     @Getter
     private final static PojoSetterRegistryImpl instance = new PojoSetterRegistryImpl();
 
-    private final Map<String, PojoSetterProxy> CACHED_PROXIES = new NonBlockingHashMap<>();
+    private final Map<String, PojoSetterProxy> cache = new NonBlockingHashMap<>();
 
     private final PojoSetterProxyBuilder proxyBuilder = PojoSetterProxyBuilder.newJavassist();
 
@@ -24,42 +24,45 @@ class PojoSetterRegistryImpl implements PojoSetterRegistry, MethodSignatureProxy
 
     public PojoSetterProxy getSetterProxy(@NonNull Class<?> type) {
         String typeName = type.getName();
-        if (!CACHED_PROXIES.containsKey(typeName)) {
-            synchronized (CACHED_PROXIES) {
-                if (!CACHED_PROXIES.containsKey(typeName)) {
-                    PojoSetterProxy proxy = proxyBuilder.buildSetterProxy(type);
-                    CACHED_PROXIES.put(typeName, proxy);
-
-                    for (PojoMethodSignature signature : proxy.getSignatures()) {
-                        try {
-                            if (PojoUtils.isSupported(signature.getFieldType())) {
-                                setSetterProxy(signature, getSetterProxy(signature.getFieldType()));
-                            } else {
-                                Class<?>[] genericTypes = signature.getGenericTypes();
-                                Class<?> elementType = null;
-                                if (genericTypes != null && genericTypes.length > 0) {
-                                    if (genericTypes.length == 1) {
-                                        elementType = genericTypes[0];
-                                    } else if (genericTypes.length == 2) {
-                                        elementType = genericTypes[1];
-                                    } else {
-                                        throw new RuntimeException(
-                                                "field with more than 2 generic types isn't supported");
-                                    }
-                                } else if (signature.getFieldType().isArray()) {
-                                    elementType = signature.getComponentType();
-                                }
-                                if (elementType != null && PojoUtils.isSupported(elementType)) {
-                                    setElementSetterProxy(signature, getSetterProxy(elementType));
-                                }
-                            }
-                        } catch (Exception e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
+        if (!cache.containsKey(typeName)) {
+            synchronized (cache) {
+                if (!cache.containsKey(typeName)) {
+                    init(type);
                 }
             }
         }
-        return CACHED_PROXIES.get(typeName);
+        return cache.get(typeName);
+    }
+
+    private void init(Class<?> type) {
+        String typeName = type.getName();
+
+        PojoSetterProxy proxy = proxyBuilder.buildSetterProxy(type);
+        cache.put(typeName, proxy);
+
+        for (PojoMethodSignature signature : proxy.getSignatures()) {
+            if (PojoUtils.isSupported(signature.getFieldType())) {
+                setSetterProxy(signature, getSetterProxy(signature.getFieldType()));
+            }
+
+            Class<?>[] genericTypes = signature.getGenericTypes();
+            Class<?> elementType = null;
+
+            if (genericTypes != null && genericTypes.length > 0) {
+                if (genericTypes.length == 1) {
+                    elementType = genericTypes[0];
+                } else if (genericTypes.length == 2) {
+                    elementType = genericTypes[1];
+                } else {
+                    throw new RuntimeException("field with more than 2 generic types isn't supported");
+                }
+            } else if (signature.getFieldType().isArray()) {
+                elementType = signature.getComponentType();
+            }
+
+            if (elementType != null && PojoUtils.isSupported(elementType)) {
+                setElementSetterProxy(signature, getSetterProxy(elementType));
+            }
+        }
     }
 }
