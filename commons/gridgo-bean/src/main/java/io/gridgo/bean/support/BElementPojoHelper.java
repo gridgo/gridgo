@@ -148,7 +148,7 @@ public class BElementPojoHelper {
             }
 
             BType valueType = value.getType();
-            
+
             if (PrimitiveUtils.isPrimitive(signature.getFieldType())) {
                 if (!value.isValue()) {
                     throw new InvalidTypeException("field '" + fieldName + "' expected BValue, but got: " + valueType);
@@ -168,7 +168,7 @@ public class BElementPojoHelper {
                     return value.asReference().getReference();
                 }
                 if (!value.isObject()) {
-                    throw new InvalidTypeException("Expected BObject, got: " + valueType);
+                    throw new InvalidTypeException("Field '" + fieldName + "' expected BObject, but got: " + valueType);
                 }
                 return toMapOrPojo(value.asObject(), signature);
             }
