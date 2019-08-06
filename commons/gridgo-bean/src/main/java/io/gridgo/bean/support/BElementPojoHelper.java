@@ -20,6 +20,7 @@ import io.gridgo.bean.BArray;
 import io.gridgo.bean.BElement;
 import io.gridgo.bean.BObject;
 import io.gridgo.bean.BReference;
+import io.gridgo.bean.BType;
 import io.gridgo.bean.BValue;
 import io.gridgo.bean.exceptions.InvalidTypeException;
 import io.gridgo.utils.PrimitiveUtils;
@@ -146,17 +147,18 @@ public class BElementPojoHelper {
                 return null;
             }
 
+            BType valueType = value.getType();
+            
             if (PrimitiveUtils.isPrimitive(signature.getFieldType())) {
                 if (!value.isValue()) {
-                    throw new InvalidTypeException("Expected BValue, got: " + value.getType());
+                    throw new InvalidTypeException("field '" + fieldName + "' expected BValue, but got: " + valueType);
                 }
                 return PrimitiveUtils.getValueFrom(signature.getFieldType(), value.asValue().getData());
             }
 
             if (signature.isSequenceType()) {
                 if (!value.isArray()) {
-                    throw new InvalidTypeException(
-                            "Expected BArray for field: " + signature.getFieldName() + ", got: " + value);
+                    throw new InvalidTypeException("Field '" + fieldName + "' expected BArray, but got: " + valueType);
                 }
                 return toSequence(value.asArray(), signature);
             }
@@ -166,7 +168,7 @@ public class BElementPojoHelper {
                     return value.asReference().getReference();
                 }
                 if (!value.isObject()) {
-                    throw new InvalidTypeException("Expected BObject, got: " + value.getType());
+                    throw new InvalidTypeException("Expected BObject, got: " + valueType);
                 }
                 return toMapOrPojo(value.asObject(), signature);
             }
