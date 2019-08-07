@@ -23,6 +23,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.gridgo.utils.ArrayUtils;
 import io.gridgo.utils.annotations.Transient;
 import io.gridgo.utils.exception.InvalidFieldNameException;
@@ -35,11 +38,30 @@ import lombok.NonNull;
 
 public class PojoUtils {
 
+    private static final Logger log = LoggerFactory.getLogger(PojoUtils.class);
+
     private static final PojoGetterRegistry GETTER_REGISTRY = PojoGetterRegistry.DEFAULT;
     private static final PojoSetterRegistry SETTER_REGISTRY = PojoSetterRegistry.DEFAULT;
 
     private static final String SETTER_PREFIX = "set";
     private final static Set<String> GETTER_PREFIXES = new HashSet<String>(Arrays.asList("get", "is"));
+
+    public static Class<?> getElementTypeForGeneric(PojoMethodSignature signature) {
+        Class<?>[] genericTypes = signature.getGenericTypes();
+        Class<?> elementType = null;
+        if (genericTypes != null && genericTypes.length > 0) {
+            if (genericTypes.length == 1) {
+                elementType = genericTypes[0];
+            } else if (genericTypes.length == 2) {
+                elementType = genericTypes[1];
+            } else {
+                log.warn("field with more than 2 generic types isn't supported");
+            }
+        } else if (signature.getFieldType().isArray()) {
+            elementType = signature.getComponentType();
+        }
+        return elementType;
+    }
 
     public static boolean isSupported(@NonNull Class<?> targetType) {
         return !(targetType == Object.class //

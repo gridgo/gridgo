@@ -1,13 +1,12 @@
 package io.gridgo.utils.pojo.getter;
 
-import static io.gridgo.utils.pojo.PojoUtils.isSupported;
-
 import java.util.Map;
 
 import org.cliffc.high_scale_lib.NonBlockingHashMap;
 
 import io.gridgo.utils.pojo.MethodSignatureProxyInjector;
 import io.gridgo.utils.pojo.PojoMethodSignature;
+import io.gridgo.utils.pojo.PojoUtils;
 import lombok.Getter;
 import lombok.NonNull;
 
@@ -24,49 +23,37 @@ class PojoGetterRegistryImpl implements PojoGetterRegistry, MethodSignatureProxy
     }
 
     public PojoGetterProxy getGetterProxy(@NonNull Class<?> type) {
-        String typeName = type.getName();
-        if (!cache.containsKey(typeName)) {
-            synchronized (cache) {
-                if (!cache.containsKey(typeName)) {
-                    init(type);
-                }
-            }
+        var name = type.getName();
+        if (cache.containsKey(name))
+            return cache.get(name);
+        synchronized (cache) {
+            if (cache.containsKey(name))
+                return cache.get(name);
+            return buildProxy(type);
         }
-        return cache.get(typeName);
     }
 
-    private void init(Class<?> type) {
-        String typeName = type.getName();
-
-        var proxy = getterProxyBuilder.buildGetterProxy(type);
-        cache.put(typeName, proxy);
-
+    private PojoGetterProxy buildProxy(Class<?> type) {
+        PojoGetterProxy proxy = getterProxyBuilder.buildGetterProxy(type);
+        cache.put(type.getName(), proxy);
         for (PojoMethodSignature signature : proxy.getSignatures()) {
-            if (isSupported(signature.getFieldType())) {
-                setGetterProxy(signature, getGetterProxy(signature.getFieldType()));
-            }
+            setProxyForMethod(signature);
+        }
+        return proxy;
+    }
 
-            Class<?> elementType = null;
-            if (signature.isArrayType()) {
-                elementType = signature.getComponentType();
-            } else {
-                Class<?>[] genericTypes = signature.getGenericTypes();
-                if (genericTypes == null || genericTypes.length == 0) {
-                    continue;
-                }
+    private void setProxyForMethod(PojoMethodSignature signature) {
+        if (PojoUtils.isSupported(signature.getFieldType())) {
+            setGetterProxy(signature, getGetterProxy(signature.getFieldType()));
+        } else {
+            setProxyForUnsupportedTypes(signature);
+        }
+    }
 
-                if (genericTypes.length == 1) {
-                    elementType = genericTypes[0];
-                } else if (genericTypes.length == 2) {
-                    elementType = genericTypes[1];
-                } else {
-                    throw new RuntimeException("more than 2 generic types isn't supported");
-                }
-            }
-
-            if (elementType != null && isSupported(elementType)) {
-                setElementGetterProxy(signature, getGetterProxy(elementType));
-            }
+    private void setProxyForUnsupportedTypes(PojoMethodSignature signature) {
+        var elementType = PojoUtils.getElementTypeForGeneric(signature);
+        if (elementType != null && PojoUtils.isSupported(elementType)) {
+            setElementGetterProxy(signature, getGetterProxy(elementType));
         }
     }
 }
