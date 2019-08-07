@@ -1,5 +1,8 @@
 package io.gridgo.utils;
 
+import static java.lang.Thread.currentThread;
+import static java.lang.Thread.onSpinWait;
+
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -10,6 +13,7 @@ import java.util.function.Supplier;
 import org.cliffc.high_scale_lib.NonBlockingHashMap;
 
 import io.gridgo.utils.exception.ThreadingException;
+import lombok.NonNull;
 
 public class ThreadUtils {
 
@@ -70,7 +74,7 @@ public class ThreadUtils {
         try {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
+            currentThread().interrupt();
             throw new ThreadingException("Interupted while sleeping", e);
         }
     }
@@ -95,32 +99,30 @@ public class ThreadUtils {
     /**
      * Stop current thread using LockSupport.parkNanos(nanoSegment) calling inside a
      * while loop <br>
-     * Break if process is shutdown or breakSignal return true
+     * Break if process/currentThread shutdown or breakSignal return true
      * 
-     * @param nanoSegment        parking time in nano seconds
      * @param continueUntilFalse continue spin when this supplier return true, break
      *                           loop and return when false
      */
     public static final void busySpin(Supplier<Boolean> continueUntilFalse) {
         while (continueUntilFalse.get()) {
-            if (isShuttingDown() || Thread.currentThread().isInterrupted())
+            if (isShuttingDown() || currentThread().isInterrupted())
                 break;
-
-            Thread.onSpinWait();
+            onSpinWait();
         }
     }
 
     /**
      * register a task which can be processed when process shutdown
      * 
-     * @param task
-     * @return task id use to remove the registered task, -1 if false to register
+     * @param task the task to be registered
+     * @return disposable object
      */
-    public static ShutdownTaskDisposable registerShutdownTask(Runnable task) {
+    public static ShutdownTaskDisposable registerShutdownTask(@NonNull Runnable task) {
         return registerShutdownTask(task, shutdownTaskIdSeed.incrementAndGet());
     }
 
-    public static ShutdownTaskDisposable registerShutdownTask(Runnable task, int order) {
+    public static ShutdownTaskDisposable registerShutdownTask(@NonNull Runnable task, int order) {
         if (isShuttingDown()) {
             return null;
         }
