@@ -1,28 +1,30 @@
 package io.gridgo.utils;
 
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.LockSupport;
 import java.util.function.Supplier;
 
 import org.cliffc.high_scale_lib.NonBlockingHashMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.gridgo.utils.exception.ThreadingException;
-import io.gridgo.utils.helper.Assert;
 
 public class ThreadUtils {
+
+    @FunctionalInterface
+    public static interface ShutdownTaskDisposable {
+        boolean dispose();
+    }
 
     private final static AtomicBoolean SHUTTING_DOWN_SIGNAL = new AtomicBoolean(false);
 
     private final static AtomicInteger shutdownTaskIdSeed = new AtomicInteger(0);
-    private final static Map<Integer, Runnable> shutdownTasks = new NonBlockingHashMap<>();
-    private final static Logger logger = LoggerFactory.getLogger(ThreadUtils.class);
+    private final static Map<Integer, List<Runnable>> shutdownTasks = new NonBlockingHashMap<>();
 
     static {
-        Runtime.getRuntime().addShutdownHook(new Thread(ThreadUtils::doShutdown));
+        Runtime.getRuntime().addShutdownHook(new Thread(ThreadUtils::doShutdown, "SHUTDOWN HOOK"));
     }
 
     protected static void doShutdown() {
@@ -36,12 +38,14 @@ public class ThreadUtils {
         }
 
         for (int i = 0; i <= maxId; i++) {
-            Runnable task = shutdownTasks.get(i);
-            if (task != null) {
-                try {
-                    task.run();
-                } catch (Exception e) {
-                    logger.warn("Exception caught while shutting down", e);
+            List<Runnable> tasks = shutdownTasks.get(i);
+            if (tasks != null) {
+                for (var task : tasks) {
+                    try {
+                        task.run();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }
@@ -97,9 +101,12 @@ public class ThreadUtils {
      * @param continueUntilFalse continue spin when this supplier return true, break
      *                           loop and return when false
      */
-    public static final void busySpin(long nanoSegment, Supplier<Boolean> continueUntilFalse) {
-        while (!isShuttingDown() && continueUntilFalse.get()) {
-            LockSupport.parkNanos(nanoSegment);
+    public static final void busySpin(Supplier<Boolean> continueUntilFalse) {
+        while (continueUntilFalse.get()) {
+            if (isShuttingDown() || Thread.currentThread().isInterrupted())
+                break;
+
+            Thread.onSpinWait();
         }
     }
 
@@ -109,27 +116,27 @@ public class ThreadUtils {
      * @param task
      * @return task id use to remove the registered task, -1 if false to register
      */
-    public static int registerShutdownTask(Runnable task) {
-        if (!SHUTTING_DOWN_SIGNAL.get()) {
-            Assert.notNull(task, "Shutdown task");
-            int id = shutdownTaskIdSeed.getAndIncrement();
-            shutdownTasks.put(id, task);
-            return id;
-        }
-        return -1;
+    public static ShutdownTaskDisposable registerShutdownTask(Runnable task) {
+        return registerShutdownTask(task, shutdownTaskIdSeed.incrementAndGet());
     }
 
-    /**
-     * deregister a registered shutdown task
-     * 
-     * @param id
-     * @return true if successful
-     */
-    public static boolean deregisterShutdownTask(int id) {
-        if (!SHUTTING_DOWN_SIGNAL.get() && shutdownTasks.containsKey(id)) {
-            shutdownTasks.remove(id);
-            return true;
+    public static ShutdownTaskDisposable registerShutdownTask(Runnable task, int order) {
+        if (isShuttingDown()) {
+            return null;
         }
-        return false;
+
+        shutdownTasks.computeIfAbsent(order, key -> new CopyOnWriteArrayList<Runnable>()).add(task);
+        return () -> {
+            if (isShuttingDown()) {
+                return false;
+            }
+
+            var tasks = shutdownTasks.get(order);
+            if (tasks == null) {
+                return false;
+            }
+
+            return tasks.remove(task);
+        };
     }
 }
