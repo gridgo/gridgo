@@ -13,7 +13,6 @@ import lombok.AllArgsConstructor;
  * Triple states non-blocking and lock-free barrier for anti-race-condition
  * issue
  * 
- * <p>
  * There're 3 states:
  * <ol>
  * <li><b>NONE</b> mean this barrier is not started, can only change to
@@ -24,9 +23,8 @@ import lombok.AllArgsConstructor;
  * can only change to <b>NONE</b> state by invoking
  * <b>{@link #doneAndReset()}</b></li>
  * </ol>
- * </p>
  * 
- * @author bach.nguyen@tiki.vn
+ * @author bachden
  *
  */
 @AllArgsConstructor
@@ -79,16 +77,9 @@ public final class BinaryBarrier {
     }
 
     /**
-     * <p>
      * if this barrier is in PROCESSING, invoking thread will be locked by a busy
-     * spin to wait until DONE
-     * </p>
-     * <p>
-     * if this barrier was DONE, return true immediately
-     * </p>
-     * <p>
-     * if this barrier is NONE, return false
-     * </p>
+     * spin to wait until DONE if this barrier was DONE, return true immediately if
+     * this barrier is NONE, return false
      * 
      * @return true if processing is done, false otherwise (barrier is not started)
      */
@@ -98,16 +89,9 @@ public final class BinaryBarrier {
     }
 
     /**
-     * <p>
      * if this barrier is in PROCESSING, invoking thread will be locked by a busy
-     * spin to wait until DONE
-     * </p>
-     * <p>
-     * if this barrier is DONE, return false immediately
-     * </p>
-     * <p>
-     * if this barrier is NONE, return true
-     * </p>
+     * spin to wait until DONE if this barrier is DONE, return false immediately if
+     * this barrier is NONE, return true
      * 
      * @return true if processing is done, false otherwise (barrier is not started)
      */

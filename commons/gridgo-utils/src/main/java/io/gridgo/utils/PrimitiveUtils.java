@@ -273,7 +273,7 @@ public class PrimitiveUtils {
      * else return object != null
      * 
      * @param obj
-     * @return
+     * @return boolean value
      */
     public static final boolean getBooleanValueFrom(Object obj) {
         if (obj instanceof Number)
