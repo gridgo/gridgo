@@ -1,9 +1,9 @@
 package io.gridgo.utils.support;
 
 import static io.gridgo.utils.ThreadUtils.busySpin;
-import static io.gridgo.utils.support.BinaryBarrier.MutexBarrierState.DONE;
-import static io.gridgo.utils.support.BinaryBarrier.MutexBarrierState.NONE;
-import static io.gridgo.utils.support.BinaryBarrier.MutexBarrierState.PROCESSING;
+import static io.gridgo.utils.support.BinaryBarrier.BinaryBarrierState.DONE;
+import static io.gridgo.utils.support.BinaryBarrier.BinaryBarrierState.NONE;
+import static io.gridgo.utils.support.BinaryBarrier.BinaryBarrierState.PROCESSING;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -30,13 +30,13 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public final class BinaryBarrier {
 
-    public static enum MutexBarrierState {
+    public static enum BinaryBarrierState {
         NONE, PROCESSING, DONE;
     }
 
-    private final AtomicReference<MutexBarrierState> state = new AtomicReference<>(NONE);
+    private final AtomicReference<BinaryBarrierState> state = new AtomicReference<>(NONE);
 
-    public MutexBarrierState getState() {
+    public BinaryBarrierState getState() {
         return this.state.get();
     }
 
