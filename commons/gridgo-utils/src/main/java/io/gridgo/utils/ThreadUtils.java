@@ -3,6 +3,8 @@ package io.gridgo.utils;
 import static java.lang.Thread.currentThread;
 import static java.lang.Thread.onSpinWait;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -22,39 +24,12 @@ public class ThreadUtils {
         boolean dispose();
     }
 
-    private final static AtomicBoolean SHUTTING_DOWN_SIGNAL = new AtomicBoolean(false);
-
+    private final static AtomicBoolean shuttingDownFlag = new AtomicBoolean(false);
     private final static AtomicInteger shutdownTaskIdSeed = new AtomicInteger(0);
     private final static Map<Integer, List<Runnable>> shutdownTasks = new NonBlockingHashMap<>();
 
     static {
         Runtime.getRuntime().addShutdownHook(new Thread(ThreadUtils::doShutdown, "SHUTDOWN HOOK"));
-    }
-
-    protected static void doShutdown() {
-        SHUTTING_DOWN_SIGNAL.set(true);
-        // process shutdown tasks...
-        int maxId = Integer.MIN_VALUE;
-        for (Integer key : shutdownTasks.keySet()) {
-            if (key > maxId) {
-                maxId = key;
-            }
-        }
-
-        for (int i = 0; i <= maxId; i++) {
-            var tasks = shutdownTasks.get(i);
-            if (tasks == null) {
-                return;
-            }
-
-            for (var task : tasks) {
-                try {
-                    task.run();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }
     }
 
     /**
@@ -63,7 +38,7 @@ public class ThreadUtils {
      * @return true if process is shutting down, false otherwise
      */
     public static boolean isShuttingDown() {
-        return SHUTTING_DOWN_SIGNAL.get();
+        return shuttingDownFlag.get();
     }
 
     /**
@@ -165,5 +140,46 @@ public class ThreadUtils {
 
             return tasks.remove(task);
         };
+    }
+
+    protected static void doShutdown() {
+        shuttingDownFlag.set(true);
+
+        // process shutdown tasks...
+        if (shutdownTasks.size() == 0)
+            return;
+
+        var list = new ArrayList<Integer>();
+        var remaining = new LinkedList<Integer>();
+
+        list.addAll(shutdownTasks.keySet());
+        list.sort((i1, i2) -> i1 - i2);
+
+        for (Integer order : list) {
+            if (order >= 0) {
+                runShutdownTasks(order);
+            } else {
+                remaining.add(0, order);
+            }
+        }
+
+        for (int order : remaining) {
+            runShutdownTasks(order);
+        }
+    }
+
+    private static void runShutdownTasks(int order) {
+        var tasks = shutdownTasks.get(order);
+        if (tasks == null) {
+            return;
+        }
+
+        for (var task : tasks) {
+            try {
+                task.run();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
