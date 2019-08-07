@@ -42,14 +42,16 @@ public class ThreadUtils {
         }
 
         for (int i = 0; i <= maxId; i++) {
-            List<Runnable> tasks = shutdownTasks.get(i);
-            if (tasks != null) {
-                for (var task : tasks) {
-                    try {
-                        task.run();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+            var tasks = shutdownTasks.get(i);
+            if (tasks == null) {
+                return;
+            }
+
+            for (var task : tasks) {
+                try {
+                    task.run();
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         }
@@ -74,7 +76,6 @@ public class ThreadUtils {
         try {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
-            currentThread().interrupt();
             throw new ThreadingException("Interupted while sleeping", e);
         }
     }
@@ -97,12 +98,12 @@ public class ThreadUtils {
     }
 
     /**
-     * Stop current thread using LockSupport.parkNanos(nanoSegment) calling inside a
-     * while loop <br>
+     * Stop current thread using Thread.onBusySpin() calling inside a while loop
+     * <br>
      * Break if process/currentThread shutdown or breakSignal return true
      * 
-     * @param continueUntilFalse continue spin when this supplier return true, break
-     *                           loop and return when false
+     * @param continueUntilFalse continue spin when return true, break loop and
+     *                           return when false
      */
     public static final void busySpin(Supplier<Boolean> continueUntilFalse) {
         while (continueUntilFalse.get()) {
@@ -110,6 +111,30 @@ public class ThreadUtils {
                 break;
             onSpinWait();
         }
+    }
+
+    /**
+     * Stop current thread using Thread.onBusySpin() calling inside a while loop
+     * <br>
+     * Break if process/currentThread shutdown or breakSignal return true
+     * 
+     * @param continueUntilFalse continue spin when true, break loop and return when
+     *                           false
+     */
+    public static final void busySpinUntilFalse(@NonNull AtomicBoolean continueUntilFalse) {
+        busySpin(continueUntilFalse::get);
+    }
+
+    /**
+     * Stop current thread using Thread.onBusySpin() calling inside a while loop
+     * <br>
+     * Break if process/currentThread shutdown or breakSignal return true
+     * 
+     * @param continueUntilTrue continue spin when false, break loop and return when
+     *                          true
+     */
+    public static final void busySpinUntilTrue(@NonNull AtomicBoolean continueUntilTrue) {
+        busySpin(() -> !continueUntilTrue.get());
     }
 
     /**
