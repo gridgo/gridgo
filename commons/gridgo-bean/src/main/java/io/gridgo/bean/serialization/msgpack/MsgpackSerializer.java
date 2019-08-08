@@ -61,7 +61,7 @@ public class MsgpackSerializer extends AbstractBSerializer {
                 return;
             }
 
-            throw new InvalidTypeException("Cannot serialize belement which instance of: " + element.getClass());
+            throw new BeanSerializationException("Cannot serialize belement which instance of: " + element.getClass());
         }
 
         Class<?> type;
@@ -121,7 +121,7 @@ public class MsgpackSerializer extends AbstractBSerializer {
             packer.packString(value.getString());
             return;
         default:
-            throw new InvalidTypeException("Cannot writeValue object type: " + type);
+            throw new BeanSerializationException("Cannot writeValue object type: " + type);
         }
     }
 
@@ -183,7 +183,7 @@ public class MsgpackSerializer extends AbstractBSerializer {
         try (var packer = MessagePack.newDefaultPacker(out)) {
             packAny(element, packer);
             packer.flush();
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new BeanSerializationException("Error while serialize element", e);
         }
     }
@@ -267,7 +267,7 @@ public class MsgpackSerializer extends AbstractBSerializer {
         default:
             break;
         }
-        throw new InvalidTypeException("Cannot deserialize as BElement for format: " + format);
+        throw new BeanSerializationException("Cannot deserialize as BElement for format: " + format);
     }
 
     @Override
