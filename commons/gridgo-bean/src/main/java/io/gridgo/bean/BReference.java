@@ -2,6 +2,7 @@ package io.gridgo.bean;
 
 import static io.gridgo.bean.support.BElementPojoHelper.anyToJsonElement;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -11,6 +12,7 @@ import java.nio.ByteBuffer;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+import io.gridgo.bean.exceptions.BeanSerializationException;
 import io.gridgo.bean.factory.BFactory;
 import io.gridgo.utils.wrapper.ByteBufferInputStream;
 import lombok.NonNull;
@@ -23,6 +25,40 @@ public interface BReference extends BElement {
 
     static BReference ofEmpty() {
         return BFactory.DEFAULT.newReference();
+    }
+
+    /**
+     * return an instanceof BReference which deserialized from input stream. if
+     * stream deserialized to key-value, it use BObject.toPojo() method. if stream
+     * deserialized to breference which contains an instanceof targetType, return
+     * itself.
+     * 
+     * @param inputStream
+     * @param serializerName
+     * @param targetType
+     * @return
+     * 
+     * @throws if deserialized type is not reference or object
+     */
+    static BReference ofBytes(InputStream inputStream, String serializerName, Class<?> targetType) {
+        var element = BFactory.DEFAULT.fromBytes(inputStream, serializerName);
+
+        if (element.isReference() && element.asReference().referenceInstanceOf(targetType))
+            return element.asReference();
+
+        if (element.isObject())
+            return BFactory.DEFAULT.newReference(element.asObject().toPojo(targetType));
+
+        throw new BeanSerializationException(
+                "Cannot convert input bytes as BReference of '" + targetType + "', deserialized: " + element);
+    }
+
+    static BReference ofBytes(byte[] bytes, String serializerName, Class<?> targetType) {
+        return ofBytes(new ByteArrayInputStream(bytes), serializerName, targetType);
+    }
+
+    static BReference ofBytes(ByteBuffer buffer, String serializerName, Class<?> targetType) {
+        return ofBytes(new ByteBufferInputStream(buffer), serializerName, targetType);
     }
 
     @Override
