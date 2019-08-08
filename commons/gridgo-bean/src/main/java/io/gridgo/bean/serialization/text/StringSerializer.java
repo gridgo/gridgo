@@ -7,7 +7,6 @@ import java.io.OutputStream;
 import io.gridgo.bean.BElement;
 import io.gridgo.bean.BValue;
 import io.gridgo.bean.exceptions.BeanSerializationException;
-import io.gridgo.bean.serialization.BDeserializationConfig;
 import io.gridgo.bean.serialization.BSerializationPlugin;
 import io.gridgo.bean.serialization.BSerializer;
 import io.gridgo.utils.exception.RuntimeIOException;
@@ -31,7 +30,7 @@ public class StringSerializer implements BSerializer {
     }
 
     @Override
-    public BElement deserialize(@NonNull InputStream in, BDeserializationConfig config) {
+    public BElement deserialize(@NonNull InputStream in) {
         try {
             return BValue.of(in.readAllBytes());
         } catch (IOException e) {

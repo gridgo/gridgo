@@ -10,7 +10,6 @@ import java.util.Map;
 import io.gridgo.bean.BElement;
 import io.gridgo.bean.exceptions.BeanSerializationException;
 import io.gridgo.bean.serialization.AbstractBSerializer;
-import io.gridgo.bean.serialization.BDeserializationConfig;
 import io.gridgo.bean.serialization.BSerializationPlugin;
 import io.gridgo.bean.support.BElementPojoHelper;
 import io.gridgo.utils.exception.RuntimeIOException;
@@ -62,7 +61,7 @@ public class JsonSerializer extends AbstractBSerializer {
     }
 
     @Override
-    public BElement deserialize(@NonNull InputStream in, BDeserializationConfig config) {
+    public BElement deserialize(@NonNull InputStream in) {
         try {
             return getFactory().fromAny(new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE).parse(in));
         } catch (UnsupportedEncodingException | ParseException e) {

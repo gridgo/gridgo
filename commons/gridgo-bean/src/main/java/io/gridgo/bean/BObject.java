@@ -14,14 +14,6 @@ import lombok.NonNull;
 
 public interface BObject extends BContainer, Map<String, BElement> {
 
-    default <T> T toPojo(Class<T> clazz) {
-        return BElementPojoHelper.bObjectToPojo(this, clazz);
-    }
-
-    default <T> T toPojo(Class<T> clazz, PojoSetterProxy setterProxy) {
-        return BElementPojoHelper.bObjectToPojo(this, clazz, setterProxy);
-    }
-
     static BObject wrap(Map<?, ?> source) {
         return BFactory.DEFAULT.wrap(source);
     }
@@ -55,6 +47,26 @@ public interface BObject extends BContainer, Map<String, BElement> {
 
     static BObject ofSequence(Object... sequence) {
         return BFactory.DEFAULT.newObjectFromSequence(sequence);
+    }
+
+    @Override
+    default boolean isArray() {
+        return false;
+    }
+
+    @Override
+    default boolean isValue() {
+        return false;
+    }
+
+    @Override
+    default boolean isObject() {
+        return true;
+    }
+
+    @Override
+    default boolean isReference() {
+        return false;
     }
 
     @Override
@@ -406,4 +418,13 @@ public interface BObject extends BContainer, Map<String, BElement> {
         }
         return map;
     }
+
+    default <T> T toPojo(Class<T> clazz) {
+        return BElementPojoHelper.bObjectToPojo(this, clazz);
+    }
+
+    default <T> T toPojo(Class<T> clazz, PojoSetterProxy setterProxy) {
+        return BElementPojoHelper.bObjectToPojo(this, clazz, setterProxy);
+    }
+
 }

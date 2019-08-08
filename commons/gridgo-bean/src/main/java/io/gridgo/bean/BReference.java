@@ -25,6 +25,26 @@ public interface BReference extends BElement {
         return BFactory.DEFAULT.newReference();
     }
 
+    @Override
+    default boolean isArray() {
+        return false;
+    }
+
+    @Override
+    default boolean isValue() {
+        return false;
+    }
+
+    @Override
+    default boolean isObject() {
+        return false;
+    }
+
+    @Override
+    default boolean isReference() {
+        return true;
+    }
+
     <T> T getReference();
 
     void setReference(Object reference);

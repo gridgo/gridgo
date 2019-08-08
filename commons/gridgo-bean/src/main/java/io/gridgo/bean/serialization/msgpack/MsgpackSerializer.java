@@ -1,5 +1,7 @@
 package io.gridgo.bean.serialization.msgpack;
 
+import static io.gridgo.utils.pojo.PojoUtils.getGetterProxy;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -19,12 +21,10 @@ import io.gridgo.bean.BValue;
 import io.gridgo.bean.exceptions.BeanSerializationException;
 import io.gridgo.bean.exceptions.InvalidTypeException;
 import io.gridgo.bean.serialization.AbstractBSerializer;
-import io.gridgo.bean.serialization.BDeserializationConfig;
 import io.gridgo.bean.serialization.BSerializationPlugin;
 import io.gridgo.utils.ArrayUtils;
 import io.gridgo.utils.PrimitiveUtils;
 import io.gridgo.utils.exception.RuntimeIOException;
-import io.gridgo.utils.pojo.getter.PojoGetterRegistry;
 import lombok.NonNull;
 
 @BSerializationPlugin({ "raw", MsgpackSerializer.NAME })
@@ -165,8 +165,7 @@ public class MsgpackSerializer extends AbstractBSerializer {
     }
 
     private void packPojo(Object target, MessagePacker packer) throws IOException {
-        Class<?> type = target.getClass();
-        var proxy = PojoGetterRegistry.DEFAULT.getGetterProxy(type);
+        var proxy = getGetterProxy(target.getClass());
         packer.packMapHeader(proxy.getFields().length);
         proxy.walkThrough(target, (signature, value) -> {
             try {
@@ -271,7 +270,7 @@ public class MsgpackSerializer extends AbstractBSerializer {
     }
 
     @Override
-    public BElement deserialize(InputStream in, BDeserializationConfig config) {
+    public BElement deserialize(InputStream in) {
         try (var unpacker = MessagePack.newDefaultUnpacker(in)) {
             return this.unpackAny(unpacker);
         } catch (IOException e) {

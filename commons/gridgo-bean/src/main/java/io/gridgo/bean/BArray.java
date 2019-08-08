@@ -30,6 +30,26 @@ public interface BArray extends BContainer, List<BElement> {
     }
 
     @Override
+    default boolean isArray() {
+        return true;
+    }
+
+    @Override
+    default boolean isValue() {
+        return false;
+    }
+
+    @Override
+    default boolean isObject() {
+        return false;
+    }
+
+    @Override
+    default boolean isReference() {
+        return false;
+    }
+
+    @Override
     default BType getType() {
         return BType.ARRAY;
     }
