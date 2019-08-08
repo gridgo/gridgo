@@ -33,10 +33,10 @@ public interface BReference extends BElement {
      * deserialized to breference which contains an instanceof targetType, return
      * itself.
      * 
-     * @param inputStream
-     * @param serializerName
-     * @param targetType
-     * @return
+     * @param inputStream    input stream
+     * @param serializerName serialzier name, null mean default (msgpack)
+     * @param targetType     target type
+     * @return BReference which contains instance of targetType
      * 
      * @throws if deserialized type is not reference or object
      */
@@ -127,9 +127,9 @@ public interface BReference extends BElement {
      * Support for I/O operator when reference object is ByteBuffer or InputStream
      * or File
      * 
-     * @param output
-     * @return
-     * @throws IOException
+     * @param output where data will be write to
+     * @return success or not
+     * @throws IOException if output stream cannot be written
      */
     default boolean tryWriteNativeBytes(@NonNull OutputStream output) throws IOException {
         var ref = getReference();
