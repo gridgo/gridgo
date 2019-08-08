@@ -28,6 +28,7 @@
 			<groupId>org.dungba</groupId>
 			<artifactId>joo-libra</artifactId>
 			<version>${joo.libra.version}</version>
+			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 </project>
