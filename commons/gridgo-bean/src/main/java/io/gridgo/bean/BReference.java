@@ -38,7 +38,6 @@ public interface BReference extends BElement {
      * @param targetType     target type
      * @return BReference which contains instance of targetType
      * 
-     * @throws if deserialized type is not reference or object
      */
     static BReference ofBytes(InputStream inputStream, String serializerName, Class<?> targetType) {
         var element = BFactory.DEFAULT.fromBytes(inputStream, serializerName);

@@ -17,18 +17,12 @@ public interface BSerializer {
         return 1024;
     }
 
-    /********************************************/
-    /** -------------- SERIALIZE ------------- **/
-    /********************************************/
     void serialize(BElement element, OutputStream out);
 
     default void serialize(BElement element, ByteBuffer out) {
         this.serialize(element, new ByteBufferOutputStream(out));
     }
 
-    /********************************************/
-    /** ------------- DESERIALIZE ------------ **/
-    /********************************************/
     BElement deserialize(InputStream in);
 
     default BElement deserialize(@NonNull ByteBuffer buffer) {
