@@ -40,21 +40,25 @@ public interface BSerializer {
     }
 
     default <T> T deserializeToPojo(InputStream in, @NonNull Class<T> targetType) {
-        BElement ele = this.deserialize(in);
-        if (ele.isReference() && ele.asReference().referenceInstanceOf(targetType)) {
+        var ele = deserialize(in);
+
+        if (ele == null)
+            return null;
+
+        if (ele.isReference())
             return ele.asReference().getReference();
-        }
-        if (ele != null && ele.isObject()) {
+
+        if (ele.isObject())
             return ele.asObject().toPojo(targetType);
-        }
-        throw new BeanSerializationException("Cannot serialize to pojo from: " + ele);
+
+        throw new BeanSerializationException("Cannot deserialize to " + targetType + " from: " + ele);
     }
 
     default <T> T deserializeToPojo(byte[] bytes, @NonNull Class<T> targetType) {
-        return this.deserializeToPojo(new ByteArrayInputStream(bytes), targetType);
+        return deserializeToPojo(new ByteArrayInputStream(bytes), targetType);
     }
 
     default <T> T deserializeToPojo(ByteBuffer buffer, @NonNull Class<T> targetType) {
-        return this.deserializeToPojo(new ByteBufferInputStream(buffer), targetType);
+        return deserializeToPojo(new ByteBufferInputStream(buffer), targetType);
     }
 }
