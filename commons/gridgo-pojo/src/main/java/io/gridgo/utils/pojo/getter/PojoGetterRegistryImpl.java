@@ -26,12 +26,12 @@ class PojoGetterRegistryImpl extends AbstractProxyRegistry<PojoGetterProxy> impl
 
     @Override
     protected void setFieldProxy(PojoMethodSignature signature, PojoGetterProxy proxy) {
-        setGetterProxy(signature, proxy);
+        injectGetterProxy(signature, proxy);
     }
 
     @Override
     protected void setFieldElementProxy(PojoMethodSignature signature, PojoGetterProxy proxy) {
-        setElementGetterProxy(signature, proxy);
+        injectElementGetterProxy(signature, proxy);
     }
 
 }

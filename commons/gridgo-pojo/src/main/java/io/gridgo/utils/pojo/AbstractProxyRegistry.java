@@ -70,19 +70,19 @@ public abstract class AbstractProxyRegistry<T extends PojoProxy> {
 
     protected abstract void setFieldElementProxy(PojoMethodSignature signature, T proxy);
 
-    protected void setGetterProxy(PojoMethodSignature methodSignature, PojoGetterProxy getterProxy) {
+    protected void injectGetterProxy(PojoMethodSignature methodSignature, PojoGetterProxy getterProxy) {
         methodSignature.setGetterProxy(getterProxy);
     }
 
-    protected void setElementGetterProxy(PojoMethodSignature methodSignature, PojoGetterProxy elementGetterProxy) {
+    protected void injectElementGetterProxy(PojoMethodSignature methodSignature, PojoGetterProxy elementGetterProxy) {
         methodSignature.setElementGetterProxy(elementGetterProxy);
     }
 
-    protected void setSetterProxy(PojoMethodSignature methodSignature, PojoSetterProxy setterProxy) {
+    protected void injectSetterProxy(PojoMethodSignature methodSignature, PojoSetterProxy setterProxy) {
         methodSignature.setSetterProxy(setterProxy);
     }
 
-    protected void setElementSetterProxy(PojoMethodSignature methodSignature, PojoSetterProxy elementSetterProxy) {
+    protected void injectElementSetterProxy(PojoMethodSignature methodSignature, PojoSetterProxy elementSetterProxy) {
         methodSignature.setElementSetterProxy(elementSetterProxy);
     }
 
