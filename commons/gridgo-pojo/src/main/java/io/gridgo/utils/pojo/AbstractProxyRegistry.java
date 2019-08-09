@@ -1,5 +1,7 @@
 package io.gridgo.utils.pojo;
 
+import static io.gridgo.utils.pojo.PojoUtils.isSupported;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,6 +18,7 @@ public abstract class AbstractProxyRegistry<T extends PojoProxy> implements Meth
         var proxy = cache.get(name);
         if (proxy != null)
             return proxy;
+
         synchronized (cache) {
             return buildProxy(type);
         }
@@ -28,13 +31,11 @@ public abstract class AbstractProxyRegistry<T extends PojoProxy> implements Meth
         return result;
     }
 
-    protected abstract T buildMandatory(Class<?> type);
-
     private T buildProxy(Class<?> type, Map<String, T> tempCache) {
         T proxy = buildMandatory(type);
         tempCache.put(type.getName(), proxy);
         for (PojoMethodSignature signature : proxy.getSignatures()) {
-            setProxyForMethod(signature, tempCache);
+            prepareSubProxy(signature, tempCache);
         }
         return proxy;
     }
@@ -49,22 +50,22 @@ public abstract class AbstractProxyRegistry<T extends PojoProxy> implements Meth
         return result;
     }
 
+    private void prepareSubProxy(PojoMethodSignature signature, Map<String, T> tempCache) {
+        if (isSupported(signature.getFieldType())) {
+            setFieldProxy(signature, lookupProxy(signature.getFieldType(), tempCache));
+        } else {
+            var elementType = PojoUtils.getElementTypeForGeneric(signature);
+            if (elementType == null || !isSupported(elementType))
+                return;
+
+            setFieldElementProxy(signature, lookupProxy(elementType, tempCache));
+        }
+    }
+
+    protected abstract T buildMandatory(Class<?> type);
+
     protected abstract void setFieldProxy(PojoMethodSignature signature, T proxy);
 
     protected abstract void setFieldElementProxy(PojoMethodSignature signature, T proxy);
 
-    private void setProxyForMethod(PojoMethodSignature signature, Map<String, T> tempCache) {
-        if (PojoUtils.isSupported(signature.getFieldType())) {
-            setFieldProxy(signature, lookupProxy(signature.getFieldType(), tempCache));
-        } else {
-            setProxyForUnsupportedTypes(signature, tempCache);
-        }
-    }
-
-    private void setProxyForUnsupportedTypes(PojoMethodSignature signature, Map<String, T> tempCache) {
-        var elementType = PojoUtils.getElementTypeForGeneric(signature);
-        if (elementType != null && PojoUtils.isSupported(elementType)) {
-            setFieldElementProxy(signature, lookupProxy(elementType, tempCache));
-        }
-    }
 }
