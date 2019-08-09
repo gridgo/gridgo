@@ -1,14 +1,8 @@
 package io.gridgo.utils.pojo.getter;
 
-import java.util.List;
+import io.gridgo.utils.pojo.PojoProxy;
 
-import io.gridgo.utils.pojo.PojoMethodSignature;
-
-public interface PojoGetterProxy {
-
-    String[] getFields();
-
-    List<PojoMethodSignature> getSignatures();
+public interface PojoGetterProxy extends PojoProxy {
 
     Object getValue(Object target, String fieldName);
 
