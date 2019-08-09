@@ -1,10 +1,11 @@
 package io.gridgo.bean.serialization.msgpack;
 
+import static io.gridgo.utils.pojo.PojoUtils.getGetterProxy;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -16,18 +17,14 @@ import org.msgpack.core.MessageUnpacker;
 import io.gridgo.bean.BArray;
 import io.gridgo.bean.BElement;
 import io.gridgo.bean.BObject;
-import io.gridgo.bean.BReference;
 import io.gridgo.bean.BValue;
 import io.gridgo.bean.exceptions.BeanSerializationException;
 import io.gridgo.bean.exceptions.InvalidTypeException;
 import io.gridgo.bean.serialization.AbstractBSerializer;
-import io.gridgo.bean.serialization.BDeserializationConfig;
 import io.gridgo.bean.serialization.BSerializationPlugin;
 import io.gridgo.utils.ArrayUtils;
 import io.gridgo.utils.PrimitiveUtils;
 import io.gridgo.utils.exception.RuntimeIOException;
-import io.gridgo.utils.pojo.getter.PojoGetterProxy;
-import io.gridgo.utils.pojo.getter.PojoGetterRegistry;
 import lombok.NonNull;
 
 @BSerializationPlugin({ "raw", MsgpackSerializer.NAME })
@@ -36,162 +33,148 @@ public class MsgpackSerializer extends AbstractBSerializer {
     public static final String NAME = "msgpack";
 
     private void packAny(Object obj, MessagePacker packer) throws IOException {
+        if (obj == null) {
+            packer.packNil();
+            return;
+        }
+
         if (obj instanceof BElement) {
             BElement element = (BElement) obj;
-            if (element instanceof BValue) {
-                this.packValue(element.asValue(), packer);
-            } else if (element instanceof BArray) {
-                this.packArray(element.asArray(), packer);
-            } else if (element instanceof BObject) {
-                this.packMap(element.asObject(), packer);
-            } else if (element instanceof BReference) {
-                this.packPojo(element.asReference().getReference(), packer);
-            } else {
-                throw new InvalidTypeException("Cannot serialize belement which instance of: " + element.getClass());
+
+            if (element.isValue()) {
+                packValue(element.asValue(), packer);
+                return;
             }
-        } else {
-            if (obj == null) {
-                packer.packNil();
-            } else if (ArrayUtils.isArrayOrCollection(obj.getClass())) {
-                packArray(obj, packer);
-            } else if (obj instanceof Map) {
-                packMap(obj, packer);
-            } else if (PrimitiveUtils.isPrimitive(obj.getClass())) {
-                packValue(obj, packer);
-            } else {
-                packPojo(obj, packer);
+
+            if (element.isArray()) {
+                packArray(element.asArray(), packer);
+                return;
             }
+
+            if (element.isObject()) {
+                packMap(element.asObject(), packer);
+                return;
+            }
+
+            if (element.isReference()) {
+                packAny(element.asReference().getReference(), packer);
+                return;
+            }
+
+            throw new BeanSerializationException("Cannot serialize belement which instance of: " + element.getClass());
         }
+
+        Class<?> type;
+        if (Collection.class.isInstance(obj) || (type = obj.getClass()).isArray()) {
+            packArray(obj, packer);
+            return;
+        }
+
+        if (Map.class.isInstance(obj)) {
+            packMap(obj, packer);
+            return;
+        }
+
+        if (PrimitiveUtils.isPrimitive(type)) {
+            packValue(obj, packer);
+            return;
+        }
+
+        packPojo(obj, packer);
     }
 
     private void packValue(Object obj, MessagePacker packer) throws IOException {
-        BValue value;
-        if (obj instanceof BValue) {
-            value = (BValue) obj;
-        } else {
-            value = BValue.of(obj);
-        }
-
+        var value = BValue.of(obj);
         var type = value.getType();
-        if (type != null) {
-            switch (type) {
-            case BOOLEAN:
-                packer.packBoolean(value.getBoolean());
-                return;
-            case BYTE:
-                packer.packByte(value.getByte());
-                return;
-            case CHAR:
-            case SHORT:
-                packer.packShort(value.getShort());
-                return;
-            case DOUBLE:
-                packer.packDouble(value.getDouble());
-                return;
-            case FLOAT:
-                packer.packFloat(value.getFloat());
-                return;
-            case INTEGER:
-                packer.packInt(value.getInteger());
-                return;
-            case LONG:
-                packer.packLong(value.getLong());
-                return;
-            case NULL:
-                packer.packNil();
-                return;
-            case RAW:
-                byte[] bytes = value.getRaw();
-                packer.packBinaryHeader(bytes.length);
-                packer.addPayload(bytes);
-                return;
-            case STRING:
-                packer.packString(value.getString());
-                return;
-            default:
-                break;
-            }
+        switch (type) {
+        case BOOLEAN:
+            packer.packBoolean(value.getBoolean());
+            return;
+        case BYTE:
+            packer.packByte(value.getByte());
+            return;
+        case CHAR:
+        case SHORT:
+            packer.packShort(value.getShort());
+            return;
+        case DOUBLE:
+            packer.packDouble(value.getDouble());
+            return;
+        case FLOAT:
+            packer.packFloat(value.getFloat());
+            return;
+        case INTEGER:
+            packer.packInt(value.getInteger());
+            return;
+        case LONG:
+            packer.packLong(value.getLong());
+            return;
+        case NULL:
+            packer.packNil();
+            return;
+        case RAW:
+            byte[] bytes = value.getRaw();
+            packer.packBinaryHeader(bytes.length);
+            packer.addPayload(bytes);
+            return;
+        case STRING:
+            packer.packString(value.getString());
+            return;
+        default:
+            throw new BeanSerializationException("Cannot writeValue object type: " + type);
         }
-        throw new InvalidTypeException("Cannot writeValue object type: " + type);
     }
 
     private void packMap(Object obj, MessagePacker packer) throws IOException {
-        if (obj instanceof BObject) {
+        if (BObject.class.isInstance(obj)) {
             BObject object = (BObject) obj;
-            var tobePacked = new HashMap<String, BElement>();
+            packer.packMapHeader(object.size());
             for (var entry : object.entrySet()) {
-                if (entry.getValue().isValue() || entry.getValue().isArray() || entry.getValue().isObject()) {
-                    tobePacked.put(entry.getKey(), entry.getValue());
-                } else {
-                    // ignore
-                }
-            }
-            packer.packMapHeader(tobePacked.size());
-            for (var entry : tobePacked.entrySet()) {
                 packer.packString(entry.getKey());
                 packAny(entry.getValue(), packer);
             }
-        } else if (obj instanceof Map) {
-            Map<?, ?> map = (Map<?, ?>) obj;
-            packer.packMapHeader(map.size());
-            for (Entry<?, ?> entry : map.entrySet()) {
-                packer.packString(entry.getKey().toString());
-                packAny(entry.getValue(), packer);
-            }
-        } else {
-            throw new InvalidTypeException(
-                    "Cannot serialize as key-value object of: " + (obj == null ? null : obj.getClass()));
+            return;
+        }
+
+        var map = (Map<?, ?>) obj;
+        packer.packMapHeader(map.size());
+        for (Entry<?, ?> entry : map.entrySet()) {
+            packer.packString(entry.getKey().toString());
+            packAny(entry.getValue(), packer);
         }
     }
 
     private void packArray(Object obj, MessagePacker packer) throws IOException {
-        if (obj instanceof BArray) {
+        if (BArray.class.isInstance(obj)) {
             BArray array = (BArray) obj;
-            var tobePacked = new LinkedList<BElement>();
+            packer.packArrayHeader(array.size());
             for (var entry : array) {
-                if (entry.isValue() || entry.isArray() || entry.isObject()) {
-                    tobePacked.add(entry);
-                }
-            }
-            packer.packArrayHeader(tobePacked.size());
-            for (var entry : tobePacked) {
                 packAny(entry, packer);
             }
-        } else if (ArrayUtils.isArrayOrCollection(obj.getClass())) {
-            packer.packArrayHeader(ArrayUtils.length(obj));
-            ArrayUtils.foreach(obj, ele -> {
-                try {
-                    packAny(ele, packer);
-                } catch (IOException e) {
-                    throw new RuntimeIOException(e);
-                }
-            });
+            return;
         }
+
+        packer.packArrayHeader(ArrayUtils.length(obj));
+        ArrayUtils.foreach(obj, ele -> {
+            try {
+                packAny(ele, packer);
+            } catch (IOException e) {
+                throw new RuntimeIOException(e);
+            }
+        });
     }
 
     private void packPojo(Object target, MessagePacker packer) throws IOException {
-        if (target != null) {
-            if (ArrayUtils.isArrayOrCollection(target.getClass())) {
-                packArray(target, packer);
-            } else if (Map.class.isAssignableFrom(target.getClass())) {
-                packMap(target, packer);
-            } else if (PrimitiveUtils.isPrimitive(target.getClass())) {
-                packValue(target, packer);
-            } else {
-                PojoGetterProxy proxy = PojoGetterRegistry.DEFAULT.getGetterProxy(target.getClass());
-                packer.packMapHeader(proxy.getFields().length);
-                proxy.walkThrough(target, (signature, value) -> {
-                    try {
-                        packer.packString(signature.getTransformedOrDefaultFieldName());
-                        packAny(value, packer);
-                    } catch (IOException e) {
-                        throw new RuntimeIOException(e);
-                    }
-                });
+        var proxy = getGetterProxy(target.getClass());
+        packer.packMapHeader(proxy.getFields().length);
+        proxy.walkThrough(target, (signature, value) -> {
+            try {
+                packer.packString(signature.getTransformedOrDefaultFieldName());
+                packAny(value, packer);
+            } catch (IOException e) {
+                throw new RuntimeIOException(e);
             }
-        } else {
-            packer.packNil();
-        }
+        });
     }
 
     @Override
@@ -199,7 +182,7 @@ public class MsgpackSerializer extends AbstractBSerializer {
         try (var packer = MessagePack.newDefaultPacker(out)) {
             packAny(element, packer);
             packer.flush();
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new BeanSerializationException("Error while serialize element", e);
         }
     }
@@ -283,11 +266,11 @@ public class MsgpackSerializer extends AbstractBSerializer {
         default:
             break;
         }
-        throw new InvalidTypeException("Cannot deserialize as BElement for format: " + format);
+        throw new BeanSerializationException("Cannot deserialize as BElement for format: " + format);
     }
 
     @Override
-    public BElement deserialize(InputStream in, BDeserializationConfig config) {
+    public BElement deserialize(InputStream in) {
         try (var unpacker = MessagePack.newDefaultUnpacker(in)) {
             return this.unpackAny(unpacker);
         } catch (IOException e) {

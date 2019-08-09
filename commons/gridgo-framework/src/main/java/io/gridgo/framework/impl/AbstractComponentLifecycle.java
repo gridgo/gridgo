@@ -24,9 +24,7 @@ public abstract class AbstractComponentLifecycle implements ComponentLifecycle, 
 
     @Override
     public final boolean isStarted() {
-        ThreadUtils.busySpin(10, () -> {
-            return this.started.get() ^ this.running;
-        });
+        ThreadUtils.busySpin(() -> started.get() ^ running);
         return this.running;
     }
 
