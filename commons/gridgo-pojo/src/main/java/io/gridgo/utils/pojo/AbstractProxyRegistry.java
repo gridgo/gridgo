@@ -22,7 +22,7 @@ public abstract class AbstractProxyRegistry<T extends PojoProxy> {
             return proxy;
 
         synchronized (cache) {
-            return buildProxy(type);
+            return cache.containsKey(name) ? cache.get(name) : buildProxy(type);
         }
     }
 
