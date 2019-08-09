@@ -39,7 +39,7 @@ public abstract class AbstractProxyRegistry<T extends PojoProxy> implements Meth
         return proxy;
     }
 
-    private T lookupGetterProxy(Class<?> type, Map<String, T> tempCache) {
+    private T lookupProxy(Class<?> type, Map<String, T> tempCache) {
         var name = type.getName();
         var result = cache.get(name);
         if (result == null)
@@ -55,7 +55,7 @@ public abstract class AbstractProxyRegistry<T extends PojoProxy> implements Meth
 
     private void setProxyForMethod(PojoMethodSignature signature, Map<String, T> tempCache) {
         if (PojoUtils.isSupported(signature.getFieldType())) {
-            setFieldProxy(signature, lookupGetterProxy(signature.getFieldType(), tempCache));
+            setFieldProxy(signature, lookupProxy(signature.getFieldType(), tempCache));
         } else {
             setProxyForUnsupportedTypes(signature, tempCache);
         }
@@ -64,7 +64,7 @@ public abstract class AbstractProxyRegistry<T extends PojoProxy> implements Meth
     private void setProxyForUnsupportedTypes(PojoMethodSignature signature, Map<String, T> tempCache) {
         var elementType = PojoUtils.getElementTypeForGeneric(signature);
         if (elementType != null && PojoUtils.isSupported(elementType)) {
-            setFieldElementProxy(signature, lookupGetterProxy(elementType, tempCache));
+            setFieldElementProxy(signature, lookupProxy(elementType, tempCache));
         }
     }
 }
