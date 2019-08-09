@@ -7,9 +7,11 @@ import java.util.Map;
 
 import org.cliffc.high_scale_lib.NonBlockingHashMap;
 
+import io.gridgo.utils.pojo.getter.PojoGetterProxy;
+import io.gridgo.utils.pojo.setter.PojoSetterProxy;
 import lombok.NonNull;
 
-public abstract class AbstractProxyRegistry<T extends PojoProxy> implements MethodSignatureProxyInjector {
+public abstract class AbstractProxyRegistry<T extends PojoProxy> {
 
     private final Map<String, T> cache = new NonBlockingHashMap<>();
 
@@ -67,5 +69,21 @@ public abstract class AbstractProxyRegistry<T extends PojoProxy> implements Meth
     protected abstract void setFieldProxy(PojoMethodSignature signature, T proxy);
 
     protected abstract void setFieldElementProxy(PojoMethodSignature signature, T proxy);
+
+    protected void setGetterProxy(PojoMethodSignature methodSignature, PojoGetterProxy getterProxy) {
+        methodSignature.setGetterProxy(getterProxy);
+    }
+
+    protected void setElementGetterProxy(PojoMethodSignature methodSignature, PojoGetterProxy elementGetterProxy) {
+        methodSignature.setElementGetterProxy(elementGetterProxy);
+    }
+
+    protected void setSetterProxy(PojoMethodSignature methodSignature, PojoSetterProxy setterProxy) {
+        methodSignature.setSetterProxy(setterProxy);
+    }
+
+    protected void setElementSetterProxy(PojoMethodSignature methodSignature, PojoSetterProxy elementSetterProxy) {
+        methodSignature.setElementSetterProxy(elementSetterProxy);
+    }
 
 }
