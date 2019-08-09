@@ -1,5 +1,6 @@
 package io.gridgo.utils.pojo.setter;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.cliffc.high_scale_lib.NonBlockingHashMap;
@@ -22,38 +23,59 @@ class PojoSetterRegistryImpl implements PojoSetterRegistry, MethodSignatureProxy
     private PojoSetterRegistryImpl() {
     }
 
+    @Override
     public PojoSetterProxy getSetterProxy(@NonNull Class<?> type) {
         var name = type.getName();
-        if (cache.containsKey(name))
-            return cache.get(name);
-        synchronized (cache) {
-            if (cache.containsKey(name))
-                return cache.get(name);
-            return buildProxy(type);
-        }
-    }
-
-    private PojoSetterProxy buildProxy(Class<?> type) {
-        PojoSetterProxy proxy = proxyBuilder.buildSetterProxy(type);
-        cache.put(type.getName(), proxy);
-        for (PojoMethodSignature signature : proxy.getSignatures()) {
-            setProxyForMethod(signature);
+        var proxy = cache.get(name);
+        if (proxy == null) {
+            synchronized (cache) {
+                proxy = cache.containsKey(name) //
+                        ? cache.get(name) //
+                        : cache.computeIfAbsent(name, (key) -> buildProxy(type));
+            }
         }
         return proxy;
     }
 
-    private void setProxyForMethod(PojoMethodSignature signature) {
+    private PojoSetterProxy buildProxy(Class<?> type) {
+        var tempCache = new HashMap<String, PojoSetterProxy>();
+        var result = buildProxy(type, tempCache);
+        tempCache.forEach(cache::putIfAbsent);
+        return result;
+    }
+
+    private PojoSetterProxy buildProxy(Class<?> type, Map<String, PojoSetterProxy> tempCache) {
+        var proxy = proxyBuilder.buildSetterProxy(type);
+        tempCache.put(type.getName(), proxy);
+        for (PojoMethodSignature signature : proxy.getSignatures()) {
+            setProxyForMethod(signature, tempCache);
+        }
+        return proxy;
+    }
+
+    private PojoSetterProxy lookupSetterProxy(@NonNull Class<?> type, Map<String, PojoSetterProxy> tempCache) {
+        var name = type.getName();
+        var result = cache.get(name);
+        if (result == null)
+            result = tempCache.get(name);
+        if (result == null)
+            result = buildProxy(type, tempCache);
+        return result;
+    }
+
+    private void setProxyForMethod(PojoMethodSignature signature, Map<String, PojoSetterProxy> tempCache) {
         if (PojoUtils.isSupported(signature.getFieldType())) {
-            setSetterProxy(signature, getSetterProxy(signature.getFieldType()));
+            setSetterProxy(signature, lookupSetterProxy(signature.getFieldType(), tempCache));
         } else {
-            setSetterProxyForUnsupportedTypes(signature);
+            setSetterProxyForUnsupportedTypes(signature, tempCache);
         }
     }
 
-    private void setSetterProxyForUnsupportedTypes(PojoMethodSignature signature) {
+    private void setSetterProxyForUnsupportedTypes(PojoMethodSignature signature,
+            Map<String, PojoSetterProxy> tempCache) {
         Class<?> elementType = PojoUtils.getElementTypeForGeneric(signature);
         if (elementType != null && PojoUtils.isSupported(elementType)) {
-            setElementSetterProxy(signature, getSetterProxy(elementType));
+            setElementSetterProxy(signature, lookupSetterProxy(elementType, tempCache));
         }
     }
 }
