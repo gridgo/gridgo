@@ -1,7 +1,5 @@
 package io.gridgo.core.impl;
 
-import org.joo.libra.PredicateContext;
-
 import io.gridgo.core.GridgoContext;
 import io.gridgo.core.RoutingPolicyEnforcer;
 import io.gridgo.core.support.RoutingContext;
@@ -21,7 +19,7 @@ public class DefaultRoutingPolicyEnforcer implements RoutingPolicyEnforcer {
     }
 
     @Override
-    public void execute(RoutingContext rc, GridgoContext gc, PredicateContext context) {
+    public void execute(RoutingContext rc, GridgoContext gc, Message context) {
         if (!isMatch(context))
             return;
         var runnable = buildRunnable(rc, gc);
@@ -56,11 +54,11 @@ public class DefaultRoutingPolicyEnforcer implements RoutingPolicyEnforcer {
             rc.getDeferred().reject(ex);
     }
 
-    private boolean isMatch(PredicateContext context) {
-        return policy.getCondition().map(c -> c.satisfiedBy(context)).orElse(true);
+    private boolean isMatch(Message context) {
+        return policy.getCondition().map(c -> c.test(context)).orElse(true);
     }
 
-    private boolean isMatchInstrumenter(PredicateContext context) {
-        return policy.getInstrumenterCondition().map(c -> c.satisfiedBy(context)).orElse(true);
+    private boolean isMatchInstrumenter(Message context) {
+        return policy.getInstrumenterCondition().map(c -> c.test(context)).orElse(true);
     }
 }

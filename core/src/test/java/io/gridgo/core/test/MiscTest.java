@@ -12,9 +12,9 @@ public class MiscTest {
 
     @Test
     public void testCondition() {
-        Assert.assertTrue(Condition.of(true).satisfiedBy(null));
-        Assert.assertTrue(Condition.of(() -> true).satisfiedBy(null));
-        Assert.assertTrue(Condition.of((Predicate<Message>) msg -> true).satisfiedBy(null));
-        Assert.assertTrue(Condition.of("1 + 1 == 2").satisfiedBy(null));
+        Assert.assertTrue(Condition.of(true).test(null));
+        Assert.assertTrue(Condition.of(() -> true).test(null));
+        Assert.assertTrue(((Predicate<Message>) msg -> true).test(null));
+        Assert.assertTrue(Condition.of("1 + 1 == 2").test(null));
     }
 }

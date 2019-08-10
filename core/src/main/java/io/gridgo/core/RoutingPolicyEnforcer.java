@@ -1,10 +1,9 @@
 package io.gridgo.core;
 
-import org.joo.libra.PredicateContext;
-
 import io.gridgo.core.support.RoutingContext;
+import io.gridgo.framework.support.Message;
 
 public interface RoutingPolicyEnforcer {
 
-    public void execute(RoutingContext rc, GridgoContext gc, PredicateContext context);
+    public void execute(RoutingContext rc, GridgoContext gc, Message context);
 }

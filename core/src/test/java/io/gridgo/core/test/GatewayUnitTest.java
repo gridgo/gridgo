@@ -3,7 +3,6 @@ package io.gridgo.core.test;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.joo.libra.sql.SqlPredicate;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -16,6 +15,7 @@ import io.gridgo.core.support.ProducerJoinMode;
 import io.gridgo.core.support.impl.SwitchComponent;
 import io.gridgo.core.support.subscription.RoutingPolicy;
 import io.gridgo.core.support.subscription.impl.DefaultRoutingPolicy;
+import io.gridgo.core.support.subscription.impl.LibraSqlPredicate;
 import io.gridgo.core.support.template.impl.MatchingProducerTemplate;
 import io.gridgo.framework.support.Message;
 import io.gridgo.framework.support.Payload;
@@ -89,8 +89,8 @@ public class GatewayUnitTest {
         var registry = new SimpleRegistry().register("dummy1", 1).register("dummy2", 2);
         var context = new DefaultGridgoContextBuilder().setName("test").setRegistry(registry).build();
 
-        RoutingPolicy policy1 = new DefaultRoutingPolicy(null).setCondition(new SqlPredicate("payload.body.data == 1"));
-        RoutingPolicy policy2 = new DefaultRoutingPolicy(null).setCondition(new SqlPredicate("payload.body.data == 2"));
+        RoutingPolicy policy1 = new DefaultRoutingPolicy(null).setCondition(new LibraSqlPredicate("payload.body.data == 1"));
+        RoutingPolicy policy2 = new DefaultRoutingPolicy(null).setCondition(new LibraSqlPredicate("payload.body.data == 2"));
         context.openGateway("test2", new MatchingProducerTemplate((c, m) -> match(context, c, m))) //
                .attachConnector("test:dummy1", new ClasspathConnectorResolver("io.gridgo.connector.test")) //
                .attachConnector("test:dummy2", new ClasspathConnectorResolver("io.gridgo.connector.test")) //
@@ -183,7 +183,7 @@ public class GatewayUnitTest {
 
         RoutingPolicy policy = new DefaultRoutingPolicy((rc, gc) -> {
             consumerLatch.countDown();
-        }).setCondition(new SqlPredicate("payload.body.data == " + beanValue));
+        }).setCondition(new LibraSqlPredicate("payload.body.data == " + beanValue));
         context.openGateway("test") //
                .attachConnector("test:dummy") //
                .attachConnector("test:dummy1") //

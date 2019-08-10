@@ -1,21 +1,21 @@
 package io.gridgo.core.support.subscription.impl;
 
 import java.util.Optional;
-
-import org.joo.libra.Predicate;
+import java.util.function.Predicate;
 
 import io.gridgo.core.Processor;
 import io.gridgo.core.support.subscription.RoutingPolicy;
 import io.gridgo.framework.execution.ExecutionStrategy;
 import io.gridgo.framework.execution.ExecutionStrategyInstrumenter;
+import io.gridgo.framework.support.Message;
 import lombok.Getter;
 
 @Getter
 public class DefaultRoutingPolicy implements RoutingPolicy {
 
-    private Optional<Predicate> instrumenterCondition = Optional.empty();
+    private Optional<Predicate<Message>> instrumenterCondition = Optional.empty();
 
-    private Optional<Predicate> condition = Optional.empty();
+    private Optional<Predicate<Message>> condition = Optional.empty();
 
     private Optional<ExecutionStrategy> strategy = Optional.empty();
 
@@ -28,7 +28,7 @@ public class DefaultRoutingPolicy implements RoutingPolicy {
     }
 
     @Override
-    public RoutingPolicy setCondition(Predicate condition) {
+    public RoutingPolicy setCondition(Predicate<Message> condition) {
         this.condition = Optional.ofNullable(condition);
         return this;
     }
@@ -52,7 +52,7 @@ public class DefaultRoutingPolicy implements RoutingPolicy {
     }
 
     @Override
-    public RoutingPolicy setInstrumenterCondition(Predicate condition) {
+    public RoutingPolicy setInstrumenterCondition(Predicate<Message> condition) {
         this.instrumenterCondition = Optional.ofNullable(condition);
         return this;
     }

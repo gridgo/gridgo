@@ -3,7 +3,6 @@ package io.gridgo.core.impl;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.joo.libra.PredicateContext;
 import org.joo.promise4j.Deferred;
 
 import io.gridgo.connector.Connector;
@@ -95,9 +94,8 @@ public abstract class AbstractGatewaySubscription extends AbstractComponentLifec
             rc.getDeferred().reject(new NoSubscriberException());
             return;
         }
-        var predicateContext = new PredicateContext(rc.getMessage());
         for (var enforcer : policyEnforcers) {
-            enforcer.execute(rc, context, predicateContext);
+            enforcer.execute(rc, context, rc.getMessage());
         }
     }
 

@@ -1,8 +1,7 @@
 package io.gridgo.core.support.subscription;
 
 import java.util.function.BooleanSupplier;
-
-import org.joo.libra.Predicate;
+import java.util.function.Predicate;
 
 import io.gridgo.core.support.subscription.impl.Condition;
 import io.gridgo.framework.execution.ExecutionStrategy;
@@ -12,7 +11,7 @@ import io.gridgo.framework.support.Message;
 /**
  * Represents a processor subscription. This class is used for a "fluent" API,
  * so that you can modify the condition, execution strategy of the processor
- * after subscribing to a gateay.
+ * after subscribing to a gateway.
  */
 public interface ProcessorSubscription {
 
@@ -28,23 +27,13 @@ public interface ProcessorSubscription {
     }
 
     /**
-     * Set the condition of the processor to run, using Java Predicate.
-     * 
-     * @param condition the condition
-     * @return the current object
-     */
-    public default ProcessorSubscription when(java.util.function.Predicate<Message> condition) {
-        return when(Condition.of(condition));
-    }
-
-    /**
      * Set the condition of the processor to run, using a custom
      * <code>org.joo.libra.Predicate</code>
      * 
      * @param condition the condition
      * @return the current object
      */
-    public ProcessorSubscription when(Predicate condition);
+    public ProcessorSubscription when(Predicate<Message> condition);
 
     /**
      * Set the execution strategy of the processor to run.
@@ -97,20 +86,8 @@ public interface ProcessorSubscription {
      * @param instrumenter the instrumenter
      * @return the current object
      */
-    public default ProcessorSubscription instrumentWhen(java.util.function.Predicate<Message> condition,
-            ExecutionStrategyInstrumenter instrumenter) {
-        return instrumentWhen(Condition.of(condition), instrumenter);
-    }
-
-    /**
-     * Instrument the processor with an <code>ExecutionStrategyInstrumenter</code>,
-     * if the condition resolved to true.
-     * 
-     * @param condition    the condition
-     * @param instrumenter the instrumenter
-     * @return the current object
-     */
-    public ProcessorSubscription instrumentWhen(Predicate condition, ExecutionStrategyInstrumenter instrumenter);
+    public ProcessorSubscription instrumentWhen(Predicate<Message> condition,
+            ExecutionStrategyInstrumenter instrumenter);
 
     /**
      * Copy another routing policy configuration.
