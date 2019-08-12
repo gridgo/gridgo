@@ -69,6 +69,7 @@ public class PojoUtils {
                 || Map.class.isAssignableFrom(targetType) //
                 || isPrimitive(targetType) //
                 || targetType.isArray() //
+                || targetType == Class.class //
                 || targetType == Date.class //
                 || targetType == java.sql.Date.class);
     }
@@ -222,7 +223,7 @@ public class PojoUtils {
         return results;
     }
 
-    private static Collection<Method> extractAllMethods(Class<?> targetType) {
+    private static Collection<Method> extractAllMethods(@NonNull Class<?> targetType) {
         Map<String, Method> nameToMethod = new HashMap<String, Method>();
         Class<?> t = targetType;
         do {
