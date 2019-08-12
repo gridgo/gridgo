@@ -1,5 +1,7 @@
 package io.gridgo.bean.test;
 
+import static org.junit.Assert.assertEquals;
+
 import java.sql.Date;
 import java.util.Collections;
 import java.util.List;
@@ -117,7 +119,7 @@ public class BObjectUnitTest {
 
     @Test
     public void testBytes() {
-        var obj = BObject.of("id", 1).setAny("_id", new Object()).setAny("abc", null);
+        var obj = BObject.of("id", 1).setAny("_id", new int[] { 1, 2, 3 }).setAny("abc", null);
         var clone = BElement.ofBytes(obj.toBytes());
         Assert.assertNotNull(clone);
         Assert.assertTrue(clone.isObject());
@@ -137,7 +139,8 @@ public class BObjectUnitTest {
     public void testDate() {
         var beanWithDate = new BeanWithDate();
         beanWithDate.setDate(new Date(1555411032310L));
+
         beanWithDate = BObject.ofPojo(beanWithDate).toPojo(BeanWithDate.class);
-        System.out.println(beanWithDate.getDate());
+        assertEquals("2019-04-16", beanWithDate.getDate().toString());
     }
 }

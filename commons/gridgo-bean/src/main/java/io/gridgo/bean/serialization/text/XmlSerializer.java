@@ -6,7 +6,6 @@ import java.io.OutputStream;
 import io.gridgo.bean.BElement;
 import io.gridgo.bean.factory.BFactory;
 import io.gridgo.bean.serialization.AbstractBSerializer;
-import io.gridgo.bean.serialization.BDeserializationConfig;
 import io.gridgo.bean.serialization.BSerializationPlugin;
 import lombok.NonNull;
 
@@ -29,7 +28,7 @@ public class XmlSerializer extends AbstractBSerializer {
     }
 
     @Override
-    public BElement deserialize(@NonNull InputStream in, BDeserializationConfig config) {
+    public BElement deserialize(@NonNull InputStream in) {
         return xmlParser.parse(in);
     }
 }

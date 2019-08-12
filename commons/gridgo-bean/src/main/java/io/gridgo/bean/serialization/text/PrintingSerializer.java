@@ -5,7 +5,6 @@ import java.io.OutputStream;
 
 import io.gridgo.bean.BElement;
 import io.gridgo.bean.serialization.AbstractBSerializer;
-import io.gridgo.bean.serialization.BDeserializationConfig;
 import io.gridgo.bean.serialization.BSerializationPlugin;
 import lombok.NonNull;
 
@@ -20,7 +19,7 @@ public class PrintingSerializer extends AbstractBSerializer {
     }
 
     @Override
-    public BElement deserialize(@NonNull InputStream in, BDeserializationConfig config) {
+    public BElement deserialize(@NonNull InputStream in) {
         throw new UnsupportedOperationException(getClass().getSimpleName() + " support only serialize method");
     }
 

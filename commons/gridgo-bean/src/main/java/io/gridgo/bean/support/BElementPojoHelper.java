@@ -20,6 +20,7 @@ import io.gridgo.bean.BArray;
 import io.gridgo.bean.BElement;
 import io.gridgo.bean.BObject;
 import io.gridgo.bean.BReference;
+import io.gridgo.bean.BType;
 import io.gridgo.bean.BValue;
 import io.gridgo.bean.exceptions.InvalidTypeException;
 import io.gridgo.utils.PrimitiveUtils;
@@ -98,7 +99,64 @@ public class BElementPojoHelper {
     }
 
     public static Object anyToJsonElement(Object any) {
-        return anyToBElement(any, null);
+        return anyToJsonElement(any, null);
+    }
+
+    public static Object anyToJsonElement(Object target, PojoGetterProxy proxy) {
+        Class<?> type;
+        if (target == null || //
+                isPrimitive(type = target.getClass()) || //
+                type == Date.class || //
+                type == java.sql.Date.class) {
+            return target;
+        }
+
+        if (BElement.class.isInstance(target)) {
+            return ((BElement) target).toJsonElement();
+        }
+
+        if (type.isArray()) {
+            var list = new LinkedList<Object>();
+            var _proxy = proxy;
+            foreachArray(target, ele -> {
+                list.add(anyToJsonElement(ele, _proxy));
+            });
+            return list;
+        }
+
+        if (Collection.class.isInstance(target)) {
+            var it = ((Collection<?>) target).iterator();
+            var list = new LinkedList<Object>();
+            while (it.hasNext()) {
+                list.add(anyToJsonElement(it.next(), proxy));
+            }
+            return list;
+        }
+
+        if (Map.class.isInstance(target)) {
+            var result = new HashMap<String, Object>();
+            var map = (Map<?, ?>) target;
+            var it = map.entrySet().iterator();
+            while (it.hasNext()) {
+                var entry = it.next();
+                var key = entry.getKey();
+                var value = entry.getValue();
+                result.put(key.toString(), anyToJsonElement(value, proxy));
+            }
+            return result;
+        }
+
+        proxy = proxy == null ? PojoUtils.getGetterProxy(type) : proxy;
+
+        var result = new HashMap<String, Object>();
+        proxy.walkThrough(target, (signature, value) -> {
+            String fieldName = signature.getTransformedOrDefaultFieldName();
+            PojoGetterProxy elementGetterProxy = signature.getElementGetterProxy();
+            Object entryValue = anyToJsonElement(value,
+                    elementGetterProxy == null ? signature.getGetterProxy() : elementGetterProxy);
+            result.put(fieldName, entryValue);
+        });
+        return result;
     }
 
     public static <T> T bObjectToPojo(BObject src, @NonNull Class<T> type) {
@@ -146,17 +204,18 @@ public class BElementPojoHelper {
                 return null;
             }
 
+            BType valueType = value.getType();
+
             if (PrimitiveUtils.isPrimitive(signature.getFieldType())) {
                 if (!value.isValue()) {
-                    throw new InvalidTypeException("Expected BValue, got: " + value.getType());
+                    throw new InvalidTypeException("field '" + fieldName + "' expected BValue, but got: " + valueType);
                 }
                 return PrimitiveUtils.getValueFrom(signature.getFieldType(), value.asValue().getData());
             }
 
             if (signature.isSequenceType()) {
                 if (!value.isArray()) {
-                    throw new InvalidTypeException(
-                            "Expected BArray for field: " + signature.getFieldName() + ", got: " + value);
+                    throw new InvalidTypeException("Field '" + fieldName + "' expected BArray, but got: " + valueType);
                 }
                 return toSequence(value.asArray(), signature);
             }
@@ -166,7 +225,7 @@ public class BElementPojoHelper {
                     return value.asReference().getReference();
                 }
                 if (!value.isObject()) {
-                    throw new InvalidTypeException("Expected BObject, got: " + value.getType());
+                    throw new InvalidTypeException("Field '" + fieldName + "' expected BObject, but got: " + valueType);
                 }
                 return toMapOrPojo(value.asObject(), signature);
             }
