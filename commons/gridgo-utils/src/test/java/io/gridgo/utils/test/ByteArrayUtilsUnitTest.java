@@ -114,7 +114,7 @@ public class ByteArrayUtilsUnitTest {
             assertEquals(byteValue, ByteArrayUtils.bytesToByte(bytes).byteValue());
         }
 
-        float[] floatValues = new float[] { Float.MAX_VALUE, -1.1f, 0, Float.MIN_VALUE, 0.123f, 12344.12134f };
+        float[] floatValues = new float[] { Float.MAX_VALUE, -1.0f, 0, Float.MIN_VALUE, 0.123f, 12344.12134f };
         for (float floatValue : floatValues) {
             byte[] bytes = primitiveToBytes(floatValue);
             bytes = leftTrimZero(bytes);
@@ -123,7 +123,7 @@ public class ByteArrayUtilsUnitTest {
             assertEquals(floatValue, ByteArrayUtils.bytesToFloat(bytes).floatValue(), 0.0f);
         }
 
-        double[] doubleValues = new double[] { Double.MAX_VALUE, -1.1, 0, Double.MIN_VALUE, 0.123, 12344.12134 };
+        double[] doubleValues = new double[] { Double.MAX_VALUE, -1.0, 0, Double.MIN_VALUE, 0.123, 12344.12134 };
         for (double doubleValue : doubleValues) {
             byte[] bytes = primitiveToBytes(doubleValue);
             bytes = leftTrimZero(bytes);
