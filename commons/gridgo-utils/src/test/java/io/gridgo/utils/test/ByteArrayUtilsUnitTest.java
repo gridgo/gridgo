@@ -134,6 +134,7 @@ public class ByteArrayUtilsUnitTest {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void testPrimitivesWithBuffer() {
         Assert.assertEquals(2.2, ByteArrayUtils.bytesToNumber(primitiveToBytes(2.2), true));
         Assert.assertEquals(2, ByteArrayUtils.bytesToNumber(primitiveToBytes(2), false));

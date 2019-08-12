@@ -71,6 +71,7 @@ public final class ByteArrayUtils {
         return buffer.array();
     }
 
+    @Deprecated
     public static final Number bytesToNumber(byte[] bytes, boolean isDecimal) {
         if (bytes == null)
             return null;
@@ -98,28 +99,30 @@ public final class ByteArrayUtils {
     public static final <T> T bytesToPrimitive(Class<T> clazz, byte[] bytes) {
         if (clazz == null || bytes == null)
             return null;
+        if (clazz == byte[].class)
+            return (T) bytes;
         if (clazz == Boolean.class || clazz == Boolean.TYPE)
             return (T) bytesToBoolean(bytes);
-        if (clazz == String.class)
-            return (T) new String(bytes);
         if (clazz == Character.class || clazz == Character.TYPE)
             return (T) bytesToChar(bytes);
-        if (clazz == Byte.class)
-            return (T) (Byte) (bytes.length == 0 ? ZERO : bytes[0]);
-        if (clazz == Short.class)
+        if (clazz == Byte.class || clazz == Byte.TYPE)
+            return (T) bytesToByte(bytes);
+        if (clazz == Short.class || clazz == Short.TYPE)
             return (T) bytesToShort(bytes);
-        if (clazz == Integer.class)
+        if (clazz == Integer.class || clazz == Integer.TYPE)
             return (T) bytesToInt(bytes);
-        if (clazz == Long.class)
+        if (clazz == Long.class || clazz == Long.TYPE)
             return (T) bytesToLong(bytes);
+        if (clazz == Float.class || clazz == Float.TYPE)
+            return (T) bytesToFloat(bytes);
+        if (clazz == Double.class || clazz == Double.TYPE)
+            return (T) bytesToDouble(bytes);
         if (clazz == BigInteger.class)
             return (T) new BigInteger(bytes);
-        if (clazz == Float.class)
-            return (T) bytesToFloat(bytes);
-        if (clazz == Double.class)
-            return (T) bytesToDouble(bytes);
         if (clazz == BigDecimal.class)
             return (T) new BigDecimal(new BigInteger(bytes));
+        if (clazz == String.class)
+            return (T) new String(bytes);
         throw new UnsupportedTypeException("Cannot convert bytes to primitive type " + clazz);
     }
 
