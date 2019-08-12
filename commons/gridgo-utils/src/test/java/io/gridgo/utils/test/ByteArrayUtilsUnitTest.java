@@ -1,5 +1,6 @@
 package io.gridgo.utils.test;
 
+import static io.gridgo.utils.ByteArrayUtils.bytesToInt;
 import static io.gridgo.utils.ByteArrayUtils.bytesToLong;
 import static io.gridgo.utils.ByteArrayUtils.bytesToPrimitive;
 import static io.gridgo.utils.ByteArrayUtils.leftTrimZero;
@@ -78,14 +79,57 @@ public class ByteArrayUtilsUnitTest {
         char c = bytesToPrimitive(Character.class, new byte[] { 0, 97 });
         assertEquals('a', c);
 
-        long[] testValues = new long[] { Long.MAX_VALUE, -1, 0l, Long.MIN_VALUE, 52365l };
-        for (long longValue : testValues) {
-            byte[] longAsBytes = primitiveToBytes(longValue);
-            longAsBytes = leftTrimZero(longAsBytes);
-            System.out.println("long value: " + longValue + " -> as bytes: " + toHex(longAsBytes, "0x"));
+        long[] longValues = new long[] { Long.MAX_VALUE, -1, 0l, Long.MIN_VALUE, 52365l };
+        for (long longValue : longValues) {
+            byte[] bytes = primitiveToBytes(longValue);
+            bytes = leftTrimZero(bytes);
 
-            assertEquals(longValue, bytesToPrimitive(Long.class, longAsBytes).longValue());
-            assertEquals(longValue, bytesToLong(longAsBytes).longValue());
+            assertEquals(longValue, bytesToPrimitive(Long.class, bytes).longValue());
+            assertEquals(longValue, bytesToLong(bytes).longValue());
+        }
+
+        int[] intValues = new int[] { Integer.MAX_VALUE, -1, 0, Integer.MIN_VALUE, 52365 };
+        for (int intValue : intValues) {
+            byte[] bytes = primitiveToBytes(intValue);
+            bytes = leftTrimZero(bytes);
+
+            assertEquals(intValue, bytesToPrimitive(Integer.class, bytes).intValue());
+            assertEquals(intValue, bytesToInt(bytes).intValue());
+        }
+
+        short[] shortValues = new short[] { Short.MAX_VALUE, -1, 0, Short.MIN_VALUE, 31265 };
+        for (short shortValue : shortValues) {
+            byte[] bytes = primitiveToBytes(shortValue);
+            bytes = leftTrimZero(bytes);
+
+            assertEquals(shortValue, bytesToPrimitive(Short.class, bytes).shortValue());
+            assertEquals(shortValue, ByteArrayUtils.bytesToShort(bytes).shortValue());
+        }
+        byte[] byteValues = new byte[] { Byte.MAX_VALUE, -1, 0, Byte.MIN_VALUE, (byte) 200, (byte) -200 };
+        for (byte byteValue : byteValues) {
+            byte[] bytes = primitiveToBytes(byteValue);
+            bytes = leftTrimZero(bytes);
+
+            assertEquals(byteValue, bytesToPrimitive(Byte.class, bytes).byteValue());
+            assertEquals(byteValue, ByteArrayUtils.bytesToByte(bytes).byteValue());
+        }
+
+        float[] floatValues = new float[] { Float.MAX_VALUE, -1.1f, 0, Float.MIN_VALUE, 0.123f, 12344.12134f };
+        for (float floatValue : floatValues) {
+            byte[] bytes = primitiveToBytes(floatValue);
+            bytes = leftTrimZero(bytes);
+
+            assertEquals(floatValue, bytesToPrimitive(Float.class, bytes).floatValue(), 0.0f);
+            assertEquals(floatValue, ByteArrayUtils.bytesToFloat(bytes).floatValue(), 0.0f);
+        }
+
+        double[] doubleValues = new double[] { Double.MAX_VALUE, -1.1, 0, Double.MIN_VALUE, 0.123, 12344.12134 };
+        for (double doubleValue : doubleValues) {
+            byte[] bytes = primitiveToBytes(doubleValue);
+            bytes = leftTrimZero(bytes);
+
+            assertEquals(doubleValue, bytesToPrimitive(Double.class, bytes).doubleValue(), 0.0);
+            assertEquals(doubleValue, ByteArrayUtils.bytesToDouble(bytes).doubleValue(), 0.0);
         }
     }
 
