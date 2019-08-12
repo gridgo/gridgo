@@ -72,6 +72,14 @@ public class ByteArrayUtilsUnitTest {
 
         char c = ByteArrayUtils.bytesToPrimitive(Character.class, new byte[] { 0, 97 });
         assertEquals('a', c);
+
+        System.out.println("Max short: " + Short.MAX_VALUE);
+        
+        long longValue = 52365l;
+        byte[] longAsBytes = new byte[] { (byte) 0xCC, (byte) 0x8D };// ByteArrayUtils.primitiveToBytes(longValue);
+        System.out.println("long as bytes: " + ByteArrayUtils.toHex(longAsBytes));
+        long rebuiltLongValue = ByteArrayUtils.bytesToPrimitive(Long.class, longAsBytes);
+        assertEquals(longValue, rebuiltLongValue);
     }
 
     @Test

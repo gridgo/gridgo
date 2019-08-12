@@ -10,6 +10,12 @@ import io.gridgo.utils.exception.UnsupportedTypeException;
 
 public final class ByteArrayUtils {
 
+    private static final ThreadLocal<ByteBuffer> BIG_ENDIAN_BYTE_BUFFER_THREAD_LOCAL = new ThreadLocal<ByteBuffer>() {
+        protected ByteBuffer initialValue() {
+            return ByteBuffer.allocate(8);
+        }
+    };
+
     private ByteArrayUtils() {
         // private constructor
     }
@@ -115,33 +121,34 @@ public final class ByteArrayUtils {
     }
 
     private static Double bytesToDouble(byte[] bytes) {
-        if (bytes.length < Double.BYTES)
-            return bytesToNumber(bytes, true).doubleValue();
-        return ByteBuffer.wrap(bytes).getDouble();
+        return bigEndianNumberBuffer(bytes, Double.BYTES).getDouble();
     }
 
     private static Float bytesToFloat(byte[] bytes) {
-        if (bytes.length < Float.BYTES)
-            return bytesToNumber(bytes, true).floatValue();
-        return ByteBuffer.wrap(bytes).getFloat();
+        return bigEndianNumberBuffer(bytes, Float.BYTES).getFloat();
     }
 
     private static Long bytesToLong(byte[] bytes) {
-        if (bytes.length < Long.BYTES)
-            return bytesToNumber(bytes, false).longValue();
-        return ByteBuffer.wrap(bytes).getLong();
+        return bigEndianNumberBuffer(bytes, Long.BYTES).getLong();
     }
 
     private static Integer bytesToInt(byte[] bytes) {
-        if (bytes.length < Integer.BYTES)
-            return bytesToNumber(bytes, false).intValue();
-        return ByteBuffer.wrap(bytes).getInt();
+        return bigEndianNumberBuffer(bytes, Integer.BYTES).getInt();
     }
 
     private static Short bytesToShort(byte[] bytes) {
-        if (bytes.length < Short.BYTES)
-            return bytesToNumber(bytes, false).shortValue();
-        return ByteBuffer.wrap(bytes).getShort();
+        return bigEndianNumberBuffer(bytes, Short.BYTES).getShort();
+    }
+
+    private static ByteBuffer bigEndianNumberBuffer(byte[] bytes, int minLength) {
+        if (bytes.length >= minLength)
+            return ByteBuffer.wrap(bytes);
+
+        return BIG_ENDIAN_BYTE_BUFFER_THREAD_LOCAL.get() // bytebuffer allocated with 8bytes length, use for number only
+                .limit(minLength) //
+                .position(minLength - bytes.length) //
+                .put(bytes) //
+                .flip();
     }
 
     private static Character bytesToChar(byte[] bytes) {
