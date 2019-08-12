@@ -13,7 +13,7 @@ import lombok.NonNull;
 
 public class DefaultConnectorFactory implements ConnectorFactory {
 
-    private static final ConnectorResolver DEFAULT_CONNECTOR_RESOLVER = new ClasspathConnectorResolver();
+    public static final ConnectorResolver DEFAULT_CONNECTOR_RESOLVER = new ClasspathConnectorResolver();
 
     private final ConnectorResolver resolver;
 
