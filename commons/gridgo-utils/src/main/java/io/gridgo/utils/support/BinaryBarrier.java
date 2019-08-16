@@ -93,7 +93,8 @@ public final class BinaryBarrier {
      * spin to wait until DONE if this barrier is DONE, return false immediately if
      * this barrier is NONE, return true
      * 
-     * @return true if processing is done, false otherwise (barrier is not started)
+     * @return true if processing completed and state is NONE, false otherwise
+     *         (barrier is DONE)
      */
     public boolean waitForProcessingToReset() {
         this.waitForProcessing();
@@ -185,9 +186,10 @@ public final class BinaryBarrier {
                 if (this.tryApply(runnable)) {
                     return true;
                 }
-            } else {
-                return false;
             }
+
+            if (this.isDone())
+                return false;
         }
     }
 
@@ -207,9 +209,10 @@ public final class BinaryBarrier {
                     return true;
                 }
                 // else, continue waiting
-            } else {
-                return false;
             }
+
+            if (this.isDone())
+                return false;
         }
     }
 }
