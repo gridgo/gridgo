@@ -55,7 +55,7 @@ class JavassistGetterProxyBuilder implements PojoGetterProxyBuilder {
 
             return result;
         } catch (Exception e) {
-            throw new RuntimeException("error while trying to build getter proxy: " + className, e);
+            throw new RuntimeException("error while trying to build getter proxy: " + target, e);
         }
     }
 

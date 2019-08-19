@@ -1,5 +1,7 @@
 package io.gridgo.bean.serialization;
 
+import static io.gridgo.utils.ClasspathUtils.scanForAnnotatedTypes;
+
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
