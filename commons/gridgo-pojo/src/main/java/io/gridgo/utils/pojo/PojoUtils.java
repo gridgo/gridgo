@@ -97,7 +97,7 @@ public class PojoUtils {
 
                 String fieldName = lowerCaseFirstLetter(method.getName().substring(3));
 
-                if (!isTransient(targetType, method, fieldName)) {
+                if (!isTransient(method, fieldName)) {
                     Parameter param = method.getParameters()[0];
                     Class<?> paramType = param.getType();
 
@@ -126,22 +126,20 @@ public class PojoUtils {
         return results;
     }
 
-    private static boolean isTransient(Class<?> targetType, Method method, String fieldName) {
-        Transient annotation = null;
-        if (method.isAnnotationPresent(FieldName.class)) {
-            annotation = method.getAnnotation(Transient.class);
-        } else {
-            try {
-                var field = targetType.getDeclaredField(fieldName);
-                if (field.isAnnotationPresent(Transient.class)) {
-                    annotation = field.getAnnotation(Transient.class);
-                }
-            } catch (Exception e) {
-                // do nothing
-            }
+    private static boolean isTransient(Method method, String fieldName) {
+        if (method.isAnnotationPresent(Transient.class)) {
+            return true;
         }
 
-        return annotation != null;
+        try {
+            var field = method.getDeclaringClass().getDeclaredField(fieldName);
+            if (field.isAnnotationPresent(Transient.class))
+                return true;
+        } catch (Exception e) {
+            // do nothing
+        }
+
+        return false;
     }
 
     private static String findTransformedFieldName(Class<?> targetType, Method method, String fieldName) {
@@ -196,7 +194,7 @@ public class PojoUtils {
                     && GETTER_PREFIXES.stream().anyMatch(prefix -> methodName.startsWith(prefix))) {
 
                 String fieldName = lowerCaseFirstLetter(methodName.substring(methodName.startsWith("is") ? 2 : 3));
-                if (!isTransient(targetType, method, fieldName)) {
+                if (!isTransient(method, fieldName)) {
                     Class<?> fieldType = method.getReturnType();
 
                     String transformedFieldName = findTransformedFieldName(targetType, method, fieldName);
