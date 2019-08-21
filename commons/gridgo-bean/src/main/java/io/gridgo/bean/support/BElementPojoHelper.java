@@ -197,8 +197,9 @@ public class BElementPojoHelper {
                 return ValueHolder.NO_VALUE;
             }
 
+            Class<?> fieldType = signature.getFieldType();
             if (value.isNullValue()) {
-                if (signature.getFieldType().isPrimitive()) {
+                if (fieldType.isPrimitive()) {
                     return ValueHolder.NO_VALUE;
                 }
                 return null;
@@ -206,17 +207,21 @@ public class BElementPojoHelper {
 
             BType valueType = value.getType();
 
-            if (PrimitiveUtils.isPrimitive(signature.getFieldType())) {
+            if (PrimitiveUtils.isPrimitive(fieldType)) {
                 if (!value.isValue()) {
                     throw new InvalidTypeException("field '" + fieldName + "' expected BValue, but got: " + valueType);
                 }
-                return PrimitiveUtils.getValueFrom(signature.getFieldType(), value.asValue().getData());
+                if (BValue.class.isAssignableFrom(fieldType))
+                    return value.asValue();
+                return PrimitiveUtils.getValueFrom(fieldType, value.asValue().getData());
             }
 
             if (signature.isSequenceType()) {
                 if (!value.isArray()) {
                     throw new InvalidTypeException("Field '" + fieldName + "' expected BArray, but got: " + valueType);
                 }
+                if (BArray.class.isAssignableFrom(fieldType))
+                    return value.asArray();
                 return toSequence(value.asArray(), signature);
             }
 
@@ -227,6 +232,8 @@ public class BElementPojoHelper {
                 if (!value.isObject()) {
                     throw new InvalidTypeException("Field '" + fieldName + "' expected BObject, but got: " + valueType);
                 }
+                if (BObject.class.isAssignableFrom(fieldType))
+                    return value.asObject();
                 return toMapOrPojo(value.asObject(), signature);
             }
 
@@ -312,7 +319,7 @@ public class BElementPojoHelper {
     private static Object toMapOrPojo(BObject valueObj, PojoMethodSignature signature) {
         if (signature.isMapType()) {
             Class<?>[] genericTypes = signature.getGenericTypes();
-            Class<?> valueType = genericTypes.length > 1 ? genericTypes[1] : Object.class;
+            Class<?> valueType = (genericTypes != null && genericTypes.length > 1) ? genericTypes[1] : Object.class;
             var map = new HashMap<String, Object>();
             for (Entry<String, BElement> entry : valueObj.entrySet()) {
                 Object entryValue;
