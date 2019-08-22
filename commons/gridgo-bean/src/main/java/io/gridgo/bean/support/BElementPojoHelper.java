@@ -208,7 +208,7 @@ public class BElementPojoHelper {
 
             BType valueType = value.getType();
 
-            if (PrimitiveUtils.isPrimitive(fieldType)) {
+            if (signature.isExtPrimitive()) {
                 if (!value.isValue()) {
                     throw new InvalidTypeException("field '" + fieldName + "' expected BValue, but got: " + valueType);
                 }

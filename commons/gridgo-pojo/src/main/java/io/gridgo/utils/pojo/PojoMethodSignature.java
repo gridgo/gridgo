@@ -35,6 +35,7 @@ public final class PojoMethodSignature {
     private final boolean isWrapperType;
     private final boolean isPrimitiveType;
     private final boolean isPrimitiveOrWrapperType;
+    private final boolean isExtPrimitive;
 
     private final boolean isArrayType;
     private final boolean isListType;
@@ -66,6 +67,7 @@ public final class PojoMethodSignature {
         this.isPrimitiveType = fieldType.isPrimitive();
         this.isWrapperType = PrimitiveUtils.isWrapperType(fieldType);
         this.isPrimitiveOrWrapperType = isPrimitiveType || isWrapperType;
+        this.isExtPrimitive = PrimitiveUtils.isPrimitive(fieldType);
 
         this.isArrayType = fieldType.isArray();
         this.isSetType = Set.class.isAssignableFrom(fieldType);
