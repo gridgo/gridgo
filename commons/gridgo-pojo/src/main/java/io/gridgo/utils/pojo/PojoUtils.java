@@ -11,8 +11,12 @@ import static io.gridgo.utils.pojo.PojoFlattenIndicator.START_ARRAY;
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.START_MAP;
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.VALUE;
 
+import java.lang.reflect.Array;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -29,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import io.gridgo.utils.ArrayUtils;
 import io.gridgo.utils.annotations.Transient;
 import io.gridgo.utils.exception.InvalidFieldNameException;
+import io.gridgo.utils.exception.RuntimeReflectiveOperationException;
 import io.gridgo.utils.pojo.getter.PojoFlattenWalker;
 import io.gridgo.utils.pojo.getter.PojoGetterProxy;
 import io.gridgo.utils.pojo.getter.PojoGetterRegistry;
@@ -45,6 +50,17 @@ public class PojoUtils {
 
     private static final String SETTER_PREFIX = "set";
     private final static Set<String> GETTER_PREFIXES = new HashSet<String>(Arrays.asList("get", "is"));
+
+    public static String extractMethodDescriptor(Method method) {
+        String sig;
+
+        StringBuilder sb = new StringBuilder("(");
+        for (Class<?> c : method.getParameterTypes())
+            sb.append((sig = Array.newInstance(c, 0).toString()).substring(1, sig.indexOf('@')));
+        return sb.append(')').append(method.getReturnType() == void.class ? "V"
+                : (sig = Array.newInstance(method.getReturnType(), 0).toString()).substring(1, sig.indexOf('@')))
+                .toString().replaceAll("\\.", "/");
+    }
 
     public static Class<?> getElementTypeForGeneric(PojoMethodSignature signature) {
         Class<?>[] genericTypes = signature.getGenericTypes();
@@ -370,5 +386,47 @@ public class PojoUtils {
             result.put(fieldName, entryValue);
         });
         return result;
+    }
+
+    /**
+     * when field have generic type declaration
+     * 
+     * @return list of generic types belong to corresponding field
+     * @throws RuntimeReflectiveOperationException if the corresponding field not
+     *                                             found
+     */
+    public static final Class<?>[] extractGenericTypes(Method method, String fieldName) {
+        Class<?> clazz = method.getDeclaringClass();
+
+        Field field = null;
+        try {
+            field = clazz.getDeclaredField(fieldName);
+        } catch (NoSuchFieldException e) {
+            return null;
+        } catch (Exception e) {
+            throw new RuntimeReflectiveOperationException(
+                    "Error while get declared field name `" + fieldName + "` in type: " + clazz.getName(), e);
+        }
+
+        Type genericType = field.getGenericType();
+        if (genericType instanceof ParameterizedType) {
+            ParameterizedType parameterizedType = (ParameterizedType) genericType;
+            Type[] actualTypes = parameterizedType.getActualTypeArguments();
+            Class<?>[] results = new Class<?>[actualTypes.length];
+            int i = 0;
+            for (Type type : actualTypes) {
+                if (type instanceof Class<?>) {
+                    results[i++] = (Class<?>) type;
+                } else {
+                    try {
+                        results[i++] = Class.forName(type.getTypeName());
+                    } catch (ClassNotFoundException e) {
+                        throw new RuntimeReflectiveOperationException("Cannot get class for type: " + type);
+                    }
+                }
+            }
+            return results;
+        }
+        return null;
     }
 }
