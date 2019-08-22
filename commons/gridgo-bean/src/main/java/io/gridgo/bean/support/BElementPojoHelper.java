@@ -23,6 +23,7 @@ import io.gridgo.bean.BReference;
 import io.gridgo.bean.BType;
 import io.gridgo.bean.BValue;
 import io.gridgo.bean.exceptions.InvalidTypeException;
+import io.gridgo.bean.exceptions.InvalidValueException;
 import io.gridgo.utils.PrimitiveUtils;
 import io.gridgo.utils.exception.UnsupportedTypeException;
 import io.gridgo.utils.pojo.PojoMethodSignature;
@@ -213,7 +214,13 @@ public class BElementPojoHelper {
                 }
                 if (BValue.class.isAssignableFrom(fieldType))
                     return value.asValue();
-                return PrimitiveUtils.getValueFrom(fieldType, value.asValue().getData());
+                var data = value.asValue().getData();
+                try {
+                    return PrimitiveUtils.getValueFrom(fieldType, data);
+                } catch (Exception e) {
+                    throw new InvalidValueException("Invalid value for field '" + fieldName + "', expected type: "
+                            + fieldType + ", got: " + data, e);
+                }
             }
 
             if (signature.isSequenceType()) {
