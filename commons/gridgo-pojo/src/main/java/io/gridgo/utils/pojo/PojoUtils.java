@@ -14,6 +14,7 @@ import static io.gridgo.utils.pojo.PojoFlattenIndicator.VALUE;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -108,7 +109,9 @@ public class PojoUtils {
         Collection<Method> methods = extractAllMethods(targetType);
 
         for (Method method : methods) {
-            if (method.getParameterCount() == 1 && method.getReturnType() == Void.TYPE
+            if (method.getParameterCount() == 1 //
+                    && Modifier.isPublic(method.getModifiers()) //
+                    && method.getReturnType() == Void.TYPE //
                     && method.getName().startsWith(SETTER_PREFIX)) {
 
                 String fieldName = lowerCaseFirstLetter(method.getName().substring(3));
@@ -206,6 +209,7 @@ public class PojoUtils {
             String methodName = method.getName();
 
             if (method.getParameterCount() == 0 //
+                    && Modifier.isPublic(method.getModifiers()) //
                     && method.getReturnType() != Void.TYPE //
                     && GETTER_PREFIXES.stream().anyMatch(prefix -> methodName.startsWith(prefix))) {
 
