@@ -11,8 +11,13 @@ import static io.gridgo.utils.pojo.PojoFlattenIndicator.START_ARRAY;
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.START_MAP;
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.VALUE;
 
+import java.lang.reflect.Array;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -29,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import io.gridgo.utils.ArrayUtils;
 import io.gridgo.utils.annotations.Transient;
 import io.gridgo.utils.exception.InvalidFieldNameException;
+import io.gridgo.utils.exception.RuntimeReflectiveOperationException;
 import io.gridgo.utils.pojo.getter.PojoFlattenWalker;
 import io.gridgo.utils.pojo.getter.PojoGetterProxy;
 import io.gridgo.utils.pojo.getter.PojoGetterRegistry;
@@ -45,6 +51,17 @@ public class PojoUtils {
 
     private static final String SETTER_PREFIX = "set";
     private final static Set<String> GETTER_PREFIXES = new HashSet<String>(Arrays.asList("get", "is"));
+
+    public static String extractMethodDescriptor(Method method) {
+        String sig;
+
+        StringBuilder sb = new StringBuilder("(");
+        for (Class<?> c : method.getParameterTypes())
+            sb.append((sig = Array.newInstance(c, 0).toString()).substring(1, sig.indexOf('@')));
+        return sb.append(')').append(method.getReturnType() == void.class ? "V"
+                : (sig = Array.newInstance(method.getReturnType(), 0).toString()).substring(1, sig.indexOf('@')))
+                .toString().replaceAll("\\.", "/");
+    }
 
     public static Class<?> getElementTypeForGeneric(PojoMethodSignature signature) {
         Class<?>[] genericTypes = signature.getGenericTypes();
@@ -92,12 +109,14 @@ public class PojoUtils {
         Collection<Method> methods = extractAllMethods(targetType);
 
         for (Method method : methods) {
-            if (method.getParameterCount() == 1 && method.getReturnType() == Void.TYPE
+            if (method.getParameterCount() == 1 //
+                    && Modifier.isPublic(method.getModifiers()) //
+                    && method.getReturnType() == Void.TYPE //
                     && method.getName().startsWith(SETTER_PREFIX)) {
 
                 String fieldName = lowerCaseFirstLetter(method.getName().substring(3));
 
-                if (!isTransient(targetType, method, fieldName)) {
+                if (!isTransient(method, fieldName)) {
                     Parameter param = method.getParameters()[0];
                     Class<?> paramType = param.getType();
 
@@ -126,22 +145,20 @@ public class PojoUtils {
         return results;
     }
 
-    private static boolean isTransient(Class<?> targetType, Method method, String fieldName) {
-        Transient annotation = null;
-        if (method.isAnnotationPresent(FieldName.class)) {
-            annotation = method.getAnnotation(Transient.class);
-        } else {
-            try {
-                var field = targetType.getDeclaredField(fieldName);
-                if (field.isAnnotationPresent(Transient.class)) {
-                    annotation = field.getAnnotation(Transient.class);
-                }
-            } catch (Exception e) {
-                // do nothing
-            }
+    private static boolean isTransient(Method method, String fieldName) {
+        if (method.isAnnotationPresent(Transient.class)) {
+            return true;
         }
 
-        return annotation != null;
+        try {
+            var field = method.getDeclaringClass().getDeclaredField(fieldName);
+            if (field.isAnnotationPresent(Transient.class))
+                return true;
+        } catch (Exception e) {
+            // do nothing
+        }
+
+        return false;
     }
 
     private static String findTransformedFieldName(Class<?> targetType, Method method, String fieldName) {
@@ -192,11 +209,12 @@ public class PojoUtils {
             String methodName = method.getName();
 
             if (method.getParameterCount() == 0 //
+                    && Modifier.isPublic(method.getModifiers()) //
                     && method.getReturnType() != Void.TYPE //
                     && GETTER_PREFIXES.stream().anyMatch(prefix -> methodName.startsWith(prefix))) {
 
                 String fieldName = lowerCaseFirstLetter(methodName.substring(methodName.startsWith("is") ? 2 : 3));
-                if (!isTransient(targetType, method, fieldName)) {
+                if (!isTransient(method, fieldName)) {
                     Class<?> fieldType = method.getReturnType();
 
                     String transformedFieldName = findTransformedFieldName(targetType, method, fieldName);
@@ -372,5 +390,80 @@ public class PojoUtils {
             result.put(fieldName, entryValue);
         });
         return result;
+    }
+
+    /**
+     * when field have generic type declaration
+     * 
+     * @return list of generic types belong to corresponding field
+     * @throws RuntimeReflectiveOperationException if the corresponding field not
+     *                                             found
+     */
+    public static final Class<?>[] extractGenericTypes(Method method, String fieldName) {
+
+        if (method.isAnnotationPresent(GenericTypes.class)) {
+            return method.getAnnotation(GenericTypes.class).values();
+        }
+
+        var list = method.getParameterCount() == 0 //
+                ? extractResultGenericTypes(method) //
+                : extractParameterGenericTypes(method);
+
+        if (list == null || list.size() == 0) {
+            Class<?> clazz = method.getDeclaringClass();
+            Field field = null;
+            try {
+                field = clazz.getDeclaredField(fieldName);
+            } catch (NoSuchFieldException e) {
+                return null;
+            } catch (Exception e) {
+                throw new RuntimeReflectiveOperationException(
+                        "Error while get declared field name `" + fieldName + "` in type: " + clazz.getName(), e);
+            }
+
+            if (field.isAnnotationPresent(GenericTypes.class)) {
+                return field.getAnnotation(GenericTypes.class).values();
+            }
+
+            list = extractFieldGenericTypes(field);
+        }
+        return list == null ? null : list.toArray(new Class[0]);
+    }
+
+    private static List<Class<?>> extractFieldGenericTypes(Field field) {
+        var genericType = field.getGenericType();
+        var list = new LinkedList<Class<?>>();
+        findGenericTypes(genericType, list);
+        return list;
+    }
+
+    private static List<Class<?>> extractResultGenericTypes(Method method) {
+        var resultType = method.getGenericReturnType();
+        var list = new LinkedList<Class<?>>();
+        findGenericTypes(resultType, list);
+        return list;
+    }
+
+    private static List<Class<?>> extractParameterGenericTypes(Method method) {
+        Type[] genericParameterTypes = method.getGenericParameterTypes();
+        if (genericParameterTypes == null || genericParameterTypes.length == 0)
+            return null;
+
+        var list = new LinkedList<Class<?>>();
+        for (Type genericParameterType : genericParameterTypes) {
+            findGenericTypes(genericParameterType, list);
+        }
+
+        return list;
+    }
+
+    private static void findGenericTypes(Type theType, List<Class<?>> output) {
+        if (theType instanceof ParameterizedType) {
+            ParameterizedType aType = (ParameterizedType) theType;
+            Type[] parameterArgTypes = aType.getActualTypeArguments();
+            for (Type parameterArgType : parameterArgTypes) {
+                output.add((Class<?>) parameterArgType);
+            }
+        }
     }
 }

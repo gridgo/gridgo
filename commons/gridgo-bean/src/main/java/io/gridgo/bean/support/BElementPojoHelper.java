@@ -23,6 +23,7 @@ import io.gridgo.bean.BReference;
 import io.gridgo.bean.BType;
 import io.gridgo.bean.BValue;
 import io.gridgo.bean.exceptions.InvalidTypeException;
+import io.gridgo.bean.exceptions.InvalidValueException;
 import io.gridgo.utils.PrimitiveUtils;
 import io.gridgo.utils.exception.UnsupportedTypeException;
 import io.gridgo.utils.pojo.PojoMethodSignature;
@@ -31,7 +32,9 @@ import io.gridgo.utils.pojo.getter.PojoGetterProxy;
 import io.gridgo.utils.pojo.setter.PojoSetterProxy;
 import io.gridgo.utils.pojo.setter.ValueHolder;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class BElementPojoHelper {
 
     public static BElement anyToBElement(Object any) {
@@ -197,8 +200,9 @@ public class BElementPojoHelper {
                 return ValueHolder.NO_VALUE;
             }
 
+            Class<?> fieldType = signature.getFieldType();
             if (value.isNullValue()) {
-                if (signature.getFieldType().isPrimitive()) {
+                if (fieldType.isPrimitive()) {
                     return ValueHolder.NO_VALUE;
                 }
                 return null;
@@ -206,17 +210,27 @@ public class BElementPojoHelper {
 
             BType valueType = value.getType();
 
-            if (PrimitiveUtils.isPrimitive(signature.getFieldType())) {
+            if (signature.isExtPrimitive()) {
                 if (!value.isValue()) {
                     throw new InvalidTypeException("field '" + fieldName + "' expected BValue, but got: " + valueType);
                 }
-                return PrimitiveUtils.getValueFrom(signature.getFieldType(), value.asValue().getData());
+                if (BValue.class.isAssignableFrom(fieldType))
+                    return value.asValue();
+                var data = value.asValue().getData();
+                try {
+                    return PrimitiveUtils.getValueFrom(fieldType, data);
+                } catch (Exception e) {
+                    throw new InvalidValueException("Invalid value for field '" + fieldName + "', expected type: "
+                            + fieldType + ", got: " + data, e);
+                }
             }
 
             if (signature.isSequenceType()) {
                 if (!value.isArray()) {
                     throw new InvalidTypeException("Field '" + fieldName + "' expected BArray, but got: " + valueType);
                 }
+                if (BArray.class.isAssignableFrom(fieldType))
+                    return value.asArray();
                 return toSequence(value.asArray(), signature);
             }
 
@@ -227,6 +241,8 @@ public class BElementPojoHelper {
                 if (!value.isObject()) {
                     throw new InvalidTypeException("Field '" + fieldName + "' expected BObject, but got: " + valueType);
                 }
+                if (BObject.class.isAssignableFrom(fieldType))
+                    return value.asObject();
                 return toMapOrPojo(value.asObject(), signature);
             }
 
@@ -244,14 +260,20 @@ public class BElementPojoHelper {
             }
 
             Class<?>[] genericTypes = signature.getGenericTypes();
-            Class<?> resultElementType = (genericTypes.length == 0) ? Object.class : genericTypes[0];
+            Class<?> resultElementType = (genericTypes == null || genericTypes.length == 0) //
+                    ? Object.class //
+                    : genericTypes[0];
 
             if (resultElementType == Object.class) {
                 coll.addAll(array.toList());
             } else {
                 for (BElement bElement : array) {
                     if (bElement.isNullValue()) {
-                        coll.add(null);
+                        if (!signature.isSetType())
+                            coll.add(null);
+                        else
+                            log.warn("got null value for field {}, target is a set which doesn't allow null, ignored",
+                                    signature.getFieldName());
                     } else if (bElement.isObject()) {
                         coll.add(bObjectToPojo(bElement.asObject(), resultElementType,
                                 signature.getElementSetterProxy()));
@@ -312,7 +334,7 @@ public class BElementPojoHelper {
     private static Object toMapOrPojo(BObject valueObj, PojoMethodSignature signature) {
         if (signature.isMapType()) {
             Class<?>[] genericTypes = signature.getGenericTypes();
-            Class<?> valueType = genericTypes.length > 1 ? genericTypes[1] : Object.class;
+            Class<?> valueType = (genericTypes != null && genericTypes.length > 1) ? genericTypes[1] : Object.class;
             var map = new HashMap<String, Object>();
             for (Entry<String, BElement> entry : valueObj.entrySet()) {
                 Object entryValue;

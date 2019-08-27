@@ -159,8 +159,12 @@ public class PrimitiveUtils {
             return ((Number) obj).intValue();
         if (obj instanceof Character)
             return ((Character) obj).charValue();
-        if (obj instanceof String)
-            return Integer.valueOf((String) obj);
+        if (obj instanceof String) {
+            var str = (String) obj;
+            if (str.isEmpty())
+                return 0;
+            return Integer.valueOf(str);
+        }
         if (obj instanceof Boolean)
             return (Boolean) obj ? 1 : 0;
         if (obj instanceof byte[])
@@ -173,8 +177,12 @@ public class PrimitiveUtils {
             return ((Number) obj).longValue();
         if (obj instanceof Character)
             return (long) ((Character) obj).charValue();
-        if (obj instanceof String)
-            return Long.valueOf((String) obj);
+        if (obj instanceof String) {
+            var str = (String) obj;
+            if (str.isEmpty())
+                return 0;
+            return Long.valueOf(str);
+        }
         if (obj instanceof Boolean)
             return (Boolean) obj ? 1l : 0l;
         if (obj instanceof byte[])
@@ -187,8 +195,12 @@ public class PrimitiveUtils {
             return ((Number) obj).floatValue();
         if (obj instanceof Character)
             return (float) ((Character) obj).charValue();
-        if (obj instanceof String)
-            return Float.valueOf((String) obj);
+        if (obj instanceof String) {
+            var str = (String) obj;
+            if (str.isEmpty())
+                return 0;
+            return Float.valueOf(str);
+        }
         if (obj instanceof Boolean)
             return (Boolean) obj ? 1f : 0f;
         if (obj instanceof byte[])
@@ -201,8 +213,12 @@ public class PrimitiveUtils {
             return ((Number) obj).doubleValue();
         if (obj instanceof Character)
             return (double) ((Character) obj).charValue();
-        if (obj instanceof String)
-            return Double.valueOf((String) obj);
+        if (obj instanceof String) {
+            var str = (String) obj;
+            if (str.isEmpty())
+                return 0;
+            return Double.valueOf(str);
+        }
         if (obj instanceof Boolean)
             return (Boolean) obj ? 1d : 0d;
         if (obj instanceof byte[])
@@ -215,8 +231,12 @@ public class PrimitiveUtils {
             return ((Number) obj).shortValue();
         if (obj instanceof Character)
             return (short) ((Character) obj).charValue();
-        if (obj instanceof String)
-            return Short.valueOf((String) obj);
+        if (obj instanceof String) {
+            var str = (String) obj;
+            if (str.isEmpty())
+                return 0;
+            return Short.valueOf(str);
+        }
         if (obj instanceof Boolean)
             return (short) ((Boolean) obj ? 1 : 0);
         if (obj instanceof byte[])
@@ -229,8 +249,12 @@ public class PrimitiveUtils {
             return ((Number) obj).byteValue();
         if (obj instanceof Character)
             return (byte) ((Character) obj).charValue();
-        if (obj instanceof String)
-            return Byte.valueOf((String) obj);
+        if (obj instanceof String) {
+            var str = (String) obj;
+            if (str.isEmpty())
+                return 0;
+            return Byte.valueOf(str);
+        }
         if (obj instanceof Boolean)
             return (byte) ((Boolean) obj ? 1 : 0);
         if (obj instanceof byte[])
