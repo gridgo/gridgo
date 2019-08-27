@@ -32,7 +32,9 @@ import io.gridgo.utils.pojo.getter.PojoGetterProxy;
 import io.gridgo.utils.pojo.setter.PojoSetterProxy;
 import io.gridgo.utils.pojo.setter.ValueHolder;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class BElementPojoHelper {
 
     public static BElement anyToBElement(Object any) {
@@ -258,14 +260,20 @@ public class BElementPojoHelper {
             }
 
             Class<?>[] genericTypes = signature.getGenericTypes();
-            Class<?> resultElementType = (genericTypes.length == 0) ? Object.class : genericTypes[0];
+            Class<?> resultElementType = (genericTypes == null || genericTypes.length == 0) //
+                    ? Object.class //
+                    : genericTypes[0];
 
             if (resultElementType == Object.class) {
                 coll.addAll(array.toList());
             } else {
                 for (BElement bElement : array) {
                     if (bElement.isNullValue()) {
-                        coll.add(null);
+                        if (!signature.isSetType())
+                            coll.add(null);
+                        else
+                            log.warn("got null value for field {}, target is a set which doesn't allow null, ignored",
+                                    signature.getFieldName());
                     } else if (bElement.isObject()) {
                         coll.add(bObjectToPojo(bElement.asObject(), resultElementType,
                                 signature.getElementSetterProxy()));

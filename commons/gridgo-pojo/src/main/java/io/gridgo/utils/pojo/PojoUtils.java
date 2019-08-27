@@ -400,37 +400,70 @@ public class PojoUtils {
      *                                             found
      */
     public static final Class<?>[] extractGenericTypes(Method method, String fieldName) {
-        Class<?> clazz = method.getDeclaringClass();
 
-        Field field = null;
-        try {
-            field = clazz.getDeclaredField(fieldName);
-        } catch (NoSuchFieldException e) {
-            return null;
-        } catch (Exception e) {
-            throw new RuntimeReflectiveOperationException(
-                    "Error while get declared field name `" + fieldName + "` in type: " + clazz.getName(), e);
+        if (method.isAnnotationPresent(GenericTypes.class)) {
+            return method.getAnnotation(GenericTypes.class).values();
         }
 
-        Type genericType = field.getGenericType();
-        if (genericType instanceof ParameterizedType) {
-            ParameterizedType parameterizedType = (ParameterizedType) genericType;
-            Type[] actualTypes = parameterizedType.getActualTypeArguments();
-            Class<?>[] results = new Class<?>[actualTypes.length];
-            int i = 0;
-            for (Type type : actualTypes) {
-                if (type instanceof Class<?>) {
-                    results[i++] = (Class<?>) type;
-                } else {
-                    try {
-                        results[i++] = Class.forName(type.getTypeName());
-                    } catch (ClassNotFoundException e) {
-                        throw new RuntimeReflectiveOperationException("Cannot get class for type: " + type);
-                    }
-                }
+        var list = method.getParameterCount() == 0 //
+                ? extractResultGenericTypes(method) //
+                : extractParameterGenericTypes(method);
+
+        if (list == null || list.size() == 0) {
+            Class<?> clazz = method.getDeclaringClass();
+            Field field = null;
+            try {
+                field = clazz.getDeclaredField(fieldName);
+            } catch (NoSuchFieldException e) {
+                return null;
+            } catch (Exception e) {
+                throw new RuntimeReflectiveOperationException(
+                        "Error while get declared field name `" + fieldName + "` in type: " + clazz.getName(), e);
             }
-            return results;
+
+            if (field.isAnnotationPresent(GenericTypes.class)) {
+                return field.getAnnotation(GenericTypes.class).values();
+            }
+
+            list = extractFieldGenericTypes(field);
         }
-        return null;
+        return list == null ? null : list.toArray(new Class[0]);
+    }
+
+    private static List<Class<?>> extractFieldGenericTypes(Field field) {
+        var genericType = field.getGenericType();
+        var list = new LinkedList<Class<?>>();
+        findGenericTypes(genericType, list);
+        return list;
+    }
+
+    private static List<Class<?>> extractResultGenericTypes(Method method) {
+        var resultType = method.getGenericReturnType();
+        var list = new LinkedList<Class<?>>();
+        findGenericTypes(resultType, list);
+        return list;
+    }
+
+    private static List<Class<?>> extractParameterGenericTypes(Method method) {
+        Type[] genericParameterTypes = method.getGenericParameterTypes();
+        if (genericParameterTypes == null || genericParameterTypes.length == 0)
+            return null;
+
+        var list = new LinkedList<Class<?>>();
+        for (Type genericParameterType : genericParameterTypes) {
+            findGenericTypes(genericParameterType, list);
+        }
+
+        return list;
+    }
+
+    private static void findGenericTypes(Type theType, List<Class<?>> output) {
+        if (theType instanceof ParameterizedType) {
+            ParameterizedType aType = (ParameterizedType) theType;
+            Type[] parameterArgTypes = aType.getActualTypeArguments();
+            for (Type parameterArgType : parameterArgTypes) {
+                output.add((Class<?>) parameterArgType);
+            }
+        }
     }
 }
