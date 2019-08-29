@@ -1,5 +1,7 @@
 package io.gridgo.bean.test;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -31,5 +33,7 @@ public class TestPojoWithBElement {
 
         var deserialized = BElementPojoHelper.bObjectToPojo(serialized.asObject(), PojoWithBElement.class);
         System.out.println(deserialized);
+
+        assertEquals(pojo, deserialized);
     }
 }
