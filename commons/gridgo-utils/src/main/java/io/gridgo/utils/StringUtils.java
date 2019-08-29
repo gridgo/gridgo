@@ -100,14 +100,22 @@ public final class StringUtils {
         if (inputString == null) {
             return null;
         }
-        return Character.toUpperCase(inputString.charAt(0)) + inputString.substring(1);
+        int length = inputString.length();
+        if (length == 0)
+            return inputString;
+
+        return Character.toUpperCase(inputString.charAt(0)) + ((length > 1) ? inputString.substring(1) : "");
     }
 
     public static final String lowerCaseFirstLetter(String inputString) {
-        if (inputString == null) {
+        if (inputString == null)
             return null;
-        }
-        return Character.toLowerCase(inputString.charAt(0)) + inputString.substring(1);
+
+        int length = inputString.length();
+        if (length == 0)
+            return inputString;
+
+        return Character.toLowerCase(inputString.charAt(0)) + ((length > 1) ? inputString.substring(1) : "");
     }
 
     public static final boolean isPrinable(String str) {
@@ -220,7 +228,7 @@ public final class StringUtils {
             throw new RuntimeIOException("Error while append tab(s)", e);
         }
     }
-    
+
     public static void softTabs(int num, Appendable sb) {
         try {
             for (int i = 0; i < num; i++) {

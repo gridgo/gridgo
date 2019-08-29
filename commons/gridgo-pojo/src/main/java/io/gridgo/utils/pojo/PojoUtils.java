@@ -120,12 +120,15 @@ public class PojoUtils {
         Collection<Method> methods = extractAllMethods(targetType);
 
         for (Method method : methods) {
+            String methodName = method.getName();
             if (method.getParameterCount() == 1 //
                     && Modifier.isPublic(method.getModifiers()) //
                     && method.getReturnType() == Void.TYPE //
-                    && method.getName().startsWith(SETTER_PREFIX)) {
+                    && methodName.startsWith(SETTER_PREFIX)) {
 
-                String fieldName = lowerCaseFirstLetter(method.getName().substring(3));
+                if (methodName.length() <= 3)
+                    continue;
+                var fieldName = lowerCaseFirstLetter(methodName.substring(3));
 
                 if (!isTransient(method, fieldName)) {
                     Parameter param = method.getParameters()[0];
@@ -136,7 +139,7 @@ public class PojoUtils {
                         if (ignoredFields == null || ignoredFields.size() == 0 || !ignoredFields.contains(fieldName)) {
                             Map<String, String> map = new HashMap<>();
                             map.put("fieldName", fieldName);
-                            map.put("methodName", method.getName());
+                            map.put("methodName", methodName);
                             map.put("fieldType", paramType.getName());
                             map.put("packageName", targetType.getPackageName());
                             map.put("typeName", targetType.getName());
@@ -240,7 +243,10 @@ public class PojoUtils {
                     && method.getReturnType() != Void.TYPE //
                     && GETTER_PREFIXES.stream().anyMatch(prefix -> methodName.startsWith(prefix))) {
 
-                String fieldName = lowerCaseFirstLetter(methodName.substring(methodName.startsWith("is") ? 2 : 3));
+                int skip = methodName.startsWith("is") ? 2 : 3;
+                if (methodName.length() <= skip)
+                    continue;
+                String fieldName = lowerCaseFirstLetter(methodName.substring(skip));
                 if (!isTransient(method, fieldName)) {
                     Class<?> fieldType = method.getReturnType();
 
