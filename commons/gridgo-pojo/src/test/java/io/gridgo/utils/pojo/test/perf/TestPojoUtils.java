@@ -11,7 +11,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.text.DecimalFormat;
+import java.util.Date;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -51,6 +53,7 @@ public class TestPojoUtils {
                                         .build()) //
                                 .build()) //
                         .build())) //
+                .date(new Date()) //
                 .build();
 
         // warm up
@@ -87,6 +90,14 @@ public class TestPojoUtils {
         } catch (IOException e) {
             throw new RuntimeIOException(e);
         }
+    }
+    
+    @Test
+    public void testPojoUnsupported() {
+        var signatures = PojoUtils.extractGetterMethodSignatures(Foo.class);
+        Assert.assertFalse(signatures.isEmpty());
+        signatures = PojoUtils.extractGetterMethodSignatures(Date.class);
+        Assert.assertTrue(signatures.isEmpty());
     }
 
     @Test
