@@ -1,5 +1,7 @@
 package io.gridgo.utils.pojo.test.support;
 
+import java.util.Date;
+
 import io.gridgo.utils.pojo.FieldName;
 import io.gridgo.utils.pojo.FieldNameTransform;
 import lombok.AllArgsConstructor;
@@ -29,4 +31,6 @@ public class Foo extends SuperFoo {
     private String stringValue;
 
     private Bar barValue;
+    
+    private Date date;
 }

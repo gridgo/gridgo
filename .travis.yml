@@ -3,10 +3,10 @@ jdk:
 - openjdk11
 notifications:
   slack: gridgo:7vQ2ec1IgZ0bjCN9w3wsUiIn
-  
+
 services:
 - mysql
-  
+
 addons:
   sonarcloud:
     organization: "gridgo" # the key of the org you chose at step #3
@@ -14,3 +14,4 @@ addons:
 
 after_success:
 - mvn clean test jacoco:report sonar:sonar -Dsonar.projectKey=gridgo_gridgo coveralls:report -DrepoToken=$CoverallsRepoToken
+- "[[ $TRAVIS_BRANCH == \"develop\" ]] && { python travis/addServer.py; mvn clean deploy --settings ~/.m2/mySettings.xml; };"
