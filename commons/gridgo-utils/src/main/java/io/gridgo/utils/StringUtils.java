@@ -97,16 +97,14 @@ public final class StringUtils {
     }
 
     public static final String upperCaseFirstLetter(String inputString) {
-        if (inputString == null) {
-            return null;
-        }
+        if (inputString == null || inputString.isEmpty())
+            return inputString;
         return Character.toUpperCase(inputString.charAt(0)) + inputString.substring(1);
     }
 
     public static final String lowerCaseFirstLetter(String inputString) {
-        if (inputString == null) {
-            return null;
-        }
+        if (inputString == null || inputString.isEmpty())
+            return inputString;
         return Character.toLowerCase(inputString.charAt(0)) + inputString.substring(1);
     }
 
@@ -220,7 +218,7 @@ public final class StringUtils {
             throw new RuntimeIOException("Error while append tab(s)", e);
         }
     }
-    
+
     public static void softTabs(int num, Appendable sb) {
         try {
             for (int i = 0; i < num; i++) {
