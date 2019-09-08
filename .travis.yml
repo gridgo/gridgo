@@ -14,4 +14,4 @@ addons:
 
 after_success:
 - mvn clean test jacoco:report sonar:sonar -Dsonar.projectKey=gridgo_gridgo coveralls:report -DrepoToken=$CoverallsRepoToken
-- "[[ $TRAVIS_BRANCH == \"develop\" ]] && { python travis/addServer.py; mvn clean deploy --settings ~/.m2/mySettings.xml; };"
+- "[[ $TRAVIS_BRANCH == \"develop\" ]] && { python travis/addServer.py; mvn -DskipTests=true clean deploy --settings ~/.m2/mySettings.xml; };"
