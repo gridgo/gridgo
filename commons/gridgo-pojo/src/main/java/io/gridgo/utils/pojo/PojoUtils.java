@@ -2,6 +2,7 @@ package io.gridgo.utils.pojo;
 
 import static io.gridgo.format.StringFormatter.transform;
 import static io.gridgo.utils.ArrayUtils.foreachArray;
+import static io.gridgo.utils.ClasspathUtils.scanForAnnotatedTypes;
 import static io.gridgo.utils.PrimitiveUtils.isPrimitive;
 import static io.gridgo.utils.StringUtils.lowerCaseFirstLetter;
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.END_ARRAY;
@@ -29,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.cliffc.high_scale_lib.NonBlockingHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,17 +43,26 @@ import io.gridgo.utils.pojo.getter.PojoGetterProxy;
 import io.gridgo.utils.pojo.getter.PojoGetterRegistry;
 import io.gridgo.utils.pojo.setter.PojoSetterProxy;
 import io.gridgo.utils.pojo.setter.PojoSetterRegistry;
+import io.gridgo.utils.pojo.translator.RegisterValueTranslator;
+import io.gridgo.utils.pojo.translator.UseValueTranslator;
+import io.gridgo.utils.pojo.translator.ValueTranslator;
 import lombok.NonNull;
 
 public class PojoUtils {
 
     private static final Logger log = LoggerFactory.getLogger(PojoUtils.class);
 
+    private static final Map<String, ValueTranslator> VALUE_TRANSLATOR_REGISTRY = new NonBlockingHashMap<>();
+
     private static final PojoGetterRegistry GETTER_REGISTRY = PojoGetterRegistry.DEFAULT;
     private static final PojoSetterRegistry SETTER_REGISTRY = PojoSetterRegistry.DEFAULT;
 
     private static final String SETTER_PREFIX = "set";
     private final static Set<String> GETTER_PREFIXES = new HashSet<String>(Arrays.asList("get", "is"));
+
+    static {
+        scanForValueTranslators("io.gridgo");
+    }
 
     public static String extractMethodDescriptor(Method method) {
         String sig;
@@ -112,12 +123,15 @@ public class PojoUtils {
         Collection<Method> methods = extractAllMethods(targetType);
 
         for (Method method : methods) {
+            String methodName = method.getName();
             if (method.getParameterCount() == 1 //
                     && Modifier.isPublic(method.getModifiers()) //
                     && method.getReturnType() == Void.TYPE //
-                    && method.getName().startsWith(SETTER_PREFIX)) {
+                    && methodName.startsWith(SETTER_PREFIX)) {
 
-                String fieldName = lowerCaseFirstLetter(method.getName().substring(3));
+                if (methodName.length() <= 3)
+                    continue;
+                var fieldName = lowerCaseFirstLetter(methodName.substring(3));
 
                 if (!isTransient(method, fieldName)) {
                     Parameter param = method.getParameters()[0];
@@ -128,7 +142,7 @@ public class PojoUtils {
                         if (ignoredFields == null || ignoredFields.size() == 0 || !ignoredFields.contains(fieldName)) {
                             Map<String, String> map = new HashMap<>();
                             map.put("fieldName", fieldName);
-                            map.put("methodName", method.getName());
+                            map.put("methodName", methodName);
                             map.put("fieldType", paramType.getName());
                             map.put("packageName", targetType.getPackageName());
                             map.put("typeName", targetType.getName());
@@ -137,15 +151,31 @@ public class PojoUtils {
                     }
 
                     results.add(PojoMethodSignature.builder() //
-                                                   .fieldName(fieldName) //
-                                                   .transformedFieldName(transformedFieldName) //
-                                                   .method(method) //
-                                                   .fieldType(paramType) //
-                                                   .build());
+                            .method(method) //
+                            .fieldType(paramType) //
+                            .fieldName(fieldName) //
+                            .transformedFieldName(transformedFieldName) //
+                            .valueTranslator(extractValueTranslator(method, fieldName)) //
+                            .build());
                 }
             }
         }
         return results;
+    }
+
+    private static ValueTranslator extractValueTranslator(Method method, String fieldName) {
+        if (method.isAnnotationPresent(UseValueTranslator.class))
+            return lookupValueTranslator(method.getAnnotation(UseValueTranslator.class).value());
+
+        try {
+            var field = method.getDeclaringClass().getDeclaredField(fieldName);
+            if (field.isAnnotationPresent(UseValueTranslator.class))
+                return lookupValueTranslator(field.getAnnotation(UseValueTranslator.class).value());
+        } catch (Exception e) {
+            // do nothing
+        }
+
+        return null;
     }
 
     private static boolean isTransient(Method method, String fieldName) {
@@ -218,7 +248,10 @@ public class PojoUtils {
                     && method.getReturnType() != Void.TYPE //
                     && GETTER_PREFIXES.stream().anyMatch(prefix -> methodName.startsWith(prefix))) {
 
-                String fieldName = lowerCaseFirstLetter(methodName.substring(methodName.startsWith("is") ? 2 : 3));
+                int skip = methodName.startsWith("is") ? 2 : 3;
+                if (methodName.length() <= skip)
+                    continue;
+                String fieldName = lowerCaseFirstLetter(methodName.substring(skip));
                 if (!isTransient(method, fieldName)) {
                     Class<?> fieldType = method.getReturnType();
 
@@ -257,7 +290,7 @@ public class PojoUtils {
                 }
             }
             t = t.getSuperclass();
-        } while (t != Object.class);
+        } while (t != null && t != Object.class);
         return nameToMethod.values();
     }
 
@@ -467,8 +500,41 @@ public class PojoUtils {
             ParameterizedType aType = (ParameterizedType) theType;
             Type[] parameterArgTypes = aType.getActualTypeArguments();
             for (Type parameterArgType : parameterArgTypes) {
-                output.add((Class<?>) parameterArgType);
+                if (parameterArgType instanceof Class)
+                    output.add((Class<?>) parameterArgType);
             }
         }
+    }
+
+    public static void scanForValueTranslators(String packageName, ClassLoader... classLoaders) {
+        scanForAnnotatedTypes(packageName, RegisterValueTranslator.class,
+                (clz, annotation) -> registerValueTranslator(annotation.value(), clz), classLoaders);
+    }
+
+    public static ValueTranslator registerValueTranslator(@NonNull String key, @NonNull Class<?> clazz) {
+        try {
+            return registerValueTranslator(key, (ValueTranslator) clazz.getConstructor().newInstance());
+        } catch (Exception e) {
+            throw new RuntimeException("Invalid registered translator type: " + clazz + " for key: `" + key + "`");
+        }
+    }
+
+    public static ValueTranslator registerValueTranslator(@NonNull String key, @NonNull ValueTranslator translator) {
+        return VALUE_TRANSLATOR_REGISTRY.putIfAbsent(key, translator);
+    }
+
+    public static ValueTranslator unregisterValueTranslator(@NonNull String key) {
+        return VALUE_TRANSLATOR_REGISTRY.remove(key);
+    }
+
+    public static ValueTranslator lookupValueTranslator(@NonNull String key) {
+        return VALUE_TRANSLATOR_REGISTRY.get(key);
+    }
+
+    public static ValueTranslator lookupValueTranslatorMandatory(@NonNull String key) {
+        var result = VALUE_TRANSLATOR_REGISTRY.get(key);
+        if (result == null)
+            throw new NullPointerException("ValueTranslator cannot be found for key: " + key);
+        return result;
     }
 }

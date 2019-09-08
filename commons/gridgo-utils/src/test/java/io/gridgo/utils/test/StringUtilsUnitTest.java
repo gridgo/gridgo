@@ -18,13 +18,14 @@ public class StringUtilsUnitTest {
         Assert.assertEquals("foul is", matches.get(0));
         Assert.assertEquals("fair is", matches.get(1));
     }
-    
+
     @Test
     public void testUppercaseFirst() {
         String text = "to-morrow, and to-morrow, and to-morrow";
         Assert.assertEquals("To-morrow, and to-morrow, and to-morrow", StringUtils.upperCaseFirstLetter(text));
         Assert.assertEquals("", StringUtils.upperCaseFirstLetter(""));
-        Assert.assertEquals(" t", StringUtils.lowerCaseFirstLetter(" t"));
+        Assert.assertEquals(" t", StringUtils.upperCaseFirstLetter(" t"));
+        Assert.assertEquals("T", StringUtils.upperCaseFirstLetter("t"));
         Assert.assertNull(StringUtils.upperCaseFirstLetter(null));
     }
 
@@ -34,6 +35,7 @@ public class StringUtilsUnitTest {
         Assert.assertEquals("to-morrow, and to-morrow, and to-morrow", StringUtils.lowerCaseFirstLetter(text));
         Assert.assertEquals("", StringUtils.lowerCaseFirstLetter(""));
         Assert.assertEquals(" T", StringUtils.lowerCaseFirstLetter(" T"));
+        Assert.assertEquals("t", StringUtils.lowerCaseFirstLetter("T"));
         Assert.assertNull(StringUtils.lowerCaseFirstLetter(null));
     }
 

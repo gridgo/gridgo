@@ -13,6 +13,7 @@ import java.util.Set;
 import io.gridgo.utils.PrimitiveUtils;
 import io.gridgo.utils.pojo.getter.PojoGetterProxy;
 import io.gridgo.utils.pojo.setter.PojoSetterProxy;
+import io.gridgo.utils.pojo.translator.ValueTranslator;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
@@ -26,6 +27,7 @@ public final class PojoMethodSignature {
     private final @NonNull String fieldName;
     private final @NonNull Class<?> fieldType;
     private final String transformedFieldName;
+    private final String transformedOrDefaultFieldName;
 
     private PojoGetterProxy getterProxy;
     private PojoSetterProxy setterProxy;
@@ -55,14 +57,18 @@ public final class PojoMethodSignature {
     private final String methodDescriptor;
     private final String methodName;
     private final Class<?>[] genericTypes;
-    private final String transformedOrDefaultFieldName;
+
+    private final ValueTranslator valueTranslator;
 
     @Builder
-    private PojoMethodSignature(Method method, String fieldName, Class<?> fieldType, String transformedFieldName) {
+    private PojoMethodSignature(Method method, String fieldName, Class<?> fieldType, String transformedFieldName,
+            ValueTranslator valueTranslator) {
+
         this.method = method;
         this.fieldName = fieldName;
         this.fieldType = fieldType;
         this.transformedFieldName = transformedFieldName;
+        this.valueTranslator = valueTranslator;
 
         this.isPrimitiveType = fieldType.isPrimitive();
         this.isWrapperType = PrimitiveUtils.isWrapperType(fieldType);

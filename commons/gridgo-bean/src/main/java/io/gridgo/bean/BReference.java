@@ -101,14 +101,10 @@ public interface BReference extends BElement {
         return this.getReference().getClass();
     }
 
-    default boolean referenceInstanceOf(Class<?> clazz) {
+    default boolean referenceInstanceOf(@NonNull Class<?> clazz) {
         var ref = this.getReference();
-        if (clazz == null) {
-            return ref == null;
-        }
-        if (ref != null) {
-            return clazz.isAssignableFrom(ref.getClass());
-        }
+        if (ref != null)
+            return clazz.isInstance(ref);
         return false;
     }
 

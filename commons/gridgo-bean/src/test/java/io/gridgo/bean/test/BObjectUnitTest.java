@@ -142,5 +142,8 @@ public class BObjectUnitTest {
 
         beanWithDate = BObject.ofPojo(beanWithDate).toPojo(BeanWithDate.class);
         assertEquals("2019-04-16", beanWithDate.getDate().toString());
+
+        var bObj = BObject.ofEmpty().setAny("date", new Date(System.currentTimeMillis()));
+        System.out.println(bObj.toJson());
     }
 }
