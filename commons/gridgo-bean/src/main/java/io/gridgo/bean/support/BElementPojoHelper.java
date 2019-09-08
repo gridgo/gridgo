@@ -196,9 +196,14 @@ public class BElementPojoHelper {
                     ? src.getOrDefault(transformedFieldName, () -> src.getOrDefault(fieldName, () -> null)) //
                     : src.getOrDefault(fieldName, () -> null);
 
-            if (value == null) {
+            if (signature.getValueTranslator() != null)
+                return signature.getValueTranslator().translate(value);
+
+            if (value == null)
                 return ValueHolder.NO_VALUE;
-            }
+
+            if (signature.getFieldType() == BElement.class)
+                return value;
 
             Class<?> fieldType = signature.getFieldType();
             if (value.isNullValue()) {

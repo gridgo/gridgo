@@ -99,13 +99,15 @@ public final class StringUtils {
     public static final String upperCaseFirstLetter(String inputString) {
         if (inputString == null || inputString.isEmpty())
             return inputString;
-        return Character.toUpperCase(inputString.charAt(0)) + inputString.substring(1);
+        return Character.toUpperCase(inputString.charAt(0))
+                + (inputString.length() == 1 ? "" : inputString.substring(1));
     }
 
     public static final String lowerCaseFirstLetter(String inputString) {
         if (inputString == null || inputString.isEmpty())
             return inputString;
-        return Character.toLowerCase(inputString.charAt(0)) + inputString.substring(1);
+        return Character.toLowerCase(inputString.charAt(0))
+                + (inputString.length() == 1 ? "" : inputString.substring(1));
     }
 
     public static final boolean isPrinable(String str) {

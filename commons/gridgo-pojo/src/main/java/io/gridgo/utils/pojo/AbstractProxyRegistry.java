@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.cliffc.high_scale_lib.NonBlockingHashMap;
 
+import io.gridgo.utils.pojo.exception.PojoProxyException;
 import io.gridgo.utils.pojo.getter.PojoGetterProxy;
 import io.gridgo.utils.pojo.setter.PojoSetterProxy;
 import lombok.NonNull;
@@ -27,10 +28,14 @@ public abstract class AbstractProxyRegistry<T extends PojoProxy> {
     }
 
     private T buildProxy(Class<?> type) {
-        var tempCache = new HashMap<String, T>();
-        var result = buildProxy(type, tempCache);
-        tempCache.forEach(cache::putIfAbsent);
-        return result;
+        try {
+            var tempCache = new HashMap<String, T>();
+            var result = buildProxy(type, tempCache);
+            tempCache.forEach(cache::putIfAbsent);
+            return result;
+        } catch (Exception e) {
+            throw new PojoProxyException("Cannot build proxy for type: " + type, e);
+        }
     }
 
     private T buildProxy(Class<?> type, Map<String, T> tempCache) {
