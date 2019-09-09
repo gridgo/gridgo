@@ -37,6 +37,7 @@ import io.gridgo.utils.ArrayUtils;
 import io.gridgo.utils.annotations.Transient;
 import io.gridgo.utils.exception.InvalidFieldNameException;
 import io.gridgo.utils.exception.RuntimeReflectiveOperationException;
+import io.gridgo.utils.pojo.exception.PojoProxyException;
 import io.gridgo.utils.pojo.getter.PojoFlattenWalker;
 import io.gridgo.utils.pojo.getter.PojoGetterProxy;
 import io.gridgo.utils.pojo.getter.PojoGetterRegistry;
@@ -220,7 +221,7 @@ public class PojoUtils {
 
     public static final List<PojoMethodSignature> extractGetterMethodSignatures(@NonNull Class<?> targetType) {
         if (!isSupported(targetType)) {
-            throw new IllegalArgumentException("Cannot extract method signature from " + targetType.getName());
+            throw new PojoProxyException("Cannot extract method signature from " + targetType.getName());
         }
 
         var results = new LinkedList<PojoMethodSignature>();
