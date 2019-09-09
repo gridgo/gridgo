@@ -21,6 +21,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -37,7 +38,6 @@ import io.gridgo.utils.ArrayUtils;
 import io.gridgo.utils.annotations.Transient;
 import io.gridgo.utils.exception.InvalidFieldNameException;
 import io.gridgo.utils.exception.RuntimeReflectiveOperationException;
-import io.gridgo.utils.pojo.exception.PojoProxyException;
 import io.gridgo.utils.pojo.getter.PojoFlattenWalker;
 import io.gridgo.utils.pojo.getter.PojoGetterProxy;
 import io.gridgo.utils.pojo.getter.PojoGetterRegistry;
@@ -72,7 +72,7 @@ public class PojoUtils {
             sb.append((sig = Array.newInstance(c, 0).toString()).substring(1, sig.indexOf('@')));
         return sb.append(')').append(method.getReturnType() == void.class ? "V"
                 : (sig = Array.newInstance(method.getReturnType(), 0).toString()).substring(1, sig.indexOf('@')))
-                .toString().replaceAll("\\.", "/");
+                 .toString().replaceAll("\\.", "/");
     }
 
     public static Class<?> getElementTypeForGeneric(PojoMethodSignature signature) {
@@ -105,7 +105,9 @@ public class PojoUtils {
 
     public static List<PojoMethodSignature> extractSetterMethodSignatures(Class<?> targetType) {
         if (!isSupported(targetType)) {
-            throw new IllegalArgumentException("Cannot extract method signature from " + targetType.getName());
+            if (log.isWarnEnabled())
+                log.warn("Cannot extract method signature from {}", targetType.getName());
+            return Collections.emptyList();
         }
 
         var results = new LinkedList<PojoMethodSignature>();
@@ -221,7 +223,9 @@ public class PojoUtils {
 
     public static final List<PojoMethodSignature> extractGetterMethodSignatures(@NonNull Class<?> targetType) {
         if (!isSupported(targetType)) {
-            throw new PojoProxyException("Cannot extract method signature from " + targetType.getName());
+            if (log.isWarnEnabled())
+                log.warn("Cannot extract method signature from {}. Ignoring it!", targetType.getName());
+            return Collections.emptyList();
         }
 
         var results = new LinkedList<PojoMethodSignature>();
@@ -264,11 +268,11 @@ public class PojoUtils {
                     }
 
                     results.add(PojoMethodSignature.builder() //
-                            .fieldName(fieldName) //
-                            .transformedFieldName(transformedFieldName) //
-                            .method(method) //
-                            .fieldType(fieldType) //
-                            .build());
+                                                   .fieldName(fieldName) //
+                                                   .transformedFieldName(transformedFieldName) //
+                                                   .method(method) //
+                                                   .fieldType(fieldType) //
+                                                   .build());
                 }
             }
         }

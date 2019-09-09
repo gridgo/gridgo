@@ -16,7 +16,9 @@ import org.cliffc.high_scale_lib.NonBlockingHashMap;
 
 import io.gridgo.utils.exception.ThreadingException;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class ThreadUtils {
 
     @FunctionalInterface
@@ -178,7 +180,7 @@ public class ThreadUtils {
             try {
                 task.run();
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error("Error while trying to run shutdown task", e);
             }
         }
     }
