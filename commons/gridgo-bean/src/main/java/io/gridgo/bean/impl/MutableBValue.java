@@ -6,25 +6,36 @@ import io.gridgo.bean.BValue;
 import io.gridgo.bean.exceptions.InvalidTypeException;
 import io.gridgo.bean.serialization.text.BPrinter;
 import io.gridgo.utils.PrimitiveUtils;
+import io.gridgo.utils.annotations.Transient;
 import io.gridgo.utils.hash.BinaryHashCodeCalculator;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @NoArgsConstructor
 public class MutableBValue extends AbstractBElement implements BValue {
 
     private transient static final BinaryHashCodeCalculator binaryHashCodeCalculator = BinaryHashCodeCalculator.XXHASH32_JAVA_SAFE;
 
-    @Setter
     @Getter
     private Object data;
+
+    @Transient
+    private transient int hashCode;
+
+    @Transient
+    private volatile transient boolean hashCodeFlag = true;
 
     public MutableBValue(Object data) {
         if (data != null && !(data instanceof byte[]) && !PrimitiveUtils.isPrimitive(data.getClass())) {
             throw new InvalidTypeException("Cannot create DefaultBValue from: " + data.getClass() + " instance");
         }
         this.setData(data);
+    }
+
+    @Override
+    public void setData(Object data) {
+        this.data = data;
+        this.hashCodeFlag = true;
     }
 
     @Override
@@ -70,14 +81,17 @@ public class MutableBValue extends AbstractBElement implements BValue {
      */
     @Override
     public int hashCode() {
-        if (data == null) {
-            return super.hashCode();
+        if (hashCodeFlag) {
+            if (data == null)
+                this.hashCode = super.hashCode();
+            else if (data instanceof byte[])
+                this.hashCode = binaryHashCodeCalculator.calcHashCode((byte[]) data);
+            else
+                this.hashCode = data.hashCode();
+
+            hashCodeFlag = false;
         }
 
-        if (data instanceof byte[]) {
-            return binaryHashCodeCalculator.calcHashCode((byte[]) data);
-        }
-
-        return data.hashCode();
+        return this.hashCode;
     }
 }

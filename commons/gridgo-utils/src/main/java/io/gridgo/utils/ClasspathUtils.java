@@ -14,6 +14,10 @@ import lombok.NonNull;
 
 public class ClasspathUtils {
 
+    private static final Object typeScannerLock = new Object();
+    private static final Object methodScannerLock = new Object();
+    private static final Object fieldScannerLock = new Object();
+
     private static final FieldAnnotationsScanner FIELD_ANNOTATIONS_SCANNER = new FieldAnnotationsScanner();
     private static final MethodAnnotationsScanner METHOD_ANNOTATIONS_SCANNER = new MethodAnnotationsScanner();
 
@@ -23,7 +27,11 @@ public class ClasspathUtils {
             @NonNull BiConsumer<Class<?>, A> typeConsumer, //
             ClassLoader... classLoaders) {
 
-        Reflections reflections = new Reflections(packageName, classLoaders);
+        Reflections reflections;
+        synchronized (typeScannerLock) {
+            reflections = new Reflections(packageName, classLoaders);
+        }
+
         Set<Class<?>> types = reflections.getTypesAnnotatedWith(annotationType);
         types.forEach(clz -> typeConsumer.accept(clz, clz.getAnnotation(annotationType)));
     }
@@ -34,7 +42,10 @@ public class ClasspathUtils {
             @NonNull BiConsumer<Method, A> acceptor, //
             ClassLoader... classLoaders) {
 
-        Reflections reflections = new Reflections(packageName, METHOD_ANNOTATIONS_SCANNER, classLoaders);
+        Reflections reflections;
+        synchronized (methodScannerLock) {
+            reflections = new Reflections(packageName, METHOD_ANNOTATIONS_SCANNER, classLoaders);
+        }
         Set<Method> methods = reflections.getMethodsAnnotatedWith(annotationType);
         methods.forEach(method -> acceptor.accept(method, method.getAnnotation(annotationType)));
     }
@@ -45,7 +56,10 @@ public class ClasspathUtils {
             @NonNull BiConsumer<Field, A> acceptor, //
             ClassLoader... classLoaders) {
 
-        Reflections reflections = new Reflections(packageName, FIELD_ANNOTATIONS_SCANNER, classLoaders);
+        Reflections reflections;
+        synchronized (fieldScannerLock) {
+            reflections = new Reflections(packageName, FIELD_ANNOTATIONS_SCANNER, classLoaders);
+        }
         Set<Field> methods = reflections.getFieldsAnnotatedWith(annotationType);
         methods.forEach(method -> acceptor.accept(method, method.getAnnotation(annotationType)));
     }
