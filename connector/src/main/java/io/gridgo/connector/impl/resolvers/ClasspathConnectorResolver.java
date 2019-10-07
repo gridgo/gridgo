@@ -1,7 +1,5 @@
 package io.gridgo.connector.impl.resolvers;
 
-import static io.gridgo.utils.ClasspathUtils.scanForSubTypes;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,6 +8,7 @@ import io.gridgo.connector.ConnectorResolver;
 import io.gridgo.connector.support.annotations.ConnectorEndpoint;
 import io.gridgo.connector.support.config.ConnectorContext;
 import io.gridgo.connector.support.exceptions.UnsupportedSchemeException;
+import io.gridgo.utils.ClasspathUtils;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
@@ -73,6 +72,6 @@ public class ClasspathConnectorResolver implements ConnectorResolver {
     }
 
     private void resolvePackage(String pkg) {
-        scanForSubTypes(pkg, Connector.class, this::registerConnectorClass);
+        ClasspathUtils.<Connector>scanForSubTypes(pkg, Connector.class, this::registerConnectorClass);
     }
 }
