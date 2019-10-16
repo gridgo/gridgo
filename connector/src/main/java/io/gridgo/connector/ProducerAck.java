@@ -15,10 +15,9 @@ public interface ProducerAck extends Loggable {
     }
 
     public default void ack(Deferred<Message, Exception> deferred, Exception exception) {
-        if (exception != null)
-            getLogger().error("Exception caught while acknowledging response", exception);
         if (deferred == null)
             return;
+
         getContext().getCallbackInvokerStrategy().execute(() -> {
             if (exception == null) {
                 tryResolve(deferred, null);

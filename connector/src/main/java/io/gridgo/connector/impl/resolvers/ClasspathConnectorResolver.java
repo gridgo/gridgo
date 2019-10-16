@@ -1,9 +1,9 @@
 package io.gridgo.connector.impl.resolvers;
 
+import static io.gridgo.utils.ClasspathUtils.scanForSubTypes;
+
 import java.util.HashMap;
 import java.util.Map;
-
-import org.reflections.Reflections;
 
 import io.gridgo.connector.Connector;
 import io.gridgo.connector.ConnectorResolver;
@@ -73,16 +73,6 @@ public class ClasspathConnectorResolver implements ConnectorResolver {
     }
 
     private void resolvePackage(String pkg) {
-        var reflections = new Reflections(pkg);
-        var connectorClasses = reflections.getSubTypesOf(Connector.class);
-
-        if (connectorClasses.isEmpty()) {
-            log.warn("No connectors found in package {}", pkg);
-            return;
-        }
-
-        for (var clzz : connectorClasses) {
-            registerConnectorClass(clzz);
-        }
+        scanForSubTypes(pkg, Connector.class, type -> registerConnectorClass((Class<? extends Connector>) type));
     }
 }

@@ -295,7 +295,7 @@ public class BElementPojoHelper {
                             coll.add(list);
                         }
                     } else if (bElement.isValue()) {
-                        coll.add(bElement.asValue().getData());
+                        coll.add(bElement.asValue().getDataAs(resultElementType));
                     } else if (bElement.isReference()) {
                         coll.add(bElement.asReference().getReference());
                     } else {
@@ -343,8 +343,10 @@ public class BElementPojoHelper {
             var map = new HashMap<String, Object>();
             for (Entry<String, BElement> entry : valueObj.entrySet()) {
                 Object entryValue;
-                if (entry.getValue().isValue()) {
-                    entryValue = entry.getValue().asValue().getData();
+                if (valueType == Object.class) {
+                    entryValue = entry.getValue();
+                } else if (entry.getValue().isValue()) {
+                    entryValue = entry.getValue().asValue().getDataAs(valueType);
                 } else if (entry.getValue().isArray()) {
                     entryValue = entry.getValue().asArray().toList();
                 } else if (entry.getValue().isObject()) {
