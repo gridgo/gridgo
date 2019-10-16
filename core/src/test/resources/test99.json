@@ -3,9 +3,9 @@
 	"gateways": {
 		"test": {
 			"connectors": [
-				"test:xyz",
+				"test99:xyz",
 				{
-					"endpoint": "test:abc",
+					"endpoint": "test99:abc",
 					"contextBuilder": "bean:connectorContextBuilder"
 				}
 			],

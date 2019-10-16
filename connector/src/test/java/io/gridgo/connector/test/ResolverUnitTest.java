@@ -42,19 +42,19 @@ public class ResolverUnitTest {
     @Test
     public void testIPv6() {
         var resolver = new ClasspathConnectorResolver();
-        var connector = resolver.resolve("test:pull:tcp://[2001:db8:1f70::999:de8:7648:6e8]:8080?p1=v1&p2=v2");
+        var connector = resolver.resolve("test:pull:tcp://[2001:db8:1f70::999:de8:7648:6e8]:7778?p1=v1&p2=v2");
         Assert.assertNotNull(connector);
         Assert.assertNotNull(connector.getConnectorConfig());
         Assert.assertNotNull(connector.getConnectorConfig().getRemaining());
         Assert.assertNotNull(connector.getConnectorConfig().getParameters());
         Assert.assertTrue(connector instanceof TestConnector);
-        Assert.assertEquals("pull:tcp://[2001:db8:1f70::999:de8:7648:6e8]:8080", connector.getConnectorConfig().getRemaining());
+        Assert.assertEquals("pull:tcp://[2001:db8:1f70::999:de8:7648:6e8]:7778", connector.getConnectorConfig().getRemaining());
         Assert.assertEquals("v1", connector.getConnectorConfig().getParameters().get("p1"));
         Assert.assertEquals("v2", connector.getConnectorConfig().getParameters().get("p2"));
         Assert.assertEquals("pull", connector.getConnectorConfig().getPlaceholders().get("type"));
         Assert.assertEquals("tcp", connector.getConnectorConfig().getPlaceholders().get("transport"));
         Assert.assertEquals("2001:db8:1f70::999:de8:7648:6e8", connector.getConnectorConfig().getPlaceholders().get("host"));
-        Assert.assertEquals("8080", connector.getConnectorConfig().getPlaceholders().get("port"));
+        Assert.assertEquals("7778", connector.getConnectorConfig().getPlaceholders().get("port"));
     }
 
     @Test
@@ -133,18 +133,18 @@ public class ResolverUnitTest {
     @Test
     public void testSimple() {
         var resolver = new ClasspathConnectorResolver();
-        var connector = resolver.resolve("test:pull:tcp://127.0.0.1:8080?p1=v1&p2=v2");
+        var connector = resolver.resolve("test:pull:tcp://127.0.0.1:7777?p1=v1&p2=v2");
         Assert.assertNotNull(connector);
         Assert.assertNotNull(connector.getConnectorConfig());
         Assert.assertNotNull(connector.getConnectorConfig().getRemaining());
         Assert.assertNotNull(connector.getConnectorConfig().getParameters());
         Assert.assertTrue(connector instanceof TestConnector);
-        Assert.assertEquals("pull:tcp://127.0.0.1:8080", connector.getConnectorConfig().getRemaining());
+        Assert.assertEquals("pull:tcp://127.0.0.1:7777", connector.getConnectorConfig().getRemaining());
         Assert.assertEquals("v1", connector.getConnectorConfig().getParameters().get("p1"));
         Assert.assertEquals("v2", connector.getConnectorConfig().getParameters().get("p2"));
         Assert.assertEquals("pull", connector.getConnectorConfig().getPlaceholders().get("type"));
         Assert.assertEquals("tcp", connector.getConnectorConfig().getPlaceholders().get("transport"));
         Assert.assertEquals("127.0.0.1", connector.getConnectorConfig().getPlaceholders().get("host"));
-        Assert.assertEquals("8080", connector.getConnectorConfig().getPlaceholders().get("port"));
+        Assert.assertEquals("7777", connector.getConnectorConfig().getPlaceholders().get("port"));
     }
 }
