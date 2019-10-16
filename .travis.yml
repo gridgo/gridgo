@@ -13,5 +13,6 @@ addons:
     token: $SONAR_TOKEN
 
 after_success:
-- mvn clean test jacoco:report sonar:sonar -Dsonar.projectKey=gridgo_gridgo coveralls:report -DrepoToken=$CoverallsRepoToken
+- mvn clean test jacoco:report sonar:sonar -Dsonar.projectKey=gridgo_gridgo
+- bash <(curl -s https://codecov.io/bash)
 - "[[ $TRAVIS_BRANCH == \"develop\" ]] && { python travis/addServer.py; mvn -DskipTests=true clean deploy --settings ~/.m2/mySettings.xml; };"
