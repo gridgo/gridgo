@@ -1,10 +1,10 @@
-package io.gridgo.framework.test;
-
-import java.io.File;
-import java.util.List;
+package io.gridgo.framework.support.test;
 
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.io.File;
+import java.util.List;
 
 import io.gridgo.framework.support.exceptions.BeanNotFoundException;
 import io.gridgo.framework.support.impl.PropertiesFileRegistry;
