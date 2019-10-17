@@ -20,13 +20,13 @@ public class ByteBufferInputStream extends InputStream {
     }
 
     @Override
-    public int read(byte[] bytes, int off, int len) {
+    public int read(byte[] bytes, int outputOffset, int len) {
         if (!buffer.hasRemaining()) {
             return -1;
         }
 
         len = Math.min(len, buffer.remaining());
-        buffer.get(bytes, off, len);
+        buffer.get(bytes, outputOffset, len);
         return len;
     }
 }
