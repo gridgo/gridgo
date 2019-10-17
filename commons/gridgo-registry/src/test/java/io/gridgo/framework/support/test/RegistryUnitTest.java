@@ -86,5 +86,6 @@ public class RegistryUnitTest {
                 .register("key2", "value2");
         Assert.assertEquals("value1=${key2}", reg.lookup("key1"));
         Assert.assertEquals("value1=value2", reg.lookup("key1", String.class));
+        Assert.assertEquals("test=value2", reg.substituteRegistries("test=${key2}"));
     }
 }
