@@ -10,6 +10,7 @@ import io.gridgo.framework.support.exceptions.BeanNotFoundException;
 import io.gridgo.framework.support.impl.MultiSourceRegistry;
 import io.gridgo.framework.support.impl.PropertiesFileRegistry;
 import io.gridgo.framework.support.impl.SimpleRegistry;
+import io.gridgo.framework.support.impl.XmlRegistry;
 
 public class RegistryUnitTest {
 
@@ -20,6 +21,13 @@ public class RegistryUnitTest {
     }
 
     @Test
+    public void testXml() {
+        var registry = XmlRegistry.ofResource("test.xml");
+        Assert.assertEquals("value1", registry.lookup("/root/item[@name='key1']"));
+        Assert.assertEquals("value2", registry.lookup("/root/item[@name='key2']"));
+    }
+
+    @Test
     public void testPropertyRegistry() {
         var classLoader = getClass().getClassLoader();
         var file = new File(classLoader.getResource("test.properties").getFile());
@@ -27,6 +35,8 @@ public class RegistryUnitTest {
         Assert.assertEquals("hello", registry.lookup("msg"));
         registry = new PropertiesFileRegistry(file.getAbsolutePath());
         Assert.assertEquals("hello", registry.lookup("msg"));
+        registry.register("msg", "world");
+        Assert.assertEquals("world", registry.lookup("msg"));
     }
 
     @Test
