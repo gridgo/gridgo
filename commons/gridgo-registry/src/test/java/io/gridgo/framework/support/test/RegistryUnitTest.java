@@ -10,6 +10,7 @@ import io.gridgo.framework.support.exceptions.BeanNotFoundException;
 import io.gridgo.framework.support.impl.MultiSourceRegistry;
 import io.gridgo.framework.support.impl.PropertiesFileRegistry;
 import io.gridgo.framework.support.impl.SimpleRegistry;
+import io.gridgo.framework.support.impl.XmlQueryRegistry;
 import io.gridgo.framework.support.impl.XmlRegistry;
 
 public class RegistryUnitTest {
@@ -22,9 +23,13 @@ public class RegistryUnitTest {
 
     @Test
     public void testXml() {
-        var registry = XmlRegistry.ofResource("test.xml");
+        var registry = XmlRegistry.ofResource("test-registry.xml");
         Assert.assertEquals("value1", registry.lookup("/root/item[@name='key1']"));
         Assert.assertEquals("value2", registry.lookup("/root/item[@name='key2']"));
+
+        var queryRegistry = new XmlQueryRegistry(XmlRegistry.ofResource("test-query.xml"));
+        Assert.assertEquals("select * from t1", queryRegistry.lookup("key1"));
+        Assert.assertEquals("select * from t2", queryRegistry.lookup("key2"));
     }
 
     @Test
@@ -73,5 +78,13 @@ public class RegistryUnitTest {
         Assert.assertEquals("value3", reg.lookup("key1", String.class));
         reg.addRegistry(new SimpleRegistry().register("key4", "value4"));
         Assert.assertEquals("value4", reg.lookup("key4", String.class));
+    }
+
+    @Test
+    public void testSubstitute() {
+        var reg = new SimpleRegistry().register("key1", "value1=${key2}")
+                .register("key2", "value2");
+        Assert.assertEquals("value1=${key2}", reg.lookup("key1"));
+        Assert.assertEquals("value1=value2", reg.lookup("key1", String.class));
     }
 }
