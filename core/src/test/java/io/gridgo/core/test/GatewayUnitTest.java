@@ -59,13 +59,13 @@ public class GatewayUnitTest {
         var context = new DefaultGridgoContextBuilder().setName("test").setRegistry(registry).build();
 
         context.openGateway("test") //
-               .attachConnector("test:dummy") //
+               .attachConnector("test99:dummy") //
                .subscribe((rc, gc) -> {
                    latch.countDown();
                });
 
         context.openGateway("test2") //
-               .attachConnector("test:dummy") //
+               .attachConnector("test99:dummy") //
                .subscribe((rc, gc) -> {
                    latch.countDown();
                });
@@ -92,8 +92,8 @@ public class GatewayUnitTest {
         RoutingPolicy policy1 = new DefaultRoutingPolicy(null).setCondition(new SqlPredicate("payload.body.data == 1"));
         RoutingPolicy policy2 = new DefaultRoutingPolicy(null).setCondition(new SqlPredicate("payload.body.data == 2"));
         context.openGateway("test2", new MatchingProducerTemplate((c, m) -> match(context, c, m))) //
-               .attachConnector("test:dummy1", new ClasspathConnectorResolver("io.gridgo.connector.test")) //
-               .attachConnector("test:dummy2", new ClasspathConnectorResolver("io.gridgo.connector.test")) //
+               .attachConnector("test99:dummy1", new ClasspathConnectorResolver("io.gridgo.connector.test")) //
+               .attachConnector("test99:dummy2", new ClasspathConnectorResolver("io.gridgo.connector.test")) //
                .subscribe((rc, gc) -> {
                    latch1.countDown();
                }).withPolicy(policy1) //
@@ -119,11 +119,11 @@ public class GatewayUnitTest {
         var context = new DefaultGridgoContextBuilder().setName("test").setRegistry(registry).build();
 
         context.openGateway("test", ProducerJoinMode.JOIN) //
-               .attachConnector("test:dummy1") //
-               .attachConnector("test:dummy2");
+               .attachConnector("test99:dummy1") //
+               .attachConnector("test99:dummy2");
         context.openGateway("test2", new MatchingProducerTemplate((c, m) -> match(context, c, m))) //
-               .attachConnector("test:dummy1") //
-               .attachConnector("test:dummy2");
+               .attachConnector("test99:dummy1") //
+               .attachConnector("test99:dummy2");
 
         context.start();
 
@@ -185,8 +185,8 @@ public class GatewayUnitTest {
             consumerLatch.countDown();
         }).setCondition(new SqlPredicate("payload.body.data == " + beanValue));
         context.openGateway("test") //
-               .attachConnector("test:dummy") //
-               .attachConnector("test:dummy1") //
+               .attachConnector("test99:dummy") //
+               .attachConnector("test99:dummy1") //
                .attachRoutingPolicy(policy);
         context.start();
 

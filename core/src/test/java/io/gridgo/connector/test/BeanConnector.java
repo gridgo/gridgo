@@ -5,7 +5,7 @@ import java.util.Optional;
 import io.gridgo.connector.impl.AbstractConnector;
 import io.gridgo.connector.support.annotations.ConnectorEndpoint;
 
-@ConnectorEndpoint(scheme = "test", syntax = "{bean}")
+@ConnectorEndpoint(scheme = "test99", syntax = "{bean}")
 public class BeanConnector extends AbstractConnector {
 
     public void onInit() {

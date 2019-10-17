@@ -5,13 +5,16 @@ import static org.junit.Assert.assertEquals;
 import java.text.DecimalFormat;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import io.gridgo.bean.BElement;
 import io.gridgo.bean.BObject;
+import io.gridgo.bean.BReference;
 import io.gridgo.bean.support.BElementPojoHelper;
 import io.gridgo.bean.test.support.Bar;
 import io.gridgo.bean.test.support.Foo;
+import io.gridgo.bean.test.support.NumberCollectionPojo;
 import io.gridgo.bean.test.support.PrimitiveVO;
 import io.gridgo.utils.CollectionUtils;
 import io.gridgo.utils.MapUtils;
@@ -65,6 +68,7 @@ public class TestPojo {
     }
 
     @Test
+    @Ignore("Ignore perf test")
     public void testPerfToMap() throws Exception {
         PrimitiveVO vo = PrimitiveVO.builder() //
                 .booleanValue(true) //
@@ -138,6 +142,7 @@ public class TestPojo {
     }
 
     @Test
+    @Ignore("Ignore pert test")
     public void testPerfToPojo() throws Exception {
         PrimitiveVO vo = PrimitiveVO.builder() //
                 .booleanValue(true) //
@@ -193,5 +198,111 @@ public class TestPojo {
 
         System.out.println("[Object utils toPojo] throughput: " + df.format(objUtilsPace) + " ops/s");
         System.out.println("[Pojo utils toPojo]   throughput: " + df.format(pojoUtilsPace) + " ops/s");
+    }
+
+    @Test
+    public void testNumberCollectionPojo() {
+        var pojo = NumberCollectionPojo.builder() //
+                // list
+                .byteList(CollectionUtils.<Byte>newListBuilder() //
+                        .add((byte) 1) //
+                        .add((byte) 2) //
+                        .add((byte) 3) //
+                        .build()) //
+                .shortList(CollectionUtils.<Short>newListBuilder() //
+                        .add((short) 1) //
+                        .add((short) 2) //
+                        .add((short) 3) //
+                        .build()) //
+                .integerList(CollectionUtils.<Integer>newListBuilder() //
+                        .add((int) 1) //
+                        .add((int) 2) //
+                        .add((int) 3) //
+                        .build()) //
+                .longList(CollectionUtils.<Long>newListBuilder() //
+                        .add((long) 1) //
+                        .add((long) 2) //
+                        .add((long) 3) //
+                        .build()) //
+                .floatList(CollectionUtils.<Float>newListBuilder() //
+                        .add((float) 1.0f) //
+                        .add((float) 2.1f) //
+                        .add((float) 3.2f) //
+                        .build()) //
+                .doubleList(CollectionUtils.<Double>newListBuilder() //
+                        .add((double) 1.0) //
+                        .add((double) 2.1) //
+                        .add((double) 3.2) //
+                        .build()) //
+                // set
+                .byteSet(CollectionUtils.<Byte>newSetBuilder() //
+                        .add((byte) 1) //
+                        .add((byte) 2) //
+                        .add((byte) 3) //
+                        .build()) //
+                .shortSet(CollectionUtils.<Short>newSetBuilder() //
+                        .add((short) 1) //
+                        .add((short) 2) //
+                        .add((short) 3) //
+                        .build()) //
+                .integerSet(CollectionUtils.<Integer>newSetBuilder() //
+                        .add((int) 1) //
+                        .add((int) 2) //
+                        .add((int) 3) //
+                        .build()) //
+                .longSet(CollectionUtils.<Long>newSetBuilder() //
+                        .add((long) 1) //
+                        .add((long) 2) //
+                        .add((long) 3) //
+                        .build()) //
+                .floatSet(CollectionUtils.<Float>newSetBuilder() //
+                        .add((float) 1.0f) //
+                        .add((float) 2.1f) //
+                        .add((float) 3.2f) //
+                        .build()) //
+                .doubleSet(CollectionUtils.<Double>newSetBuilder() //
+                        .add((double) 1.0) //
+                        .add((double) 2.1) //
+                        .add((double) 3.2) //
+                        .build()) //
+                // map
+                .byteMap(MapUtils.<Byte>newMapStringKeyBuilder(Byte.class) //
+                        .put("1", (byte) 1) //
+                        .put("2", (byte) 2) //
+                        .put("3", (byte) 3) //
+                        .build()) //
+                .shortMap(MapUtils.<Short>newMapStringKeyBuilder(Short.class) //
+                        .put("1", (short) 1) //
+                        .put("2", (short) 2) //
+                        .put("3", (short) 3) //
+                        .build()) //
+                .integerMap(MapUtils.<Integer>newMapStringKeyBuilder(Integer.class) //
+                        .put("1", (int) 1) //
+                        .put("2", (int) 2) //
+                        .put("3", (int) 3) //
+                        .build()) //
+                .longMap(MapUtils.<Long>newMapStringKeyBuilder(Long.class) //
+                        .put("1", (long) 1) //
+                        .put("2", (long) 2) //
+                        .put("3", (long) 3) //
+                        .build()) //
+                .floatMap(MapUtils.<Float>newMapStringKeyBuilder(Float.class) //
+                        .put("1", (float) 1) //
+                        .put("2", (float) 2) //
+                        .put("3", (float) 3) //
+                        .build()) //
+                .doubleMap(MapUtils.<Double>newMapStringKeyBuilder(Double.class) //
+                        .put("1", (double) 1) //
+                        .put("2", (double) 2) //
+                        .put("3", (double) 3) //
+                        .build()) //
+                .build();
+
+        var json = BReference.of(pojo).toJson();
+        var bObj = BElement.ofJson(json).asObject();
+        System.out.println(bObj);
+
+        var rebuiltPojo = bObj.toPojo(NumberCollectionPojo.class);
+        assertEquals(pojo, rebuiltPojo);
     }
 }

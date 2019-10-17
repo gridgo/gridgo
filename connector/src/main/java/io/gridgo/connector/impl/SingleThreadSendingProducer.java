@@ -57,7 +57,7 @@ public abstract class SingleThreadSendingProducer extends AbstractProducer {
                         ack(event.getDeferred(), exception);
                     } else {
                         for (var deferred : deferreds) {
-                            ack(deferred);
+                            ack(deferred, exception);
                         }
                         deferreds.clear();
                     }
@@ -66,12 +66,13 @@ public abstract class SingleThreadSendingProducer extends AbstractProducer {
         }
     };
 
-    protected SingleThreadSendingProducer(ConnectorContext context, int ringBufferSize, boolean batchingEnabled, int maxBatchSize) {
+    protected SingleThreadSendingProducer(ConnectorContext context, int ringBufferSize, boolean batchingEnabled,
+            int maxBatchSize) {
         this(context, ringBufferSize, Thread::new, batchingEnabled, maxBatchSize);
     }
 
-    protected SingleThreadSendingProducer(ConnectorContext context, int ringBufferSize, ThreadFactory threadFactory, boolean batchingEnabled,
-            int maxBatchSize) {
+    protected SingleThreadSendingProducer(ConnectorContext context, int ringBufferSize, ThreadFactory threadFactory,
+            boolean batchingEnabled, int maxBatchSize) {
         super(context);
         this.sendWorker = new Disruptor<>(ProducerEvent::new, ringBufferSize, threadFactory);
         this.sendWorker.handleEventsWith(sender);
