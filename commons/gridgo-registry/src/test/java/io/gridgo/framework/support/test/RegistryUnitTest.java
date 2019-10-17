@@ -27,6 +27,8 @@ public class RegistryUnitTest {
         Assert.assertEquals("hello", registry.lookup("msg"));
         registry = new PropertiesFileRegistry(file.getAbsolutePath());
         Assert.assertEquals("hello", registry.lookup("msg"));
+        registry.register("msg", "world");
+        Assert.assertEquals("world", registry.lookup("msg"));
     }
 
     @Test
