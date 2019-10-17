@@ -59,9 +59,25 @@ public class HostAndPortSet extends HashSet<HostAndPort> {
         }
 
         if (other != null) {
-            return this.equals(other);
+            return this.compareTwoSet(other);
         }
 
         return false;
+    }
+
+    private boolean compareTwoSet(HostAndPortSet other) {
+        if (this.size() != other.size()) {
+            return false;
+        }
+
+        var iterator = this.iterator();
+        while (iterator.hasNext()) {
+            var entry = iterator.next();
+            if (!other.contains(entry)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
