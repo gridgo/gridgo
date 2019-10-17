@@ -74,4 +74,12 @@ public class RegistryUnitTest {
         reg.addRegistry(new SimpleRegistry().register("key4", "value4"));
         Assert.assertEquals("value4", reg.lookup("key4", String.class));
     }
+
+    @Test
+    public void testSubstitute() {
+        var reg = new SimpleRegistry().register("key1", "value1=${key2}")
+                .register("key2", "value2");
+        Assert.assertEquals("value1=${key2}", reg.lookup("key1"));
+        Assert.assertEquals("value1=value2", reg.lookup("key1", String.class));
+    }
 }
