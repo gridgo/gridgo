@@ -8,12 +8,18 @@ import net.jpountz.xxhash.XXHashFactory;
 
 public abstract class BinaryHashCodeCalculator implements HashCodeCalculator<byte[]> {
 
+    static final int ID_DEFAULT = 0;
+    static final int ID_REVERSED = 1;
+    static final int ID_XXHASH32_JAVA_UNSAFE = 2;
+    static final int ID_XXHASH32_JAVA_SAFE = 3;
+    static final int ID_XXHASH32_JNI = 4;
+
     public static final BinaryHashCodeCalculator DEFAULT = new BinaryHashCodeCalculator() {
 
         @Override
         public int getId() {
-            return 0;
-        };
+            return ID_DEFAULT;
+        }
 
         @Override
         public int calcHashCode(byte[] bytes) {
@@ -32,8 +38,8 @@ public abstract class BinaryHashCodeCalculator implements HashCodeCalculator<byt
 
         @Override
         public int getId() {
-            return 1;
-        };
+            return ID_REVERSED;
+        }
 
         @Override
         public int calcHashCode(byte[] bytes) {
@@ -49,13 +55,13 @@ public abstract class BinaryHashCodeCalculator implements HashCodeCalculator<byt
     };
 
     public static final BinaryHashCodeCalculator XXHASH32_JAVA_UNSAFE = new XXHash32BinaryHashCodeCalculator(
-            XXHashFactory.unsafeInstance().hash32(), 2);
+            XXHashFactory.unsafeInstance().hash32(), ID_XXHASH32_JAVA_UNSAFE);
 
     public static final BinaryHashCodeCalculator XXHASH32_JAVA_SAFE = new XXHash32BinaryHashCodeCalculator(
-            XXHashFactory.safeInstance().hash32(), 3);
+            XXHashFactory.safeInstance().hash32(), ID_XXHASH32_JAVA_SAFE);
 
     public static final BinaryHashCodeCalculator XXHASH32_JNI = new XXHash32BinaryHashCodeCalculator(
-            XXHashFactory.fastestInstance().hash32(), 4);
+            XXHashFactory.fastestInstance().hash32(), ID_XXHASH32_JNI);
 
     private static final Map<Integer, BinaryHashCodeCalculator> binaryHashCodeCalculatorRegistry = new NonBlockingHashMap<>();
 
