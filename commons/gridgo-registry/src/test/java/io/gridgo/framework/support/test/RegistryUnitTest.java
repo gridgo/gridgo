@@ -7,6 +7,7 @@ import java.io.File;
 import java.util.List;
 
 import io.gridgo.framework.support.exceptions.BeanNotFoundException;
+import io.gridgo.framework.support.impl.MultiSourceRegistry;
 import io.gridgo.framework.support.impl.PropertiesFileRegistry;
 import io.gridgo.framework.support.impl.SimpleRegistry;
 
@@ -48,5 +49,19 @@ public class RegistryUnitTest {
         }
         int i = reg.lookupMandatory("age", Integer.class);
         Assert.assertEquals(10, i);
+    }
+
+    @Test
+    public void testMultiSource() {
+        var registry1 = new SimpleRegistry().register("key1", "value1");
+        var registry2 = new SimpleRegistry().register("key1", "value2")
+                .register("key2", "value2");
+        var reg = new MultiSourceRegistry(registry1, registry2);
+        Assert.assertEquals("value1", reg.lookup("key1", String.class));
+        Assert.assertEquals("value2", reg.lookup("key2", String.class));
+        reg.register("key1", "value3");
+        Assert.assertEquals("value3", reg.lookup("key1", String.class));
+        reg.addRegistry(new SimpleRegistry().register("key4", "value4"));
+        Assert.assertEquals("value4", reg.lookup("key4", String.class));
     }
 }
