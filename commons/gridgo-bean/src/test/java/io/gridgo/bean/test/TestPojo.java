@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.text.DecimalFormat;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import io.gridgo.bean.BElement;
@@ -67,6 +68,7 @@ public class TestPojo {
     }
 
     @Test
+    @Ignore("Ignore perf test")
     public void testPerfToMap() throws Exception {
         PrimitiveVO vo = PrimitiveVO.builder() //
                 .booleanValue(true) //
@@ -140,6 +142,7 @@ public class TestPojo {
     }
 
     @Test
+    @Ignore("Ignore pert test")
     public void testPerfToPojo() throws Exception {
         PrimitiveVO vo = PrimitiveVO.builder() //
                 .booleanValue(true) //
