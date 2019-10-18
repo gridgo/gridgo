@@ -5,8 +5,8 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
+@SuppressWarnings("unlikely-arg-type")
 public class HostAndPortSetTest {
-
 
     @Test(expected = MalformedHostAndPortException.class)
     public void constructor_ShouldThrowExceptionWhenInvalidInput() {
