@@ -3,6 +3,7 @@ package io.gridgo.utils.helper;
 import io.gridgo.utils.exception.AssertionException;
 import lombok.NonNull;
 
+@Deprecated
 public final class Assert {
 
     private Assert() {

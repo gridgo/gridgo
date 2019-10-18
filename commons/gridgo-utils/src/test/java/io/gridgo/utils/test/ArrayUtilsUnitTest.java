@@ -70,4 +70,10 @@ public class ArrayUtilsUnitTest {
         var list2 = Arrays.asList(new Integer[] { 1, 2, 3, 4 });
         Assert.assertArrayEquals(arr, ArrayUtils.toArray(Integer.class, list2));
     }
+
+    @Test
+    public void testToString() {
+        var arr = new Integer[] { 1, 2, 3, 4 };
+        Assert.assertEquals("1, 2, 3, 4", ArrayUtils.toString(arr));
+    }
 }

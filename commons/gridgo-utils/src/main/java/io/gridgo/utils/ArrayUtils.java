@@ -310,7 +310,7 @@ public final class ArrayUtils {
             return null;
         StringBuilder sb = new StringBuilder();
         foreachArray(value, (ele, index, end) -> {
-            sb.append(value);
+            sb.append(ele);
             if (!end) {
                 sb.append(", ");
             }
