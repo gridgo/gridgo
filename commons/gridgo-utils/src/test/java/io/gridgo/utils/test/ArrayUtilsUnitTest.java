@@ -1,13 +1,13 @@
 package io.gridgo.utils.test;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import org.junit.Assert;
-import org.junit.Test;
 
 import io.gridgo.utils.ArrayUtils;
 
@@ -24,11 +24,34 @@ public class ArrayUtilsUnitTest {
     }
 
     @Test
-    public void testForEach() {
+    public void testForEachInteger() {
         var atomic = new AtomicInteger(0);
         var list = new Integer[] { 1, 2, 3, 4 };
         ArrayUtils.<Integer>foreach(list, e -> atomic.addAndGet(e));
         Assert.assertEquals(10, atomic.get());
+    }
+
+    @Test
+    public void testForEachInt() {
+        var atomic = new AtomicInteger(0);
+        var list = new int[] { 1, 2, 3, 4 };
+        ArrayUtils.<Integer>foreach(list, e -> atomic.addAndGet(e));
+        Assert.assertEquals(10, atomic.get());
+    }
+
+    @Test
+    public void testForEachBool() {
+        var trueCounter = new AtomicInteger(0);
+        var falseCounter = new AtomicInteger(0);
+        var list = new boolean[] { true, false, true, false };
+        ArrayUtils.<Boolean>foreach(list, e -> {
+            if (e)
+                trueCounter.addAndGet(1);
+            else
+                falseCounter.addAndGet(1);
+        });
+        Assert.assertEquals(2, trueCounter.get());
+        Assert.assertEquals(2, falseCounter.get());
     }
 
     @Test
