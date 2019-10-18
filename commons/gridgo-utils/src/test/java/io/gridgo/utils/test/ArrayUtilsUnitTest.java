@@ -73,7 +73,11 @@ public class ArrayUtilsUnitTest {
 
     @Test
     public void testToString() {
-        var arr = new Integer[] { 1, 2, 3, 4 };
-        Assert.assertEquals("1, 2, 3, 4", ArrayUtils.toString(arr));
+        var arr1 = new Integer[] { 1, 2, 3, 4 };
+        Assert.assertEquals("1, 2, 3, 4", ArrayUtils.toString(arr1));
+        var arr2 = new int[] { 1, 2, 3, 4 };
+        Assert.assertEquals("1, 2, 3, 4", ArrayUtils.toString(arr2));
+        var arr3 = new boolean[] { true, false, true, false };
+        Assert.assertEquals("true, false, true, false", ArrayUtils.toString(arr3));
     }
 }
