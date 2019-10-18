@@ -37,7 +37,7 @@ public class ByteBufferOutputStream extends OutputStream {
     }
 
     @Override
-    public void write(byte[] bytes, int off, int len) {
+    public void write(byte[] bytes, int inputOffset, int len) {
         if (buffer.remaining() < len) {
             if (this.buffer.isDirect() || !this.autoExpandBuffer) {
                 throw new BufferOverflowException();
@@ -45,7 +45,7 @@ public class ByteBufferOutputStream extends OutputStream {
                 expandBuffer(buffer.capacity() + len);
             }
         }
-        buffer.put(bytes, off, len);
+        buffer.put(bytes, inputOffset, len);
     }
 
     public ByteBuffer buffer() {
