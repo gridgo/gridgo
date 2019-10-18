@@ -6,6 +6,8 @@ import org.mockito.Mockito;
 import java.util.List;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 public class HostAndPortTest {
 
@@ -98,7 +100,7 @@ public class HostAndPortTest {
 
     @Test
     public void test_hashCode() {
-        HostAndPort x = Mockito.spy(HostAndPort.newInstance("localhost", 8080));
+        HostAndPort x = spy(HostAndPort.newInstance("localhost", 8080));
         Mockito.when(x.toIpAndPort()).thenThrow(new NullPointerException());
         x.hashCode();
     }
@@ -128,5 +130,20 @@ public class HostAndPortTest {
         assertEquals("127.0.0.1", ans);
 //        assertEquals("127.0.0.1", HostAndPort.newInstance("abc.tiki.vn").getResolvedIpOrDefault("tiki.vn"));
 
+    }
+
+    @Test
+    public void isResolvable_ShouldSuccess() {
+        var in = HostAndPort.newInstance("*");
+        assertTrue(in.isResolvable());
+
+    }
+
+    @Test
+    public void isResolvable_ShouldFalse() {
+        var in = spy(HostAndPort.newInstance("nothing.exist.not-the-name"));
+        when(in.getResolvedIp()).thenThrow(new NullPointerException());
+
+        assertFalse(in.isResolvable());
     }
 }

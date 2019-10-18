@@ -9,7 +9,7 @@ import sun.misc.Unsafe;
 public final class UnsafeUtils {
 
     @Getter
-    private static final Unsafe unsafe = ensureUnsafeAvalable();
+    private static final Unsafe unsafe = ensureUnsafeAvailable();
 
     public static final boolean isUnsafeAvailable() {
         return unsafe != null;
@@ -19,7 +19,7 @@ public final class UnsafeUtils {
         return Optional.ofNullable(unsafe);
     }
 
-    private static final Unsafe ensureUnsafeAvalable() {
+    private static final Unsafe ensureUnsafeAvailable() {
         try {
             Field f = Unsafe.class.getDeclaredField("theUnsafe");
             f.setAccessible(true);
