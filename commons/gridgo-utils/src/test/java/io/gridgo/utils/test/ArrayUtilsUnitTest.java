@@ -79,5 +79,13 @@ public class ArrayUtilsUnitTest {
         Assert.assertEquals("1, 2, 3, 4", ArrayUtils.toString(arr2));
         var arr3 = new boolean[] { true, false, true, false };
         Assert.assertEquals("true, false, true, false", ArrayUtils.toString(arr3));
+        var arr4 = new byte[] { 0x10, 0x20, 0x30, 0x40 };
+        Assert.assertEquals("16, 32, 48, 64", ArrayUtils.toString(arr4));
+        var arr5 = new float[] { 1.23f, 2.34f, 3.45f, 4.56f };
+        Assert.assertEquals("1.23, 2.34, 3.45, 4.56", ArrayUtils.toString(arr5));
+        var arr6 = new long[] { 1, 2, 3, 4 };
+        Assert.assertEquals("1, 2, 3, 4", ArrayUtils.toString(arr6));
+        var arr7 = new char[] { 'a', 'b', 'c', 'd' };
+        Assert.assertEquals("a, b, c, d", ArrayUtils.toString(arr7));
     }
 }
