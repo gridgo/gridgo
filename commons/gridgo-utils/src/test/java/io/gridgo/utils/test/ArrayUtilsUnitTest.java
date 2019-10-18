@@ -87,5 +87,9 @@ public class ArrayUtilsUnitTest {
         Assert.assertEquals("1, 2, 3, 4", ArrayUtils.toString(arr6));
         var arr7 = new char[] { 'a', 'b', 'c', 'd' };
         Assert.assertEquals("a, b, c, d", ArrayUtils.toString(arr7));
+        var arr8 = new double[] { 1.23, 2.34, 3.45, 4.56 };
+        Assert.assertEquals("1.23, 2.34, 3.45, 4.56", ArrayUtils.toString(arr8));
+        var arr9 = new short[] { 1, 2, 3, 4 };
+        Assert.assertEquals("1, 2, 3, 4", ArrayUtils.toString(arr9));
     }
 }
