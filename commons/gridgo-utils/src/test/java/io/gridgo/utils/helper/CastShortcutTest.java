@@ -6,7 +6,7 @@ import static org.junit.Assert.*;
 
 public class CastShortcutTest {
 
-    class Father implements CastShortcut {
+    class Father implements CastShortcut<Father> {
 
     }
 
@@ -20,5 +20,4 @@ public class CastShortcutTest {
         var casted = son.castTo(Son.class);
         assertNotNull(casted);
     }
-
 }
