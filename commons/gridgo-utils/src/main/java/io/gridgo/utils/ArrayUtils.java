@@ -224,7 +224,7 @@ public final class ArrayUtils {
         for (int i = 0; i < result.length; i++) {
             result[i] = (T) list.get(i);
         }
-        return (T[]) result;
+        return result;
     }
 
     public static Object toPrimitiveArray(List<?> list, Class<?> clazz) {
@@ -306,16 +306,15 @@ public final class ArrayUtils {
     }
 
     public static String toString(Object value) {
-        if (value != null) {
-            StringBuilder sb = new StringBuilder();
-            foreachArray(value, (ele, index, end) -> {
-                sb.append(value);
-                if (!end) {
-                    sb.append(", ");
-                }
-            });
-            return sb.toString();
-        }
-        return null;
+        if (value == null)
+            return null;
+        StringBuilder sb = new StringBuilder();
+        foreachArray(value, (ele, index, end) -> {
+            sb.append(ele);
+            if (!end) {
+                sb.append(", ");
+            }
+        });
+        return sb.toString();
     }
 }
