@@ -19,4 +19,8 @@ public interface ComponentLifecycle extends NamedComponent {
     public default void stop() {
 
     }
+    
+    public default boolean isStarted() {
+        throw new UnsupportedOperationException();
+    }
 }

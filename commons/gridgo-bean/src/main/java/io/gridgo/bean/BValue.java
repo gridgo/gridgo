@@ -18,6 +18,26 @@ public interface BValue extends BElement {
     }
 
     @Override
+    default boolean isArray() {
+        return false;
+    }
+
+    @Override
+    default boolean isValue() {
+        return true;
+    }
+
+    @Override
+    default boolean isObject() {
+        return false;
+    }
+
+    @Override
+    default boolean isReference() {
+        return false;
+    }
+
+    @Override
     default BType getType() {
         if (this.isNull()) {
             return BType.NULL;

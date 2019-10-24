@@ -6,14 +6,15 @@
 	<parent>
 		<groupId>io.gridgo</groupId>
 		<artifactId>gridgo-base</artifactId>
-		<version>0.6.1</version>
+		<version>0.7.0</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<modules>
 		<module>gridgo-utils</module>
-		<module>gridgo-bean</module>
 		<module>gridgo-formatting</module>
+		<module>gridgo-pojo</module>
+		<module>gridgo-bean</module>
 		<module>gridgo-registry</module>
 		<module>gridgo-framework</module>
 	</modules>

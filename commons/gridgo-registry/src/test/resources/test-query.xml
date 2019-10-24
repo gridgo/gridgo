@@ -1,0 +1,4 @@
+<queries>
+	<query name="key1">select * from t1</query>
+	<query name="key2">select * from t2</query>
+</queries>

@@ -5,12 +5,12 @@
 	<parent>
 		<groupId>io.gridgo</groupId>
 		<artifactId>gridgo-commons</artifactId>
-		<version>0.6.1</version>
+		<version>0.7.0</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<properties>
-		<msgpack.version>0.8.16</msgpack.version>
+		<msgpack.version>0.8.17</msgpack.version>
 		<jsonsmart.version>2.3</jsonsmart.version>
 		<evalex.version>2.0</evalex.version>
 		<reflections.version>0.9.11</reflections.version>
@@ -23,29 +23,21 @@
 			<artifactId>msgpack-core</artifactId>
 			<version>${msgpack.version}</version>
 		</dependency>
-
 		<dependency>
-			<groupId>io.gridgo</groupId>
-			<artifactId>gridgo-utils</artifactId>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>gridgo-pojo</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-
 		<dependency>
 			<groupId>net.minidev</groupId>
 			<artifactId>json-smart</artifactId>
 			<version>${jsonsmart.version}</version>
 		</dependency>
-
 		<dependency>
 			<groupId>com.udojava</groupId>
 			<artifactId>EvalEx</artifactId>
 			<version>${evalex.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.reflections</groupId>
-			<artifactId>reflections</artifactId>
-			<version>${reflections.version}</version>
+			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 </project>

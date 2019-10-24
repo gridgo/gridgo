@@ -13,6 +13,7 @@ import io.gridgo.bean.BReference;
 import io.gridgo.bean.BType;
 import io.gridgo.bean.BValue;
 import io.gridgo.bean.exceptions.InvalidTypeException;
+import io.gridgo.bean.impl.BReferenceBeautifulPrint;
 import io.gridgo.utils.StringUtils;
 import io.gridgo.utils.exception.RuntimeIOException;
 import lombok.NonNull;
@@ -52,8 +53,8 @@ public final class BPrinter {
 
     private static final void printObject(Appendable writer, BObject object, String name, int numTab)
             throws IOException {
-        StringUtils.tabs(numTab, writer);
         if (name != null) {
+            StringUtils.tabs(numTab, writer);
             writer.append(name).append(": OBJECT = {");
         } else {
             writer.append("{");
@@ -77,20 +78,25 @@ public final class BPrinter {
     private static final void printArray(Appendable writer, BArray array, String name, int numTabs) throws IOException {
         StringUtils.tabs(numTabs, writer);
         if (name == null) {
-            writer.append("[\n");
+            writer.append("[");
         } else {
-            writer.append(name).append(": ARRAY = [\n");
+            writer.append(name).append(": ARRAY = [");
         }
-        for (int i = 0; i < array.size(); i++) {
-            printAny(writer, array.get(i), "[" + i + "]", numTabs + 1);
-            if (i < array.size() - 1) {
-                writer.append(",\n");
-            } else {
-                writer.append("\n");
+        if (array.size() > 0) {
+            writer.append('\n');
+            for (int i = 0; i < array.size(); i++) {
+                printAny(writer, array.get(i), "[" + i + "]", numTabs + 1);
+                if (i < array.size() - 1) {
+                    writer.append(",\n");
+                } else {
+                    writer.append('\n');
+                }
             }
+            StringUtils.tabs(numTabs, writer);
+            writer.append(']');
+        } else {
+            writer.append(']');
         }
-        StringUtils.tabs(numTabs, writer);
-        writer.append("]");
     }
 
     private static final void printValue(Appendable writer, BValue value, String name, int numTab) throws IOException {
@@ -112,11 +118,35 @@ public final class BPrinter {
         StringUtils.tabs(numTab, writer);
         BType type = reference.getType();
         Object refObj = reference.getReference();
-        String content = (refObj == null ? "null" : refObj.getClass().getName());
-        if (name == null) {
-            writer.append("(").append(type.name()).append(" = ").append(content).append(")");
+        String content = null;
+        if (refObj == null) {
+            content = "null";
         } else {
-            writer.append(name).append(": ").append(type.name()).append(" = ").append(content);
+            if (refObj.getClass().isAnnotationPresent(BReferenceBeautifulPrint.class)) {
+                if (name != null) {
+                    writer.append(name).append(": ") //
+                            .append(type.name()) //
+                            .append(" = ") //
+                            .append(refObj.getClass().getName()) //
+                            .append(" ");
+
+                    printObject(writer, BObject.ofPojo(refObj), null, numTab);
+                } else {
+                    writer.append('(').append(type.name()).append(" = ").append(refObj.getClass().getName())
+                            .append(' ');
+                    printObject(writer, BObject.ofPojo(refObj), null, numTab);
+                    writer.append(')');
+                }
+            } else {
+                content = refObj.getClass().getName();
+            }
+        }
+        if (content != null) {
+            if (name == null) {
+                writer.append("(").append(type.name()).append(" = ").append(content).append(")");
+            } else {
+                writer.append(name).append(": ").append(type.name()).append(" = ").append(content);
+            }
         }
     }
 }

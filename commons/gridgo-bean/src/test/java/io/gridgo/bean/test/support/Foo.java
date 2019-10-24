@@ -1,25 +1,32 @@
 package io.gridgo.bean.test.support;
 
+import io.gridgo.bean.impl.BReferenceBeautifulPrint;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 
-@Getter
-@Setter
-@Builder
-@AllArgsConstructor
+@Data
+@SuperBuilder
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
-public class Foo {
+@AllArgsConstructor
+@BReferenceBeautifulPrint
+//@FieldNameTransform(value = "{{fieldName > camelToSnake}}")
+public class Foo extends SuperFoo {
 
-    private int i;
+    private int intValue;
 
-    private int[] arr;
+    // @Transient
+    private int[] intArrayValue;
 
-    private double d;
+    private double doubleValue;
 
-    private String s;
+//    @FieldName("string_value_override")
+    private String stringValue;
 
-    private Bar b;
+    private Bar barValue;
 }

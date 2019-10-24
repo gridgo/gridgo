@@ -5,10 +5,19 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 import io.gridgo.utils.exception.UnsupportedTypeException;
 
 public final class ByteArrayUtils {
+
+    private static final byte ZERO = (byte) 0;
+    private static final byte[] NUMBER_ZERO_BYTES = new byte[8];
+    private static final ThreadLocal<ByteBuffer> NUMBER_BYTE_BUFFERS = new ThreadLocal<ByteBuffer>() {
+        protected ByteBuffer initialValue() {
+            return ByteBuffer.allocate(8);
+        }
+    };
 
     private ByteArrayUtils() {
         // private constructor
@@ -62,6 +71,7 @@ public final class ByteArrayUtils {
         return buffer.array();
     }
 
+    @Deprecated
     public static final Number bytesToNumber(byte[] bytes, boolean isDecimal) {
         if (bytes == null)
             return null;
@@ -89,62 +99,70 @@ public final class ByteArrayUtils {
     public static final <T> T bytesToPrimitive(Class<T> clazz, byte[] bytes) {
         if (clazz == null || bytes == null)
             return null;
+        if (clazz == byte[].class)
+            return (T) bytes;
         if (clazz == Boolean.class || clazz == Boolean.TYPE)
             return (T) bytesToBoolean(bytes);
-        if (clazz == String.class)
-            return (T) new String(bytes);
         if (clazz == Character.class || clazz == Character.TYPE)
             return (T) bytesToChar(bytes);
-        if (clazz == Byte.class)
-            return (T) (Byte) (bytes.length == 0 ? ((byte) 0) : bytes[0]);
-        if (clazz == Short.class)
+        if (clazz == Byte.class || clazz == Byte.TYPE)
+            return (T) bytesToByte(bytes);
+        if (clazz == Short.class || clazz == Short.TYPE)
             return (T) bytesToShort(bytes);
-        if (clazz == Integer.class)
+        if (clazz == Integer.class || clazz == Integer.TYPE)
             return (T) bytesToInt(bytes);
-        if (clazz == Long.class)
+        if (clazz == Long.class || clazz == Long.TYPE)
             return (T) bytesToLong(bytes);
+        if (clazz == Float.class || clazz == Float.TYPE)
+            return (T) bytesToFloat(bytes);
+        if (clazz == Double.class || clazz == Double.TYPE)
+            return (T) bytesToDouble(bytes);
         if (clazz == BigInteger.class)
             return (T) new BigInteger(bytes);
-        if (clazz == Float.class)
-            return (T) bytesToFloat(bytes);
-        if (clazz == Double.class)
-            return (T) bytesToDouble(bytes);
         if (clazz == BigDecimal.class)
             return (T) new BigDecimal(new BigInteger(bytes));
+        if (clazz == String.class)
+            return (T) new String(bytes);
         throw new UnsupportedTypeException("Cannot convert bytes to primitive type " + clazz);
     }
 
-    private static Double bytesToDouble(byte[] bytes) {
-        if (bytes.length < Double.BYTES)
-            return bytesToNumber(bytes, true).doubleValue();
-        return ByteBuffer.wrap(bytes).getDouble();
+    public static Double bytesToDouble(byte[] bytes) {
+        return bigEndianNumberBuffer(bytes, Double.BYTES).getDouble();
     }
 
-    private static Float bytesToFloat(byte[] bytes) {
-        if (bytes.length < Float.BYTES)
-            return bytesToNumber(bytes, true).floatValue();
-        return ByteBuffer.wrap(bytes).getFloat();
+    public static Float bytesToFloat(byte[] bytes) {
+        return bigEndianNumberBuffer(bytes, Float.BYTES).getFloat();
     }
 
-    private static Long bytesToLong(byte[] bytes) {
-        if (bytes.length < Long.BYTES)
-            return bytesToNumber(bytes, false).longValue();
-        return ByteBuffer.wrap(bytes).getLong();
+    public static Long bytesToLong(byte[] bytes) {
+        return bigEndianNumberBuffer(bytes, Long.BYTES).getLong();
     }
 
-    private static Integer bytesToInt(byte[] bytes) {
-        if (bytes.length < Integer.BYTES)
-            return bytesToNumber(bytes, false).intValue();
-        return ByteBuffer.wrap(bytes).getInt();
+    public static Integer bytesToInt(byte[] bytes) {
+        return bigEndianNumberBuffer(bytes, Integer.BYTES).getInt();
     }
 
-    private static Short bytesToShort(byte[] bytes) {
-        if (bytes.length < Short.BYTES)
-            return bytesToNumber(bytes, false).shortValue();
-        return ByteBuffer.wrap(bytes).getShort();
+    public static Short bytesToShort(byte[] bytes) {
+        return bigEndianNumberBuffer(bytes, Short.BYTES).getShort();
     }
 
-    private static Character bytesToChar(byte[] bytes) {
+    public static Byte bytesToByte(byte[] bytes) {
+        return bytes.length > 0 ? bytes[0] : ZERO;
+    }
+
+    private static ByteBuffer bigEndianNumberBuffer(byte[] bytes, int minLength) {
+        if (bytes.length >= minLength)
+            return ByteBuffer.wrap(bytes);
+
+        return NUMBER_BYTE_BUFFERS.get() // only 8bytes length initialized, use for number only
+                .clear() // clear current buffer
+                .limit(minLength) // set limit, not really necessary
+                .put(NUMBER_ZERO_BYTES, 0, minLength - bytes.length) // padded byte zero
+                .put(bytes) // fill the rest by input bytes
+                .flip(); // flip for caller to read
+    }
+
+    public static Character bytesToChar(byte[] bytes) {
         if (bytes.length == 0)
             return Character.valueOf('\0');
         if (bytes.length == 1)
@@ -152,7 +170,7 @@ public final class ByteArrayUtils {
         return Character.valueOf(ByteBuffer.wrap(bytes).getChar());
     }
 
-    private static Boolean bytesToBoolean(byte[] bytes) {
+    public static Boolean bytesToBoolean(byte[] bytes) {
         if (bytes.length == 0)
             return Boolean.FALSE;
         for (byte b : bytes) {
@@ -209,5 +227,20 @@ public final class ByteArrayUtils {
                     / 2] = (byte) ((Character.digit(hex.charAt(i), 16) << 4) + Character.digit(hex.charAt(i + 1), 16));
         }
         return data;
+    }
+
+    public static byte[] leftTrimZero(byte[] bytes) {
+        // left trim byte array
+        int lastZeroIndex = -1;
+        for (int j = 0; j < bytes.length; j++) {
+            if (bytes[j] != (byte) 0)
+                break;
+            lastZeroIndex = j;
+        }
+
+        if (lastZeroIndex >= 0)
+            return Arrays.copyOfRange(bytes, lastZeroIndex + 1, bytes.length);
+
+        return bytes;
     }
 }

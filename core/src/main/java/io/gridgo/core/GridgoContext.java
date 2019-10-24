@@ -1,5 +1,6 @@
 package io.gridgo.core;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -52,4 +53,6 @@ public interface GridgoContext extends GatewayContainer, ComponentLifecycle {
     public ConnectorFactory getConnectorFactory();
 
     public Consumer<Throwable> getExceptionHandler();
+
+    public List<ContextAwareComponent> getComponents();
 }

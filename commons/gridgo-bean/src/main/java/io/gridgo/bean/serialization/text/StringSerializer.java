@@ -10,6 +10,7 @@ import io.gridgo.bean.exceptions.BeanSerializationException;
 import io.gridgo.bean.serialization.BSerializationPlugin;
 import io.gridgo.bean.serialization.BSerializer;
 import io.gridgo.utils.exception.RuntimeIOException;
+import lombok.NonNull;
 
 @BSerializationPlugin(StringSerializer.NAME)
 public class StringSerializer implements BSerializer {
@@ -17,7 +18,7 @@ public class StringSerializer implements BSerializer {
     public static final String NAME = "string";
 
     @Override
-    public void serialize(BElement element, OutputStream out) {
+    public void serialize(@NonNull BElement element, @NonNull OutputStream out) {
         if (!element.isValue())
             throw new BeanSerializationException(
                     String.format("Bean of type [%s] cannot be serialized as String", element.getType()));
@@ -29,7 +30,7 @@ public class StringSerializer implements BSerializer {
     }
 
     @Override
-    public BElement deserialize(InputStream in) {
+    public BElement deserialize(@NonNull InputStream in) {
         try {
             return BValue.of(in.readAllBytes());
         } catch (IOException e) {

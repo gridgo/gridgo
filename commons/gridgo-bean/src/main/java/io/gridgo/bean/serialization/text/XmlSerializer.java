@@ -7,6 +7,7 @@ import io.gridgo.bean.BElement;
 import io.gridgo.bean.factory.BFactory;
 import io.gridgo.bean.serialization.AbstractBSerializer;
 import io.gridgo.bean.serialization.BSerializationPlugin;
+import lombok.NonNull;
 
 @BSerializationPlugin(XmlSerializer.NAME)
 public class XmlSerializer extends AbstractBSerializer {
@@ -16,18 +17,18 @@ public class XmlSerializer extends AbstractBSerializer {
     private BXmlReader xmlParser = null;
 
     @Override
-    public void setFactory(BFactory factory) {
+    public void setFactory(@NonNull BFactory factory) {
         super.setFactory(factory);
         xmlParser = new BXmlReader(factory);
     }
 
     @Override
-    public void serialize(BElement element, OutputStream out) {
+    public void serialize(@NonNull BElement element, @NonNull OutputStream out) {
         BXmlWriter.write(out, element);
     }
 
     @Override
-    public BElement deserialize(InputStream in) {
+    public BElement deserialize(@NonNull InputStream in) {
         return xmlParser.parse(in);
     }
 }

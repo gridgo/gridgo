@@ -1,5 +1,9 @@
 package io.gridgo.utils;
 
+import static io.gridgo.utils.ArrayUtils.toArray;
+import static io.gridgo.utils.ArrayUtils.toPrimitiveArray;
+import static io.gridgo.utils.PrimitiveUtils.isPrimitive;
+
 import java.beans.Statement;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -14,6 +18,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -127,19 +132,21 @@ public final class ObjectUtils {
             this.apply(obj, PrimitiveUtils.getValueFrom(this.getParamType(), value));
         }
 
-        public void apply(Object obj, Object value) {
+        public void apply(Object target, Object value) {
             try {
                 if (this.usingMethod) {
-                    this.method.invoke(obj, value);
+                    this.method.invoke(target, value);
                 } else {
                     if (field.trySetAccessible()) {
-                        field.set(obj, value);
+                        field.set(target, value);
                     } else {
                         throw new ObjectReflectiveException("Cannot access field " + field.getName());
                     }
                 }
             } catch (Exception ex) {
-                throw new ObjectReflectiveException(ex);
+                throw new ObjectReflectiveException("error while trying to set value to field: "
+                        + (usingMethod ? method.getName() : field.getName()) + ", target: " + target + ", value: "
+                        + value, ex);
             }
         }
 
@@ -160,6 +167,7 @@ public final class ObjectUtils {
         }
     }
 
+    @Deprecated
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public static final <T> T fromMap(Class<T> clazz, Map<String, ?> data)
             throws InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
@@ -178,8 +186,8 @@ public final class ObjectUtils {
                 final Setter setter = classSetter.get(potentialClassSetter);
                 if (value == null) {
                     setter.apply(result, null);
-                } else if (PrimitiveUtils.isPrimitive(value.getClass())) {
-                    if (!PrimitiveUtils.isPrimitive(setter.getParamType())) {
+                } else if (isPrimitive(value.getClass())) {
+                    if (!isPrimitive(setter.getParamType())) {
                         throw new TypeMismatchException("Cannot set value " + value.getClass()
                                 + " to a setter which accept " + setter.getParamType());
                     }
@@ -192,25 +200,26 @@ public final class ObjectUtils {
                     }
                 } else if (ArrayUtils.isArrayOrCollection(setter.getParamType())
                         && ArrayUtils.isArrayOrCollection(value.getClass())) {
-                    final List list = new ArrayList<>();
+                    final Collection collection = Set.class.isAssignableFrom(setter.getParamType()) ? new HashSet<>()
+                            : new LinkedList<>();
                     ArrayUtils.foreach(value, element -> {
                         try {
-                            if (PrimitiveUtils.isPrimitive(element.getClass())) {
-                                list.add(PrimitiveUtils.getValueFrom(setter.getComponentType(), element));
+                            if (isPrimitive(element.getClass())) {
+                                collection.add(PrimitiveUtils.getValueFrom(setter.getComponentType(), element));
                             } else if (element instanceof Map) {
-                                list.add(fromMap(setter.getComponentType(), (Map) element));
+                                collection.add(fromMap(setter.getComponentType(), (Map) element));
                             }
                         } catch (Exception e) {
                             throw new RuntimeException(e);
                         }
                     });
                     if (Collection.class.isAssignableFrom(setter.getParamType())) {
-                        setter.apply(result, list);
+                        setter.apply(result, collection);
                     } else if (setter.getParamType().isArray()) {
                         if (setter.getComponentType().isPrimitive()) {
-                            setter.apply(result, ArrayUtils.toPrimitiveTypeArray(setter.getComponentType(), list));
+                            setter.apply(result, toPrimitiveArray((List) collection, setter.getComponentType()));
                         } else {
-                            setter.apply(result, ArrayUtils.toArray(setter.getComponentType(), list));
+                            setter.apply(result, toArray(setter.getComponentType(), (List) collection));
                         }
                     }
                 } else {
@@ -255,8 +264,8 @@ public final class ObjectUtils {
                 }
                 Method setter = null;
                 if (setters.size() > 0) {
-                    String fieldName = StringUtils.lowerCaseFirstLetter(
-                            potentialSetter.substring(SETTER_PREFIX.length()));
+                    String fieldName = StringUtils
+                            .lowerCaseFirstLetter(potentialSetter.substring(SETTER_PREFIX.length()));
                     switch (setters.size()) {
                     case 1:
                         setter = setters.get(0);
@@ -387,8 +396,8 @@ public final class ObjectUtils {
             if (method.getParameterCount() == 0) {
                 if (methodName.startsWith(GETTER_PREFIX) && methodName.length() > GETTER_PREFIX.length()) {
                     try {
-                        String fieldName = StringUtils.lowerCaseFirstLetter(
-                                methodName.substring(GETTER_PREFIX.length()));
+                        String fieldName = StringUtils
+                                .lowerCaseFirstLetter(methodName.substring(GETTER_PREFIX.length()));
                         classGetter.put(fieldName, new Getter(method));
                     } catch (IllegalArgumentException e) {
                         throw e;
@@ -396,8 +405,8 @@ public final class ObjectUtils {
                 } else if (methodName.startsWith(BOOLEAN_GETTER_PREFIX)
                         && methodName.length() > BOOLEAN_GETTER_PREFIX.length()) {
                     try {
-                        String fieldName = StringUtils.lowerCaseFirstLetter(
-                                methodName.substring(BOOLEAN_GETTER_PREFIX.length()));
+                        String fieldName = StringUtils
+                                .lowerCaseFirstLetter(methodName.substring(BOOLEAN_GETTER_PREFIX.length()));
                         classGetter.put(fieldName, new Getter(method));
                     } catch (IllegalArgumentException e) {
                         throw e;
@@ -410,6 +419,7 @@ public final class ObjectUtils {
         return classGetter;
     }
 
+    @Deprecated
     @SuppressWarnings("unchecked")
     public static final Map<String, Object> toMap(Object obj) {
         if (obj == null) {
@@ -440,7 +450,7 @@ public final class ObjectUtils {
                 public void apply(Object element) {
                     if (element == null) {
                         list.add(null);
-                    } else if (PrimitiveUtils.isPrimitive(element.getClass())) {
+                    } else if (isPrimitive(element.getClass())) {
                         list.add(element);
                     } else if (ArrayUtils.isArrayOrCollection(element.getClass())) {
                         list.add(toList(element));
@@ -459,12 +469,13 @@ public final class ObjectUtils {
         return list;
     }
 
+    @Deprecated
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public static final Map<String, Object> toMapRecursive(Object obj) {
         if (obj == null) {
             return null;
         }
-        if (PrimitiveUtils.isPrimitive(obj.getClass())) {
+        if (isPrimitive(obj.getClass())) {
             throw new RuntimeException("cannot convert primitive type : " + obj.getClass() + " to Map");
         }
         if (ArrayUtils.isArrayOrCollection(obj.getClass())) {
@@ -479,7 +490,7 @@ public final class ObjectUtils {
             Object value = child.getValue();
             if (value == null) {
                 map.put(field, null);
-            } else if (PrimitiveUtils.isPrimitive(value.getClass())) {
+            } else if (isPrimitive(value.getClass())) {
                 map.put(field, value);
             } else if (ArrayUtils.isArrayOrCollection(value.getClass())) {
                 if (value.getClass() == byte[].class) {
@@ -492,7 +503,7 @@ public final class ObjectUtils {
                 for (Entry<?, ?> entry : ((Map<?, ?>) value).entrySet()) {
                     if (entry.getValue() == null) {
                         childMap.put(String.valueOf(entry.getKey()), null);
-                    } else if (PrimitiveUtils.isPrimitive(((Object) entry.getValue()).getClass())) {
+                    } else if (isPrimitive(((Object) entry.getValue()).getClass())) {
                         childMap.put(String.valueOf(entry.getKey()), (Object) entry.getValue());
                     } else if (ArrayUtils.isArrayOrCollection(entry.getValue().getClass())) {
                         childMap.put(String.valueOf(entry.getKey()),
@@ -519,7 +530,7 @@ public final class ObjectUtils {
 
     public static void assembleFromMap(Class<?> clazz, Object config, Map<String, Object> parameters) {
         var fieldMap = Arrays.stream(clazz.getDeclaredFields())
-                             .collect(Collectors.toMap(field -> field.getName(), field -> field.getType()));
+                .collect(Collectors.toMap(field -> field.getName(), field -> field.getType()));
         for (String attr : parameters.keySet()) {
             if (!fieldMap.containsKey(attr))
                 continue;
@@ -529,7 +540,7 @@ public final class ObjectUtils {
     }
 
     public static void setValue(Object config, String attr, Object value) {
-        var setter = "set" + attr.substring(0, 1).toUpperCase() + attr.substring(1);
+        var setter = "set" + StringUtils.upperCaseFirstLetter(attr);
         var stmt = new Statement(config, setter, new Object[] { value });
         try {
             stmt.execute();

@@ -7,9 +7,8 @@ import org.slf4j.Logger;
 import io.gridgo.framework.ComponentLifecycle;
 import io.gridgo.utils.ThreadUtils;
 import io.gridgo.utils.helper.Loggable;
-import io.gridgo.utils.helper.Startable;
 
-public abstract class AbstractComponentLifecycle implements ComponentLifecycle, Loggable, Startable {
+public abstract class AbstractComponentLifecycle implements ComponentLifecycle, Loggable {
 
     private final AtomicBoolean started = new AtomicBoolean(false);
 
@@ -25,9 +24,7 @@ public abstract class AbstractComponentLifecycle implements ComponentLifecycle, 
 
     @Override
     public final boolean isStarted() {
-        ThreadUtils.busySpin(10, () -> {
-            return this.started.get() ^ this.running;
-        });
+        ThreadUtils.busySpin(() -> started.get() ^ running);
         return this.running;
     }
 

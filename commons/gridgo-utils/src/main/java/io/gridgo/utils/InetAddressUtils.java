@@ -15,8 +15,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class InetAddressUtils {
 
-    public static final Pattern IPV4_PATTERN = Pattern.compile("^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
-            + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])$");
+    public static final Pattern IPV4_PATTERN = Pattern.compile(
+            "^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
+                    + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])$");
 
     public static final Pattern IPV6_STD_PATTERN = Pattern.compile("^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$");
 
@@ -148,7 +149,8 @@ public class InetAddressUtils {
     public static String resolve(String input, boolean preferIPv6, boolean preferInterface) {
         if (input == null)
             return null;
-        String ip = preferInterface ? resolveIPFromInterface(input, preferIPv6) : resolveIPFromDomain(input, preferIPv6);
+        String ip = preferInterface ? resolveIPFromInterface(input, preferIPv6)
+                : resolveIPFromDomain(input, preferIPv6);
         if (ip == null) {
             ip = preferInterface ? resolveIPFromDomain(input, preferIPv6) : resolveIPFromInterface(input, preferIPv6);
         }

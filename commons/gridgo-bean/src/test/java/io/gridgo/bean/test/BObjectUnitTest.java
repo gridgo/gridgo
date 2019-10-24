@@ -1,5 +1,7 @@
 package io.gridgo.bean.test;
 
+import static org.junit.Assert.assertEquals;
+
 import java.sql.Date;
 import java.util.Collections;
 import java.util.List;
@@ -20,14 +22,14 @@ public class BObjectUnitTest {
     @Test
     public void testSetAny() {
         var obj = BObject.ofEmpty() //
-                         .set("int", BValue.of(1)) //
-                         .setAny("long", 1L) //
-                         .setAny("char", 'a') //
-                         .setAny("str", "hello") //
-                         .setAny("double", 1.11) //
-                         .setAny("byte", (byte) 1) //
-                         .setAny("arr", new int[] { 1, 2, 3 }) //
-                         .set("obj", BObject.ofEmpty().setAny("int", 2));
+                .set("int", BValue.of(1)) //
+                .setAny("long", 1L) //
+                .setAny("char", 'a') //
+                .setAny("str", "hello") //
+                .setAny("double", 1.11) //
+                .setAny("byte", (byte) 1) //
+                .setAny("arr", new int[] { 1, 2, 3 }) //
+                .set("obj", BObject.ofEmpty().setAny("int", 2));
         assertObject(obj);
         assertObject(obj.deepClone());
         obj.setAnyIfAbsent("arr", 1);
@@ -88,33 +90,36 @@ public class BObjectUnitTest {
     @Test
     public void testPojoRecursive() {
         var bar = Bar.builder().b(true).build();
-        var pojo = Foo.builder().d(1.0).i(1).s("hello").b(bar).build();
-        var deserialized = BObject.ofPojoRecursive(pojo).toPojo(Foo.class);
-        Assert.assertEquals(pojo.getD(), deserialized.getD(), 0.0);
-        Assert.assertEquals(pojo.getI(), deserialized.getI());
-        Assert.assertEquals(pojo.getS(), deserialized.getS());
-        Assert.assertEquals(pojo.getB().isB(), deserialized.getB().isB());
+        var pojo = Foo.builder().doubleValue(1.0).intValue(1).stringValue("hello").barValue(bar).build();
+        BObject bObject = BObject.ofPojo(pojo);
+        System.out.println(bObject);
+        var deserialized = bObject.toPojo(Foo.class);
+        Assert.assertEquals(pojo.getDoubleValue(), deserialized.getDoubleValue(), 0.0);
+        Assert.assertEquals(pojo.getIntValue(), deserialized.getIntValue());
+        Assert.assertEquals(pojo.getStringValue(), deserialized.getStringValue());
+        Assert.assertEquals(pojo.getBarValue().isB(), deserialized.getBarValue().isB());
     }
 
     @Test
     public void testPojo() {
-        var pojo = Foo.builder().d(1.0).i(1).s("hello").build();
+        var pojo = Foo.builder().doubleValue(1.0).intValue(1).stringValue("hello").build();
         var deserialized = BObject.ofPojo(pojo).toPojo(Foo.class);
-        Assert.assertEquals(pojo.getD(), deserialized.getD(), 0.0);
-        Assert.assertEquals(pojo.getI(), deserialized.getI());
-        Assert.assertEquals(pojo.getS(), deserialized.getS());
+        Assert.assertEquals(pojo.getDoubleValue(), deserialized.getDoubleValue(), 0.0);
+        Assert.assertEquals(pojo.getIntValue(), deserialized.getIntValue());
+        Assert.assertEquals(pojo.getStringValue(), deserialized.getStringValue());
     }
 
     @Test
     public void testWriteString() {
-        var pojo = Foo.builder().d(1.0).i(1).arr(new int[] { 1, 2 }).s("hello").build();
+        var pojo = Foo.builder().doubleValue(1.0).intValue(1).intArrayValue(new int[] { 1, 2 }).stringValue("hello")
+                .build();
         var obj = BObject.ofPojo(pojo);
         Assert.assertNotNull(obj.toString());
     }
 
     @Test
     public void testBytes() {
-        var obj = BObject.of("id", 1).setAny("_id", new Object()).setAny("abc", null);
+        var obj = BObject.of("id", 1).setAny("_id", new int[] { 1, 2, 3 }).setAny("abc", null);
         var clone = BElement.ofBytes(obj.toBytes());
         Assert.assertNotNull(clone);
         Assert.assertTrue(clone.isObject());
@@ -134,7 +139,11 @@ public class BObjectUnitTest {
     public void testDate() {
         var beanWithDate = new BeanWithDate();
         beanWithDate.setDate(new Date(1555411032310L));
+
         beanWithDate = BObject.ofPojo(beanWithDate).toPojo(BeanWithDate.class);
-        System.out.println(beanWithDate.getDate());
+        assertEquals("2019-04-16", beanWithDate.getDate().toString());
+
+        var bObj = BObject.ofEmpty().setAny("date", new Date(System.currentTimeMillis()));
+        System.out.println(bObj.toJson());
     }
 }

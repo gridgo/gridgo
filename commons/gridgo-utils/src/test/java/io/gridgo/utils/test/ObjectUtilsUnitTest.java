@@ -11,6 +11,7 @@ import org.junit.Test;
 import io.gridgo.utils.ObjectUtils;
 import io.gridgo.utils.test.support.TestObject;
 
+@SuppressWarnings("deprecation")
 public class ObjectUtilsUnitTest {
 
     @Test

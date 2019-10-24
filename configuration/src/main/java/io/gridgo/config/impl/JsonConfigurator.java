@@ -7,8 +7,10 @@ import java.io.InputStream;
 import java.util.Optional;
 
 import io.gridgo.bean.BElement;
+import io.gridgo.config.support.annotations.ConfiguratorRegistry;
 import io.gridgo.utils.exception.RuntimeIOException;
 
+@ConfiguratorRegistry("json")
 public class JsonConfigurator extends AbstractLocalConfigurator {
 
     private BElement config;

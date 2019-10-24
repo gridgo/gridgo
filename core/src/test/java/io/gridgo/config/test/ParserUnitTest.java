@@ -15,7 +15,7 @@ public class ParserUnitTest {
 
     @Test
     public void testParser() {
-        var json = JsonConfigurator.ofResource("test.json");
+        var json = JsonConfigurator.ofResource("test99.json");
         json.start();
         var parser = new DefaultContextConfigurationParser();
         var obj = json.get().orElseThrow();
@@ -30,7 +30,7 @@ public class ParserUnitTest {
                 context.getComponentsContexts().get(0).getComponent());
         Assert.assertFalse(context.getGatewayContexts().get(0).getConnectorContexts().isEmpty());
         Assert.assertFalse(context.getGatewayContexts().get(0).getSubscriberContexts().isEmpty());
-        Assert.assertEquals("test:xyz",
+        Assert.assertEquals("test99:xyz",
                 context.getGatewayContexts().get(0).getConnectorContexts().get(0).getEndpoint());
         Assert.assertEquals("class:io.gridgo.config.test.TestProcessor",
                 context.getGatewayContexts().get(0).getSubscriberContexts().get(0).getProcessor());
@@ -50,7 +50,7 @@ public class ParserUnitTest {
                                            .register("testInstrumenter2",
                                                    (ExecutionStrategyInstrumenter) (msg, deferred, r) -> r);
         registry.register("connectorContextBuilder", new DefaultConnectorContextBuilder().setRegistry(registry));
-        var configurator = JsonConfigurator.ofResource("test.json");
+        var configurator = JsonConfigurator.ofResource("test99.json");
         var context = new ConfiguratorContextBuilder().setConfigurator(configurator).setRegistry(registry).build();
         Assert.assertTrue(context.findGateway("test").isPresent());
     }

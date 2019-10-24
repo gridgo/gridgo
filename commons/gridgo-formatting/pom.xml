@@ -5,12 +5,13 @@
 	<parent>
 		<groupId>io.gridgo</groupId>
 		<artifactId>gridgo-commons</artifactId>
-		<version>0.6.1</version>
+		<version>0.7.0</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<properties>
 		<evalex.version>2.0</evalex.version>
+		<apache.common.text.version>1.4</apache.common.text.version>
 	</properties>
 
 	<dependencies>
@@ -19,11 +20,16 @@
 			<artifactId>gridgo-utils</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-text</artifactId>
+			<version>${apache.common.text.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>com.udojava</groupId>
 			<artifactId>EvalEx</artifactId>
 			<version>${evalex.version}</version>
+			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 </project>

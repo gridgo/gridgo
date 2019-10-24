@@ -14,6 +14,55 @@ public class PrimitiveUtils {
         // make constructor private to prevent other where create new instance
     }
 
+    public static boolean isWrapperType(Class<?> type) {
+        return type == Void.class // this case may never reached...
+                || type == Boolean.class //
+                || type == Character.class //
+                || type == Byte.class //
+                || type == Short.class //
+                || type == Integer.class //
+                || type == Long.class //
+                || type == Float.class //
+                || type == Double.class;
+    }
+
+    public static Class<?> getWrapperType(Class<?> primitiveType) {
+        switch (primitiveType.getName()) {
+        case "void": // this case may never reach...
+            return Void.class;
+        case "boolean":
+            return Boolean.class;
+        case "char":
+            return Character.class;
+        case "byte":
+            return Byte.class;
+        case "short":
+            return Short.class;
+        case "int":
+            return Integer.class;
+        case "long":
+            return Long.class;
+        case "float":
+            return Float.class;
+        case "double":
+            return Double.class;
+        }
+        return null;
+    }
+
+    public static Class<?> getPrimitiveFromWrapperType(Class<?> type) {
+        return type == Void.class ? Void.TYPE : // this case may never reached...
+                type == Boolean.class ? Boolean.TYPE : //
+                        type == Character.class ? Character.TYPE : //
+                                type == Byte.class ? Byte.TYPE : //
+                                        type == Short.class ? Short.TYPE : //
+                                                type == Integer.class ? Integer.TYPE : //
+                                                        type == Long.class ? Long.TYPE : //
+                                                                type == Float.class ? Float.TYPE : //
+                                                                        type == Double.class ? Double.TYPE : //
+                                                                                null;
+    }
+
     public static boolean isNumberClass(@NonNull Class<?> clazz) {
         if (Number.class.isAssignableFrom(clazz)) {
             return true;
@@ -32,6 +81,9 @@ public class PrimitiveUtils {
     }
 
     public static final boolean isPrimitive(Class<?> resultType) {
+        if (resultType.isPrimitive()) {
+            return true;
+        }
         return (resultType == String.class //
                 || isNumberClass(resultType) //
                 || resultType == Character.TYPE || resultType == Character.class //
@@ -107,8 +159,12 @@ public class PrimitiveUtils {
             return ((Number) obj).intValue();
         if (obj instanceof Character)
             return ((Character) obj).charValue();
-        if (obj instanceof String)
-            return Integer.valueOf((String) obj);
+        if (obj instanceof String) {
+            var str = (String) obj;
+            if (str.isEmpty())
+                return 0;
+            return Integer.valueOf(str);
+        }
         if (obj instanceof Boolean)
             return (Boolean) obj ? 1 : 0;
         if (obj instanceof byte[])
@@ -121,8 +177,12 @@ public class PrimitiveUtils {
             return ((Number) obj).longValue();
         if (obj instanceof Character)
             return (long) ((Character) obj).charValue();
-        if (obj instanceof String)
-            return Long.valueOf((String) obj);
+        if (obj instanceof String) {
+            var str = (String) obj;
+            if (str.isEmpty())
+                return 0;
+            return Long.valueOf(str);
+        }
         if (obj instanceof Boolean)
             return (Boolean) obj ? 1l : 0l;
         if (obj instanceof byte[])
@@ -135,8 +195,12 @@ public class PrimitiveUtils {
             return ((Number) obj).floatValue();
         if (obj instanceof Character)
             return (float) ((Character) obj).charValue();
-        if (obj instanceof String)
-            return Float.valueOf((String) obj);
+        if (obj instanceof String) {
+            var str = (String) obj;
+            if (str.isEmpty())
+                return 0;
+            return Float.valueOf(str);
+        }
         if (obj instanceof Boolean)
             return (Boolean) obj ? 1f : 0f;
         if (obj instanceof byte[])
@@ -149,8 +213,12 @@ public class PrimitiveUtils {
             return ((Number) obj).doubleValue();
         if (obj instanceof Character)
             return (double) ((Character) obj).charValue();
-        if (obj instanceof String)
-            return Double.valueOf((String) obj);
+        if (obj instanceof String) {
+            var str = (String) obj;
+            if (str.isEmpty())
+                return 0;
+            return Double.valueOf(str);
+        }
         if (obj instanceof Boolean)
             return (Boolean) obj ? 1d : 0d;
         if (obj instanceof byte[])
@@ -163,8 +231,12 @@ public class PrimitiveUtils {
             return ((Number) obj).shortValue();
         if (obj instanceof Character)
             return (short) ((Character) obj).charValue();
-        if (obj instanceof String)
-            return Short.valueOf((String) obj);
+        if (obj instanceof String) {
+            var str = (String) obj;
+            if (str.isEmpty())
+                return 0;
+            return Short.valueOf(str);
+        }
         if (obj instanceof Boolean)
             return (short) ((Boolean) obj ? 1 : 0);
         if (obj instanceof byte[])
@@ -177,8 +249,12 @@ public class PrimitiveUtils {
             return ((Number) obj).byteValue();
         if (obj instanceof Character)
             return (byte) ((Character) obj).charValue();
-        if (obj instanceof String)
-            return Byte.valueOf((String) obj);
+        if (obj instanceof String) {
+            var str = (String) obj;
+            if (str.isEmpty())
+                return 0;
+            return Byte.valueOf(str);
+        }
         if (obj instanceof Boolean)
             return (byte) ((Boolean) obj ? 1 : 0);
         if (obj instanceof byte[])
@@ -221,7 +297,7 @@ public class PrimitiveUtils {
      * else return object != null
      * 
      * @param obj
-     * @return
+     * @return boolean value
      */
     public static final boolean getBooleanValueFrom(Object obj) {
         if (obj instanceof Number)

@@ -39,7 +39,7 @@ public class TestImmutable {
     }
 
     @Test
-    @SuppressWarnings("unlikely-arg-type")
+    @SuppressWarnings({ "unlikely-arg-type", "deprecation" })
     public void testImmutablePojo() {
         Map<String, Integer> map = new HashMap<>();
         map.put("0", 0);
@@ -47,16 +47,16 @@ public class TestImmutable {
         Bar bar = Bar.builder().b(true).map(map).build();
         Foo foo = new Foo(0, new int[] { 1, 2, 3 }, 22.02, "this is test text", bar);
 
-        Map<String, Object> fooMap = ObjectUtils.toMap(foo);
+        Map<String, Object> fooMap = (Map<String, Object>) ObjectUtils.toMap(foo);
         BElement obj = BElement.wrapAny(fooMap);
         System.out.println(obj.toString());
 
         assertTrue(obj instanceof ImmutableBObject);
-        assertEquals(Integer.valueOf(foo.getI()), obj.asObject().getInteger("i"));
-        assertTrue(obj.asObject().getArray("arr").equals(foo.getArr()));
-        assertEquals(Double.valueOf(foo.getD()), obj.asObject().getDouble("d"));
-        assertEquals(foo.getS(), obj.asObject().getString("s"));
-        assertEquals(foo.getB(), obj.asObject().getReference("b").getReference());
+        assertEquals(Integer.valueOf(foo.getIntValue()), obj.asObject().getInteger("intValue"));
+        assertTrue(obj.asObject().getArray("intArrayValue").equals(foo.getIntArrayValue()));
+        assertEquals(Double.valueOf(foo.getDoubleValue()), obj.asObject().getDouble("doubleValue"));
+        assertEquals(foo.getStringValue(), obj.asObject().getString("stringValue"));
+        assertEquals(foo.getBarValue(), obj.asObject().getReference("barValue").getReference());
 
         assertTrue(obj.equals(fooMap));
     }

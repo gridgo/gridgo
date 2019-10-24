@@ -11,7 +11,10 @@ import org.junit.Test;
 
 import io.gridgo.bean.BElement;
 import io.gridgo.bean.BObject;
+import io.gridgo.bean.BReference;
 import io.gridgo.bean.BValue;
+import io.gridgo.bean.test.support.Bar;
+import io.gridgo.bean.test.support.Foo;
 
 public class TextJsonSerializer {
 
@@ -49,5 +52,20 @@ public class TextJsonSerializer {
     public void testJsonValue() {
         var val = BValue.of(1);
         assertEquals("1", val.toJson());
+    }
+
+    @Test
+    public void testSerializePojo() {
+        Foo foo = Foo.builder() //
+                .intArrayValue(new int[] { 1, 2, 3, 4 }) //
+                .doubleValue(0.123) //
+                .barValue(Bar.builder() //
+                        .b(true) //
+                        .build()) //
+                .build();
+
+        BReference reference = BReference.of(foo);
+
+        System.out.println(reference.toJson());
     }
 }

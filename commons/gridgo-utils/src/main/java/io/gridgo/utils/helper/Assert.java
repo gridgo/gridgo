@@ -3,6 +3,7 @@ package io.gridgo.utils.helper;
 import io.gridgo.utils.exception.AssertionException;
 import lombok.NonNull;
 
+@Deprecated
 public final class Assert {
 
     private Assert() {
@@ -25,7 +26,8 @@ public final class Assert {
 
     public static void errorIf(boolean expectedFalse, String errorMessageFormat, Object... args) {
         if (expectedFalse) {
-            throw new AssertionException(errorMessageFormat == null ? "Assertion error" : String.format(errorMessageFormat, args));
+            throw new AssertionException(
+                    errorMessageFormat == null ? "Assertion error" : String.format(errorMessageFormat, args));
         }
     }
 

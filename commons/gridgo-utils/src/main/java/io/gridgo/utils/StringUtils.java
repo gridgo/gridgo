@@ -5,6 +5,7 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -13,6 +14,7 @@ import java.util.regex.Pattern;
 import io.gridgo.utils.exception.RuntimeIOException;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NonNull;
 
 public final class StringUtils {
 
@@ -79,6 +81,7 @@ public final class StringUtils {
         }
         return buf.toString();
     }
+
     /**
      * Transform to camelCase
      *
@@ -93,19 +96,18 @@ public final class StringUtils {
         return str.substring(0, 1).toLowerCase() + str.substring(1);
     }
 
-
     public static final String upperCaseFirstLetter(String inputString) {
-        if (inputString == null) {
-            return null;
-        }
-        return Character.toUpperCase(inputString.charAt(0)) + inputString.substring(1);
+        if (inputString == null || inputString.isEmpty())
+            return inputString;
+        return Character.toUpperCase(inputString.charAt(0))
+                + (inputString.length() == 1 ? "" : inputString.substring(1));
     }
 
     public static final String lowerCaseFirstLetter(String inputString) {
-        if (inputString == null) {
-            return null;
-        }
-        return Character.toLowerCase(inputString.charAt(0)) + inputString.substring(1);
+        if (inputString == null || inputString.isEmpty())
+            return inputString;
+        return Character.toLowerCase(inputString.charAt(0))
+                + (inputString.length() == 1 ? "" : inputString.substring(1));
     }
 
     public static final boolean isPrinable(String str) {
@@ -129,24 +131,41 @@ public final class StringUtils {
         return null;
     }
 
-    public static String implodeWithGlue(String glue, Object... elements) {
+    public static String implodeWithGlue(@NonNull String glue, Object... elements) {
         if (elements == null || glue == null)
             return null;
         return implodeWithGlue(glue, Arrays.asList(elements));
     }
 
-    public static String implodeWithGlue(String glue, List<?> elements) {
-        if (elements == null || glue == null)
-            return null;
+    public static String implodeWithGlue(@NonNull String glue, @NonNull Object[] array, int start, int end) {
+        if (start >= end) {
+            throw new IllegalArgumentException("Start must be less than end, got " + start + " >= " + end);
+        }
+
+        if (array.length < start)
+            throw new IllegalArgumentException("Array's length must >= " + start + ", got " + array.length);
+
+        if (array.length < end) {
+            throw new IllegalArgumentException("Array's length must >= " + end + ", got " + array.length);
+        }
+
         StringBuilder sb = new StringBuilder();
-        boolean isFirst = true;
-        for (Object ele : elements) {
-            if (!isFirst) {
-                sb.append(glue);
-            } else {
-                isFirst = false;
-            }
-            sb.append(ele);
+        sb.append(array[start]);
+        for (int i = start + 1; i < end; i++) {
+            sb.append(glue).append(array[i]);
+        }
+        return sb.toString();
+    }
+
+    public static String implodeWithGlue(@NonNull String glue, @NonNull Collection<?> elements) {
+        if (elements.isEmpty())
+            return "";
+
+        StringBuilder sb = new StringBuilder();
+        var it = elements.iterator();
+        sb.append(it.next());
+        while (it.hasNext()) {
+            sb.append(glue).append(it.next());
         }
         return sb.toString();
     }
@@ -181,7 +200,8 @@ public final class StringUtils {
         return true;
     }
 
-    private static final String[] REGEX_SPECIAL_CHARS = new String[] { "\\", ".", "*", "+", "-", "[", "]", "(", ")", "$", "^", "|", "{", "}", "?" };
+    private static final String[] REGEX_SPECIAL_CHARS = new String[] { "\\", ".", "*", "+", "-", "[", "]", "(", ")",
+            "$", "^", "|", "{", "}", "?" };
 
     public static final String normalizeForRegex(String key) {
         String result = key;
@@ -195,6 +215,16 @@ public final class StringUtils {
         try {
             for (int i = 0; i < num; i++) {
                 sb.append("\t");
+            }
+        } catch (IOException e) {
+            throw new RuntimeIOException("Error while append tab(s)", e);
+        }
+    }
+
+    public static void softTabs(int num, Appendable sb) {
+        try {
+            for (int i = 0; i < num; i++) {
+                sb.append("    ");
             }
         } catch (IOException e) {
             throw new RuntimeIOException("Error while append tab(s)", e);

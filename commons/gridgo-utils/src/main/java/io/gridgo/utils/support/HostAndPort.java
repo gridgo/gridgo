@@ -6,9 +6,8 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
-
 import io.gridgo.utils.InetAddressUtils;
+import io.gridgo.utils.StringUtils;
 import io.gridgo.utils.exception.MalformedHostAndPortException;
 import lombok.Getter;
 import lombok.NonNull;
@@ -180,19 +179,6 @@ public class HostAndPort {
         return new HostAndPort(this.host, this.port);
     }
 
-    public static HostAndPort fromString(String hostAndPort) {
-        if (hostAndPort == null)
-            return null;
-        HostAndPort result = newInstance();
-        String[] arr = hostAndPort.trim().toLowerCase().split(":");
-        if (arr.length == 1) {
-            result.setHost(arr[0]);
-        } else if (arr.length > 1) {
-            result.setPort(Integer.parseInt(arr[arr.length - 1]));
-            result.setHost(StringUtils.join(arr, ":", 0, arr.length - 1));
-        }
-        return result;
-    }
 
     public static List<HostAndPort> parse(String value) {
         if (value == null)
@@ -212,4 +198,19 @@ public class HostAndPort {
         }
         return results;
     }
+
+    public static HostAndPort fromString(String hostAndPort) {
+        if (hostAndPort == null)
+            return null;
+        HostAndPort result = newInstance();
+        String[] arr = hostAndPort.trim().toLowerCase().split(":");
+        if (arr.length == 1) {
+            result.setHost(arr[0]);
+        } else if (arr.length > 1) {
+            result.setPort(Integer.parseInt(arr[arr.length - 1]));
+            result.setHost(StringUtils.implodeWithGlue(":", arr, 0, arr.length - 1));
+        }
+        return result;
+    }
+
 }

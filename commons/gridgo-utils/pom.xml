@@ -5,15 +5,16 @@
 	<parent>
 		<groupId>io.gridgo</groupId>
 		<artifactId>gridgo-commons</artifactId>
-		<version>0.6.1</version>
+		<version>0.7.0</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<properties>
 		<high-scale-lib.version>1.1.4</high-scale-lib.version>
-		<apache.common.text.version>1.4</apache.common.text.version>
 		<lz4.version>1.3.0</lz4.version>
 		<junit.version>4.12</junit.version>
+		<reflections.version>0.9.11</reflections.version>
+		<java-uuid-generator.version>3.2.0</java-uuid-generator.version>
 	</properties>
 
 	<dependencies>
@@ -22,17 +23,26 @@
 			<artifactId>high-scale-lib</artifactId>
 			<version>${high-scale-lib.version}</version>
 		</dependency>
-
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-text</artifactId>
-			<version>${apache.common.text.version}</version>
-		</dependency>
-
 		<dependency>
 			<groupId>net.jpountz.lz4</groupId>
 			<artifactId>lz4</artifactId>
 			<version>${lz4.version}</version>
 		</dependency>
-	</dependencies>
+		<dependency>
+			<groupId>org.reflections</groupId>
+			<artifactId>reflections</artifactId>
+			<version>${reflections.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.uuid</groupId>
+			<artifactId>java-uuid-generator</artifactId>
+			<version>${java-uuid-generator.version}</version>
+		</dependency>
+        <dependency>
+            <groupId>org.reflections</groupId>
+            <artifactId>reflections</artifactId>
+            <version>0.9.11</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
 </project>
