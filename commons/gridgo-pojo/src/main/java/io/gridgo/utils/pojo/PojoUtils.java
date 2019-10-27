@@ -36,8 +36,8 @@ import static io.gridgo.utils.pojo.PojoFlattenIndicator.VALUE;
 
 import io.gridgo.utils.ArrayUtils;
 import io.gridgo.utils.annotations.Transient;
-import io.gridgo.utils.exception.InvalidFieldNameException;
-import io.gridgo.utils.exception.RuntimeReflectiveOperationException;
+import io.gridgo.utils.pojo.exception.InvalidFieldNameException;
+import io.gridgo.utils.pojo.exception.RuntimeReflectiveOperationException;
 import io.gridgo.utils.pojo.getter.PojoFlattenWalker;
 import io.gridgo.utils.pojo.getter.PojoGetterProxy;
 import io.gridgo.utils.pojo.getter.PojoGetterRegistry;

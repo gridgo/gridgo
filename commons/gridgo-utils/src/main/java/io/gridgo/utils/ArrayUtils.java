@@ -32,11 +32,6 @@ public final class ArrayUtils {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    private static void foreachArrayPrimitive(@NonNull Object obj, @NonNull ForeachCallback callback) {
-        foreachArrayPrimitive(obj, (ele, index, end) -> callback.apply(ele));
-    }
-
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     private static void foreachArrayPrimitive(@NonNull Object obj, @NonNull ForeachCallback2 callback) {
         Class<? extends Object> type = obj.getClass();
 
@@ -137,19 +132,8 @@ public final class ArrayUtils {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public static <T> void foreachArray(@NonNull Object obj, @NonNull ForeachCallback<T> callback) {
-        Class<T> componentType = (Class<T>) obj.getClass().getComponentType();
-        if (componentType.isPrimitive()) {
-            foreachArrayPrimitive(obj, callback);
-            return;
-        }
-
-        T[] arr = (T[]) obj;
-        int length = arr.length;
-        for (int i = 0; i < length; i++) {
-            callback.apply(arr[i]);
-        }
+        ArrayUtils.<T>foreachArray(obj, (element, index, isEnd) -> callback.apply(element));
     }
 
     @SuppressWarnings("unchecked")

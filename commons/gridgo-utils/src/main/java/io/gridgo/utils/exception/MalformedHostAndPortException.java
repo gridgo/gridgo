@@ -7,16 +7,4 @@ public class MalformedHostAndPortException extends RuntimeException {
     public MalformedHostAndPortException(String message) {
         super(message);
     }
-
-    public MalformedHostAndPortException(Throwable cause) {
-        super(cause);
-    }
-
-    public MalformedHostAndPortException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public MalformedHostAndPortException() {
-        super();
-    }
 }
