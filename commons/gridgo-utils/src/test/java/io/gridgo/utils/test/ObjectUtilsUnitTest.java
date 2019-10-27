@@ -33,8 +33,5 @@ public class ObjectUtilsUnitTest {
         var innerMap = new HashMap<String, Object>();
         innerMap.put("testInt", 2);
         obj.setTestMap(innerMap);
-
-        int x = ObjectUtils.<Integer>getValueByPath(obj, "testObj.testInt");
-        Assert.assertEquals(2, x);
     }
 }

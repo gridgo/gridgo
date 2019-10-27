@@ -1,16 +1,8 @@
 package io.gridgo.utils.pojo;
 
-import static io.gridgo.format.StringFormatter.transform;
-import static io.gridgo.utils.ArrayUtils.foreachArray;
-import static io.gridgo.utils.ClasspathUtils.scanForAnnotatedTypes;
-import static io.gridgo.utils.PrimitiveUtils.isPrimitive;
-import static io.gridgo.utils.StringUtils.lowerCaseFirstLetter;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.END_ARRAY;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.END_MAP;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.KEY;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.START_ARRAY;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.START_MAP;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.VALUE;
+import org.cliffc.high_scale_lib.NonBlockingHashMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -30,9 +22,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.cliffc.high_scale_lib.NonBlockingHashMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static io.gridgo.format.StringFormatter.transform;
+import static io.gridgo.utils.ArrayUtils.foreachArray;
+import static io.gridgo.utils.ClasspathUtils.scanForAnnotatedTypes;
+import static io.gridgo.utils.PrimitiveUtils.isPrimitive;
+import static io.gridgo.utils.StringUtils.lowerCaseFirstLetter;
+import static io.gridgo.utils.pojo.PojoFlattenIndicator.END_ARRAY;
+import static io.gridgo.utils.pojo.PojoFlattenIndicator.END_MAP;
+import static io.gridgo.utils.pojo.PojoFlattenIndicator.KEY;
+import static io.gridgo.utils.pojo.PojoFlattenIndicator.START_ARRAY;
+import static io.gridgo.utils.pojo.PojoFlattenIndicator.START_MAP;
+import static io.gridgo.utils.pojo.PojoFlattenIndicator.VALUE;
 
 import io.gridgo.utils.ArrayUtils;
 import io.gridgo.utils.annotations.Transient;
@@ -432,7 +432,7 @@ public class PojoUtils {
 
     /**
      * when field have generic type declaration
-     * 
+     *
      * @return list of generic types belong to corresponding field
      * @throws RuntimeReflectiveOperationException if the corresponding field not
      *                                             found
@@ -536,5 +536,23 @@ public class PojoUtils {
         if (result == null)
             throw new NullPointerException("ValueTranslator cannot be found for key: " + key);
         return result;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static final <T> T getValueByPath(Object obj, String path) {
+        if (obj != null && path != null) {
+            String[] arr = path.split("\\.");
+            Object currObj = obj;
+            for (int i = 0; i < arr.length; i++) {
+                String fieldName = arr[i];
+                if (currObj == null) {
+                    throw new NullPointerException("Cannot get field '" + fieldName + "' from '" + arr[i - 1]
+                            + "' == null, primitive object: " + obj.toString() + ", path: " + path);
+                }
+                currObj = getValue(currObj, fieldName);
+            }
+            return (T) currObj;
+        }
+        throw new IllegalArgumentException("Object and path must be not-null");
     }
 }

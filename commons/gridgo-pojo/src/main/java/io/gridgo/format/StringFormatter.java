@@ -6,10 +6,10 @@ import java.util.LinkedList;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
-import io.gridgo.utils.ObjectUtils;
 import io.gridgo.utils.PrimitiveUtils;
 import io.gridgo.utils.StringUtils;
 import io.gridgo.utils.StringUtils.StringFormatOption;
+import io.gridgo.utils.pojo.PojoUtils;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -23,7 +23,7 @@ public class StringFormatter {
         }
         var result = pattern;
         for (var key : keys) {
-            var value = ObjectUtils.getValueByPath(args, key);
+            var value = PojoUtils.getValueByPath(args, key);
             if (value instanceof Number && option != null && option.isAutoFormatNumber()) {
                 value = option.getDecimalFormat().format(value);
             }
@@ -40,7 +40,7 @@ public class StringFormatter {
 
     /**
      * Transform using GlobalFormatTransformerRegistry singleton instance
-     * 
+     *
      * @param source
      * @param args
      * @return
@@ -72,7 +72,7 @@ public class StringFormatter {
 
             var arr = argName.trim().split("\\s*>\\s*");
 
-            var value = ObjectUtils.getValueByPath(args, arr[0]);
+            var value = PojoUtils.getValueByPath(args, arr[0]);
             if (value != null) {
                 if (arr.length > 1) {
                     var transformerNames = Arrays.copyOfRange(arr, 1, arr.length);
