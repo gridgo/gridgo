@@ -3,6 +3,9 @@ package io.gridgo.utils.test;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
 import io.gridgo.utils.PrimitiveUtils;
 
 public class PrimitiveUtilsUnitTest {
@@ -18,6 +21,8 @@ public class PrimitiveUtilsUnitTest {
         Assert.assertTrue(PrimitiveUtils.getValueFrom(boolean.class, "true"));
         Assert.assertFalse(PrimitiveUtils.getValueFrom(boolean.class, 0));
         Assert.assertFalse(PrimitiveUtils.getValueFrom(boolean.class, "false"));
+        Assert.assertEquals(BigInteger.valueOf(1), PrimitiveUtils.getValueFrom(BigInteger.class, Integer.valueOf(1)));
+        Assert.assertEquals(BigDecimal.valueOf(1.1), PrimitiveUtils.getValueFrom(BigDecimal.class, Double.valueOf(1.1)));
     }
 
     @Test
