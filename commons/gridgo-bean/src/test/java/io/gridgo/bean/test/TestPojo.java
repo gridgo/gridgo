@@ -1,12 +1,12 @@
 package io.gridgo.bean.test;
 
-import static org.junit.Assert.assertEquals;
-
-import java.text.DecimalFormat;
-
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+
+import java.text.DecimalFormat;
+
+import static org.junit.Assert.assertEquals;
 
 import io.gridgo.bean.BElement;
 import io.gridgo.bean.BObject;
@@ -18,10 +18,8 @@ import io.gridgo.bean.test.support.NumberCollectionPojo;
 import io.gridgo.bean.test.support.PrimitiveVO;
 import io.gridgo.utils.CollectionUtils;
 import io.gridgo.utils.MapUtils;
-import io.gridgo.utils.ObjectUtils;
 import io.gridgo.utils.pojo.PojoUtils;
 
-@SuppressWarnings("deprecation")
 public class TestPojo {
 
     private Foo original;
@@ -60,9 +58,6 @@ public class TestPojo {
 
         Foo rebuilt = BElementPojoHelper.bObjectToPojo(BElement.ofBytes(bytes), Foo.class);
 
-//        System.out.println("original: " + BReference.of(original));
-//        System.out.println("rebuilt : " + BReference.of(rebuilt));
-
         // convert pojo to bobject to execute equals field by field
         assertEquals(originalAsBObject, BObject.ofPojo(rebuilt));
     }
@@ -78,7 +73,6 @@ public class TestPojo {
                 .build();
 
         // warm up
-        ObjectUtils.toMapRecursive(vo);
         PojoUtils.toJsonElement(vo);
 
         long start = 0;
@@ -87,7 +81,6 @@ public class TestPojo {
         int numRounds = 10;
 
         double[] directResults = new double[numRounds];
-        double[] objUtilResults = new double[numRounds];
         double[] pojoUtilsResults = new double[numRounds];
 
         for (int i = 0; i < numRounds; i++) {
@@ -98,14 +91,6 @@ public class TestPojo {
             double directSec = Double.valueOf(System.nanoTime() - start) / 1e9;
             double directPace = Double.valueOf(testRound) / directSec;
             directResults[i] = directPace;
-
-            start = System.nanoTime();
-            for (int j = 0; j < testRound; j++) {
-                ObjectUtils.toMapRecursive(vo);
-            }
-            double objUtilsSec = Double.valueOf(System.nanoTime() - start) / 1e9;
-            double objUtilsPace = Double.valueOf(testRound) / objUtilsSec;
-            objUtilResults[i] = objUtilsPace;
 
             start = System.nanoTime();
             for (int j = 0; j < testRound; j++) {
@@ -122,12 +107,6 @@ public class TestPojo {
         }
         directPace /= directResults.length;
 
-        double objUtilsPace = 0;
-        for (int i = 0; i < objUtilResults.length; i++) {
-            objUtilsPace += objUtilResults[i];
-        }
-        objUtilsPace /= objUtilResults.length;
-
         double pojoUtilsPace = 0;
         for (int i = 0; i < pojoUtilsResults.length; i++) {
             pojoUtilsPace += pojoUtilsResults[i];
@@ -136,7 +115,6 @@ public class TestPojo {
 
         DecimalFormat df = new DecimalFormat("###,###.##");
 
-        System.out.println("[Object utils toMap] throughput: " + df.format(objUtilsPace) + " ops/s");
         System.out.println("[Pojo utils toMap]   throughput: " + df.format(pojoUtilsPace) + " ops/s");
         System.out.println("[Direct toMap]       throughput: " + df.format(directPace) + " ops/s");
     }
@@ -154,25 +132,15 @@ public class TestPojo {
         // warm up
         var bobj = BObject.ofPojo(vo);
         bobj.toPojo(PrimitiveVO.class);
-        ObjectUtils.fromMap(PrimitiveVO.class, bobj.toMap());
 
         long start = 0;
 
         int testRound = (int) 1e5;
         int numRounds = 10;
 
-        double[] objUtilResults = new double[numRounds];
         double[] pojoUtilsResults = new double[numRounds];
 
         for (int i = 0; i < numRounds; i++) {
-            start = System.nanoTime();
-            for (int j = 0; j < testRound; j++) {
-                ObjectUtils.fromMap(PrimitiveVO.class, bobj.toMap());
-            }
-            double objUtilsSec = Double.valueOf(System.nanoTime() - start) / 1e9;
-            double objUtilsPace = Double.valueOf(testRound) / objUtilsSec;
-            objUtilResults[i] = objUtilsPace;
-
             start = System.nanoTime();
             for (int j = 0; j < testRound; j++) {
                 bobj.toPojo(PrimitiveVO.class);
@@ -182,12 +150,6 @@ public class TestPojo {
             pojoUtilsResults[i] = pojoUtilsPace;
         }
 
-        double objUtilsPace = 0;
-        for (int i = 0; i < objUtilResults.length; i++) {
-            objUtilsPace += objUtilResults[i];
-        }
-        objUtilsPace /= objUtilResults.length;
-
         double pojoUtilsPace = 0;
         for (int i = 0; i < pojoUtilsResults.length; i++) {
             pojoUtilsPace += pojoUtilsResults[i];
@@ -196,7 +158,6 @@ public class TestPojo {
 
         DecimalFormat df = new DecimalFormat("###,###.##");
 
-        System.out.println("[Object utils toPojo] throughput: " + df.format(objUtilsPace) + " ops/s");
         System.out.println("[Pojo utils toPojo]   throughput: " + df.format(pojoUtilsPace) + " ops/s");
     }
 
@@ -215,9 +176,9 @@ public class TestPojo {
                         .add((short) 3) //
                         .build()) //
                 .integerList(CollectionUtils.<Integer>newListBuilder() //
-                        .add((int) 1) //
-                        .add((int) 2) //
-                        .add((int) 3) //
+                        .add(1) //
+                        .add(2) //
+                        .add(3) //
                         .build()) //
                 .longList(CollectionUtils.<Long>newListBuilder() //
                         .add((long) 1) //
@@ -225,14 +186,14 @@ public class TestPojo {
                         .add((long) 3) //
                         .build()) //
                 .floatList(CollectionUtils.<Float>newListBuilder() //
-                        .add((float) 1.0f) //
-                        .add((float) 2.1f) //
-                        .add((float) 3.2f) //
+                        .add(1.0f) //
+                        .add(2.1f) //
+                        .add(3.2f) //
                         .build()) //
                 .doubleList(CollectionUtils.<Double>newListBuilder() //
-                        .add((double) 1.0) //
-                        .add((double) 2.1) //
-                        .add((double) 3.2) //
+                        .add(1.0) //
+                        .add(2.1) //
+                        .add(3.2) //
                         .build()) //
                 // set
                 .byteSet(CollectionUtils.<Byte>newSetBuilder() //
@@ -246,9 +207,9 @@ public class TestPojo {
                         .add((short) 3) //
                         .build()) //
                 .integerSet(CollectionUtils.<Integer>newSetBuilder() //
-                        .add((int) 1) //
-                        .add((int) 2) //
-                        .add((int) 3) //
+                        .add(1) //
+                        .add(2) //
+                        .add(3) //
                         .build()) //
                 .longSet(CollectionUtils.<Long>newSetBuilder() //
                         .add((long) 1) //
@@ -256,14 +217,14 @@ public class TestPojo {
                         .add((long) 3) //
                         .build()) //
                 .floatSet(CollectionUtils.<Float>newSetBuilder() //
-                        .add((float) 1.0f) //
-                        .add((float) 2.1f) //
-                        .add((float) 3.2f) //
+                        .add(1.0f) //
+                        .add(2.1f) //
+                        .add(3.2f) //
                         .build()) //
                 .doubleSet(CollectionUtils.<Double>newSetBuilder() //
-                        .add((double) 1.0) //
-                        .add((double) 2.1) //
-                        .add((double) 3.2) //
+                        .add(1.0) //
+                        .add(2.1) //
+                        .add(3.2) //
                         .build()) //
                 // map
                 .byteMap(MapUtils.<Byte>newMapStringKeyBuilder(Byte.class) //
@@ -277,9 +238,9 @@ public class TestPojo {
                         .put("3", (short) 3) //
                         .build()) //
                 .integerMap(MapUtils.<Integer>newMapStringKeyBuilder(Integer.class) //
-                        .put("1", (int) 1) //
-                        .put("2", (int) 2) //
-                        .put("3", (int) 3) //
+                        .put("1", 1) //
+                        .put("2", 2) //
+                        .put("3", 3) //
                         .build()) //
                 .longMap(MapUtils.<Long>newMapStringKeyBuilder(Long.class) //
                         .put("1", (long) 1) //
