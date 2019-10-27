@@ -19,6 +19,7 @@ public class PrimitiveUtilsUnitTest {
 
     @Test
     public void testIsPrimitive() {
+        Assert.assertTrue(PrimitiveUtils.isPrimitive(int.class));
         Assert.assertTrue(PrimitiveUtils.isPrimitive(Byte.class));
         Assert.assertTrue(PrimitiveUtils.isPrimitive(String.class));
         Assert.assertTrue(PrimitiveUtils.isPrimitive(Boolean.class));
@@ -144,6 +145,7 @@ public class PrimitiveUtilsUnitTest {
         Assert.assertEquals(Long.class, PrimitiveUtils.getWrapperType(long.class));
         Assert.assertEquals(Float.class, PrimitiveUtils.getWrapperType(float.class));
         Assert.assertEquals(Double.class, PrimitiveUtils.getWrapperType(double.class));
+        Assert.assertNull(PrimitiveUtils.getWrapperType(String.class));
 
         Assert.assertTrue(PrimitiveUtils.isWrapperType(Void.class));
         Assert.assertTrue(PrimitiveUtils.isWrapperType(Boolean.class));
@@ -154,6 +156,7 @@ public class PrimitiveUtilsUnitTest {
         Assert.assertTrue(PrimitiveUtils.isWrapperType(Long.class));
         Assert.assertTrue(PrimitiveUtils.isWrapperType(Float.class));
         Assert.assertTrue(PrimitiveUtils.isWrapperType(Double.class));
+        Assert.assertFalse(PrimitiveUtils.isWrapperType(String.class));
 
         Assert.assertEquals(void.class, PrimitiveUtils.getPrimitiveFromWrapperType(Void.class));
         Assert.assertEquals(boolean.class, PrimitiveUtils.getPrimitiveFromWrapperType(Boolean.class));
@@ -164,5 +167,6 @@ public class PrimitiveUtilsUnitTest {
         Assert.assertEquals(long.class, PrimitiveUtils.getPrimitiveFromWrapperType(Long.class));
         Assert.assertEquals(float.class, PrimitiveUtils.getPrimitiveFromWrapperType(Float.class));
         Assert.assertEquals(double.class, PrimitiveUtils.getPrimitiveFromWrapperType(Double.class));
+        Assert.assertNull(PrimitiveUtils.getPrimitiveFromWrapperType(String.class));
     }
 }

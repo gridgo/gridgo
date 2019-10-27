@@ -96,17 +96,41 @@ public class ArrayUtilsUnitTest {
 
     @Test
     public void testEntryAt() {
-        Assert.assertEquals(2, ArrayUtils.entryAt(new int[] {1,2,3}, 1));
-        Assert.assertEquals(2, ArrayUtils.entryAt(Arrays.asList(1,2,3), 1));
+        Assert.assertEquals(2, ArrayUtils.entryAt(new int[] { 1, 2, 3 }, 1));
+        Assert.assertEquals(2, ArrayUtils.entryAt(Arrays.asList(1, 2, 3), 1));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testEntryAtInvalidIndex() {
-        Assert.assertEquals(2, ArrayUtils.entryAt(Arrays.asList(1,2,3), -1));
+        Assert.assertEquals(2, ArrayUtils.entryAt(Arrays.asList(1, 2, 3), -1));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testEntryAtInvalidClass() {
         Assert.assertEquals(2, ArrayUtils.entryAt(new HashSet<>(), 0));
+    }
+
+    @Test
+    public void testToPrimitiveArray() {
+        Assert.assertNull(ArrayUtils.toPrimitiveArray(null, int.class));
+        Assert.assertArrayEquals(new int[] { 1, 2, 3 },
+                (int[]) ArrayUtils.toPrimitiveArray(Arrays.asList(1, 2, 3), int.class));
+        Assert.assertArrayEquals(new long[] { 1, 2, 3 },
+                (long[]) ArrayUtils.toPrimitiveArray(Arrays.asList(1L, 2L, 3L), long.class));
+        Assert.assertArrayEquals(new double[] { 1.1, 2.2, 3.3 },
+                (double[]) ArrayUtils.toPrimitiveArray(Arrays.asList(1.1, 2.2, 3.3), double.class), 0);
+        Assert.assertArrayEquals(new float[] { 1.1f, 2.2f, 3.3f },
+                (float[]) ArrayUtils.toPrimitiveArray(Arrays.asList(1.1f, 2.2f, 3.3f), float.class), 0);
+        Assert.assertArrayEquals(new byte[] { 1, 2, 3 },
+                (byte[]) ArrayUtils.toPrimitiveArray(Arrays.asList((byte) 1, (byte) 2, (byte) 3), byte.class));
+        Assert.assertArrayEquals(new short[] { 1, 2, 3 },
+                (short[]) ArrayUtils.toPrimitiveArray(Arrays.asList((short) 1, (short) 2, (short) 3), short.class));
+        Assert.assertArrayEquals(new char[] { 'a', 'b', 'c' },
+                (char[]) ArrayUtils.toPrimitiveArray(Arrays.asList('a', 'b', 'c'), char.class));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testToPrimitiveArrayInvalidClass() {
+        ArrayUtils.toPrimitiveArray(Arrays.asList(1, 2, 3), Integer.class);
     }
 }
