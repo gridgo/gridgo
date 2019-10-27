@@ -1,16 +1,16 @@
 package io.gridgo.bean.factory;
 
-import io.gridgo.bean.BValue;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertSame;
+import static org.mockito.Mockito.mock;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
+@SuppressWarnings("unchecked")
 public class SimpleBFactoryTest {
 
     @Before
