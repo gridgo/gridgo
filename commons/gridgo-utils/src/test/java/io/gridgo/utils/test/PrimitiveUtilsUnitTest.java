@@ -24,6 +24,8 @@ public class PrimitiveUtilsUnitTest {
         Assert.assertEquals(BigInteger.valueOf(1), PrimitiveUtils.getValueFrom(BigInteger.class, Integer.valueOf(1)));
         Assert.assertEquals(BigDecimal.valueOf(1.1), PrimitiveUtils.getValueFrom(BigDecimal.class, Double.valueOf(1.1)));
         Assert.assertEquals(Double.valueOf(1.1), PrimitiveUtils.getValueFrom(double.class, Double.valueOf(1.1)));
+        Assert.assertEquals('A', (char) PrimitiveUtils.getValueFrom(char.class, 65));
+        Assert.assertEquals(Character.valueOf('A'), PrimitiveUtils.getValueFrom(Character.class, 65));
     }
 
     @Test
