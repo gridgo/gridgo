@@ -8,6 +8,19 @@ import io.gridgo.utils.PrimitiveUtils;
 public class PrimitiveUtilsUnitTest {
 
     @Test
+    public void testGetValueFrom() {
+        Assert.assertNull(PrimitiveUtils.getValueFrom(int.class, null));
+        Assert.assertEquals(1, (int) PrimitiveUtils.getValueFrom(int.class, 1));
+        Assert.assertEquals("1", PrimitiveUtils.getValueFrom(String.class, 1));
+        Assert.assertEquals(1, (int) PrimitiveUtils.getValueFrom(Integer.class, 1));
+        Assert.assertEquals(1, (int) PrimitiveUtils.getValueFrom(int.class, Integer.valueOf(1)));
+        Assert.assertTrue(PrimitiveUtils.getValueFrom(boolean.class, 1));
+        Assert.assertTrue(PrimitiveUtils.getValueFrom(boolean.class, "true"));
+        Assert.assertFalse(PrimitiveUtils.getValueFrom(boolean.class, 0));
+        Assert.assertFalse(PrimitiveUtils.getValueFrom(boolean.class, "false"));
+    }
+
+    @Test
     public void testIsNumber() {
         Assert.assertTrue(PrimitiveUtils.isNumber((byte) 1));
         Assert.assertTrue(PrimitiveUtils.isNumber(1));
