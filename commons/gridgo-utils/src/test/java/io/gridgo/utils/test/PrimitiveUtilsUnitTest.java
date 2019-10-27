@@ -132,4 +132,37 @@ public class PrimitiveUtilsUnitTest {
         Assert.assertEquals("127", PrimitiveUtils.getStringValueFrom(127));
         Assert.assertEquals("class io.gridgo.utils.PrimitiveUtils", PrimitiveUtils.class.toString());
     }
+
+    @Test
+    public void testWrapperType() {
+        Assert.assertEquals(Void.class, PrimitiveUtils.getWrapperType(void.class));
+        Assert.assertEquals(Boolean.class, PrimitiveUtils.getWrapperType(boolean.class));
+        Assert.assertEquals(Character.class, PrimitiveUtils.getWrapperType(char.class));
+        Assert.assertEquals(Byte.class, PrimitiveUtils.getWrapperType(byte.class));
+        Assert.assertEquals(Short.class, PrimitiveUtils.getWrapperType(short.class));
+        Assert.assertEquals(Integer.class, PrimitiveUtils.getWrapperType(int.class));
+        Assert.assertEquals(Long.class, PrimitiveUtils.getWrapperType(long.class));
+        Assert.assertEquals(Float.class, PrimitiveUtils.getWrapperType(float.class));
+        Assert.assertEquals(Double.class, PrimitiveUtils.getWrapperType(double.class));
+
+        Assert.assertTrue(PrimitiveUtils.isWrapperType(Void.class));
+        Assert.assertTrue(PrimitiveUtils.isWrapperType(Boolean.class));
+        Assert.assertTrue(PrimitiveUtils.isWrapperType(Character.class));
+        Assert.assertTrue(PrimitiveUtils.isWrapperType(Byte.class));
+        Assert.assertTrue(PrimitiveUtils.isWrapperType(Short.class));
+        Assert.assertTrue(PrimitiveUtils.isWrapperType(Integer.class));
+        Assert.assertTrue(PrimitiveUtils.isWrapperType(Long.class));
+        Assert.assertTrue(PrimitiveUtils.isWrapperType(Float.class));
+        Assert.assertTrue(PrimitiveUtils.isWrapperType(Double.class));
+
+        Assert.assertEquals(void.class, PrimitiveUtils.getPrimitiveFromWrapperType(Void.class));
+        Assert.assertEquals(boolean.class, PrimitiveUtils.getPrimitiveFromWrapperType(Boolean.class));
+        Assert.assertEquals(char.class, PrimitiveUtils.getPrimitiveFromWrapperType(Character.class));
+        Assert.assertEquals(byte.class, PrimitiveUtils.getPrimitiveFromWrapperType(Byte.class));
+        Assert.assertEquals(short.class, PrimitiveUtils.getPrimitiveFromWrapperType(Short.class));
+        Assert.assertEquals(int.class, PrimitiveUtils.getPrimitiveFromWrapperType(Integer.class));
+        Assert.assertEquals(long.class, PrimitiveUtils.getPrimitiveFromWrapperType(Long.class));
+        Assert.assertEquals(float.class, PrimitiveUtils.getPrimitiveFromWrapperType(Float.class));
+        Assert.assertEquals(double.class, PrimitiveUtils.getPrimitiveFromWrapperType(Double.class));
+    }
 }
