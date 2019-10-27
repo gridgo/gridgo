@@ -1,15 +1,16 @@
 package io.gridgo.utils.test;
 
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import static io.gridgo.utils.ThreadUtils.busySpinUntilFalse;
 import static io.gridgo.utils.ThreadUtils.busySpinUntilTrue;
 import static io.gridgo.utils.ThreadUtils.registerShutdownTask;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.junit.Assert;
-import org.junit.Test;
-
 import io.gridgo.utils.ThreadUtils;
+import io.gridgo.utils.exception.ThreadingException;
 
 public class ThreadUtilsUnitTest {
 
@@ -19,8 +20,17 @@ public class ThreadUtilsUnitTest {
         }
     }
 
+    @Test(expected = ThreadingException.class)
+    public void testInterruptedSleep() {
+        Thread.currentThread().interrupt();
+        ThreadUtils.sleep(500);
+    }
+
     @Test
     public void testSimple() {
+        // clear the interrupt flag
+        Thread.interrupted();
+
         var disposer = registerShutdownTask(() -> System.out.println("Shutting down..."));
         Assert.assertNotNull(disposer);
         Assert.assertTrue(disposer.dispose());
