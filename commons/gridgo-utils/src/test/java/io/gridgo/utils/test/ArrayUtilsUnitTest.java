@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import io.gridgo.utils.ArrayUtils;
@@ -91,5 +92,21 @@ public class ArrayUtilsUnitTest {
         Assert.assertEquals("1.23, 2.34, 3.45, 4.56", ArrayUtils.toString(arr8));
         var arr9 = new short[] { 1, 2, 3, 4 };
         Assert.assertEquals("1, 2, 3, 4", ArrayUtils.toString(arr9));
+    }
+
+    @Test
+    public void testEntryAt() {
+        Assert.assertEquals(2, ArrayUtils.entryAt(new int[] {1,2,3}, 1));
+        Assert.assertEquals(2, ArrayUtils.entryAt(Arrays.asList(1,2,3), 1));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testEntryAtInvalidIndex() {
+        Assert.assertEquals(2, ArrayUtils.entryAt(Arrays.asList(1,2,3), -1));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testEntryAtInvalidClass() {
+        Assert.assertEquals(2, ArrayUtils.entryAt(new HashSet<>(), -1));
     }
 }
