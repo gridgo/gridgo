@@ -1,7 +1,6 @@
 package io.gridgo.utils;
 
-import static java.lang.Thread.currentThread;
-import static java.lang.Thread.onSpinWait;
+import org.cliffc.high_scale_lib.NonBlockingHashMap;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -12,7 +11,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
-import org.cliffc.high_scale_lib.NonBlockingHashMap;
+import static java.lang.Thread.currentThread;
+import static java.lang.Thread.onSpinWait;
 
 import io.gridgo.utils.exception.ThreadingException;
 import lombok.NonNull;
@@ -36,7 +36,7 @@ public class ThreadUtils {
 
     /**
      * Return current process's state
-     * 
+     *
      * @return true if process is shutting down, false otherwise
      */
     public static boolean isShuttingDown() {
@@ -45,7 +45,7 @@ public class ThreadUtils {
 
     /**
      * Sleep current thread inside try, catch block
-     * 
+     *
      * @param millis time to sleep
      * @throws ThreadingException on interrupted
      */
@@ -53,15 +53,16 @@ public class ThreadUtils {
         try {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             throw new ThreadingException("Interupted while sleeping", e);
         }
     }
 
     /**
      * Sleep current thread without exception throwing
-     * 
+     *
      * @param millis time to sleep
-     * 
+     *
      * @return false if current thread got interrupted, true otherwise
      */
     public static final boolean sleepSilence(long millis) {
@@ -78,7 +79,7 @@ public class ThreadUtils {
      * Stop current thread using Thread.onBusySpin() calling inside a while loop
      * <br>
      * Break if process/currentThread shutdown or breakSignal return true
-     * 
+     *
      * @param continueUntilFalse continue spin when return true, break loop and
      *                           return when false
      */
@@ -94,7 +95,7 @@ public class ThreadUtils {
      * Stop current thread using Thread.onBusySpin() calling inside a while loop
      * <br>
      * Break if process/currentThread shutdown or breakSignal return true
-     * 
+     *
      * @param continueUntilFalse continue spin when true, break loop and return when
      *                           false
      */
@@ -106,7 +107,7 @@ public class ThreadUtils {
      * Stop current thread using Thread.onBusySpin() calling inside a while loop
      * <br>
      * Break if process/currentThread shutdown or breakSignal return true
-     * 
+     *
      * @param continueUntilTrue continue spin when false, break loop and return when
      *                          true
      */
@@ -116,7 +117,7 @@ public class ThreadUtils {
 
     /**
      * register a task which can be processed when process shutdown
-     * 
+     *
      * @param task the task to be registered
      * @return disposable object
      */
