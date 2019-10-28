@@ -1,4 +1,4 @@
-package io.gridgo.utils.exception;
+package io.gridgo.utils.pojo.exception;
 
 public class InvalidFieldNameException extends RuntimeException {
 
