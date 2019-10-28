@@ -62,25 +62,29 @@ public interface BFactory {
 
     @SuppressWarnings("rawtypes")
     default <T extends BElement> T wrap(Object data) {
+        if (data instanceof BElement)
+            return (T) data;
+
         Class<?> clazz;
-
+        T result;
         if (data == null || PrimitiveUtils.isPrimitive(clazz = data.getClass()))
-            return (T) newValue(data);
-
-        if (Collection.class.isAssignableFrom(clazz))
-            return (T) this.getWrappedArraySupplier().apply((Collection) data);
-
-        if (clazz.isArray()) {
+            result = (T) newValue(data);
+        else if (Collection.class.isAssignableFrom(clazz))
+            result = (T) this.getWrappedArraySupplier().apply((Collection) data);
+        else if (clazz.isArray()) {
             final List<Object> list = new ArrayList<>();
             ArrayUtils.foreach(data, entry -> list.add(entry));
-            return (T) this.getWrappedArraySupplier().apply(list);
-        }
+            result = (T) this.getWrappedArraySupplier().apply(list);
+        } else if (Map.class.isAssignableFrom(clazz))
+            result = (T) this.getWrappedObjectSupplier().apply((Map<?, ?>) data);
+        else
+            result = (T) newReference(data);
 
-        if (Map.class.isAssignableFrom(clazz)) {
-            return (T) this.getWrappedObjectSupplier().apply((Map<?, ?>) data);
-        }
-
-        return (T) newReference(data);
+        result.setSerializerRegistry(getSerializerRegistry());
+        if (result.isContainer())
+            result.asContainer().setFactory(this);
+        
+        return result;
     }
 
     default BReference newReference(Object reference) {

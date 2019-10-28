@@ -2,6 +2,8 @@ package io.gridgo.bean.serialization.msgpack;
 
 import static io.gridgo.utils.pojo.PojoUtils.getGetterProxy;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -13,6 +15,8 @@ import org.msgpack.core.MessageFormat;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePacker;
 import org.msgpack.core.MessageUnpacker;
+import org.msgpack.core.buffer.InputStreamBufferInput;
+import org.msgpack.core.buffer.OutputStreamBufferOutput;
 
 import io.gridgo.bean.BArray;
 import io.gridgo.bean.BElement;
@@ -31,6 +35,42 @@ import lombok.NonNull;
 public class MsgpackSerializer extends AbstractBSerializer {
 
     public static final String NAME = "msgpack";
+
+    private static class PackerAndBuffer implements AutoCloseable {
+        private final OutputStreamBufferOutput output = new OutputStreamBufferOutput(new ByteArrayOutputStream(0));
+        private final MessagePacker packer = MessagePack.newDefaultPacker(this.output);
+
+        @Override
+        public void close() throws IOException {
+            this.packer.close();
+            this.output.close();
+        }
+
+        public MessagePacker reset(OutputStream out) throws IOException {
+            this.output.reset(out);
+            return this.packer;
+        }
+    }
+
+    private static class UnpackerAndBuffer implements AutoCloseable {
+        private final InputStreamBufferInput input = new InputStreamBufferInput(new ByteArrayInputStream(new byte[0]));
+        private final MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(this.input);
+
+        @Override
+        public void close() throws IOException {
+            this.unpacker.close();
+            this.input.close();
+        }
+
+        public MessageUnpacker reset(InputStream in) throws IOException {
+            this.input.reset(in);
+            return this.unpacker;
+        }
+    }
+
+    private final ThreadLocal<UnpackerAndBuffer> UNPACKERS = ThreadLocal.withInitial(UnpackerAndBuffer::new);
+
+    private final ThreadLocal<PackerAndBuffer> PACKERS = ThreadLocal.withInitial(PackerAndBuffer::new);
 
     private void packAny(Object obj, MessagePacker packer) throws IOException {
         if (obj == null) {
@@ -179,7 +219,8 @@ public class MsgpackSerializer extends AbstractBSerializer {
 
     @Override
     public void serialize(@NonNull BElement element, @NonNull OutputStream out) {
-        try (var packer = MessagePack.newDefaultPacker(out)) {
+        try (var holder = PACKERS.get()) {
+            var packer = holder.reset(out);
             packAny(element, packer);
             packer.flush();
         } catch (Exception e) {
@@ -271,9 +312,9 @@ public class MsgpackSerializer extends AbstractBSerializer {
 
     @Override
     public BElement deserialize(InputStream in) {
-        try (var unpacker = MessagePack.newDefaultUnpacker(in)) {
-            return this.unpackAny(unpacker);
-        } catch (IOException e) {
+        try (var holder = UNPACKERS.get()) {
+            return this.unpackAny(holder.reset(in));
+        } catch (Exception e) {
             throw new BeanSerializationException("Error while deserialize input stream", e);
         }
     }
