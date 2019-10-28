@@ -100,6 +100,9 @@ public class BObjectUnitTest {
         Assert.assertEquals(pojo.getIntValue(), deserialized.getIntValue());
         Assert.assertEquals(pojo.getStringValue(), deserialized.getStringValue());
         Assert.assertEquals(pojo.getBarValue().isB(), deserialized.getBarValue().isB());
+        var wrapped = BObject.ofEmpty().setAnyPojo("k1", pojo);
+        Assert.assertEquals(pojo.getDoubleValue(), wrapped.getObject("k1").getDouble("doubleValue"), 0);
+        Assert.assertEquals(pojo.getIntValue(), (int) wrapped.getObject("k1").getInteger("intValue"));
     }
 
     @Test
