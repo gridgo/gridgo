@@ -3,9 +3,32 @@ package io.gridgo.utils.test;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
 import io.gridgo.utils.PrimitiveUtils;
 
 public class PrimitiveUtilsUnitTest {
+
+    @Test
+    public void testGetValueFrom() {
+        Assert.assertNull(PrimitiveUtils.getValueFrom(int.class, null));
+        Assert.assertEquals(1, (int) PrimitiveUtils.getValueFrom(int.class, 1));
+        Assert.assertEquals("1", PrimitiveUtils.getValueFrom(String.class, 1));
+        Assert.assertEquals(1, (int) PrimitiveUtils.getValueFrom(Integer.class, 1));
+        Assert.assertEquals(1, (int) PrimitiveUtils.getValueFrom(int.class, Integer.valueOf(1)));
+        Assert.assertTrue(PrimitiveUtils.getValueFrom(boolean.class, 1));
+        Assert.assertTrue(PrimitiveUtils.getValueFrom(boolean.class, "true"));
+        Assert.assertFalse(PrimitiveUtils.getValueFrom(boolean.class, 0));
+        Assert.assertFalse(PrimitiveUtils.getValueFrom(boolean.class, "false"));
+        Assert.assertEquals(BigInteger.valueOf(1), PrimitiveUtils.getValueFrom(BigInteger.class, Integer.valueOf(1)));
+        Assert.assertEquals(BigInteger.valueOf(1), PrimitiveUtils.getValueFrom(BigInteger.class, "1"));
+        Assert.assertEquals(BigDecimal.valueOf(1.1), PrimitiveUtils.getValueFrom(BigDecimal.class, Double.valueOf(1.1)));
+        Assert.assertEquals(BigDecimal.valueOf(1.1), PrimitiveUtils.getValueFrom(BigDecimal.class, "1.1"));
+        Assert.assertEquals(Double.valueOf(1.1), PrimitiveUtils.getValueFrom(double.class, Double.valueOf(1.1)));
+        Assert.assertEquals('A', (char) PrimitiveUtils.getValueFrom(char.class, 65));
+        Assert.assertEquals(Character.valueOf('A'), PrimitiveUtils.getValueFrom(Character.class, 65));
+    }
 
     @Test
     public void testIsNumber() {
