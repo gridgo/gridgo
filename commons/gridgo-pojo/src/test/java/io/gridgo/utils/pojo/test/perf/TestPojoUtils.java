@@ -42,7 +42,7 @@ public class TestPojoUtils {
                         new int[] { 5, 7, 6 })) //
                 .longArrayMap(Map.of( //
                         "longarr1", new long[] { 4l, 5l }, //
-                        "longarr1", new long[] { 6l, 9l })) //
+                        "longarr2", new long[] { 6l, 9l })) //
                 .barMap(Map.of( //
                         "barEntry", Bar.builder() //
                                 .b(true) //
