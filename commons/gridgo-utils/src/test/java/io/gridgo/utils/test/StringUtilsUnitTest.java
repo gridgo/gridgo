@@ -1,9 +1,9 @@
 package io.gridgo.utils.test;
 
-import java.util.Arrays;
-
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.Arrays;
 
 import io.gridgo.utils.StringUtils;
 
@@ -40,21 +40,8 @@ public class StringUtilsUnitTest {
     }
 
     @Test
-    public void testMatch() {
-        String text = "You shall not pass";
-        Assert.assertTrue(StringUtils.match(text, "You.*shall.*pass"));
-    }
-
-    @Test
-    public void testImplode() {
-        String text = "one string to rule them all";
-        Assert.assertEquals(text, StringUtils.implode("one ", "string ", "to ", "rule ", "them ", "all"));
-    }
-
-    @Test
     public void testImplodeWithGlue() {
         String text = "one string to bind them all";
-        Assert.assertEquals(text, StringUtils.implodeWithGlue(" ", "one", "string", "to", "bind", "them", "all"));
         Assert.assertEquals(text,
                 StringUtils.implodeWithGlue(" ", Arrays.asList("one", "string", "to", "bind", "them", "all")));
     }
@@ -64,24 +51,5 @@ public class StringUtilsUnitTest {
         String text = "string to bind them";
         String[] array = new String[] { "one", "string", "to", "bind", "them", "all" };
         Assert.assertEquals(text, StringUtils.implodeWithGlue(" ", array, 1, array.length - 1));
-    }
-
-    @Test
-    public void testTab() {
-        Assert.assertEquals("\t\t\t\t", StringUtils.tabs(4));
-    }
-
-    @Test
-    public void testIsNumber() {
-        Assert.assertTrue(StringUtils.isRepresentNumber("5"));
-        Assert.assertTrue(StringUtils.isRepresentNumber("5.0"));
-        Assert.assertTrue(StringUtils.isRepresentNumber("-5"));
-        Assert.assertTrue(StringUtils.isRepresentNumber("-5.0"));
-        Assert.assertFalse(StringUtils.isRepresentNumber("-5.0."));
-        Assert.assertFalse(StringUtils.isRepresentNumber("-5.."));
-        Assert.assertFalse(StringUtils.isRepresentNumber("-5.0.0"));
-        Assert.assertFalse(StringUtils.isRepresentNumber("5-0"));
-        Assert.assertFalse(StringUtils.isRepresentNumber("-5a"));
-        Assert.assertFalse(StringUtils.isRepresentNumber("a"));
     }
 }

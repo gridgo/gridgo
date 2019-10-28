@@ -1,19 +1,39 @@
 package io.gridgo.format;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Locale;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 import io.gridgo.utils.PrimitiveUtils;
 import io.gridgo.utils.StringUtils;
-import io.gridgo.utils.StringUtils.StringFormatOption;
 import io.gridgo.utils.pojo.PojoUtils;
+import lombok.Builder;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class StringFormatter {
+
+    @Data
+    @Builder
+    public static class StringFormatOption {
+
+        private boolean autoFormatNumber;
+        private DecimalFormat decimalFormat;
+
+        public DecimalFormat getDecimalFormat() {
+            if (this.decimalFormat == null) {
+                this.decimalFormat = (DecimalFormat) NumberFormat.getNumberInstance(Locale.US);
+                this.decimalFormat.getDecimalFormatSymbols().setGroupingSeparator(',');
+            }
+            return this.decimalFormat;
+        }
+    }
 
     public static String format(String pattern, Object args, StringFormatOption option) {
         var matches = StringUtils.getAllMatches(pattern, "\\{\\{[a-zA-Z0-9_]+\\}\\}");
