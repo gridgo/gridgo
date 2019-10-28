@@ -5,6 +5,9 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import java.text.DecimalFormat;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
@@ -16,8 +19,6 @@ import io.gridgo.bean.test.support.Bar;
 import io.gridgo.bean.test.support.Foo;
 import io.gridgo.bean.test.support.NumberCollectionPojo;
 import io.gridgo.bean.test.support.PrimitiveVO;
-import io.gridgo.utils.CollectionUtils;
-import io.gridgo.utils.MapUtils;
 import io.gridgo.utils.pojo.PojoUtils;
 
 public class TestPojo {
@@ -32,22 +33,17 @@ public class TestPojo {
                 .barValue(Bar.builder() //
                         .b(true) //
                         .build()) //
-                .intArrayList(CollectionUtils.newListBuilder(int[].class) //
-                        .add(new int[] { 1, 2, 3 }) //
-                        .add(new int[] { 5, 7, 6 }) //
-                        .build()) //
-                .longArrayMap(MapUtils.newMapStringKeyBuilder(long[].class) //
-                        .put("longarr1", new long[] { 4l, 5l }) //
-                        .put("longarr1", new long[] { 6l, 9l }) //
-                        .build()) //
-                .barMap((MapUtils.newMapStringKeyBuilder(Bar.class) //
-                        .put("key", Bar.builder() //
+                .intArrayList(Arrays.asList( //
+                        new int[] { 1, 2, 3 }, //
+                        new int[] { 5, 7, 6 })) //
+                .longArrayMap(Map.of( //
+                        "longarr1", new long[] { 4l, 5l }, //
+                        "longarr1", new long[] { 6l, 9l })) //
+                .barMap(Map.of( //
+                        "key", Bar.builder() //
                                 .b(true) //
-                                .map(MapUtils.newMapStringKeyBuilder(Integer.class) //
-                                        .put("key1", 10) //
-                                        .build()) //
-                                .build()) //
-                        .build())) //
+                                .map(Map.of("key1", 10)) //
+                                .build())) //
                 .build();
     }
 
@@ -165,98 +161,80 @@ public class TestPojo {
     public void testNumberCollectionPojo() {
         var pojo = NumberCollectionPojo.builder() //
                 // list
-                .byteList(CollectionUtils.<Byte>newListBuilder() //
-                        .add((byte) 1) //
-                        .add((byte) 2) //
-                        .add((byte) 3) //
-                        .build()) //
-                .shortList(CollectionUtils.<Short>newListBuilder() //
-                        .add((short) 1) //
-                        .add((short) 2) //
-                        .add((short) 3) //
-                        .build()) //
-                .integerList(CollectionUtils.<Integer>newListBuilder() //
-                        .add(1) //
-                        .add(2) //
-                        .add(3) //
-                        .build()) //
-                .longList(CollectionUtils.<Long>newListBuilder() //
-                        .add((long) 1) //
-                        .add((long) 2) //
-                        .add((long) 3) //
-                        .build()) //
-                .floatList(CollectionUtils.<Float>newListBuilder() //
-                        .add(1.0f) //
-                        .add(2.1f) //
-                        .add(3.2f) //
-                        .build()) //
-                .doubleList(CollectionUtils.<Double>newListBuilder() //
-                        .add(1.0) //
-                        .add(2.1) //
-                        .add(3.2) //
-                        .build()) //
+                .byteList(Arrays.asList( //
+                        (byte) 1, //
+                        (byte) 2, //
+                        (byte) 3)) //
+                .shortList(Arrays.asList( //
+                        (short) 1, //
+                        (short) 2, //
+                        (short) 3)) //
+                .integerList(Arrays.asList( //
+                        1, //
+                        2, //
+                        3)) //
+                .longList(Arrays.asList( //
+                        (long) 1, //
+                        (long) 2, //
+                        (long) 3)) //
+                .floatList(Arrays.asList( //
+                        1.0f, //
+                        2.1f, //
+                        3.2f)) //
+                .doubleList(Arrays.asList( //
+                        1.0, //
+                        2.1, //
+                        3.2)) //
                 // set
-                .byteSet(CollectionUtils.<Byte>newSetBuilder() //
-                        .add((byte) 1) //
-                        .add((byte) 2) //
-                        .add((byte) 3) //
-                        .build()) //
-                .shortSet(CollectionUtils.<Short>newSetBuilder() //
-                        .add((short) 1) //
-                        .add((short) 2) //
-                        .add((short) 3) //
-                        .build()) //
-                .integerSet(CollectionUtils.<Integer>newSetBuilder() //
-                        .add(1) //
-                        .add(2) //
-                        .add(3) //
-                        .build()) //
-                .longSet(CollectionUtils.<Long>newSetBuilder() //
-                        .add((long) 1) //
-                        .add((long) 2) //
-                        .add((long) 3) //
-                        .build()) //
-                .floatSet(CollectionUtils.<Float>newSetBuilder() //
-                        .add(1.0f) //
-                        .add(2.1f) //
-                        .add(3.2f) //
-                        .build()) //
-                .doubleSet(CollectionUtils.<Double>newSetBuilder() //
-                        .add(1.0) //
-                        .add(2.1) //
-                        .add(3.2) //
-                        .build()) //
+                .byteSet(new HashSet<>(Arrays.asList( //
+                        (byte) 1, //
+                        (byte) 2, //
+                        (byte) 3))) //
+                .shortSet(new HashSet<>(Arrays.asList( //
+                        (short) 1, //
+                        (short) 2, //
+                        (short) 3))) //
+                .integerSet(new HashSet<>(Arrays.asList( //
+                        1, //
+                        2, //
+                        3))) //
+                .longSet(new HashSet<>(Arrays.asList( //
+                        (long) 1, //
+                        (long) 2, //
+                        (long) 3))) //
+                .floatSet(new HashSet<>(Arrays.asList( //
+                        1.0f, //
+                        2.1f, //
+                        3.2f))) //
+                .doubleSet(new HashSet<>(Arrays.asList( //
+                        1.0, //
+                        2.1, //
+                        3.2))) //
                 // map
-                .byteMap(MapUtils.<Byte>newMapStringKeyBuilder(Byte.class) //
-                        .put("1", (byte) 1) //
-                        .put("2", (byte) 2) //
-                        .put("3", (byte) 3) //
-                        .build()) //
-                .shortMap(MapUtils.<Short>newMapStringKeyBuilder(Short.class) //
-                        .put("1", (short) 1) //
-                        .put("2", (short) 2) //
-                        .put("3", (short) 3) //
-                        .build()) //
-                .integerMap(MapUtils.<Integer>newMapStringKeyBuilder(Integer.class) //
-                        .put("1", 1) //
-                        .put("2", 2) //
-                        .put("3", 3) //
-                        .build()) //
-                .longMap(MapUtils.<Long>newMapStringKeyBuilder(Long.class) //
-                        .put("1", (long) 1) //
-                        .put("2", (long) 2) //
-                        .put("3", (long) 3) //
-                        .build()) //
-                .floatMap(MapUtils.<Float>newMapStringKeyBuilder(Float.class) //
-                        .put("1", (float) 1) //
-                        .put("2", (float) 2) //
-                        .put("3", (float) 3) //
-                        .build()) //
-                .doubleMap(MapUtils.<Double>newMapStringKeyBuilder(Double.class) //
-                        .put("1", (double) 1) //
-                        .put("2", (double) 2) //
-                        .put("3", (double) 3) //
-                        .build()) //
+                .byteMap(Map.of(
+                        "1", (byte) 1, //
+                        "2", (byte) 2, //
+                        "3", (byte) 3)) //
+                .shortMap(Map.of(
+                        "1", (short) 1, //
+                        "2", (short) 2, //
+                        "3", (short) 3)) //
+                .integerMap(Map.of(
+                        "1", 1, //
+                        "2", 2, //
+                        "3", 3)) //
+                .longMap(Map.of( //
+                        "1", (long) 1, //
+                        "2", (long) 2, //
+                        "3", (long) 3)) //
+                .floatMap(Map.of( //
+                        "1", (float) 1, //
+                        "2", (float) 2, //
+                        "3", (float) 3)) //
+                .doubleMap(Map.of( //
+                        "1", (double) 1, //
+                        "2", (double) 2, //
+                        "3", (double) 3)) //
                 .build();
 
         var json = BReference.of(pojo).toJson();

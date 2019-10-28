@@ -1,5 +1,17 @@
 package io.gridgo.utils.pojo.test.perf;
 
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.text.DecimalFormat;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Map;
+
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.END_ARRAY;
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.END_MAP;
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.KEY;
@@ -7,18 +19,6 @@ import static io.gridgo.utils.pojo.PojoFlattenIndicator.START_ARRAY;
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.START_MAP;
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.VALUE;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.text.DecimalFormat;
-import java.util.Date;
-
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
-import io.gridgo.utils.CollectionUtils;
-import io.gridgo.utils.MapUtils;
 import io.gridgo.utils.exception.RuntimeIOException;
 import io.gridgo.utils.pojo.PojoUtils;
 import io.gridgo.utils.pojo.getter.PojoGetterProxy;
@@ -37,22 +37,17 @@ public class TestPojoUtils {
                 .barValue(Bar.builder() //
                         .b(true) //
                         .build()) //
-                .intArrayList(CollectionUtils.newListBuilder(int[].class) //
-                        .add(new int[] { 1, 2, 3 }) //
-                        .add(new int[] { 5, 7, 6 }) //
-                        .build()) //
-                .longArrayMap(MapUtils.newMapStringKeyBuilder(long[].class) //
-                        .put("longarr1", new long[] { 4l, 5l }) //
-                        .put("longarr1", new long[] { 6l, 9l }) //
-                        .build()) //
-                .barMap((MapUtils.newMapStringKeyBuilder(Bar.class) //
-                        .put("barEntry", Bar.builder() //
+                .intArrayList(Arrays.asList( //
+                        new int[] { 1, 2, 3 }, //
+                        new int[] { 5, 7, 6 })) //
+                .longArrayMap(Map.of( //
+                        "longarr1", new long[] { 4l, 5l }, //
+                        "longarr1", new long[] { 6l, 9l })) //
+                .barMap(Map.of( //
+                        "barEntry", Bar.builder() //
                                 .b(true) //
-                                .map(MapUtils.newMapStringKeyBuilder(Integer.class) //
-                                        .put("key1", 10) //
-                                        .build()) //
-                                .build()) //
-                        .build())) //
+                                .map(Map.of("key1", 10)).build() //
+                )) //
                 .date(new Date()) //
                 .build();
 
@@ -91,7 +86,7 @@ public class TestPojoUtils {
             throw new RuntimeIOException(e);
         }
     }
-    
+
     @Test
     public void testPojoUnsupported() {
         var signatures = PojoUtils.extractGetterMethodSignatures(Foo.class);
@@ -103,7 +98,7 @@ public class TestPojoUtils {
     @Test
     public void testPojoUtils() {
         PojoGetterProxy proxy = PojoUtils.getGetterProxy(Foo.class);
-        int round = (int) 1;
+        int round = 1;
         long nanoTime = System.nanoTime();
 
         long start = nanoTime;
