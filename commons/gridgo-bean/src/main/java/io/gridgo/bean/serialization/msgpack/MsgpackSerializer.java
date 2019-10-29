@@ -212,6 +212,9 @@ public class MsgpackSerializer extends AbstractBSerializer {
     private BValue unpackValue(MessageFormat format, MessageUnpacker unpacker) throws IOException {
         var value = this.getFactory().newValue();
         switch (format.getValueType()) {
+        case NIL:
+            unpacker.unpackNil();
+            break;
         case BINARY:
             int len = unpacker.unpackBinaryHeader();
             value.setData(unpacker.readPayload(len));
@@ -220,26 +223,28 @@ public class MsgpackSerializer extends AbstractBSerializer {
             value.setData(unpacker.unpackBoolean());
             break;
         case FLOAT:
-            if (format == MessageFormat.FLOAT64) {
-                value.setData(unpacker.unpackDouble());
-            } else {
-                value.setData(unpacker.unpackFloat());
-            }
+            value.setData(format == MessageFormat.FLOAT64 //
+                    ? unpacker.unpackDouble() //
+                    : unpacker.unpackFloat());
             break;
         case INTEGER:
-            if (format == MessageFormat.INT8) {
+            switch (format) {
+            case INT8:
                 value.setData(unpacker.unpackByte());
-            } else if (format == MessageFormat.INT16 || format == MessageFormat.UINT8) {
+                break;
+            case INT16:
+            case UINT8:
                 value.setData(unpacker.unpackShort());
-            } else if (format == MessageFormat.UINT32 || format == MessageFormat.INT64
-                    || format == MessageFormat.UINT64) {
+                break;
+            case UINT32:
+            case INT64:
+            case UINT64:
                 value.setData(unpacker.unpackLong());
-            } else {
+                break;
+            default:
                 value.setData(unpacker.unpackInt());
+                break;
             }
-            break;
-        case NIL:
-            unpacker.unpackNil();
             break;
         case STRING:
             value.setData(unpacker.unpackString());
