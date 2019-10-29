@@ -7,13 +7,17 @@ import com.fasterxml.uuid.EthernetAddress;
 import com.fasterxml.uuid.Generators;
 import com.fasterxml.uuid.NoArgGenerator;
 
+import lombok.NonNull;
+
 public class UuidUtils {
 
     private static final long NUM_100NS_INTERVALS_SINCE_UUID_EPOCH = 0x01b21dd213814000L;
 
-    private static final EthernetAddress address = EthernetAddress.fromInterface();;
-    private static final NoArgGenerator timeBasedGenerator = address == null ? Generators.timeBasedGenerator()
-            : Generators.timeBasedGenerator(address);
+    private static final EthernetAddress ADDRESS = EthernetAddress.fromInterface();
+
+    private static final NoArgGenerator TIME_BASED_UUID_GENERATOR = ADDRESS == null //
+            ? Generators.timeBasedGenerator() //
+            : Generators.timeBasedGenerator(ADDRESS);
 
     /**************************************************************
      * RANDOM UUID
@@ -36,7 +40,7 @@ public class UuidUtils {
      **************************************************************/
 
     public static UUID timebasedUUID() {
-        return timeBasedGenerator.generate();
+        return TIME_BASED_UUID_GENERATOR.generate();
     }
 
     public static byte[] timebasedUUIDAsBytes() {
@@ -47,42 +51,44 @@ public class UuidUtils {
         return timebasedUUID().toString();
     }
 
-    public static long getTimeFromUUID(UUID uuid) {
+    public static long getTimeFromUUID(@NonNull UUID uuid) {
         return (uuid.timestamp() - NUM_100NS_INTERVALS_SINCE_UUID_EPOCH) / 10000;
     }
 
-    public static boolean isTimeBaseUUID(UUID uuid) {
+    public static boolean isTimeBaseUUID(@NonNull UUID uuid) {
         return uuid.version() == 1;
     }
 
-    public static byte[] uuidToBytes(UUID uuid) {
-        ByteBuffer bb = ByteBuffer.wrap(new byte[16]);
-        bb.putLong(uuid.getMostSignificantBits());
-        bb.putLong(uuid.getLeastSignificantBits());
-        return bb.array();
+    public static byte[] uuidToBytes(@NonNull UUID uuid) {
+        return ByteBuffer //
+                .allocate(16) //
+                .putLong(uuid.getMostSignificantBits()) //
+                .putLong(uuid.getLeastSignificantBits()) //
+                .array();
     }
 
-    public static byte[] uuidToBytes(String uuidString) {
+    public static byte[] uuidToBytes(@NonNull String uuidString) {
         return uuidToBytes(UUID.fromString(uuidString));
     }
 
-    public static UUID bytesToUUID(byte[] bytes) {
-        if (bytes.length != 16) {
-            throw new IllegalArgumentException();
-        }
+    public static UUID bytesToUUID(@NonNull byte[] bytes) {
+        if (bytes.length != 16)
+            throw new IllegalArgumentException("only byte array with length 16 is allowed, got: " + bytes.length);
+
         int i = 0;
+
         long msl = 0;
-        for (; i < 8; i++) {
+        for (; i < 8; i++)
             msl = (msl << 8) | (bytes[i] & 0xFF);
-        }
+
         long lsl = 0;
-        for (; i < 16; i++) {
+        for (; i < 16; i++)
             lsl = (lsl << 8) | (bytes[i] & 0xFF);
-        }
+
         return new UUID(msl, lsl);
     }
 
-    public static String bytesToUUIDString(byte[] bytes) {
+    public static String bytesToUUIDString(@NonNull byte[] bytes) {
         return bytesToUUID(bytes).toString();
     }
 }

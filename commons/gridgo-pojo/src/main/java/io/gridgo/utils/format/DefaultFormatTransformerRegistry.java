@@ -1,4 +1,4 @@
-package io.gridgo.format;
+package io.gridgo.utils.format;
 
 import java.util.Collections;
 import java.util.HashMap;

@@ -1,4 +1,4 @@
-package io.gridgo.format;
+package io.gridgo.utils.format;
 
 import java.util.Arrays;
 import java.util.List;
@@ -25,7 +25,7 @@ public interface FormatTransformerRegistry {
      * 
      * @return
      */
-    static FormatTransformerRegistry newwDefault() {
+    static FormatTransformerRegistry newDefault() {
         return newInstance(//
                 CommonTextTransformerRegistry.newInstance(), //
                 CommonNumberTransformerRegistry.newInstance(), //
