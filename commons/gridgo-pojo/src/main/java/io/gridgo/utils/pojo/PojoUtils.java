@@ -549,7 +549,9 @@ public class PojoUtils {
                     throw new NullPointerException("Cannot get field '" + fieldName + "' from '" + arr[i - 1]
                             + "' == null, primitive object: " + obj.toString() + ", path: " + path);
                 }
-                currObj = getValue(currObj, fieldName);
+                currObj = Map.class.isInstance(currObj) //
+                        ? (((Map<?, ?>) currObj).get(fieldName)) //
+                        : getValue(currObj, fieldName);
             }
             return (T) currObj;
         }
