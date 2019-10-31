@@ -2,12 +2,16 @@ package io.gridgo.format.test;
 
 import org.junit.Test;
 
+import java.text.DecimalFormat;
+
 import static io.gridgo.utils.PrimitiveUtils.getDoubleValueFrom;
 import static io.gridgo.utils.format.CommonNumberTransformerRegistry.newXEvalExpTransformer;
 import static io.gridgo.utils.format.StringFormatter.transform;
 import static org.junit.Assert.assertEquals;
 
 import io.gridgo.utils.format.GlobalFormatTransformerRegistry;
+import io.gridgo.utils.format.StringFormatter;
+import io.gridgo.utils.format.StringFormatter.StringFormatOption;
 
 public class TestFormatTransformation {
 
@@ -31,5 +35,8 @@ public class TestFormatTransformation {
         assertEquals(expectedResult, actual);
         actual = transform("{{name}}", obj, null);
         assertEquals("MY_NAME", actual);
+        var option = StringFormatOption.builder().decimalFormat(new DecimalFormat("###,###.##")).autoFormatNumber(true).build();
+        actual = StringFormatter.format("{{name}} {{salary}}", obj, option);
+        assertEquals("MY_NAME 10,000,000.97", actual);
     }
 }
