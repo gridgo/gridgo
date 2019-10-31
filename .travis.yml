@@ -13,7 +13,7 @@ addons:
     token: $SONAR_TOKEN
 
 script:
-- mvn test jacoco:report sonar:sonar
+- mvn test jacoco:report sonar:sonar -Dsonar.projectKey=gridgo_gridgo
 
 after_success:
 - bash <(curl -s https://codecov.io/bash)
