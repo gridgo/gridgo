@@ -50,6 +50,11 @@ public interface BObject extends BContainer, Map<String, BElement> {
     }
 
     @Override
+    default boolean isContainer() {
+        return true;
+    }
+
+    @Override
     default boolean isValue() {
         return false;
     }

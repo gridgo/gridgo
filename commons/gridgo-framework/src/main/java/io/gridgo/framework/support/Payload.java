@@ -1,5 +1,6 @@
 package io.gridgo.framework.support;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 import io.gridgo.bean.BArray;
@@ -34,7 +35,7 @@ public interface Payload {
     public Payload setIdFromAny(Object id);
 
     public default BArray toBArray() {
-        return BArray.ofSequence(this.getId().orElse(null), this.getHeaders(), this.getBody());
+        return BArray.wrap(Arrays.asList(this.getId().orElse(null), this.getHeaders(), this.getBody()));
     }
 
     public static Payload of(BValue id, BElement body) {

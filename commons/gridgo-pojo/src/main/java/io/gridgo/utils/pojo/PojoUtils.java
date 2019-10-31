@@ -22,11 +22,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static io.gridgo.format.StringFormatter.transform;
 import static io.gridgo.utils.ArrayUtils.foreachArray;
 import static io.gridgo.utils.ClasspathUtils.scanForAnnotatedTypes;
 import static io.gridgo.utils.PrimitiveUtils.isPrimitive;
 import static io.gridgo.utils.StringUtils.lowerCaseFirstLetter;
+import static io.gridgo.utils.format.StringFormatter.transform;
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.END_ARRAY;
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.END_MAP;
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.KEY;
@@ -72,7 +72,7 @@ public class PojoUtils {
             sb.append((sig = Array.newInstance(c, 0).toString()).substring(1, sig.indexOf('@')));
         return sb.append(')').append(method.getReturnType() == void.class ? "V"
                 : (sig = Array.newInstance(method.getReturnType(), 0).toString()).substring(1, sig.indexOf('@')))
-                 .toString().replaceAll("\\.", "/");
+                .toString().replaceAll("\\.", "/");
     }
 
     public static Class<?> getElementTypeForGeneric(PojoMethodSignature signature) {
@@ -268,11 +268,11 @@ public class PojoUtils {
                     }
 
                     results.add(PojoMethodSignature.builder() //
-                                                   .fieldName(fieldName) //
-                                                   .transformedFieldName(transformedFieldName) //
-                                                   .method(method) //
-                                                   .fieldType(fieldType) //
-                                                   .build());
+                            .fieldName(fieldName) //
+                            .transformedFieldName(transformedFieldName) //
+                            .method(method) //
+                            .fieldType(fieldType) //
+                            .build());
                 }
             }
         }
@@ -539,20 +539,19 @@ public class PojoUtils {
     }
 
     @SuppressWarnings("unchecked")
-    public static final <T> T getValueByPath(Object obj, String path) {
-        if (obj != null && path != null) {
-            String[] arr = path.split("\\.");
-            Object currObj = obj;
-            for (int i = 0; i < arr.length; i++) {
-                String fieldName = arr[i];
-                if (currObj == null) {
-                    throw new NullPointerException("Cannot get field '" + fieldName + "' from '" + arr[i - 1]
-                            + "' == null, primitive object: " + obj.toString() + ", path: " + path);
-                }
-                currObj = getValue(currObj, fieldName);
+    public static final <T> T getValueByPath(@NonNull Object obj, @NonNull String path) {
+        String[] arr = path.split("\\.");
+        Object currObj = obj;
+        for (int i = 0; i < arr.length; i++) {
+            String fieldName = arr[i];
+            if (currObj == null) {
+                throw new NullPointerException("Cannot get field '" + fieldName + "' from '" + arr[i - 1]
+                        + "' == null, primitive object: " + obj.toString() + ", path: " + path);
             }
-            return (T) currObj;
+            currObj = Map.class.isInstance(currObj) //
+                    ? (((Map<?, ?>) currObj).get(fieldName)) //
+                    : getValue(currObj, fieldName);
         }
-        throw new IllegalArgumentException("Object and path must be not-null");
+        return (T) currObj;
     }
 }

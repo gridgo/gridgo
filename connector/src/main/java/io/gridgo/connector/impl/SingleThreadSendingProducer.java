@@ -16,6 +16,7 @@ import io.gridgo.connector.support.config.ConnectorContext;
 import io.gridgo.framework.support.Message;
 import lombok.Getter;
 
+//@Slf4j
 public abstract class SingleThreadSendingProducer extends AbstractProducer {
 
     private final Disruptor<ProducerEvent> sendWorker;
@@ -40,6 +41,7 @@ public abstract class SingleThreadSendingProducer extends AbstractProducer {
                 deferreds.add(event.getDeferred());
                 if (endOfBatch || (batch.size() >= maxBatchSize)) {
                     message = accumulateBatch(batch);
+                    // log.debug("sending batch of {} msg", batch.size());
                     batch.clear();
                 }
             } else {
@@ -108,10 +110,10 @@ public abstract class SingleThreadSendingProducer extends AbstractProducer {
     }
 
     private void produceEvent(Message message, Deferred<Message, Exception> deferred) {
-        if (!this.isStarted()) {
+        if (!this.isStarted())
             return;
-        }
-        this.sendWorker.publishEvent((ProducerEvent event, long sequence) -> {
+
+        sendWorker.publishEvent((event, sequence) -> {
             event.clear();
             event.setDeferred(deferred);
             event.setMessage(message);

@@ -54,10 +54,13 @@ public class MessageUnitTest {
         Assert.assertEquals(2, msg.headers().getInteger(MessageConstants.SIZE).intValue());
         Assert.assertTrue(msg.body().isArray());
         Assert.assertEquals(2, msg.body().asArray().size());
-        Assert.assertEquals(1,
-                msg.body().asArray().getArray(0).getObject(1).getInteger("key").intValue());
-        Assert.assertEquals(2,
-                msg.body().asArray().getArray(1).getObject(1).getInteger("key").intValue());
+        Assert.assertEquals(1, msg.body() //
+                .asArray() //
+                .getArray(0) //
+                .getObject(1) //
+                .getInteger("key") //
+                .intValue());
+        Assert.assertEquals(2, msg.body().asArray().getArray(1).getObject(1).getInteger("key").intValue());
         Assert.assertEquals(1, msg.body().asArray().getArray(0).getInteger(2).intValue());
         Assert.assertEquals(2, msg.body().asArray().getArray(1).getInteger(2).intValue());
     }

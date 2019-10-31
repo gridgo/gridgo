@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.msgpack.core.MessageFormat;
-import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePacker;
 import org.msgpack.core.MessageUnpacker;
 
@@ -26,11 +25,15 @@ import io.gridgo.utils.ArrayUtils;
 import io.gridgo.utils.PrimitiveUtils;
 import io.gridgo.utils.exception.RuntimeIOException;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @BSerializationPlugin({ "raw", MsgpackSerializer.NAME })
 public class MsgpackSerializer extends AbstractBSerializer {
 
     public static final String NAME = "msgpack";
+    private final ThreadLocal<MsgpackerAndBuffer> PACKERS = ThreadLocal.withInitial(MsgpackerAndBuffer::new);
+    private final ThreadLocal<MsgunpackerAndBuffer> UNPACKERS = ThreadLocal.withInitial(MsgunpackerAndBuffer::new);
 
     private void packAny(Object obj, MessagePacker packer) throws IOException {
         if (obj == null) {
@@ -38,7 +41,7 @@ public class MsgpackSerializer extends AbstractBSerializer {
             return;
         }
 
-        if (obj instanceof BElement) {
+        if (BElement.class.isInstance(obj)) {
             BElement element = (BElement) obj;
 
             if (element.isValue()) {
@@ -179,7 +182,8 @@ public class MsgpackSerializer extends AbstractBSerializer {
 
     @Override
     public void serialize(@NonNull BElement element, @NonNull OutputStream out) {
-        try (var packer = MessagePack.newDefaultPacker(out)) {
+        try (var holder = PACKERS.get()) {
+            var packer = holder.reset(out);
             packAny(element, packer);
             packer.flush();
         } catch (Exception e) {
@@ -210,6 +214,9 @@ public class MsgpackSerializer extends AbstractBSerializer {
     private BValue unpackValue(MessageFormat format, MessageUnpacker unpacker) throws IOException {
         var value = this.getFactory().newValue();
         switch (format.getValueType()) {
+        case NIL:
+            unpacker.unpackNil();
+            break;
         case BINARY:
             int len = unpacker.unpackBinaryHeader();
             value.setData(unpacker.readPayload(len));
@@ -218,26 +225,28 @@ public class MsgpackSerializer extends AbstractBSerializer {
             value.setData(unpacker.unpackBoolean());
             break;
         case FLOAT:
-            if (format == MessageFormat.FLOAT64) {
-                value.setData(unpacker.unpackDouble());
-            } else {
-                value.setData(unpacker.unpackFloat());
-            }
+            value.setData(format == MessageFormat.FLOAT64 //
+                    ? unpacker.unpackDouble() //
+                    : unpacker.unpackFloat());
             break;
         case INTEGER:
-            if (format == MessageFormat.INT8) {
+            switch (format) {
+            case INT8:
                 value.setData(unpacker.unpackByte());
-            } else if (format == MessageFormat.INT16 || format == MessageFormat.UINT8) {
+                break;
+            case INT16:
+            case UINT8:
                 value.setData(unpacker.unpackShort());
-            } else if (format == MessageFormat.UINT32 || format == MessageFormat.INT64
-                    || format == MessageFormat.UINT64) {
+                break;
+            case UINT32:
+            case INT64:
+            case UINT64:
                 value.setData(unpacker.unpackLong());
-            } else {
+                break;
+            default:
                 value.setData(unpacker.unpackInt());
+                break;
             }
-            break;
-        case NIL:
-            unpacker.unpackNil();
             break;
         case STRING:
             value.setData(unpacker.unpackString());
@@ -271,9 +280,12 @@ public class MsgpackSerializer extends AbstractBSerializer {
 
     @Override
     public BElement deserialize(InputStream in) {
-        try (var unpacker = MessagePack.newDefaultUnpacker(in)) {
-            return this.unpackAny(unpacker);
-        } catch (IOException e) {
+        try (var holder = UNPACKERS.get()) {
+            return this.unpackAny(holder.reset(in));
+        } catch (Exception e) {
+            if (log.isDebugEnabled())
+                log.debug("Error while deserializing input stream as BElement", e);
+
             throw new BeanSerializationException("Error while deserialize input stream", e);
         }
     }

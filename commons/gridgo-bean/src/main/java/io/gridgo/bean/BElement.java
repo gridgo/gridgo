@@ -138,6 +138,10 @@ public interface BElement extends BSerializerRegistryAware, BJsonSupport, BXmlSu
         }
     }
 
+    default BContainer asContainer() {
+        return (BContainer) this;
+    }
+
     default BObject asObject() {
         return (BObject) this;
     }
