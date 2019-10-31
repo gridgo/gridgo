@@ -19,10 +19,14 @@ public class TestBElementPojoHelper {
         Assert.assertEquals(4, ((List<?>) e).size());
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void testBArray() {
-        var e = BElementPojoHelper.anyToJsonElement(BArray.ofSequence(1, "2", BObject.of("k", "v"), new int[] { 3, 4 }));
+        assertList(BElementPojoHelper.anyToJsonElement(new Object[] {1, "2", BObject.of("k", "v"), new int[] { 3, 4 }}));
+        assertList(BElementPojoHelper.anyToJsonElement(BArray.ofSequence(1, "2", BObject.of("k", "v"), new int[] { 3, 4 })));
+    }
+
+    @SuppressWarnings("unchecked")
+    private void assertList(Object e) {
         Assert.assertTrue(e instanceof List);
         var list = (List<?>) e;
         Assert.assertEquals(4, list.size());
