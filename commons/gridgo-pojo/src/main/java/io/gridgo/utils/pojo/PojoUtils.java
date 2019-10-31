@@ -539,22 +539,19 @@ public class PojoUtils {
     }
 
     @SuppressWarnings("unchecked")
-    public static final <T> T getValueByPath(Object obj, String path) {
-        if (obj != null && path != null) {
-            String[] arr = path.split("\\.");
-            Object currObj = obj;
-            for (int i = 0; i < arr.length; i++) {
-                String fieldName = arr[i];
-                if (currObj == null) {
-                    throw new NullPointerException("Cannot get field '" + fieldName + "' from '" + arr[i - 1]
-                            + "' == null, primitive object: " + obj.toString() + ", path: " + path);
-                }
-                currObj = Map.class.isInstance(currObj) //
-                        ? (((Map<?, ?>) currObj).get(fieldName)) //
-                        : getValue(currObj, fieldName);
+    public static final <T> T getValueByPath(@NonNull Object obj, @NonNull String path) {
+        String[] arr = path.split("\\.");
+        Object currObj = obj;
+        for (int i = 0; i < arr.length; i++) {
+            String fieldName = arr[i];
+            if (currObj == null) {
+                throw new NullPointerException("Cannot get field '" + fieldName + "' from '" + arr[i - 1]
+                        + "' == null, primitive object: " + obj.toString() + ", path: " + path);
             }
-            return (T) currObj;
+            currObj = Map.class.isInstance(currObj) //
+                    ? (((Map<?, ?>) currObj).get(fieldName)) //
+                    : getValue(currObj, fieldName);
         }
-        throw new IllegalArgumentException("Object and path must be not-null");
+        return (T) currObj;
     }
 }

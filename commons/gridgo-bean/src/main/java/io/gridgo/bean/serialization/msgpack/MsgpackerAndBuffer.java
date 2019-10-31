@@ -8,7 +8,7 @@ import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePacker;
 import org.msgpack.core.buffer.OutputStreamBufferOutput;
 
-class PackerAndBuffer implements AutoCloseable {
+class MsgpackerAndBuffer implements AutoCloseable {
     private final OutputStreamBufferOutput output = new OutputStreamBufferOutput(new ByteArrayOutputStream(0));
     private final MessagePacker packer = MessagePack.newDefaultPacker(this.output);
 

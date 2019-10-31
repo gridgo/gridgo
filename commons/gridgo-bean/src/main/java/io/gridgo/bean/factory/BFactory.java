@@ -67,23 +67,24 @@ public interface BFactory {
 
         Class<?> clazz;
         T result;
-        if (data == null || PrimitiveUtils.isPrimitive(clazz = data.getClass()))
+        if (data == null || PrimitiveUtils.isPrimitive(clazz = data.getClass())) {
             result = (T) newValue(data);
-        else if (Collection.class.isAssignableFrom(clazz))
+        } else if (Collection.class.isAssignableFrom(clazz)) {
             result = (T) this.getWrappedArraySupplier().apply((Collection) data);
-        else if (clazz.isArray()) {
+        } else if (clazz.isArray()) {
             final List<Object> list = new ArrayList<>();
             ArrayUtils.foreach(data, entry -> list.add(entry));
             result = (T) this.getWrappedArraySupplier().apply(list);
-        } else if (Map.class.isAssignableFrom(clazz))
+        } else if (Map.class.isAssignableFrom(clazz)) {
             result = (T) this.getWrappedObjectSupplier().apply((Map<?, ?>) data);
-        else
+        } else {
             result = (T) newReference(data);
+        }
 
         result.setSerializerRegistry(getSerializerRegistry());
         if (result.isContainer())
             result.asContainer().setFactory(this);
-        
+
         return result;
     }
 

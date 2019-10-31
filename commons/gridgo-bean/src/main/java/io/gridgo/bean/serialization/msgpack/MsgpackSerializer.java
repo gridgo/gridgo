@@ -25,13 +25,15 @@ import io.gridgo.utils.ArrayUtils;
 import io.gridgo.utils.PrimitiveUtils;
 import io.gridgo.utils.exception.RuntimeIOException;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @BSerializationPlugin({ "raw", MsgpackSerializer.NAME })
 public class MsgpackSerializer extends AbstractBSerializer {
 
     public static final String NAME = "msgpack";
-    private final ThreadLocal<PackerAndBuffer> PACKERS = ThreadLocal.withInitial(PackerAndBuffer::new);
-    private final ThreadLocal<UnpackerAndBuffer> UNPACKERS = ThreadLocal.withInitial(UnpackerAndBuffer::new);
+    private final ThreadLocal<MsgpackerAndBuffer> PACKERS = ThreadLocal.withInitial(MsgpackerAndBuffer::new);
+    private final ThreadLocal<MsgunpackerAndBuffer> UNPACKERS = ThreadLocal.withInitial(MsgunpackerAndBuffer::new);
 
     private void packAny(Object obj, MessagePacker packer) throws IOException {
         if (obj == null) {
@@ -281,6 +283,9 @@ public class MsgpackSerializer extends AbstractBSerializer {
         try (var holder = UNPACKERS.get()) {
             return this.unpackAny(holder.reset(in));
         } catch (Exception e) {
+            if (log.isDebugEnabled())
+                log.debug("Error while deserializing input stream as BElement", e);
+
             throw new BeanSerializationException("Error while deserialize input stream", e);
         }
     }
