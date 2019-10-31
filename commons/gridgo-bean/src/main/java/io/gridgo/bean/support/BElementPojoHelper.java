@@ -1,11 +1,5 @@
 package io.gridgo.bean.support;
 
-import static io.gridgo.utils.ArrayUtils.foreachArray;
-import static io.gridgo.utils.ArrayUtils.toArray;
-import static io.gridgo.utils.ArrayUtils.toPrimitiveArray;
-import static io.gridgo.utils.PrimitiveUtils.getWrapperType;
-import static io.gridgo.utils.PrimitiveUtils.isPrimitive;
-
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -15,6 +9,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import static io.gridgo.utils.ArrayUtils.foreachArray;
+import static io.gridgo.utils.ArrayUtils.toArray;
+import static io.gridgo.utils.ArrayUtils.toPrimitiveArray;
+import static io.gridgo.utils.PrimitiveUtils.getWrapperType;
+import static io.gridgo.utils.PrimitiveUtils.isPrimitive;
 
 import io.gridgo.bean.BArray;
 import io.gridgo.bean.BElement;
@@ -106,9 +106,10 @@ public class BElementPojoHelper {
     }
 
     public static Object anyToJsonElement(Object target, PojoGetterProxy proxy) {
-        Class<?> type;
-        if (target == null || //
-                isPrimitive(type = target.getClass()) || //
+        if (target == null)
+            return null;
+        Class<?> type = target.getClass();
+        if (isPrimitive(type) || //
                 type == Date.class || //
                 type == java.sql.Date.class) {
             return target;
