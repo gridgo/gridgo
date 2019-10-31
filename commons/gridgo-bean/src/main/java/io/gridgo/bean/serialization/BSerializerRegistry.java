@@ -1,12 +1,12 @@
 package io.gridgo.bean.serialization;
 
-import static io.gridgo.utils.ClasspathUtils.scanForAnnotatedTypes;
+import org.cliffc.high_scale_lib.NonBlockingHashMap;
 
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.cliffc.high_scale_lib.NonBlockingHashMap;
+import static io.gridgo.utils.ClasspathUtils.scanForAnnotatedTypes;
 
 import io.gridgo.bean.exceptions.SerializationPluginException;
 import io.gridgo.bean.factory.BFactory;
@@ -68,19 +68,17 @@ public final class BSerializerRegistry implements ClasspathScanner {
     }
 
     public <T extends BSerializer> T getDefault() {
-        if (this.cachedDefaultSerializer == null) {
-            synchronized (defaultSerializerName) {
+        synchronized (defaultSerializerName) {
+            if (this.cachedDefaultSerializer == null) {
+                final String currDefaultSerializerName = getDefaultSerializerName();
+                this.cachedDefaultSerializer = this.lookup(currDefaultSerializerName);
                 if (this.cachedDefaultSerializer == null) {
-                    final String currDefaultSerializerName = getDefaultSerializerName();
-                    this.cachedDefaultSerializer = this.lookup(currDefaultSerializerName);
-                    if (this.cachedDefaultSerializer == null) {
-                        if (log.isWarnEnabled()) {
-                            log.warn("Serializer for default name " + currDefaultSerializerName + " doesn't exist");
-                        } else {
-                            new NullPointerException(
-                                    "Serializer for default name " + currDefaultSerializerName + " doesn't exist")
-                                            .printStackTrace();
-                        }
+                    if (log.isWarnEnabled()) {
+                        log.warn("Serializer for default name " + currDefaultSerializerName + " doesn't exist");
+                    } else {
+                        new NullPointerException(
+                                "Serializer for default name " + currDefaultSerializerName + " doesn't exist")
+                                        .printStackTrace();
                     }
                 }
             }

@@ -1,11 +1,5 @@
 package io.gridgo.bean.support;
 
-import static io.gridgo.utils.ArrayUtils.foreachArray;
-import static io.gridgo.utils.ArrayUtils.toArray;
-import static io.gridgo.utils.ArrayUtils.toPrimitiveArray;
-import static io.gridgo.utils.PrimitiveUtils.getWrapperType;
-import static io.gridgo.utils.PrimitiveUtils.isPrimitive;
-
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -15,6 +9,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import static io.gridgo.utils.ArrayUtils.foreachArray;
+import static io.gridgo.utils.ArrayUtils.toArray;
+import static io.gridgo.utils.ArrayUtils.toPrimitiveArray;
+import static io.gridgo.utils.PrimitiveUtils.getWrapperType;
+import static io.gridgo.utils.PrimitiveUtils.isPrimitive;
 
 import io.gridgo.bean.BArray;
 import io.gridgo.bean.BElement;
@@ -58,34 +58,15 @@ public class BElementPojoHelper {
         }
 
         if (type.isArray()) {
-            var list = BArray.ofEmpty();
-            var _proxy = proxy;
-            foreachArray(target, ele -> {
-                list.add(anyToBElement(ele, _proxy));
-            });
-            return list;
+            return arrayToBElement(target, proxy);
         }
 
         if (Collection.class.isInstance(target)) {
-            var it = ((Collection<?>) target).iterator();
-            var list = BArray.ofEmpty();
-            while (it.hasNext()) {
-                list.add(anyToBElement(it.next(), proxy));
-            }
-            return list;
+            return collectionToBElement(target, proxy);
         }
 
         if (Map.class.isInstance(target)) {
-            var result = BObject.ofEmpty();
-            var map = (Map<?, ?>) target;
-            var it = map.entrySet().iterator();
-            while (it.hasNext()) {
-                var entry = it.next();
-                var key = entry.getKey();
-                var value = entry.getValue();
-                result.put(key.toString(), anyToBElement(value, proxy));
-            }
-            return result;
+            return mapToBElement(target, proxy);
         }
 
         proxy = proxy == null ? PojoUtils.getGetterProxy(type) : proxy;
@@ -101,14 +82,46 @@ public class BElementPojoHelper {
         return result;
     }
 
+    private static BElement mapToBElement(Object target, PojoGetterProxy proxy) {
+        var result = BObject.ofEmpty();
+        var map = (Map<?, ?>) target;
+        var it = map.entrySet().iterator();
+        while (it.hasNext()) {
+            var entry = it.next();
+            var key = entry.getKey();
+            var value = entry.getValue();
+            result.put(key.toString(), anyToBElement(value, proxy));
+        }
+        return result;
+    }
+
+    private static BElement collectionToBElement(Object target, PojoGetterProxy proxy) {
+        var it = ((Collection<?>) target).iterator();
+        var list = BArray.ofEmpty();
+        while (it.hasNext()) {
+            list.add(anyToBElement(it.next(), proxy));
+        }
+        return list;
+    }
+
+    private static BElement arrayToBElement(Object target, PojoGetterProxy proxy) {
+        var list = BArray.ofEmpty();
+        var _proxy = proxy;
+        foreachArray(target, ele -> {
+            list.add(anyToBElement(ele, _proxy));
+        });
+        return list;
+    }
+
     public static Object anyToJsonElement(Object any) {
         return anyToJsonElement(any, null);
     }
 
     public static Object anyToJsonElement(Object target, PojoGetterProxy proxy) {
-        Class<?> type;
-        if (target == null || //
-                isPrimitive(type = target.getClass()) || //
+        if (target == null)
+            return null;
+        Class<?> type = target.getClass();
+        if (isPrimitive(type) || //
                 type == Date.class || //
                 type == java.sql.Date.class) {
             return target;
@@ -119,34 +132,15 @@ public class BElementPojoHelper {
         }
 
         if (type.isArray()) {
-            var list = new LinkedList<Object>();
-            var _proxy = proxy;
-            foreachArray(target, ele -> {
-                list.add(anyToJsonElement(ele, _proxy));
-            });
-            return list;
+            return arrayToJsonElement(target, proxy);
         }
 
         if (Collection.class.isInstance(target)) {
-            var it = ((Collection<?>) target).iterator();
-            var list = new LinkedList<Object>();
-            while (it.hasNext()) {
-                list.add(anyToJsonElement(it.next(), proxy));
-            }
-            return list;
+            return collectionToJsonElement(target, proxy);
         }
 
         if (Map.class.isInstance(target)) {
-            var result = new HashMap<String, Object>();
-            var map = (Map<?, ?>) target;
-            var it = map.entrySet().iterator();
-            while (it.hasNext()) {
-                var entry = it.next();
-                var key = entry.getKey();
-                var value = entry.getValue();
-                result.put(key.toString(), anyToJsonElement(value, proxy));
-            }
-            return result;
+            return mapToJsonElement(target, proxy);
         }
 
         proxy = proxy == null ? PojoUtils.getGetterProxy(type) : proxy;
@@ -160,6 +154,37 @@ public class BElementPojoHelper {
             result.put(fieldName, entryValue);
         });
         return result;
+    }
+
+    private static Object mapToJsonElement(Object target, PojoGetterProxy proxy) {
+        var result = new HashMap<String, Object>();
+        var map = (Map<?, ?>) target;
+        var it = map.entrySet().iterator();
+        while (it.hasNext()) {
+            var entry = it.next();
+            var key = entry.getKey();
+            var value = entry.getValue();
+            result.put(key.toString(), anyToJsonElement(value, proxy));
+        }
+        return result;
+    }
+
+    private static Object collectionToJsonElement(Object target, PojoGetterProxy proxy) {
+        var it = ((Collection<?>) target).iterator();
+        var list = new LinkedList<Object>();
+        while (it.hasNext()) {
+            list.add(anyToJsonElement(it.next(), proxy));
+        }
+        return list;
+    }
+
+    private static Object arrayToJsonElement(Object target, PojoGetterProxy proxy) {
+        var list = new LinkedList<Object>();
+        var _proxy = proxy;
+        foreachArray(target, ele -> {
+            list.add(anyToJsonElement(ele, _proxy));
+        });
+        return list;
     }
 
     public static <T> T bObjectToPojo(BObject src, @NonNull Class<T> type) {
