@@ -1,13 +1,15 @@
 package io.gridgo.bean.test;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Assert;
+import org.junit.Test;
 
 import java.sql.Date;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 import io.gridgo.bean.BArray;
 import io.gridgo.bean.BElement;
@@ -98,6 +100,9 @@ public class BObjectUnitTest {
         Assert.assertEquals(pojo.getIntValue(), deserialized.getIntValue());
         Assert.assertEquals(pojo.getStringValue(), deserialized.getStringValue());
         Assert.assertEquals(pojo.getBarValue().isB(), deserialized.getBarValue().isB());
+        var wrapped = BObject.ofEmpty().setAnyPojo("k1", pojo);
+        Assert.assertEquals(pojo.getDoubleValue(), wrapped.getObject("k1").getDouble("doubleValue"), 0);
+        Assert.assertEquals(pojo.getIntValue(), (int) wrapped.getObject("k1").getInteger("intValue"));
     }
 
     @Test
@@ -137,13 +142,37 @@ public class BObjectUnitTest {
 
     @Test
     public void testDate() {
+        long time = 1555411032310L;
         var beanWithDate = new BeanWithDate();
-        beanWithDate.setDate(new Date(1555411032310L));
+        beanWithDate.setDate(new Date(time));
 
         beanWithDate = BObject.ofPojo(beanWithDate).toPojo(BeanWithDate.class);
         assertEquals("2019-04-16", beanWithDate.getDate().toString());
 
-        var bObj = BObject.ofEmpty().setAny("date", new Date(System.currentTimeMillis()));
+        var bObj = BObject.ofEmpty().setAny("date", beanWithDate.getDate());
+        Date date = bObj.getReference("date").getReference();
+        Assert.assertEquals(time, date.getTime());
         System.out.println(bObj.toJson());
+    }
+
+    @Test
+    public void testWrapAndHolder() {
+        var map = Map.of("k1", "v1");
+        var obj = BObject.wrap(map);
+        Assert.assertEquals(map, obj.toMap());
+
+        obj = BObject.withHolder(new EmptyMap<>());
+        obj.setAny("k1", "v1");
+        Assert.assertNull(obj.getString("k1", null));
+    }
+
+    class EmptyMap<K, V> extends HashMap<K, V> {
+
+        private static final long serialVersionUID = -1298127233576511932L;
+
+        @Override
+        public V put(K key, V value) {
+            return value;
+        }
     }
 }

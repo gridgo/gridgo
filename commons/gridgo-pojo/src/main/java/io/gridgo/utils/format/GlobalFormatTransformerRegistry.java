@@ -1,4 +1,4 @@
-package io.gridgo.format;
+package io.gridgo.utils.format;
 
 import lombok.Getter;
 
@@ -8,6 +8,6 @@ public class GlobalFormatTransformerRegistry extends DefaultFormatTransformerReg
     private final static GlobalFormatTransformerRegistry instance = new GlobalFormatTransformerRegistry();
 
     private GlobalFormatTransformerRegistry() {
-        this.inherit(FormatTransformerRegistry.newwDefault());
+        this.inherit(FormatTransformerRegistry.newDefault());
     }
 }

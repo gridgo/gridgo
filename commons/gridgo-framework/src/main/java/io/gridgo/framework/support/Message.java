@@ -26,7 +26,7 @@ public interface Message {
     }
 
     public Map<String, Object> getMisc();
-    
+
     public default Object getMisc(String key) {
         return getMisc().get(key);
     }
@@ -112,33 +112,36 @@ public interface Message {
     static Message parse(BElement data) {
         Payload payload = null;
 
-        var multipart = false;
+        var isMultipart = false;
 
         if (data instanceof BArray && data.asArray().size() == 3) {
             BArray arr = data.asArray();
-            BElement id = arr.get(0);
+            var ele0 = arr.get(0);
 
-            BElement headers = arr.get(1);
-            if (headers.isValue() && headers.asValue().isNull()) {
-                headers = BObject.ofEmpty();
-            }
-            multipart = headers.asObject().getBoolean(MessageConstants.IS_MULTIPART, false);
+            if (ele0.isValue()) {
+                var id = ele0.asValue();
 
-            BElement body = arr.get(2);
-            if (body.isValue() && body.asValue().isNull()) {
-                body = null;
-            }
+                var maybeHeaders = arr.get(1);
+                BObject headers = maybeHeaders.isObject() //
+                        ? headers = maybeHeaders.asObject() //
+                        : null;
 
-            if (id.isValue() && headers.isObject()) {
-                payload = Payload.of(id.asValue(), headers.asObject(), body);
+                isMultipart = headers != null //
+                        ? headers.getBoolean(MessageConstants.IS_MULTIPART, false) //
+                        : false;
+
+                BElement body = arr.get(2);
+                if (body.isNullValue())
+                    body = null;
+
+                payload = Payload.of(id.asValue(), headers, body);
             }
         }
 
-        if (payload == null) {
+        if (payload == null)
             payload = Payload.of(data);
-        }
 
-        if (multipart)
+        if (isMultipart)
             return new MultipartMessage(payload);
 
         return Message.of(payload);

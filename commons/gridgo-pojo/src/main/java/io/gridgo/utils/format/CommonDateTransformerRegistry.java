@@ -1,4 +1,4 @@
-package io.gridgo.format;
+package io.gridgo.utils.format;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -9,14 +9,16 @@ public class CommonDateTransformerRegistry extends DefaultFormatTransformerRegis
     public static final FormatTransformer newDateTransformer(final String pattern, final String timeZoneId) {
         if (pattern != null) {
             SimpleDateFormat sdf = new SimpleDateFormat(pattern);
-            if (timeZoneId != null) {
+            if (timeZoneId != null)
                 sdf.setTimeZone(TimeZone.getTimeZone(timeZoneId));
-            }
             return (source) -> {
                 if (source != null) {
-                    if (source instanceof Date) {
+                    if (source instanceof Date)
                         return sdf.format(source);
-                    }
+                    else if (source instanceof java.sql.Date)
+                        return sdf.format(new Date(((java.sql.Date) source).getTime()));
+                    else if (source instanceof Long)
+                        return sdf.format(new Date((long) source));
                     return source;
                 }
                 return null;

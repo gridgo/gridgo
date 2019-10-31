@@ -1,4 +1,4 @@
-package io.gridgo.format;
+package io.gridgo.utils.format;
 
 import static com.google.common.base.CaseFormat.*;
 

@@ -1,10 +1,10 @@
 package io.gridgo.bean;
 
-import static io.gridgo.bean.support.BElementPojoHelper.anyToBElement;
-
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Supplier;
+
+import static io.gridgo.bean.support.BElementPojoHelper.anyToBElement;
 
 import io.gridgo.bean.exceptions.InvalidTypeException;
 import io.gridgo.bean.factory.BFactory;
@@ -40,11 +40,6 @@ public interface BObject extends BContainer, Map<String, BElement> {
         return anyToBElement(pojo).asObject();
     }
 
-    @Deprecated
-    static BObject ofPojoRecursive(Object pojo) {
-        return ofPojo(pojo);
-    }
-
     static BObject ofSequence(Object... sequence) {
         return BFactory.DEFAULT.newObjectFromSequence(sequence);
     }
@@ -52,6 +47,11 @@ public interface BObject extends BContainer, Map<String, BElement> {
     @Override
     default boolean isArray() {
         return false;
+    }
+
+    @Override
+    default boolean isContainer() {
+        return true;
     }
 
     @Override
@@ -290,29 +290,14 @@ public interface BObject extends BContainer, Map<String, BElement> {
         return this.putAny(name, pojo == null ? null : anyToBElement(pojo).asObject());
     }
 
-    @Deprecated
-    default BElement putAnyPojoRecursive(String name, Object pojo) {
-        return this.putAnyPojo(name, pojo);
-    }
-
     default BElement putAnyPojoIfAbsent(String name, Object pojo) {
         return this.putAnyIfAbsent(name, pojo == null ? null : anyToBElement(pojo).asObject());
-    }
-
-    @Deprecated
-    default BElement putAnyPojoRecursiveIfAbsent(String name, Object pojo) {
-        return putAnyPojoIfAbsent(name, pojo);
     }
 
     default void putAnyAllPojo(Object pojo) {
         if (pojo != null) {
             this.putAnyAll(anyToBElement(pojo).asObject());
         }
-    }
-
-    @Deprecated
-    default void putAnyAllPojoRecursive(Object pojo) {
-        this.putAnyAllPojo(pojo);
     }
 
     default void putAnySequence(Object... elements) {
@@ -349,7 +334,7 @@ public interface BObject extends BContainer, Map<String, BElement> {
     }
 
     default BObject setAnyPojoRecursive(String name, Object pojo) {
-        this.putAnyPojoRecursive(name, pojo);
+        this.putAnyPojo(name, pojo);
         return this;
     }
 
@@ -359,7 +344,7 @@ public interface BObject extends BContainer, Map<String, BElement> {
     }
 
     default BObject setAnyPojoRecursiveIfAbsent(String name, Object pojo) {
-        this.putAnyPojoRecursiveIfAbsent(name, pojo);
+        this.putAnyPojoIfAbsent(name, pojo);
         return this;
     }
 

@@ -1,4 +1,4 @@
-package io.gridgo.format;
+package io.gridgo.utils.format;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;

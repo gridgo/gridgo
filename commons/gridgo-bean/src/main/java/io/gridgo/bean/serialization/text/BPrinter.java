@@ -104,7 +104,10 @@ public final class BPrinter {
         BType type = value.getType();
         String content = type == BType.RAW ? Arrays.toString(value.getRaw()) : value.getString();
         if (name == null) {
-            writer.append("(").append(type.name()).append(" = ").append(content).append(")");
+            writer.append("(").append(type.name());
+            if (!value.isNull())
+                writer.append(" = ").append(content);
+            writer.append(")");
         } else {
             writer.append(name).append(": ").append(type.name());
             if (!value.isNull()) {

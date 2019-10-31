@@ -17,7 +17,7 @@ public class ClasspathUtils {
     private static final FieldAnnotationsScanner FIELD_ANNOTATIONS_SCANNER = new FieldAnnotationsScanner();
     private static final MethodAnnotationsScanner METHOD_ANNOTATIONS_SCANNER = new MethodAnnotationsScanner();
 
-    private static final synchronized Reflections reflections(Object... params) {
+    public static final synchronized Reflections reflections(Object... params) {
         return new Reflections(params);
     }
 
@@ -50,8 +50,8 @@ public class ClasspathUtils {
             ClassLoader... classLoaders) {
 
         var reflections = reflections(packageName, FIELD_ANNOTATIONS_SCANNER, classLoaders);
-        var methods = reflections.getFieldsAnnotatedWith(annotationType);
-        methods.forEach(method -> acceptor.accept(method, method.getAnnotation(annotationType)));
+        var fields = reflections.getFieldsAnnotatedWith(annotationType);
+        fields.forEach(field -> acceptor.accept(field, field.getAnnotation(annotationType)));
     }
 
     public static final <Type> void scanForSubTypes(@NonNull String packageName, //

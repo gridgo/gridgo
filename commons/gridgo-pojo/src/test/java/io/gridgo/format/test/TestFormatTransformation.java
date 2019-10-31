@@ -1,11 +1,13 @@
 package io.gridgo.format.test;
 
+import static io.gridgo.utils.PrimitiveUtils.getDoubleValueFrom;
+import static io.gridgo.utils.format.CommonNumberTransformerRegistry.newXEvalExpTransformer;
+import static io.gridgo.utils.format.StringFormatter.transform;
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 
-import io.gridgo.format.CommonNumberTransformerRegistry;
-import io.gridgo.format.GlobalFormatTransformerRegistry;
-import io.gridgo.format.StringFormatter;
-import io.gridgo.utils.PrimitiveUtils;
+import io.gridgo.utils.format.GlobalFormatTransformerRegistry;
 
 public class TestFormatTransformation {
 
@@ -14,20 +16,18 @@ public class TestFormatTransformation {
         String str = "My name is {{ name > nameTransform }}, " //
                 + "{{ age }} years old, " //
                 + "monthly salary {{ salary > decrement10% > decrement50 > thousandSeparate}} {{currency > upperCase}}, " //
-                + "health {{health > percentage}}, " //
-                + "date: {{today > localOnlyDate}}, " //
-                + "time: {{today > localOnlyTime12}}, " //
-                + "fulltime: {{today > localFullTime24}}, " //
-                + "fulltime gmt: {{today > gmtFullTime12}}";
+                + "health {{health > percentage}}";
 
-        var obj = new Dummy("My Name", 30, 10000000.97, "VND", "0.9756");
+        long now = 1572345589467l; // fixed value for unit test
+        var obj = new Dummy("MY_NAME", 30, 10000000.97, "VND", "0.9756", now);
 
-        GlobalFormatTransformerRegistry.getInstance().addTransformer("decrement10%", CommonNumberTransformerRegistry.newXEvalExpTransformer("0.9 * x"));
+        var transformerRegistry = GlobalFormatTransformerRegistry.getInstance();
+        transformerRegistry.addTransformer("decrement10%", newXEvalExpTransformer("0.9 * x"));
+        transformerRegistry.addTransformer("decrement50", value -> getDoubleValueFrom(value) - 50);
+        transformerRegistry.addAlias("nameTransform", "lowerCase > capitalize", "stripAccents");
 
-        GlobalFormatTransformerRegistry.getInstance().addTransformer("decrement50", value -> PrimitiveUtils.getDoubleValueFrom(value) - 50);
-
-        GlobalFormatTransformerRegistry.getInstance().addAlias("nameTransform", "lowerCase > capitalize", "stripAccents");
-
-        System.out.println(StringFormatter.transform(str, obj));
+        var expectedResult = "My name is My_name, 30 years old, monthly salary 8,999,950 VND, health 97.56%";
+        var actual = transform(str, obj);
+        assertEquals(expectedResult, actual);
     }
 }
