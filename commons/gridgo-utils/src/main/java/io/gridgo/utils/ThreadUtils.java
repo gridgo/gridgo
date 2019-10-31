@@ -71,6 +71,7 @@ public class ThreadUtils {
             return true;
         } catch (InterruptedException e) {
             // ignore
+            Thread.currentThread().interrupt();
         }
         return false;
     }
