@@ -1,11 +1,11 @@
 package io.gridgo.format.test;
 
+import org.junit.Test;
+
 import static io.gridgo.utils.PrimitiveUtils.getDoubleValueFrom;
 import static io.gridgo.utils.format.CommonNumberTransformerRegistry.newXEvalExpTransformer;
 import static io.gridgo.utils.format.StringFormatter.transform;
 import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
 
 import io.gridgo.utils.format.GlobalFormatTransformerRegistry;
 
@@ -29,5 +29,7 @@ public class TestFormatTransformation {
         var expectedResult = "My name is My_name, 30 years old, monthly salary 8,999,950 VND, health 97.56%";
         var actual = transform(str, obj);
         assertEquals(expectedResult, actual);
+        actual = transform("{{name}}", obj, null);
+        assertEquals("MY_NAME", actual);
     }
 }
