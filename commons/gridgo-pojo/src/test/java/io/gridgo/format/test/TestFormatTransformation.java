@@ -38,5 +38,8 @@ public class TestFormatTransformation {
         var option = StringFormatOption.builder().decimalFormat(new DecimalFormat("###,###.##")).autoFormatNumber(true).build();
         actual = StringFormatter.format("{{name}} {{salary}}", obj, option);
         assertEquals("MY_NAME 10,000,000.97", actual);
+        option = StringFormatOption.builder().autoFormatNumber(true).build();
+        actual = StringFormatter.format("{{name}} {{salary}}", obj, option);
+        assertEquals("MY_NAME 10,000,000.97", actual);
     }
 }
