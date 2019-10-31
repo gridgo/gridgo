@@ -465,7 +465,7 @@ public class PojoUtils {
 
             list = extractFieldGenericTypes(field);
         }
-        return list == null ? null : list.toArray(new Class[0]);
+        return list.toArray(new Class[0]);
     }
 
     private static List<Class<?>> extractFieldGenericTypes(Field field) {

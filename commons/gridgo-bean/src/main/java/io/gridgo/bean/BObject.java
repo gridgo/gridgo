@@ -333,17 +333,7 @@ public interface BObject extends BContainer, Map<String, BElement> {
         return this;
     }
 
-    default BObject setAnyPojoRecursive(String name, Object pojo) {
-        this.putAnyPojo(name, pojo);
-        return this;
-    }
-
     default BObject setAnyPojoIfAbsent(String name, Object pojo) {
-        this.putAnyPojoIfAbsent(name, pojo);
-        return this;
-    }
-
-    default BObject setAnyPojoRecursiveIfAbsent(String name, Object pojo) {
         this.putAnyPojoIfAbsent(name, pojo);
         return this;
     }
