@@ -185,6 +185,14 @@ public class BObjectUnitTest {
         obj.getReference("k1");
     }
 
+    @Test
+    public void testGetArrayOrEmpty() {
+        var obj = BObject.ofEmpty();
+        var arr = obj.getArrayOrEmpty("k1");
+        Assert.assertNotNull(arr);
+        Assert.assertNotNull(arr.isEmpty());
+    }
+
     class EmptyMap<K, V> extends HashMap<K, V> {
 
         private static final long serialVersionUID = -1298127233576511932L;
