@@ -1,13 +1,14 @@
 package io.gridgo.bean.test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import org.junit.Assert;
+import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import io.gridgo.bean.BElement;
 import io.gridgo.bean.BObject;
@@ -64,8 +65,12 @@ public class TextJsonSerializer {
                         .build()) //
                 .build();
 
-        BReference reference = BReference.of(foo);
+        var reference = BReference.of(foo);
+        var json = reference.toJson();
+        var after = BElement.ofJson(json).asObject().toPojo(Foo.class);
 
-        System.out.println(reference.toJson());
+        Assert.assertArrayEquals(foo.getIntArrayValue(), after.getIntArrayValue());
+        Assert.assertEquals(foo.getDoubleValue(), after.getDoubleValue(), 0);
+        Assert.assertEquals(foo.getBarValue().isB(), after.getBarValue().isB());
     }
 }

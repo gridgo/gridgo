@@ -42,6 +42,6 @@ public class BValueUnitTest {
     public void testSerialization() {
         var val = BValue.of(0);
         var after = BElement.ofBytes(new String(val.toBytes()).getBytes());
-        System.out.println(after);
+        Assert.assertEquals(0, (int) after.getInnerValue());
     }
 }
