@@ -1,7 +1,5 @@
 package io.gridgo.bean;
 
-import static io.gridgo.bean.support.BElementPojoHelper.anyToJsonElement;
-
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -11,6 +9,8 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.Optional;
 import java.util.function.Consumer;
+
+import static io.gridgo.bean.support.BElementPojoHelper.anyToJsonElement;
 
 import io.gridgo.bean.exceptions.BeanSerializationException;
 import io.gridgo.bean.factory.BFactory;
@@ -32,12 +32,12 @@ public interface BReference extends BElement {
      * stream deserialized to key-value, it use BObject.toPojo() method. if stream
      * deserialized to breference which contains an instanceof targetType, return
      * itself.
-     * 
+     *
      * @param inputStream    input stream
      * @param serializerName serialzier name, null mean default (msgpack)
      * @param targetType     target type
      * @return BReference which contains instance of targetType
-     * 
+     *
      */
     static BReference ofBytes(InputStream inputStream, String serializerName, Class<?> targetType) {
         var element = BFactory.DEFAULT.fromBytes(inputStream, serializerName);
@@ -48,8 +48,7 @@ public interface BReference extends BElement {
         if (element.isObject())
             return BFactory.DEFAULT.newReference(element.asObject().toPojo(targetType));
 
-        throw new BeanSerializationException(
-                "Cannot convert input bytes as BReference of '" + targetType + "', deserialized: " + element);
+        throw new BeanSerializationException("Cannot convert input bytes as BReference of '" + targetType + "', deserialized: " + element);
     }
 
     static BReference ofBytes(byte[] bytes, String serializerName, Class<?> targetType) {
@@ -89,6 +88,7 @@ public interface BReference extends BElement {
         return BType.REFERENCE;
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     default <T extends BElement> T deepClone() {
         return (T) of(this.getReference());
@@ -121,7 +121,7 @@ public interface BReference extends BElement {
     /**
      * Support for I/O operator when reference object is ByteBuffer or InputStream
      * or File
-     * 
+     *
      * @param output where data will be write to
      * @return success or not
      * @throws IOException if output stream cannot be written
@@ -160,5 +160,10 @@ public interface BReference extends BElement {
 
     default BObject toBObject() {
         return BObject.ofPojo(this.getReference());
+    }
+
+    @Override
+    default <T> T getInnerValue() {
+        return getReference();
     }
 }

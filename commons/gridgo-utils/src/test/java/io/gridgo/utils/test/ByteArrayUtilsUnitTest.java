@@ -1,5 +1,9 @@
 package io.gridgo.utils.test;
 
+import org.junit.Test;
+
+import java.util.Arrays;
+
 import static io.gridgo.utils.ByteArrayUtils.bytesToInt;
 import static io.gridgo.utils.ByteArrayUtils.bytesToLong;
 import static io.gridgo.utils.ByteArrayUtils.bytesToPrimitive;
@@ -9,11 +13,6 @@ import static io.gridgo.utils.ByteArrayUtils.toHex;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-
-import java.util.Arrays;
-
-import org.junit.Assert;
-import org.junit.Test;
 
 import io.gridgo.utils.ByteArrayUtils;
 
@@ -131,14 +130,5 @@ public class ByteArrayUtilsUnitTest {
             assertEquals(doubleValue, bytesToPrimitive(Double.class, bytes).doubleValue(), 0.0);
             assertEquals(doubleValue, ByteArrayUtils.bytesToDouble(bytes).doubleValue(), 0.0);
         }
-    }
-
-    @Test
-    @SuppressWarnings("deprecation")
-    public void testPrimitivesWithBuffer() {
-        Assert.assertEquals(2.2, ByteArrayUtils.bytesToNumber(primitiveToBytes(2.2), true));
-        Assert.assertEquals(2, ByteArrayUtils.bytesToNumber(primitiveToBytes(2), false));
-        Assert.assertEquals(2L, ByteArrayUtils.bytesToNumber(primitiveToBytes(2L), false));
-        Assert.assertEquals(Character.valueOf('a'), bytesToPrimitive(Character.class, primitiveToBytes('a')));
     }
 }

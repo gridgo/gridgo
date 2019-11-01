@@ -1,13 +1,11 @@
 package io.gridgo.connector.impl;
 
-import java.io.InputStream;
-import java.nio.ByteBuffer;
+import org.joo.promise4j.Deferred;
+
 import java.util.Collection;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiConsumer;
-
-import org.joo.promise4j.Deferred;
 
 import io.gridgo.bean.BElement;
 import io.gridgo.bean.BValue;
@@ -29,7 +27,7 @@ public abstract class AbstractConsumer extends AbstractMessageComponent implemen
     public AbstractConsumer(ConnectorContext context) {
         this.context = context;
     }
-    
+
     protected Message parseMessage(BElement data) {
         Message msg = Message.parse(data);
         ensurePayloadId(msg);
@@ -37,18 +35,6 @@ public abstract class AbstractConsumer extends AbstractMessageComponent implemen
     }
 
     protected Message parseMessage(byte[] data) {
-        Message msg = Message.parse(data);
-        ensurePayloadId(msg);
-        return msg;
-    }
-
-    protected Message parseMessage(ByteBuffer data) {
-        Message msg = Message.parse(data);
-        ensurePayloadId(msg);
-        return msg;
-    }
-
-    protected Message parseMessage(InputStream data) {
         Message msg = Message.parse(data);
         ensurePayloadId(msg);
         return msg;
@@ -101,7 +87,7 @@ public abstract class AbstractConsumer extends AbstractMessageComponent implemen
         }
         return this;
     }
-    
+
     @Override
     public Optional<BValue> generateId() {
         return context.getIdGenerator().generateId();

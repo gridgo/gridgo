@@ -24,6 +24,9 @@ public class ThreadUtilsUnitTest {
     public void testInterruptedSleep() {
         Thread.currentThread().interrupt();
         ThreadUtils.sleep(500);
+        Assert.assertTrue(Thread.currentThread().isInterrupted());
+        ThreadUtils.sleepSilence(500);
+        Assert.assertTrue(Thread.currentThread().isInterrupted());
     }
 
     @Test

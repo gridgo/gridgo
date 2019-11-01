@@ -207,17 +207,7 @@ public interface BArray extends BContainer, List<BElement> {
     default List<Object> toList() {
         List<Object> list = new LinkedList<>();
         for (BElement entry : this) {
-            if (entry instanceof BValue) {
-                list.add(((BValue) entry).getData());
-            } else if (entry instanceof BObject) {
-                list.add(((BObject) entry).toMap());
-            } else if (entry instanceof BArray) {
-                list.add(((BArray) entry).toList());
-            } else if (entry instanceof BReference) {
-                list.add(((BReference) entry).getReference());
-            } else {
-                throw new InvalidTypeException("Found unexpected BElement implementation: " + entry.getClass());
-            }
+            list.add(entry.getInnerValue());
         }
         return list;
     }
@@ -230,5 +220,11 @@ public interface BArray extends BContainer, List<BElement> {
             list.add(element.toJsonElement());
         }
         return list;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    default <T> T getInnerValue() {
+        return (T) toList();
     }
 }

@@ -14,6 +14,7 @@ public final class ByteArrayUtils {
     private static final byte ZERO = (byte) 0;
     private static final byte[] NUMBER_ZERO_BYTES = new byte[8];
     private static final ThreadLocal<ByteBuffer> NUMBER_BYTE_BUFFERS = new ThreadLocal<ByteBuffer>() {
+        @Override
         protected ByteBuffer initialValue() {
             return ByteBuffer.allocate(8);
         }
@@ -69,30 +70,6 @@ public final class ByteArrayUtils {
         }
 
         return buffer.array();
-    }
-
-    @Deprecated
-    public static final Number bytesToNumber(byte[] bytes, boolean isDecimal) {
-        if (bytes == null)
-            return null;
-        if (bytes.length == 1)
-            return bytes[0];
-        if (bytes.length < 4)
-            return ByteBuffer.wrap(bytes).getShort();
-        if (bytes.length < 8) {
-            if (isDecimal)
-                return ByteBuffer.wrap(bytes).getFloat();
-            return ByteBuffer.wrap(bytes).getInt();
-        }
-        if (bytes.length < 32) {
-            if (isDecimal)
-                return ByteBuffer.wrap(bytes).getDouble();
-            return ByteBuffer.wrap(bytes).getLong();
-        }
-        BigInteger bigInt = new BigInteger(bytes);
-        if (isDecimal)
-            return new BigDecimal(bigInt);
-        return bigInt;
     }
 
     @SuppressWarnings("unchecked")

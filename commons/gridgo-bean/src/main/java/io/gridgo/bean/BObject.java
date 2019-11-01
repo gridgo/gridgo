@@ -108,7 +108,9 @@ public interface BObject extends BContainer, Map<String, BElement> {
 
     default Integer getInteger(String field, Number defaultValue) {
         var value = this.getInteger(field);
-        return value == null ? (defaultValue == null ? null : defaultValue.intValue()) : value;
+        if (value != null)
+            return value;
+        return defaultValue == null ? null : defaultValue.intValue();
     }
 
     default Float getFloat(String field) {
@@ -118,7 +120,9 @@ public interface BObject extends BContainer, Map<String, BElement> {
 
     default Float getFloat(String field, Number defaultValue) {
         var value = this.getFloat(field);
-        return value == null ? (defaultValue == null ? null : defaultValue.floatValue()) : value;
+        if (value != null)
+            return value;
+        return defaultValue == null ? null : defaultValue.floatValue();
     }
 
     default Long getLong(String field) {
@@ -128,7 +132,9 @@ public interface BObject extends BContainer, Map<String, BElement> {
 
     default Long getLong(String field, Number defaultValue) {
         var value = this.getLong(field);
-        return value == null ? (defaultValue == null ? null : defaultValue.longValue()) : value;
+        if (value != null)
+            return value;
+        return defaultValue == null ? null : defaultValue.longValue();
     }
 
     default Double getDouble(String field) {
@@ -138,7 +144,9 @@ public interface BObject extends BContainer, Map<String, BElement> {
 
     default Double getDouble(String field, Number defaultValue) {
         var value = this.getDouble(field);
-        return value == null ? (defaultValue == null ? null : defaultValue.doubleValue()) : value;
+        if (value != null)
+            return value;
+        return defaultValue == null ? null : defaultValue.doubleValue();
     }
 
     default String getString(String field) {
@@ -163,14 +171,11 @@ public interface BObject extends BContainer, Map<String, BElement> {
 
     default BReference getReference(String field) {
         BElement element = this.get(field);
-        if (element != null) {
-            if (element.isReference())
-                return element.asReference();
-            if (!element.isNullValue())
-                throw new InvalidTypeException(
-                        "BObject contains element with type " + element.getType() + " which cannot get as BReference");
-        }
-        return null;
+        if (element == null || element.isNullValue())
+            return null;
+        if (element.isReference())
+            return element.asReference();
+        throw new InvalidTypeException("BObject contains element with type " + element.getType() + " which cannot get as BReference");
     }
 
     default BReference getReference(String field, BReference defaultValue) {
@@ -184,8 +189,8 @@ public interface BObject extends BContainer, Map<String, BElement> {
             return null;
         if (element.isValue())
             return element.asValue();
-        throw new InvalidTypeException("BObject contains field " + field + " in type of " + element.getType()
-                + " which cannot convert to BValue");
+        throw new InvalidTypeException(
+                "BObject contains field " + field + " in type of " + element.getType() + " which cannot convert to BValue");
     }
 
     default BValue getValue(String field, BValue defaultValue) {
@@ -208,8 +213,7 @@ public interface BObject extends BContainer, Map<String, BElement> {
             return null;
         if (element.isObject())
             return element.asObject();
-        throw new InvalidTypeException(
-                "BObject contains element with type " + element.getType() + " which cannot get as BObject");
+        throw new InvalidTypeException("BObject contains element with type " + element.getType() + " which cannot get as BObject");
     }
 
     default BObject getObject(String field, BObject defaultValue) {
@@ -232,8 +236,7 @@ public interface BObject extends BContainer, Map<String, BElement> {
             return null;
         if (element.isArray())
             return element.asArray();
-        throw new InvalidTypeException(
-                "BObject contains element with type " + element.getType() + " which cannot get as BArray");
+        throw new InvalidTypeException("BObject contains element with type " + element.getType() + " which cannot get as BArray");
     }
 
     default BArray getArray(String field, BArray defaultValue) {
@@ -281,13 +284,13 @@ public interface BObject extends BContainer, Map<String, BElement> {
     }
 
     default void putAnySequence(Object... elements) {
-        if (elements != null) {
-            if (elements.length % 2 != 0) {
-                throw new IllegalArgumentException("Sequence's length must be even");
-            }
-            for (int i = 0; i < elements.length - 1; i += 2) {
-                this.putAny(elements[i].toString(), elements[i + 1]);
-            }
+        if (elements == null)
+            return;
+        if (elements.length % 2 != 0) {
+            throw new IllegalArgumentException("Sequence's length must be even");
+        }
+        for (int i = 0; i < elements.length - 1; i += 2) {
+            this.putAny(elements[i].toString(), elements[i + 1]);
         }
     }
 
@@ -313,17 +316,7 @@ public interface BObject extends BContainer, Map<String, BElement> {
         return this;
     }
 
-    default BObject setAnyPojoRecursive(String name, Object pojo) {
-        this.putAnyPojo(name, pojo);
-        return this;
-    }
-
     default BObject setAnyPojoIfAbsent(String name, Object pojo) {
-        this.putAnyPojoIfAbsent(name, pojo);
-        return this;
-    }
-
-    default BObject setAnyPojoRecursiveIfAbsent(String name, Object pojo) {
         this.putAnyPojoIfAbsent(name, pojo);
         return this;
     }
@@ -355,21 +348,9 @@ public interface BObject extends BContainer, Map<String, BElement> {
 
     default Map<String, Object> toMap() {
         Map<String, Object> result = new TreeMap<>();
-        for (Entry<String, BElement> entry : this.entrySet()) {
-            if (entry.getValue() instanceof BValue) {
-                result.put(entry.getKey(), ((BValue) entry.getValue()).getData());
-            } else if (entry.getValue() instanceof BArray) {
-                result.put(entry.getKey(), ((BArray) entry.getValue()).toList());
-            } else if (entry.getValue() instanceof BObject) {
-                result.put(entry.getKey(), ((BObject) entry.getValue()).toMap());
-            } else if (entry.getValue() instanceof BReference) {
-                result.put(entry.getKey(), ((BReference) entry.getValue()).getReference());
-            } else {
-                if (entry.getValue() == null)
-                    continue;
-                throw new InvalidTypeException(
-                        "Found unrecognized BElement implementation: " + entry.getValue().getClass());
-            }
+        for (var entry : this.entrySet()) {
+            if (entry.getValue() != null)
+                result.put(entry.getKey(), entry.getValue().getInnerValue());
         }
         return result;
     }
@@ -392,4 +373,9 @@ public interface BObject extends BContainer, Map<String, BElement> {
         return BElementPojoHelper.bObjectToPojo(this, clazz, setterProxy);
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
+    default <T> T getInnerValue() {
+        return (T) toMap();
+    }
 }

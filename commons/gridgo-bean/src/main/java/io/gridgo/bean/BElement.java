@@ -161,4 +161,6 @@ public interface BElement extends BSerializerRegistryAware, BJsonSupport, BXmlSu
     BType getType();
 
     <T extends BElement> T deepClone();
+
+    <T> T getInnerValue();
 }

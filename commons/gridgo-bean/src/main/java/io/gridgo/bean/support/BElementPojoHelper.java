@@ -1,11 +1,5 @@
 package io.gridgo.bean.support;
 
-import static io.gridgo.utils.ArrayUtils.foreachArray;
-import static io.gridgo.utils.ArrayUtils.toArray;
-import static io.gridgo.utils.ArrayUtils.toPrimitiveArray;
-import static io.gridgo.utils.PrimitiveUtils.getWrapperType;
-import static io.gridgo.utils.PrimitiveUtils.isPrimitive;
-
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -15,6 +9,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import static io.gridgo.utils.ArrayUtils.foreachArray;
+import static io.gridgo.utils.ArrayUtils.toArray;
+import static io.gridgo.utils.ArrayUtils.toPrimitiveArray;
+import static io.gridgo.utils.PrimitiveUtils.getWrapperType;
+import static io.gridgo.utils.PrimitiveUtils.isPrimitive;
 
 import io.gridgo.bean.BArray;
 import io.gridgo.bean.BElement;
@@ -42,14 +42,16 @@ public class BElementPojoHelper {
     }
 
     public static BElement anyToBElement(Object target, PojoGetterProxy proxy) {
-        Class<?> type;
-        if (target == null //
-                || isPrimitive(type = target.getClass())) {
+        if (target == null)
+            return BValue.of(null);
+
+        Class<?> type = target.getClass();
+
+        if (isPrimitive(type)) {
             return BValue.of(target);
         }
 
-        if (type == Date.class //
-                || type == java.sql.Date.class) {
+        if (type == Date.class || type == java.sql.Date.class) {
             return BReference.of(target);
         }
 
@@ -58,34 +60,15 @@ public class BElementPojoHelper {
         }
 
         if (type.isArray()) {
-            var list = BArray.ofEmpty();
-            var _proxy = proxy;
-            foreachArray(target, ele -> {
-                list.add(anyToBElement(ele, _proxy));
-            });
-            return list;
+            return arrayToBElement(target, proxy);
         }
 
         if (Collection.class.isInstance(target)) {
-            var it = ((Collection<?>) target).iterator();
-            var list = BArray.ofEmpty();
-            while (it.hasNext()) {
-                list.add(anyToBElement(it.next(), proxy));
-            }
-            return list;
+            return collectionToBElement(target, proxy);
         }
 
         if (Map.class.isInstance(target)) {
-            var result = BObject.ofEmpty();
-            var map = (Map<?, ?>) target;
-            var it = map.entrySet().iterator();
-            while (it.hasNext()) {
-                var entry = it.next();
-                var key = entry.getKey();
-                var value = entry.getValue();
-                result.put(key.toString(), anyToBElement(value, proxy));
-            }
-            return result;
+            return mapToBElement(target, proxy);
         }
 
         proxy = proxy == null ? PojoUtils.getGetterProxy(type) : proxy;
@@ -94,11 +77,41 @@ public class BElementPojoHelper {
         proxy.walkThrough(target, (signature, value) -> {
             String fieldName = signature.getTransformedOrDefaultFieldName();
             PojoGetterProxy elementGetterProxy = signature.getElementGetterProxy();
-            BElement entryValue = anyToBElement(value,
-                    elementGetterProxy == null ? signature.getGetterProxy() : elementGetterProxy);
+            BElement entryValue = anyToBElement(value, elementGetterProxy == null ? signature.getGetterProxy() : elementGetterProxy);
             result.put(fieldName, entryValue);
         });
         return result;
+    }
+
+    private static BElement mapToBElement(Object target, PojoGetterProxy proxy) {
+        var result = BObject.ofEmpty();
+        var map = (Map<?, ?>) target;
+        var it = map.entrySet().iterator();
+        while (it.hasNext()) {
+            var entry = it.next();
+            var key = entry.getKey();
+            var value = entry.getValue();
+            result.put(key.toString(), anyToBElement(value, proxy));
+        }
+        return result;
+    }
+
+    private static BElement collectionToBElement(Object target, PojoGetterProxy proxy) {
+        var it = ((Collection<?>) target).iterator();
+        var list = BArray.ofEmpty();
+        while (it.hasNext()) {
+            list.add(anyToBElement(it.next(), proxy));
+        }
+        return list;
+    }
+
+    private static BElement arrayToBElement(Object target, PojoGetterProxy proxy) {
+        var list = BArray.ofEmpty();
+        var _proxy = proxy;
+        foreachArray(target, ele -> {
+            list.add(anyToBElement(ele, _proxy));
+        });
+        return list;
     }
 
     public static Object anyToJsonElement(Object any) {
@@ -106,9 +119,10 @@ public class BElementPojoHelper {
     }
 
     public static Object anyToJsonElement(Object target, PojoGetterProxy proxy) {
-        Class<?> type;
-        if (target == null || //
-                isPrimitive(type = target.getClass()) || //
+        if (target == null)
+            return null;
+        Class<?> type = target.getClass();
+        if (isPrimitive(type) || //
                 type == Date.class || //
                 type == java.sql.Date.class) {
             return target;
@@ -119,34 +133,15 @@ public class BElementPojoHelper {
         }
 
         if (type.isArray()) {
-            var list = new LinkedList<Object>();
-            var _proxy = proxy;
-            foreachArray(target, ele -> {
-                list.add(anyToJsonElement(ele, _proxy));
-            });
-            return list;
+            return arrayToJsonElement(target, proxy);
         }
 
         if (Collection.class.isInstance(target)) {
-            var it = ((Collection<?>) target).iterator();
-            var list = new LinkedList<Object>();
-            while (it.hasNext()) {
-                list.add(anyToJsonElement(it.next(), proxy));
-            }
-            return list;
+            return collectionToJsonElement(target, proxy);
         }
 
         if (Map.class.isInstance(target)) {
-            var result = new HashMap<String, Object>();
-            var map = (Map<?, ?>) target;
-            var it = map.entrySet().iterator();
-            while (it.hasNext()) {
-                var entry = it.next();
-                var key = entry.getKey();
-                var value = entry.getValue();
-                result.put(key.toString(), anyToJsonElement(value, proxy));
-            }
-            return result;
+            return mapToJsonElement(target, proxy);
         }
 
         proxy = proxy == null ? PojoUtils.getGetterProxy(type) : proxy;
@@ -155,11 +150,41 @@ public class BElementPojoHelper {
         proxy.walkThrough(target, (signature, value) -> {
             String fieldName = signature.getTransformedOrDefaultFieldName();
             PojoGetterProxy elementGetterProxy = signature.getElementGetterProxy();
-            Object entryValue = anyToJsonElement(value,
-                    elementGetterProxy == null ? signature.getGetterProxy() : elementGetterProxy);
+            Object entryValue = anyToJsonElement(value, elementGetterProxy == null ? signature.getGetterProxy() : elementGetterProxy);
             result.put(fieldName, entryValue);
         });
         return result;
+    }
+
+    private static Object mapToJsonElement(Object target, PojoGetterProxy proxy) {
+        var result = new HashMap<String, Object>();
+        var map = (Map<?, ?>) target;
+        var it = map.entrySet().iterator();
+        while (it.hasNext()) {
+            var entry = it.next();
+            var key = entry.getKey();
+            var value = entry.getValue();
+            result.put(key.toString(), anyToJsonElement(value, proxy));
+        }
+        return result;
+    }
+
+    private static Object collectionToJsonElement(Object target, PojoGetterProxy proxy) {
+        var it = ((Collection<?>) target).iterator();
+        var list = new LinkedList<Object>();
+        while (it.hasNext()) {
+            list.add(anyToJsonElement(it.next(), proxy));
+        }
+        return list;
+    }
+
+    private static Object arrayToJsonElement(Object target, PojoGetterProxy proxy) {
+        var list = new LinkedList<Object>();
+        var _proxy = proxy;
+        foreachArray(target, ele -> {
+            list.add(anyToJsonElement(ele, _proxy));
+        });
+        return list;
     }
 
     public static <T> T bObjectToPojo(BObject src, @NonNull Class<T> type) {
@@ -176,8 +201,7 @@ public class BElementPojoHelper {
         try {
             result = type.getConstructor().newInstance();
         } catch (Exception e) {
-            throw new RuntimeException("Cannot convert BObject to POJO, cannot create instance of: " + type.getName(),
-                    e);
+            throw new RuntimeException("Cannot convert BObject to POJO, cannot create instance of: " + type.getName(), e);
         }
         fillToPojo(src, result, proxy);
         return result;
@@ -189,185 +213,192 @@ public class BElementPojoHelper {
 
     public static <T> void fillToPojo(BObject src, T result, PojoSetterProxy proxy) {
         proxy.walkThrough(result, (signature) -> {
-            var fieldName = signature.getFieldName();
-            var transformedFieldName = signature.getTransformedFieldName();
-
-            BElement value = transformedFieldName != null && !transformedFieldName.isBlank() //
-                    ? src.getOrDefault(transformedFieldName, () -> src.getOrDefault(fieldName, () -> null)) //
-                    : src.getOrDefault(fieldName, () -> null);
-
-            if (signature.getValueTranslator() != null)
-                return signature.getValueTranslator().translate(value);
-
-            if (value == null)
-                return ValueHolder.NO_VALUE;
-
-            if (signature.getFieldType() == BElement.class)
-                return value;
-
-            Class<?> fieldType = signature.getFieldType();
-            if (value.isNullValue()) {
-                if (fieldType.isPrimitive()) {
-                    return ValueHolder.NO_VALUE;
-                }
-                return null;
-            }
-
-            BType valueType = value.getType();
-
-            if (signature.isExtPrimitive()) {
-                if (!value.isValue()) {
-                    throw new InvalidTypeException("field '" + fieldName + "' expected BValue, but got: " + valueType);
-                }
-                if (BValue.class.isAssignableFrom(fieldType))
-                    return value.asValue();
-                var data = value.asValue().getData();
-                try {
-                    return PrimitiveUtils.getValueFrom(fieldType, data);
-                } catch (Exception e) {
-                    throw new InvalidValueException("Invalid value for field '" + fieldName + "', expected type: "
-                            + fieldType + ", got: " + data, e);
-                }
-            }
-
-            if (signature.isSequenceType()) {
-                if (!value.isArray()) {
-                    throw new InvalidTypeException("Field '" + fieldName + "' expected BArray, but got: " + valueType);
-                }
-                if (BArray.class.isAssignableFrom(fieldType))
-                    return value.asArray();
-                return toSequence(value.asArray(), signature);
-            }
-
-            if (signature.isMapOrPojoType()) {
-                if (value.isReference() && signature.isPojoType()) {
-                    return value.asReference().getReference();
-                }
-                if (!value.isObject()) {
-                    throw new InvalidTypeException("Field '" + fieldName + "' expected BObject, but got: " + valueType);
-                }
-                if (BObject.class.isAssignableFrom(fieldType))
-                    return value.asObject();
-                return toMapOrPojo(value.asObject(), signature);
-            }
-
-            return ValueHolder.NO_VALUE;
+            return doFillPojo(src, signature);
         });
+    }
+
+    private static Object doFillPojo(BObject src, PojoMethodSignature signature) {
+        var fieldName = signature.getFieldName();
+        var transformedFieldName = signature.getTransformedFieldName();
+
+        BElement value = transformedFieldName != null && !transformedFieldName.isBlank() //
+                ? src.getOrDefault(transformedFieldName, () -> src.getOrDefault(fieldName, () -> null)) //
+                : src.getOrDefault(fieldName, () -> null);
+
+        if (signature.getValueTranslator() != null)
+            return signature.getValueTranslator().translate(value);
+
+        if (value == null)
+            return ValueHolder.NO_VALUE;
+
+        if (signature.getFieldType() == BElement.class)
+            return value;
+
+        Class<?> fieldType = signature.getFieldType();
+        if (value.isNullValue()) {
+            if (fieldType.isPrimitive()) {
+                return ValueHolder.NO_VALUE;
+            }
+            return null;
+        }
+
+        BType valueType = value.getType();
+
+        if (signature.isExtPrimitive()) {
+            if (!value.isValue()) {
+                throw new InvalidTypeException("field '" + fieldName + "' expected BValue, but got: " + valueType);
+            }
+            if (BValue.class.isAssignableFrom(fieldType))
+                return value.asValue();
+            var data = value.asValue().getData();
+            try {
+                return PrimitiveUtils.getValueFrom(fieldType, data);
+            } catch (Exception e) {
+                throw new InvalidValueException(
+                        "Invalid value for field '" + fieldName + "', expected type: " + fieldType + ", got: " + data, e);
+            }
+        }
+
+        if (signature.isSequenceType()) {
+            if (!value.isArray()) {
+                throw new InvalidTypeException("Field '" + fieldName + "' expected BArray, but got: " + valueType);
+            }
+            if (BArray.class.isAssignableFrom(fieldType))
+                return value.asArray();
+            return toSequence(value.asArray(), signature);
+        }
+
+        if (signature.isMapOrPojoType()) {
+            if (value.isReference() && signature.isPojoType()) {
+                return value.asReference().getReference();
+            }
+            if (!value.isObject()) {
+                throw new InvalidTypeException("Field '" + fieldName + "' expected BObject, but got: " + valueType);
+            }
+            if (BObject.class.isAssignableFrom(fieldType))
+                return value.asObject();
+            return toMapOrPojo(value.asObject(), signature);
+        }
+
+        return ValueHolder.NO_VALUE;
     }
 
     private static Object toSequence(BArray array, PojoMethodSignature signature) {
         if (signature.isCollectionType()) {
-            Collection<Object> coll;
-            if (signature.isSetType()) {
-                coll = new HashSet<>();
-            } else {
-                coll = new LinkedList<>();
-            }
-
-            Class<?>[] genericTypes = signature.getGenericTypes();
-            Class<?> resultElementType = (genericTypes == null || genericTypes.length == 0) //
-                    ? Object.class //
-                    : genericTypes[0];
-
-            if (resultElementType == Object.class) {
-                coll.addAll(array.toList());
-            } else {
-                for (BElement bElement : array) {
-                    if (bElement.isNullValue()) {
-                        if (!signature.isSetType())
-                            coll.add(null);
-                        else
-                            log.warn("got null value for field {}, target is a set which doesn't allow null, ignored",
-                                    signature.getFieldName());
-                    } else if (bElement.isObject()) {
-                        coll.add(bObjectToPojo(bElement.asObject(), resultElementType,
-                                signature.getElementSetterProxy()));
-                    } else if (bElement.isArray()) {
-                        List<Object> list = bElement.asArray().toList();
-                        if (resultElementType.isArray()) {
-                            var compType = resultElementType.getComponentType();
-                            if (compType.isPrimitive()) {
-                                coll.add(toPrimitiveArray(list, compType));
-                            } else {
-                                coll.add(toArray(compType, list));
-                            }
-                        } else {
-                            coll.add(list);
-                        }
-                    } else if (bElement.isValue()) {
-                        coll.add(bElement.asValue().getDataAs(resultElementType));
-                    } else if (bElement.isReference()) {
-                        coll.add(bElement.asReference().getReference());
-                    } else {
-                        throw new UnsupportedTypeException("Unknown element type: " + bElement.getClass());
-                    }
-                }
-            }
-
-            return coll;
-        } else if (signature.isArrayType()) {
-            Class<?> componentType = signature.getComponentType();
-            var results = new ArrayList<Object>();
-            for (BElement element : array) {
-                if (element.isValue()) {
-                    if (element.isNullValue())
-                        results.add(null);
-                    else
-                        results.add(element.asValue().getData());
-                } else if (element.isObject()) {
-                    results.add(bObjectToPojo(element.asObject(), componentType, signature.getElementSetterProxy()));
-                } else if (element.isReference()) {
-                    BReference ref = element.asReference();
-                    Class<?> typeToCheck = componentType.isPrimitive() ? getWrapperType(componentType) : componentType;
-                    if (ref.referenceInstanceOf(typeToCheck)) {
-                        results.add(ref.getReference());
-                    } else {
-                        throw new UnsupportedTypeException("Unknown element type: " + element.getClass());
-                    }
-                } else {
-                    throw new UnsupportedTypeException("Unknown element type: " + element.getClass());
-                }
-            }
-            return componentType.isPrimitive() //
-                    ? toPrimitiveArray(results, componentType) //
-                    : toArray(componentType, results);
+            return collectionToSequence(array, signature);
         }
-
+        if (signature.isArrayType()) {
+            return arrayToSequence(array, signature);
+        }
         throw new InvalidTypeException("Cannot convert BArray to incompatible type: " + signature.getFieldType());
     }
 
-    private static Object toMapOrPojo(BObject valueObj, PojoMethodSignature signature) {
-        if (signature.isMapType()) {
-            Class<?>[] genericTypes = signature.getGenericTypes();
-            Class<?> valueType = (genericTypes != null && genericTypes.length > 1) ? genericTypes[1] : Object.class;
-            var map = new HashMap<String, Object>();
-            for (Entry<String, BElement> entry : valueObj.entrySet()) {
-                Object entryValue;
-                if (valueType == Object.class) {
-                    entryValue = entry.getValue();
-                } else if (entry.getValue().isValue()) {
-                    entryValue = entry.getValue().asValue().getDataAs(valueType);
-                } else if (entry.getValue().isArray()) {
-                    entryValue = entry.getValue().asArray().toList();
-                } else if (entry.getValue().isObject()) {
-                    if (valueType == Object.class) {
-                        entryValue = entry.getValue().asObject().toMap();
-                    } else {
-                        entryValue = bObjectToPojo(entry.getValue().asObject(), valueType,
-                                signature.getElementSetterProxy());
-                    }
-                } else if (entry.getValue().isReference()) {
-                    entryValue = entry.getValue().asReference().getReference();
+    private static Object arrayToSequence(BArray array, PojoMethodSignature signature) {
+        Class<?> componentType = signature.getComponentType();
+        var results = new ArrayList<Object>();
+        for (BElement element : array) {
+            if (element.isValue()) {
+                results.add(element.asValue().getData());
+            } else if (element.isObject()) {
+                results.add(bObjectToPojo(element.asObject(), componentType, signature.getElementSetterProxy()));
+            } else if (element.isReference()) {
+                BReference ref = element.asReference();
+                Class<?> typeToCheck = componentType.isPrimitive() ? getWrapperType(componentType) : componentType;
+                if (ref.referenceInstanceOf(typeToCheck)) {
+                    results.add(ref.getReference());
                 } else {
-                    throw new UnsupportedTypeException("Unknown entry value type: " + entry.getValue().getClass());
+                    throw new UnsupportedTypeException("Unknown element type: " + element.getClass());
                 }
-                map.put(entry.getKey(), entryValue);
+            } else {
+                throw new UnsupportedTypeException("Unknown element type: " + element.getClass());
             }
-            return map;
-        } else if (signature.isPojoType()) {
-            return bObjectToPojo(valueObj, signature.getFieldType(), signature.getSetterProxy());
+        }
+        return componentType.isPrimitive() //
+                ? toPrimitiveArray(results, componentType) //
+                : toArray(componentType, results);
+    }
+
+    private static Object collectionToSequence(BArray array, PojoMethodSignature signature) {
+        Collection<Object> coll;
+        if (signature.isSetType()) {
+            coll = new HashSet<>();
+        } else {
+            coll = new LinkedList<>();
         }
 
+        Class<?>[] genericTypes = signature.getGenericTypes();
+        Class<?> resultElementType = (genericTypes == null || genericTypes.length == 0) //
+                ? Object.class //
+                : genericTypes[0];
+
+        if (resultElementType == Object.class) {
+            coll.addAll(array.toList());
+        } else {
+            for (BElement bElement : array) {
+                if (bElement.isNullValue()) {
+                    if (!signature.isSetType())
+                        coll.add(null);
+                    else
+                        log.warn("got null value for field {}, target is a set which doesn't allow null, ignored",
+                                signature.getFieldName());
+                } else if (bElement.isObject()) {
+                    coll.add(bObjectToPojo(bElement.asObject(), resultElementType, signature.getElementSetterProxy()));
+                } else if (bElement.isArray()) {
+                    List<Object> list = bElement.asArray().toList();
+                    if (resultElementType.isArray()) {
+                        var compType = resultElementType.getComponentType();
+                        if (compType.isPrimitive()) {
+                            coll.add(toPrimitiveArray(list, compType));
+                        } else {
+                            coll.add(toArray(compType, list));
+                        }
+                    } else {
+                        coll.add(list);
+                    }
+                } else if (bElement.isValue()) {
+                    coll.add(bElement.asValue().getDataAs(resultElementType));
+                } else if (bElement.isReference()) {
+                    coll.add(bElement.asReference().getReference());
+                } else {
+                    throw new UnsupportedTypeException("Unknown element type: " + bElement.getClass());
+                }
+            }
+        }
+
+        return coll;
+    }
+
+    private static Object toMapOrPojo(BObject valueObj, PojoMethodSignature signature) {
+        if (signature.isMapType())
+            return bObjectToMap(valueObj, signature);
+        if (signature.isPojoType())
+            return bObjectToPojo(valueObj, signature.getFieldType(), signature.getSetterProxy());
         throw new InvalidTypeException("Cannot convert BObject to incompatible type: " + signature.getFieldType());
+    }
+
+    private static Object bObjectToMap(BObject valueObj, PojoMethodSignature signature) {
+        var genericTypes = signature.getGenericTypes();
+        var valueType = (genericTypes != null && genericTypes.length > 1) ? genericTypes[1] : Object.class;
+        var map = new HashMap<String, Object>();
+        for (Entry<String, BElement> entry : valueObj.entrySet()) {
+            var entryValue = convertBElementToType(signature, valueType, entry.getValue());
+            map.put(entry.getKey(), entryValue);
+        }
+        return map;
+    }
+
+    private static Object convertBElementToType(PojoMethodSignature signature, Class<?> valueType, BElement theEntryValue) {
+        if (valueType == Object.class)
+            return theEntryValue;
+        if (theEntryValue.isValue())
+            return theEntryValue.asValue().getDataAs(valueType);
+        if (theEntryValue.isArray() || theEntryValue.isReference())
+            return theEntryValue.getInnerValue();
+        if (theEntryValue.isObject()) {
+            if (valueType == Object.class)
+                return theEntryValue.getInnerValue();
+            return bObjectToPojo(theEntryValue.asObject(), valueType, signature.getElementSetterProxy());
+        }
+        throw new UnsupportedTypeException("Unknown entry value type: " + theEntryValue.getClass());
     }
 }
