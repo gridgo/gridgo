@@ -15,6 +15,7 @@ import io.gridgo.bean.BArray;
 import io.gridgo.bean.BElement;
 import io.gridgo.bean.BObject;
 import io.gridgo.bean.BValue;
+import io.gridgo.bean.exceptions.InvalidTypeException;
 import io.gridgo.bean.test.support.Bar;
 import io.gridgo.bean.test.support.BeanWithDate;
 import io.gridgo.bean.test.support.Foo;
@@ -168,6 +169,19 @@ public class BObjectUnitTest {
     public void testPutSequenceLengthMismatch() {
         var obj = BObject.ofEmpty();
         obj.putAnySequence(1);
+    }
+
+    @Test
+    public void testGetNullReference() {
+        var obj = BObject.ofEmpty().setAny("null", null);
+        Assert.assertNull(obj.getReference("dummy"));
+        Assert.assertNull(obj.getReference("null"));
+    }
+
+    @Test(expected = InvalidTypeException.class)
+    public void testGetInvalidReference() {
+        var obj = BObject.ofEmpty().setAny("k1", "v1");
+        obj.getReference("k1");
     }
 
     class EmptyMap<K, V> extends HashMap<K, V> {
