@@ -1,5 +1,11 @@
 package io.gridgo.utils.test;
 
+import org.junit.Test;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.Arrays;
+
 import static io.gridgo.utils.ByteArrayUtils.bytesToInt;
 import static io.gridgo.utils.ByteArrayUtils.bytesToLong;
 import static io.gridgo.utils.ByteArrayUtils.bytesToPrimitive;
@@ -9,11 +15,6 @@ import static io.gridgo.utils.ByteArrayUtils.toHex;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-
-import java.util.Arrays;
-
-import org.junit.Assert;
-import org.junit.Test;
 
 import io.gridgo.utils.ByteArrayUtils;
 
@@ -79,6 +80,17 @@ public class ByteArrayUtilsUnitTest {
         char c = bytesToPrimitive(Character.class, new byte[] { 0, 97 });
         assertEquals('a', c);
 
+        BigInteger bi = bytesToPrimitive(BigInteger.class, new byte[] { 1, 1, 1, 1, 1, 1 });
+        assertEquals(1 + (long) Math.pow(2, 8) + (long) Math.pow(2, 16) + (long) Math.pow(2, 24) + (long) Math.pow(2, 32)
+                + (long) Math.pow(2, 40), bi.longValue());
+
+        BigDecimal bc = bytesToPrimitive(BigDecimal.class, new byte[] { 1, 1, 1, 1, 1, 1 });
+        assertEquals(1 + (long) Math.pow(2, 8) + (long) Math.pow(2, 16) + (long) Math.pow(2, 24) + (long) Math.pow(2, 32)
+                + (long) Math.pow(2, 40), bc.doubleValue(), 0);
+
+        String s = bytesToPrimitive(String.class, new byte[] { 65, 66, 67 });
+        assertEquals("ABC", s);
+
         long[] longValues = new long[] { Long.MAX_VALUE, -1, 0l, Long.MIN_VALUE, 52365l };
         for (long longValue : longValues) {
             byte[] bytes = primitiveToBytes(longValue);
@@ -131,14 +143,13 @@ public class ByteArrayUtilsUnitTest {
             assertEquals(doubleValue, bytesToPrimitive(Double.class, bytes).doubleValue(), 0.0);
             assertEquals(doubleValue, ByteArrayUtils.bytesToDouble(bytes).doubleValue(), 0.0);
         }
-    }
 
-    @Test
-    @SuppressWarnings("deprecation")
-    public void testPrimitivesWithBuffer() {
-        Assert.assertEquals(2.2, ByteArrayUtils.bytesToNumber(primitiveToBytes(2.2), true));
-        Assert.assertEquals(2, ByteArrayUtils.bytesToNumber(primitiveToBytes(2), false));
-        Assert.assertEquals(2L, ByteArrayUtils.bytesToNumber(primitiveToBytes(2L), false));
-        Assert.assertEquals(Character.valueOf('a'), bytesToPrimitive(Character.class, primitiveToBytes('a')));
+        Character[] charValues = new Character[] { 'a', 'b', 'c' };
+        for (Character charValue : charValues) {
+            byte[] bytes = primitiveToBytes(charValue);
+
+            assertEquals(charValue, bytesToPrimitive(Character.class, bytes));
+            assertEquals(charValue, ByteArrayUtils.bytesToChar(bytes));
+        }
     }
 }

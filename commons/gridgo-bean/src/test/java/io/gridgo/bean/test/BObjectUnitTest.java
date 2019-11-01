@@ -15,6 +15,7 @@ import io.gridgo.bean.BArray;
 import io.gridgo.bean.BElement;
 import io.gridgo.bean.BObject;
 import io.gridgo.bean.BValue;
+import io.gridgo.bean.exceptions.InvalidTypeException;
 import io.gridgo.bean.test.support.Bar;
 import io.gridgo.bean.test.support.BeanWithDate;
 import io.gridgo.bean.test.support.Foo;
@@ -94,7 +95,6 @@ public class BObjectUnitTest {
         var bar = Bar.builder().b(true).build();
         var pojo = Foo.builder().doubleValue(1.0).intValue(1).stringValue("hello").barValue(bar).build();
         BObject bObject = BObject.ofPojo(pojo);
-        System.out.println(bObject);
         var deserialized = bObject.toPojo(Foo.class);
         Assert.assertEquals(pojo.getDoubleValue(), deserialized.getDoubleValue(), 0.0);
         Assert.assertEquals(pojo.getIntValue(), deserialized.getIntValue());
@@ -112,6 +112,20 @@ public class BObjectUnitTest {
         Assert.assertEquals(pojo.getDoubleValue(), deserialized.getDoubleValue(), 0.0);
         Assert.assertEquals(pojo.getIntValue(), deserialized.getIntValue());
         Assert.assertEquals(pojo.getStringValue(), deserialized.getStringValue());
+    }
+
+    @Test
+    public void testNullOrMissing() {
+        Assert.assertNull(BObject.ofPojo(null));
+        var obj = BObject.ofEmpty();
+        Assert.assertEquals(1, (int) obj.getInteger("k1", 1));
+        Assert.assertNull(obj.getInteger("k1", null));
+        Assert.assertEquals(1.1f, obj.getFloat("k1", 1.1f), 0);
+        Assert.assertNull(obj.getFloat("k1", null));
+        Assert.assertEquals(1L, (long) obj.getLong("k1", 1));
+        Assert.assertNull(obj.getLong("k1", null));
+        Assert.assertEquals(1.1, obj.getDouble("k1", 1.1f), 0.001);
+        Assert.assertNull(obj.getDouble("k1", null));
     }
 
     @Test
@@ -152,7 +166,6 @@ public class BObjectUnitTest {
         var bObj = BObject.ofEmpty().setAny("date", beanWithDate.getDate());
         Date date = bObj.getReference("date").getReference();
         Assert.assertEquals(time, date.getTime());
-        System.out.println(bObj.toJson());
     }
 
     @Test
@@ -164,6 +177,34 @@ public class BObjectUnitTest {
         obj = BObject.withHolder(new EmptyMap<>());
         obj.setAny("k1", "v1");
         Assert.assertNull(obj.getString("k1", null));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testPutSequenceLengthMismatch() {
+        var obj = BObject.ofEmpty();
+        obj.putAnySequence(1);
+    }
+
+    @Test
+    public void testGetNullReference() {
+        var obj = BObject.ofEmpty().setAny("null", null);
+        Assert.assertNull(obj.getReference("dummy"));
+        Assert.assertNull(obj.getReference("null"));
+    }
+
+    @Test(expected = InvalidTypeException.class)
+    public void testGetInvalidReference() {
+        var obj = BObject.ofEmpty().setAny("k1", "v1").setAny("ref", new Object());
+        Assert.assertNotNull(obj.getReference("ref"));
+        obj.getReference("k1");
+    }
+
+    @Test
+    public void testGetArrayOrEmpty() {
+        var obj = BObject.ofEmpty();
+        var arr = obj.getArrayOrEmpty("k1");
+        Assert.assertNotNull(arr);
+        Assert.assertNotNull(arr.isEmpty());
     }
 
     class EmptyMap<K, V> extends HashMap<K, V> {
