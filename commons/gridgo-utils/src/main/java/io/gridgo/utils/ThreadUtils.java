@@ -66,6 +66,8 @@ public class ThreadUtils {
      * @return false if current thread got interrupted, true otherwise
      */
     public static final boolean sleepSilence(long millis) {
+        if (isShuttingDown())
+            return false;
         try {
             Thread.sleep(millis);
             return true;

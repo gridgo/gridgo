@@ -66,9 +66,9 @@ public class ByteArray implements Serializable, Comparable<ByteArray> {
 
     @Override
     public boolean equals(Object other) {
-        if (other instanceof ByteArray) {
+        if (ByteArray.class.isInstance(other)) {
             return Arrays.equals(source, ((ByteArray) other).source);
-        } else if (other instanceof byte[]) {
+        } else if (byte[].class.isInstance(other)) {
             return Arrays.equals(source, (byte[]) other);
         }
         return false;
