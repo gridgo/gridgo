@@ -304,8 +304,6 @@ public interface BObject extends BContainer, Map<String, BElement> {
     }
 
     default void putAnySequence(Object... elements) {
-        if (elements == null)
-            return;
         if (elements.length % 2 != 0) {
             throw new IllegalArgumentException("Sequence's length must be even");
         }

@@ -94,7 +94,6 @@ public class BObjectUnitTest {
         var bar = Bar.builder().b(true).build();
         var pojo = Foo.builder().doubleValue(1.0).intValue(1).stringValue("hello").barValue(bar).build();
         BObject bObject = BObject.ofPojo(pojo);
-        System.out.println(bObject);
         var deserialized = bObject.toPojo(Foo.class);
         Assert.assertEquals(pojo.getDoubleValue(), deserialized.getDoubleValue(), 0.0);
         Assert.assertEquals(pojo.getIntValue(), deserialized.getIntValue());
@@ -152,7 +151,6 @@ public class BObjectUnitTest {
         var bObj = BObject.ofEmpty().setAny("date", beanWithDate.getDate());
         Date date = bObj.getReference("date").getReference();
         Assert.assertEquals(time, date.getTime());
-        System.out.println(bObj.toJson());
     }
 
     @Test
@@ -164,6 +162,12 @@ public class BObjectUnitTest {
         obj = BObject.withHolder(new EmptyMap<>());
         obj.setAny("k1", "v1");
         Assert.assertNull(obj.getString("k1", null));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testPutSequenceLengthMismatch() {
+        var obj = BObject.ofEmpty();
+        obj.putAnySequence(1);
     }
 
     class EmptyMap<K, V> extends HashMap<K, V> {
