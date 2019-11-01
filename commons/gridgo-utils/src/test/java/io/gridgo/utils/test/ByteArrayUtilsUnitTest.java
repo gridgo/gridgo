@@ -2,6 +2,8 @@ package io.gridgo.utils.test;
 
 import org.junit.Test;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Arrays;
 
 import static io.gridgo.utils.ByteArrayUtils.bytesToInt;
@@ -78,6 +80,17 @@ public class ByteArrayUtilsUnitTest {
         char c = bytesToPrimitive(Character.class, new byte[] { 0, 97 });
         assertEquals('a', c);
 
+        BigInteger bi = bytesToPrimitive(BigInteger.class, new byte[] { 1, 1, 1, 1, 1, 1 });
+        assertEquals(1 + (long) Math.pow(2, 8) + (long) Math.pow(2, 16) + (long) Math.pow(2, 24) + (long) Math.pow(2, 32)
+                + (long) Math.pow(2, 40), bi.longValue());
+
+        BigDecimal bc = bytesToPrimitive(BigDecimal.class, new byte[] { 1, 1, 1, 1, 1, 1 });
+        assertEquals(1 + (long) Math.pow(2, 8) + (long) Math.pow(2, 16) + (long) Math.pow(2, 24) + (long) Math.pow(2, 32)
+                + (long) Math.pow(2, 40), bc.doubleValue(), 0);
+
+        String s = bytesToPrimitive(String.class, new byte[] { 65, 66, 67 });
+        assertEquals("ABC", s);
+
         long[] longValues = new long[] { Long.MAX_VALUE, -1, 0l, Long.MIN_VALUE, 52365l };
         for (long longValue : longValues) {
             byte[] bytes = primitiveToBytes(longValue);
@@ -129,6 +142,14 @@ public class ByteArrayUtilsUnitTest {
 
             assertEquals(doubleValue, bytesToPrimitive(Double.class, bytes).doubleValue(), 0.0);
             assertEquals(doubleValue, ByteArrayUtils.bytesToDouble(bytes).doubleValue(), 0.0);
+        }
+
+        Character[] charValues = new Character[] { 'a', 'b', 'c' };
+        for (Character charValue : charValues) {
+            byte[] bytes = primitiveToBytes(charValue);
+
+            assertEquals(charValue, bytesToPrimitive(Character.class, bytes));
+            assertEquals(charValue, ByteArrayUtils.bytesToChar(bytes));
         }
     }
 }
