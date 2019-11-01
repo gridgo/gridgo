@@ -115,6 +115,11 @@ public class BObjectUnitTest {
     }
 
     @Test
+    public void testPojoNull() {
+        Assert.assertNull(BObject.ofPojo(null));
+    }
+
+    @Test
     public void testWriteString() {
         var pojo = Foo.builder().doubleValue(1.0).intValue(1).intArrayValue(new int[] { 1, 2 }).stringValue("hello")
                 .build();
