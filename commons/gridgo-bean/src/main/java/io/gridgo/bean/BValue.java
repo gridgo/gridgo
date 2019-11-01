@@ -267,4 +267,10 @@ public interface BValue extends BElement {
             return (T) this.getData();
         }
     }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    default <T> T getInnerValue() {
+        return (T) getData();
+    }
 }
