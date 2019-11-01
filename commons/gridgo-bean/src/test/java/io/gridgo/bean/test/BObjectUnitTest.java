@@ -180,7 +180,8 @@ public class BObjectUnitTest {
 
     @Test(expected = InvalidTypeException.class)
     public void testGetInvalidReference() {
-        var obj = BObject.ofEmpty().setAny("k1", "v1");
+        var obj = BObject.ofEmpty().setAny("k1", "v1").setAny("ref", new Object());
+        Assert.assertNotNull(obj.getReference("ref"));
         obj.getReference("k1");
     }
 
