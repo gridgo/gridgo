@@ -115,8 +115,17 @@ public class BObjectUnitTest {
     }
 
     @Test
-    public void testPojoNull() {
+    public void testNullOrMissing() {
         Assert.assertNull(BObject.ofPojo(null));
+        var obj = BObject.ofEmpty();
+        Assert.assertEquals(1, (int) obj.getInteger("k1", 1));
+        Assert.assertNull(obj.getInteger("k1", null));
+        Assert.assertEquals(1.1f, obj.getFloat("k1", 1.1f), 0);
+        Assert.assertNull(obj.getFloat("k1", null));
+        Assert.assertEquals(1L, (long) obj.getLong("k1", 1));
+        Assert.assertNull(obj.getLong("k1", null));
+        Assert.assertEquals(1.1, obj.getDouble("k1", 1.1f), 0.001);
+        Assert.assertNull(obj.getDouble("k1", null));
     }
 
     @Test
