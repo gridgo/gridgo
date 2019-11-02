@@ -1,10 +1,8 @@
 package io.gridgo.bean.test;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
-import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
@@ -18,8 +16,6 @@ import io.gridgo.bean.support.BElementPojoHelper;
 import io.gridgo.bean.test.support.Bar;
 import io.gridgo.bean.test.support.Foo;
 import io.gridgo.bean.test.support.NumberCollectionPojo;
-import io.gridgo.bean.test.support.PrimitiveVO;
-import io.gridgo.utils.pojo.PojoUtils;
 
 public class TestPojo {
 
@@ -56,105 +52,6 @@ public class TestPojo {
 
         // convert pojo to bobject to execute equals field by field
         assertEquals(originalAsBObject, BObject.ofPojo(rebuilt));
-    }
-
-    @Test
-    @Ignore("Ignore perf test")
-    public void testPerfToMap() throws Exception {
-        PrimitiveVO vo = PrimitiveVO.builder() //
-                .booleanValue(true) //
-                .byteValue((byte) 1) //
-                .intValue(2) //
-                .doubleValue(0.2)//
-                .build();
-
-        // warm up
-        PojoUtils.toJsonElement(vo);
-
-        long start = 0;
-
-        int testRound = (int) 1e6;
-        int numRounds = 10;
-
-        double[] directResults = new double[numRounds];
-        double[] pojoUtilsResults = new double[numRounds];
-
-        for (int i = 0; i < numRounds; i++) {
-            start = System.nanoTime();
-            for (int j = 0; j < testRound; j++) {
-                vo.toMap();
-            }
-            double directSec = Double.valueOf(System.nanoTime() - start) / 1e9;
-            double directPace = Double.valueOf(testRound) / directSec;
-            directResults[i] = directPace;
-
-            start = System.nanoTime();
-            for (int j = 0; j < testRound; j++) {
-                PojoUtils.toJsonElement(vo);
-            }
-            double pojoUtilsSec = Double.valueOf(System.nanoTime() - start) / 1e9;
-            double pojoUtilsPace = Double.valueOf(testRound) / pojoUtilsSec;
-            pojoUtilsResults[i] = pojoUtilsPace;
-        }
-
-        double directPace = 0;
-        for (int i = 0; i < directResults.length; i++) {
-            directPace += directResults[i];
-        }
-        directPace /= directResults.length;
-
-        double pojoUtilsPace = 0;
-        for (int i = 0; i < pojoUtilsResults.length; i++) {
-            pojoUtilsPace += pojoUtilsResults[i];
-        }
-        pojoUtilsPace /= pojoUtilsResults.length;
-
-        DecimalFormat df = new DecimalFormat("###,###.##");
-
-        System.out.println("[Pojo utils toMap]   throughput: " + df.format(pojoUtilsPace) + " ops/s");
-        System.out.println("[Direct toMap]       throughput: " + df.format(directPace) + " ops/s");
-    }
-
-    @Test
-    @Ignore("Ignore pert test")
-    public void testPerfToPojo() throws Exception {
-        PrimitiveVO vo = PrimitiveVO.builder() //
-                .booleanValue(true) //
-                .byteValue((byte) 1) //
-                .intValue(2) //
-                .doubleValue(0.2)//
-                .build();
-
-        // warm up
-        var bobj = BObject.ofPojo(vo);
-        bobj.toPojo(PrimitiveVO.class);
-
-        long start = 0;
-
-        int testRound = (int) 1e5;
-        int numRounds = 10;
-
-        double[] pojoUtilsResults = new double[numRounds];
-
-        for (int i = 0; i < numRounds; i++) {
-            start = System.nanoTime();
-            for (int j = 0; j < testRound; j++) {
-                bobj.toPojo(PrimitiveVO.class);
-            }
-            double pojoUtilsSec = Double.valueOf(System.nanoTime() - start) / 1e9;
-            double pojoUtilsPace = Double.valueOf(testRound) / pojoUtilsSec;
-            pojoUtilsResults[i] = pojoUtilsPace;
-        }
-
-        double pojoUtilsPace = 0;
-        for (int i = 0; i < pojoUtilsResults.length; i++) {
-            pojoUtilsPace += pojoUtilsResults[i];
-        }
-        pojoUtilsPace /= pojoUtilsResults.length;
-
-        DecimalFormat df = new DecimalFormat("###,###.##");
-
-        System.out.println("[Pojo utils toPojo]   throughput: " + df.format(pojoUtilsPace) + " ops/s");
     }
 
     @Test

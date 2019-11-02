@@ -1,7 +1,5 @@
 package io.gridgo.utils.pojo.setter;
 
-import static io.gridgo.utils.pojo.PojoUtils.extractSetterMethodSignatures;
-
 import java.util.List;
 
 import io.gridgo.utils.PrimitiveUtils;
@@ -27,7 +25,7 @@ class JavassistSetterProxyBuilder implements PojoSetterProxyBuilder {
             cc.defrost();
             cc.addInterface(pool.get(PojoSetterProxy.class.getName()));
 
-            List<PojoMethodSignature> methodSignatures = extractSetterMethodSignatures(target);
+            List<PojoMethodSignature> methodSignatures = SetterMethodSignatureExtractor.getInstance().extractMethodSignatures(target);
 
             StringBuilder allFieldsBuilder = new StringBuilder();
             for (PojoMethodSignature methodSignature : methodSignatures) {
@@ -59,8 +57,7 @@ class JavassistSetterProxyBuilder implements PojoSetterProxyBuilder {
         }
     }
 
-    private void buildSetSignatureMethod(CtClass cc, List<PojoMethodSignature> methodSignatures)
-            throws CannotCompileException {
+    private void buildSetSignatureMethod(CtClass cc, List<PojoMethodSignature> methodSignatures) throws CannotCompileException {
         String type = "io.gridgo.utils.pojo.PojoMethodSignature";
         String subfix = "Signature";
         for (PojoMethodSignature methodSignature : methodSignatures) {
@@ -127,8 +124,8 @@ class JavassistSetterProxyBuilder implements PojoSetterProxyBuilder {
                     invokeSetter += "(((" + numberType + ") value)." + fieldType.getTypeName() + "Value())";
                 } else { // receive wrapper type
                     var primitiveTypeName = methodSignature.getPrimitiveTypeFromWrapperType().getName();
-                    invokeSetter += "(value == null ? (" + wrapperTypeName + ") null : " + wrapperTypeName
-                            + ".valueOf(((" + numberType + ") value)." + primitiveTypeName + "Value()))";
+                    invokeSetter += "(value == null ? (" + wrapperTypeName + ") null : " + wrapperTypeName + ".valueOf(((" + numberType
+                            + ") value)." + primitiveTypeName + "Value()))";
                 }
             } else if (fieldType.isPrimitive()) {
                 invokeSetter += "(((" + wrapperTypeName + ") value)." + fieldType.getName() + "Value())";
@@ -144,8 +141,8 @@ class JavassistSetterProxyBuilder implements PojoSetterProxyBuilder {
         return invokeSetter;
     }
 
-    private void buildWalkthroughMethod(CtClass cc, List<PojoMethodSignature> methodSignatures, String targetType,
-            String allFields) throws CannotCompileException {
+    private void buildWalkthroughMethod(CtClass cc, List<PojoMethodSignature> methodSignatures, String targetType, String allFields)
+            throws CannotCompileException {
 
         String signatureFieldSubfix = "Signature";
         String holderType = ValueHolder.class.getName();
