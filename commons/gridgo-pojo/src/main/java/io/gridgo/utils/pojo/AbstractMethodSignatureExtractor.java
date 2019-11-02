@@ -127,17 +127,12 @@ public abstract class AbstractMethodSignatureExtractor implements MethodSignatur
     }
 
     private boolean isTransient(Method method, String fieldName) {
-        if (method.isAnnotationPresent(Transient.class)) {
+        if (method.isAnnotationPresent(Transient.class))
             return true;
-        }
 
-        try {
-            var field = method.getDeclaringClass().getDeclaredField(fieldName);
-            if (field.isAnnotationPresent(Transient.class))
-                return true;
-        } catch (Exception e) {
-            // do nothing
-        }
+        var field = getCorespondingField(method, fieldName);
+        if (field != null && field.isAnnotationPresent(Transient.class))
+            return true;
 
         return false;
     }
