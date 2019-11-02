@@ -79,6 +79,18 @@ public class TestSchemaSerializer {
         }
     }
 
+    @Test
+    public void testDeserializeToPojo() throws IOException {
+        var obj = BReference.of(new CustomSchema2("helloworld"));
+        try (var out = new ByteArrayOutputStream()) {
+            multiSerializer.serialize(obj, out);
+            out.flush();
+            var result = out.toByteArray();
+            var after = multiSerializer.deserializeToPojo(result, CustomSchema2.class);
+            Assert.assertEquals("helloworld", after.getContent());
+        }
+    }
+
     @Test(expected = BeanSerializationException.class)
     public void testSchemaDeregisterByClass() {
         multiSerializer.deregisterSchema(CustomSchema1.class);
