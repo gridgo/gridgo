@@ -1,7 +1,5 @@
 package io.gridgo.utils.pojo.getter;
 
-import static io.gridgo.utils.pojo.PojoUtils.extractGetterMethodSignatures;
-
 import java.util.List;
 
 import io.gridgo.utils.pojo.PojoMethodSignature;
@@ -27,7 +25,7 @@ class JavassistGetterProxyBuilder implements PojoGetterProxyBuilder {
             cc.defrost();
             cc.addInterface(pool.get(PojoGetterProxy.class.getName()));
 
-            List<PojoMethodSignature> methodSignatures = extractGetterMethodSignatures(target);
+            List<PojoMethodSignature> methodSignatures = GetterMethodSignatureExtractor.getInstance().extractMethodSignatures(target);
             StringBuilder allFieldsBuilder = new StringBuilder();
             for (PojoMethodSignature signature : methodSignatures) {
                 if (allFieldsBuilder.length() > 0) {

@@ -7,26 +7,18 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static io.gridgo.utils.ArrayUtils.foreachArray;
 import static io.gridgo.utils.ClasspathUtils.scanForAnnotatedTypes;
 import static io.gridgo.utils.PrimitiveUtils.isPrimitive;
-import static io.gridgo.utils.StringUtils.lowerCaseFirstLetter;
-import static io.gridgo.utils.format.StringFormatter.transform;
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.END_ARRAY;
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.END_MAP;
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.KEY;
@@ -35,8 +27,6 @@ import static io.gridgo.utils.pojo.PojoFlattenIndicator.START_MAP;
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.VALUE;
 
 import io.gridgo.utils.ArrayUtils;
-import io.gridgo.utils.annotations.Transient;
-import io.gridgo.utils.pojo.exception.InvalidFieldNameException;
 import io.gridgo.utils.pojo.exception.RuntimeReflectiveOperationException;
 import io.gridgo.utils.pojo.getter.PojoFlattenWalker;
 import io.gridgo.utils.pojo.getter.PojoGetterProxy;
@@ -44,7 +34,6 @@ import io.gridgo.utils.pojo.getter.PojoGetterRegistry;
 import io.gridgo.utils.pojo.setter.PojoSetterProxy;
 import io.gridgo.utils.pojo.setter.PojoSetterRegistry;
 import io.gridgo.utils.pojo.translator.RegisterValueTranslator;
-import io.gridgo.utils.pojo.translator.UseValueTranslator;
 import io.gridgo.utils.pojo.translator.ValueTranslator;
 import lombok.NonNull;
 
@@ -56,9 +45,6 @@ public class PojoUtils {
 
     private static final PojoGetterRegistry GETTER_REGISTRY = PojoGetterRegistry.DEFAULT;
     private static final PojoSetterRegistry SETTER_REGISTRY = PojoSetterRegistry.DEFAULT;
-
-    private static final String SETTER_PREFIX = "set";
-    private final static Set<String> GETTER_PREFIXES = new HashSet<String>(Arrays.asList("get", "is"));
 
     static {
         scanForValueTranslators("io.gridgo");
@@ -101,197 +87,6 @@ public class PojoUtils {
                 || targetType == Class.class //
                 || targetType == Date.class //
                 || targetType == java.sql.Date.class);
-    }
-
-    public static List<PojoMethodSignature> extractSetterMethodSignatures(Class<?> targetType) {
-        if (!isSupported(targetType)) {
-            if (log.isWarnEnabled())
-                log.warn("Cannot extract method signature from {}", targetType.getName());
-            return Collections.emptyList();
-        }
-
-        var results = new LinkedList<PojoMethodSignature>();
-
-        String transformRule = null;
-        Set<String> ignoredFields = null;
-        if (targetType.isAnnotationPresent(FieldNameTransform.class)) {
-            var annotation = targetType.getAnnotation(FieldNameTransform.class);
-            transformRule = annotation.value();
-            ignoredFields = new HashSet<String>(Arrays.asList(annotation.ignore()));
-        }
-
-        Collection<Method> methods = extractAllMethods(targetType);
-
-        for (Method method : methods) {
-            String methodName = method.getName();
-            if (method.getParameterCount() == 1 //
-                    && Modifier.isPublic(method.getModifiers()) //
-                    && method.getReturnType() == Void.TYPE //
-                    && methodName.startsWith(SETTER_PREFIX)) {
-
-                if (methodName.length() <= 3)
-                    continue;
-                var fieldName = lowerCaseFirstLetter(methodName.substring(3));
-
-                if (!isTransient(method, fieldName)) {
-                    Parameter param = method.getParameters()[0];
-                    Class<?> paramType = param.getType();
-
-                    String transformedFieldName = findTransformedFieldName(targetType, method, fieldName);
-                    if (transformedFieldName == null && transformRule != null) {
-                        if (ignoredFields == null || ignoredFields.size() == 0 || !ignoredFields.contains(fieldName)) {
-                            Map<String, String> map = new HashMap<>();
-                            map.put("fieldName", fieldName);
-                            map.put("methodName", methodName);
-                            map.put("fieldType", paramType.getName());
-                            map.put("packageName", targetType.getPackageName());
-                            map.put("typeName", targetType.getName());
-                            transformedFieldName = transform(transformRule, map);
-                        }
-                    }
-
-                    results.add(PojoMethodSignature.builder() //
-                            .method(method) //
-                            .fieldType(paramType) //
-                            .fieldName(fieldName) //
-                            .transformedFieldName(transformedFieldName) //
-                            .valueTranslator(extractValueTranslator(method, fieldName)) //
-                            .build());
-                }
-            }
-        }
-        return results;
-    }
-
-    private static ValueTranslator extractValueTranslator(Method method, String fieldName) {
-        if (method.isAnnotationPresent(UseValueTranslator.class))
-            return lookupValueTranslator(method.getAnnotation(UseValueTranslator.class).value());
-
-        try {
-            var field = method.getDeclaringClass().getDeclaredField(fieldName);
-            if (field.isAnnotationPresent(UseValueTranslator.class))
-                return lookupValueTranslator(field.getAnnotation(UseValueTranslator.class).value());
-        } catch (Exception e) {
-            // do nothing
-        }
-
-        return null;
-    }
-
-    private static boolean isTransient(Method method, String fieldName) {
-        if (method.isAnnotationPresent(Transient.class)) {
-            return true;
-        }
-
-        try {
-            var field = method.getDeclaringClass().getDeclaredField(fieldName);
-            if (field.isAnnotationPresent(Transient.class))
-                return true;
-        } catch (Exception e) {
-            // do nothing
-        }
-
-        return false;
-    }
-
-    private static String findTransformedFieldName(Class<?> targetType, Method method, String fieldName) {
-        FieldName annotation = null;
-        if (method.isAnnotationPresent(FieldName.class)) {
-            annotation = method.getAnnotation(FieldName.class);
-        } else {
-            try {
-                var field = targetType.getDeclaredField(fieldName);
-                if (field.isAnnotationPresent(FieldName.class)) {
-                    annotation = field.getAnnotation(FieldName.class);
-                }
-            } catch (Exception e) {
-                // do nothing
-            }
-        }
-
-        String transformedFieldName = null;
-        if (annotation != null) {
-            transformedFieldName = annotation.value();
-            if (transformedFieldName.isBlank()) {
-                throw new InvalidFieldNameException("invalid field name: " + transformedFieldName
-                        + " in method or field " + fieldName + ", type: " + targetType.getName());
-            }
-        }
-
-        return transformedFieldName;
-    }
-
-    public static final List<PojoMethodSignature> extractGetterMethodSignatures(@NonNull Class<?> targetType) {
-        if (!isSupported(targetType)) {
-            if (log.isWarnEnabled())
-                log.warn("Cannot extract method signature from {}. Ignoring it!", targetType.getName());
-            return Collections.emptyList();
-        }
-
-        var results = new LinkedList<PojoMethodSignature>();
-
-        String transformRule = null;
-        Set<String> ignoredFields = null;
-        if (targetType.isAnnotationPresent(FieldNameTransform.class)) {
-            var annotation = targetType.getAnnotation(FieldNameTransform.class);
-            transformRule = annotation.value();
-            ignoredFields = new HashSet<String>(Arrays.asList(annotation.ignore()));
-        }
-
-        Collection<Method> methods = extractAllMethods(targetType);
-
-        for (Method method : methods) {
-            String methodName = method.getName();
-
-            if (method.getParameterCount() == 0 //
-                    && Modifier.isPublic(method.getModifiers()) //
-                    && method.getReturnType() != Void.TYPE //
-                    && GETTER_PREFIXES.stream().anyMatch(prefix -> methodName.startsWith(prefix))) {
-
-                int skip = methodName.startsWith("is") ? 2 : 3;
-                if (methodName.length() <= skip)
-                    continue;
-                String fieldName = lowerCaseFirstLetter(methodName.substring(skip));
-                if (!isTransient(method, fieldName)) {
-                    Class<?> fieldType = method.getReturnType();
-
-                    String transformedFieldName = findTransformedFieldName(targetType, method, fieldName);
-                    if (transformedFieldName == null && transformRule != null) {
-                        if (ignoredFields == null || ignoredFields.size() == 0 || !ignoredFields.contains(fieldName)) {
-                            Map<String, String> map = new HashMap<>();
-                            map.put("fieldName", fieldName);
-                            map.put("methodName", method.getName());
-                            map.put("fieldType", fieldType.getName());
-                            map.put("packageName", targetType.getPackageName());
-                            transformedFieldName = transform(transformRule, map);
-                        }
-                    }
-
-                    results.add(PojoMethodSignature.builder() //
-                            .fieldName(fieldName) //
-                            .transformedFieldName(transformedFieldName) //
-                            .method(method) //
-                            .fieldType(fieldType) //
-                            .build());
-                }
-            }
-        }
-        return results;
-    }
-
-    private static Collection<Method> extractAllMethods(@NonNull Class<?> targetType) {
-        Map<String, Method> nameToMethod = new HashMap<String, Method>();
-        Class<?> t = targetType;
-        do {
-            Method[] methods = t.getDeclaredMethods();
-            for (Method method : methods) {
-                if (!nameToMethod.containsKey(method.getName())) {
-                    nameToMethod.put(method.getName(), method);
-                }
-            }
-            t = t.getSuperclass();
-        } while (t != null && t != Object.class);
-        return nameToMethod.values();
     }
 
     public static final Object getValue(@NonNull Object target, @NonNull String fieldName) {
