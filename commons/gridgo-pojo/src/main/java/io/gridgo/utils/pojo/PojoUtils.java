@@ -218,7 +218,7 @@ public class PojoUtils {
                     ? "is" + StringUtils.upperCaseFirstLetter(fieldName)
                     : null;
             var field = getField(targetType, fieldName, booleanFieldName);
-            if (field.isAnnotationPresent(FieldName.class))
+            if (field != null && field.isAnnotationPresent(FieldName.class))
                 annotation = field.getAnnotation(FieldName.class);
         }
 
