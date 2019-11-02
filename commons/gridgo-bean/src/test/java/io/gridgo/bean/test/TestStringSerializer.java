@@ -4,9 +4,11 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import io.gridgo.bean.BElement;
+import io.gridgo.bean.BObject;
 import io.gridgo.bean.BValue;
+import io.gridgo.bean.exceptions.BeanSerializationException;
 
-public class TextStringSerializer {
+public class TestStringSerializer {
 
     @Test
     public void testStringSerializer() {
@@ -22,5 +24,10 @@ public class TextStringSerializer {
         var e = BElement.ofBytes(str, "string");
         Assert.assertTrue(e.isValue());
         Assert.assertEquals("hello", e.asValue().getString());
+    }
+
+    @Test(expected = BeanSerializationException.class)
+    public void testStringUnsupported() {
+        BObject.ofEmpty().toBytes("string");
     }
 }
