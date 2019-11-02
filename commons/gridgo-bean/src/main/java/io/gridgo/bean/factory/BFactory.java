@@ -223,14 +223,6 @@ public interface BFactory {
         return fromJson(new ByteArrayInputStream(json.getBytes(Charset.forName("UTF-8"))));
     }
 
-    default <T extends BElement> T fromXml(String xml) {
-        return this.fromXml(new ByteArrayInputStream(xml.getBytes(Charset.forName("UTF-8"))));
-    }
-
-    default <T extends BElement> T fromXml(InputStream input) {
-        return (T) this.getSerializerRegistry().lookup("xml").deserialize(input);
-    }
-
     default BSerializer lookupDeserializer(String serializerName) {
         var serializer = this.getSerializerRegistry().lookup(serializerName);
         if (serializer == null) {

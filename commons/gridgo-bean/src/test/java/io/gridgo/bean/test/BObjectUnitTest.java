@@ -46,12 +46,6 @@ public class BObjectUnitTest {
         obj = BElement.ofJson(json);
         assertObject(obj);
 
-        var xml = "<object><array name=\"arr\"><integer value=\"1\"/><integer value=\"2\"/><integer value=\"3\"/></array><string name=\"str\" value=\"hello\"/><boolean name=\"bool\" value=\"true\"/><integer name=\"byte\" value=\"1\"/><double name=\"double\" value=\"1.11\"/><object name=\"obj\"><integer name=\"int\" value=\"2\"/></object><string name=\"char\" value=\"a\"/><integer name=\"int\" value=\"1\"/><integer name=\"long\" value=\"1\"/></object>";
-
-        Assert.assertEquals(xml, obj.toXml());
-        obj = BElement.ofXml(xml);
-        assertObject(obj);
-
         var map = obj.toMap();
         Assert.assertEquals(1, map.get("int"));
         Assert.assertEquals("hello", map.get("str"));
