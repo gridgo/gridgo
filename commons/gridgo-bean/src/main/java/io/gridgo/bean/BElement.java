@@ -28,15 +28,6 @@ public interface BElement extends BSerializerRegistryAware, BJsonSupport, BXmlSu
         return BFactory.DEFAULT.fromJson(inputStream);
     }
 
-    ///////////////// XML Support////////////////////
-    static <T extends BElement> T ofXml(String xml) {
-        return BFactory.DEFAULT.fromXml(xml);
-    }
-
-    static <T extends BElement> T ofXml(InputStream in) {
-        return BFactory.DEFAULT.fromXml(in);
-    }
-
     ///////////////// Bytes Support////////////////////
     static <T extends BElement> T ofBytes(@NonNull InputStream in, String serializerName) {
         return BFactory.DEFAULT.fromBytes(in, serializerName);

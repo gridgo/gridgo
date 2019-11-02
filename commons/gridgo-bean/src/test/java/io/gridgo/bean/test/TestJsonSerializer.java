@@ -17,7 +17,7 @@ import io.gridgo.bean.BValue;
 import io.gridgo.bean.test.support.Bar;
 import io.gridgo.bean.test.support.Foo;
 
-public class TextJsonSerializer {
+public class TestJsonSerializer {
 
     @Test
     public void testJsonSerializer() {
