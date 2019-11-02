@@ -55,6 +55,7 @@ public class TestMultiSchemaSerializer {
     @Test(expected = BeanSerializationException.class)
     public void testSchemaDeregisterById() {
         serializer.deregisterSchema(1);
+        Assert.assertNull(serializer.lookupSchema(1));
         var obj = BReference.of(new CustomSchema1("helloworld"));
         var out = new ByteArrayOutputStream();
         serializer.serialize(obj, out);
