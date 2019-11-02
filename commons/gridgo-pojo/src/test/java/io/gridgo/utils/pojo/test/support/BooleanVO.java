@@ -9,7 +9,7 @@ import lombok.Data;
 public class BooleanVO {
 
     @FieldName("is_boolean_value1")
-    private boolean isBooleanValue1;
+    private boolean booleanValue1;
 
     private boolean booleanValue2;
 }

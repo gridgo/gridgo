@@ -96,7 +96,7 @@ public abstract class AbstractMethodSignatureExtractor implements MethodSignatur
                     annotation = field.getAnnotation(FieldName.class);
                 }
             } catch (Exception e) {
-                // do nothing
+                log.warn("Cannot get declared field", e);
             }
         }
 

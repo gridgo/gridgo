@@ -25,8 +25,7 @@ public class GetterMethodSignatureExtractor extends AbstractMethodSignatureExtra
     @Override
     protected String extractFieldName(String methodName) {
         int skip = methodName.startsWith("is") ? 2 : 3;
-        String fieldName = lowerCaseFirstLetter(methodName.substring(skip));
-        return fieldName;
+        return lowerCaseFirstLetter(methodName.substring(skip));
     }
 
     @Override
@@ -36,13 +35,12 @@ public class GetterMethodSignatureExtractor extends AbstractMethodSignatureExtra
 
         String transformedFieldName = transformFieldName(targetType, method, fieldName, transformRule, ignoredFields, signatureType);
 
-        var signature = PojoMethodSignature.builder() //
+        return PojoMethodSignature.builder() //
                 .method(method) //
                 .fieldType(signatureType) //
                 .fieldName(fieldName) //
                 .transformedFieldName(transformedFieldName) //
                 .build();
-        return signature;
     }
 
     @Override
