@@ -1,8 +1,16 @@
 package io.gridgo.utils.pojo;
 
-import org.cliffc.high_scale_lib.NonBlockingHashMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static io.gridgo.utils.ArrayUtils.foreachArray;
+import static io.gridgo.utils.ClasspathUtils.scanForAnnotatedTypes;
+import static io.gridgo.utils.PrimitiveUtils.isPrimitive;
+import static io.gridgo.utils.StringUtils.lowerCaseFirstLetter;
+import static io.gridgo.utils.format.StringFormatter.transform;
+import static io.gridgo.utils.pojo.PojoFlattenIndicator.END_ARRAY;
+import static io.gridgo.utils.pojo.PojoFlattenIndicator.END_MAP;
+import static io.gridgo.utils.pojo.PojoFlattenIndicator.KEY;
+import static io.gridgo.utils.pojo.PojoFlattenIndicator.START_ARRAY;
+import static io.gridgo.utils.pojo.PojoFlattenIndicator.START_MAP;
+import static io.gridgo.utils.pojo.PojoFlattenIndicator.VALUE;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -22,19 +30,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static io.gridgo.utils.ArrayUtils.foreachArray;
-import static io.gridgo.utils.ClasspathUtils.scanForAnnotatedTypes;
-import static io.gridgo.utils.PrimitiveUtils.isPrimitive;
-import static io.gridgo.utils.StringUtils.lowerCaseFirstLetter;
-import static io.gridgo.utils.format.StringFormatter.transform;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.END_ARRAY;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.END_MAP;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.KEY;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.START_ARRAY;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.START_MAP;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.VALUE;
+import org.cliffc.high_scale_lib.NonBlockingHashMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.gridgo.utils.ArrayUtils;
+import io.gridgo.utils.StringUtils;
 import io.gridgo.utils.annotations.Transient;
 import io.gridgo.utils.pojo.exception.InvalidFieldNameException;
 import io.gridgo.utils.pojo.exception.RuntimeReflectiveOperationException;
@@ -194,19 +195,31 @@ public class PojoUtils {
         return false;
     }
 
+    private static Field getField(Class<?> targetType, String... maybeNames) {
+        for (String fieldName : maybeNames) {
+            if (fieldName == null)
+                continue;
+
+            try {
+                return targetType.getDeclaredField(fieldName);
+            } catch (NoSuchFieldException | SecurityException e) {
+                // do nothing
+            }
+        }
+        return null;
+    }
+
     private static String findTransformedFieldName(Class<?> targetType, Method method, String fieldName) {
         FieldName annotation = null;
         if (method.isAnnotationPresent(FieldName.class)) {
             annotation = method.getAnnotation(FieldName.class);
         } else {
-            try {
-                var field = targetType.getDeclaredField(fieldName);
-                if (field.isAnnotationPresent(FieldName.class)) {
-                    annotation = field.getAnnotation(FieldName.class);
-                }
-            } catch (Exception e) {
-                // do nothing
-            }
+            var booleanFieldName = method.getReturnType() == Boolean.class || method.getReturnType() == Boolean.TYPE //
+                    ? "is" + StringUtils.upperCaseFirstLetter(fieldName)
+                    : null;
+            var field = getField(targetType, fieldName, booleanFieldName);
+            if (field.isAnnotationPresent(FieldName.class))
+                annotation = field.getAnnotation(FieldName.class);
         }
 
         String transformedFieldName = null;
@@ -248,7 +261,7 @@ public class PojoUtils {
                     && method.getReturnType() != Void.TYPE //
                     && GETTER_PREFIXES.stream().anyMatch(prefix -> methodName.startsWith(prefix))) {
 
-                int skip = methodName.startsWith("is") ? 2 : 3;
+                int skip = methodName.startsWith("is") ? 2 : methodName.startsWith("get") ? 3 : 0;
                 if (methodName.length() <= skip)
                     continue;
                 String fieldName = lowerCaseFirstLetter(methodName.substring(skip));
