@@ -21,7 +21,9 @@ import static io.gridgo.utils.pojo.PojoFlattenIndicator.VALUE;
 
 import io.gridgo.utils.exception.RuntimeIOException;
 import io.gridgo.utils.pojo.PojoUtils;
+import io.gridgo.utils.pojo.getter.GetterMethodSignatureExtractor;
 import io.gridgo.utils.pojo.getter.PojoGetterProxy;
+import io.gridgo.utils.pojo.setter.SetterMethodSignatureExtractor;
 import io.gridgo.utils.pojo.test.support.Bar;
 import io.gridgo.utils.pojo.test.support.Foo;
 
@@ -89,9 +91,9 @@ public class TestPojoUtils {
 
     @Test
     public void testPojoUnsupported() {
-        var signatures = PojoUtils.extractGetterMethodSignatures(Foo.class);
+        var signatures = GetterMethodSignatureExtractor.getInstance().extractMethodSignatures(Foo.class);
         Assert.assertFalse(signatures.isEmpty());
-        signatures = PojoUtils.extractGetterMethodSignatures(Date.class);
+        signatures = SetterMethodSignatureExtractor.getInstance().extractMethodSignatures(Date.class);
         Assert.assertTrue(signatures.isEmpty());
     }
 
