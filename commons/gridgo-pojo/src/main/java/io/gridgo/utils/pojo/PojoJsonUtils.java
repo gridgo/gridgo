@@ -19,9 +19,10 @@ public class PojoJsonUtils {
     }
 
     private static Object toJsonElement(Object target, PojoGetterProxy proxy) {
-        Class<?> type;
-        if (target == null //
-                || isPrimitive(type = target.getClass()) //
+        if (target == null)
+            return null;
+        Class<?> type = target.getClass();
+        if (isPrimitive(type) //
                 || type == Date.class //
                 || type == java.sql.Date.class) {
             return target;

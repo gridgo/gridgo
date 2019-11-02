@@ -8,21 +8,21 @@ import java.util.Map;
 
 import io.gridgo.bean.BArray;
 import io.gridgo.bean.BObject;
-import io.gridgo.bean.support.BElementPojoHelper;
+import io.gridgo.bean.serialization.text.JsonSerializer;
 
 public class TestBElementPojoHelper {
 
     @Test
     public void testSimpleArray() {
-        var e = BElementPojoHelper.anyToJsonElement(new int[] { 1, 2, 3, 4 });
+        var e = JsonSerializer.anyToJsonElement(new int[] { 1, 2, 3, 4 });
         Assert.assertTrue(e instanceof List);
         Assert.assertEquals(4, ((List<?>) e).size());
     }
 
     @Test
     public void testBArray() {
-        assertList(BElementPojoHelper.anyToJsonElement(new Object[] {1, "2", BObject.of("k", "v"), new int[] { 3, 4 }}));
-        assertList(BElementPojoHelper.anyToJsonElement(BArray.ofSequence(1, "2", BObject.of("k", "v"), new int[] { 3, 4 })));
+        assertList(JsonSerializer.anyToJsonElement(new Object[] {1, "2", BObject.of("k", "v"), new int[] { 3, 4 }}));
+        assertList(JsonSerializer.anyToJsonElement(BArray.ofSequence(1, "2", BObject.of("k", "v"), new int[] { 3, 4 })));
     }
 
     @SuppressWarnings("unchecked")

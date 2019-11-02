@@ -212,16 +212,6 @@ public interface BArray extends BContainer, List<BElement> {
         return list;
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
-    default List<?> toJsonElement() {
-        List<?> list = new LinkedList<>();
-        for (BElement element : this) {
-            list.add(element.toJsonElement());
-        }
-        return list;
-    }
-
     @SuppressWarnings("unchecked")
     @Override
     default <T> T getInnerValue() {

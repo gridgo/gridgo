@@ -5,17 +5,18 @@ import org.junit.Test;
 
 import io.gridgo.bean.BElement;
 import io.gridgo.bean.BValue;
+import io.gridgo.bean.serialization.text.JsonSerializer;
 
 public class BValueUnitTest {
 
     @Test
     public void testNull() {
-        Assert.assertNull(BValue.of(null).toJsonElement());
+        Assert.assertNull(JsonSerializer.toJsonElement(BValue.of(null)));
     }
 
     @Test
     public void testInteger() {
-        Assert.assertEquals(1, (int) BValue.of(1).toJsonElement());
+        Assert.assertEquals(1, (int) JsonSerializer.toJsonElement(BValue.of(1)));
     }
 
     @Test

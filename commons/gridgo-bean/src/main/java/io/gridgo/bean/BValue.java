@@ -255,19 +255,6 @@ public interface BValue extends BElement {
         return (T) of(this.getData());
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
-    default <T> T toJsonElement() {
-        switch (this.getType()) {
-        case RAW:
-            return (T) ByteArrayUtils.toHex(this.getRaw(), "0x");
-        case CHAR:
-            return (T) this.getString();
-        default:
-            return (T) this.getData();
-        }
-    }
-
     @SuppressWarnings("unchecked")
     @Override
     default <T> T getInnerValue() {
