@@ -5,17 +5,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
-import java.sql.Date;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
-
-import static io.gridgo.utils.ArrayUtils.foreachArray;
-import static io.gridgo.utils.PrimitiveUtils.isPrimitive;
 
 import io.gridgo.bean.BArray;
 import io.gridgo.bean.BElement;
@@ -27,8 +22,7 @@ import io.gridgo.bean.serialization.AbstractBSerializer;
 import io.gridgo.bean.serialization.BSerializationPlugin;
 import io.gridgo.utils.ByteArrayUtils;
 import io.gridgo.utils.exception.RuntimeIOException;
-import io.gridgo.utils.pojo.PojoUtils;
-import io.gridgo.utils.pojo.getter.PojoGetterProxy;
+import io.gridgo.utils.pojo.PojoJsonUtils;
 import lombok.NonNull;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
@@ -142,7 +136,7 @@ public class JsonSerializer extends AbstractBSerializer {
     @SuppressWarnings("unchecked")
     private static final <T> T toJsonElement(BReference reference) {
         var ref = reference.getReference();
-        return ref == null ? null : (T) anyToJsonElement(reference.getReference());
+        return ref == null ? null : (T) PojoJsonUtils.toJsonElement(reference.getReference());
     }
 
     @SuppressWarnings("unchecked")
@@ -155,78 +149,5 @@ public class JsonSerializer extends AbstractBSerializer {
         default:
             return (T) val.getData();
         }
-    }
-
-    public static Object anyToJsonElement(Object any) {
-        return anyToJsonElement(any, null);
-    }
-
-    public static Object anyToJsonElement(Object target, PojoGetterProxy proxy) {
-        if (target == null)
-            return null;
-        Class<?> type = target.getClass();
-        if (isPrimitive(type) || //
-                type == Date.class || //
-                type == java.sql.Date.class) {
-            return target;
-        }
-
-        if (BElement.class.isInstance(target)) {
-            return toJsonElement((BElement) target);
-        }
-
-        if (type.isArray()) {
-            return arrayToJsonElement(target, proxy);
-        }
-
-        if (Collection.class.isInstance(target)) {
-            return collectionToJsonElement(target, proxy);
-        }
-
-        if (Map.class.isInstance(target)) {
-            return mapToJsonElement(target, proxy);
-        }
-
-        proxy = proxy == null ? PojoUtils.getGetterProxy(type) : proxy;
-
-        var result = new HashMap<String, Object>();
-        proxy.walkThrough(target, (signature, value) -> {
-            String fieldName = signature.getTransformedOrDefaultFieldName();
-            PojoGetterProxy elementGetterProxy = signature.getElementGetterProxy();
-            Object entryValue = anyToJsonElement(value, elementGetterProxy == null ? signature.getGetterProxy() : elementGetterProxy);
-            result.put(fieldName, entryValue);
-        });
-        return result;
-    }
-
-    private static Object mapToJsonElement(Object target, PojoGetterProxy proxy) {
-        var result = new HashMap<String, Object>();
-        var map = (Map<?, ?>) target;
-        var it = map.entrySet().iterator();
-        while (it.hasNext()) {
-            var entry = it.next();
-            var key = entry.getKey();
-            var value = entry.getValue();
-            result.put(key.toString(), anyToJsonElement(value, proxy));
-        }
-        return result;
-    }
-
-    private static Object collectionToJsonElement(Object target, PojoGetterProxy proxy) {
-        var it = ((Collection<?>) target).iterator();
-        var list = new LinkedList<Object>();
-        while (it.hasNext()) {
-            list.add(anyToJsonElement(it.next(), proxy));
-        }
-        return list;
-    }
-
-    private static Object arrayToJsonElement(Object target, PojoGetterProxy proxy) {
-        var list = new LinkedList<Object>();
-        var _proxy = proxy;
-        foreachArray(target, ele -> {
-            list.add(anyToJsonElement(ele, _proxy));
-        });
-        return list;
     }
 }

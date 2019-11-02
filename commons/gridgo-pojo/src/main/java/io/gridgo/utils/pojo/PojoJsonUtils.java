@@ -18,7 +18,7 @@ public class PojoJsonUtils {
         return (T) toJsonElement(any, null);
     }
 
-    private static Object toJsonElement(Object target, PojoGetterProxy proxy) {
+    public static Object toJsonElement(Object target, PojoGetterProxy proxy) {
         if (target == null)
             return null;
         Class<?> type = target.getClass();

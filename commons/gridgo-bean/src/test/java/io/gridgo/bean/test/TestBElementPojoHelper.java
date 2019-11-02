@@ -9,24 +9,21 @@ import java.util.Map;
 import io.gridgo.bean.BArray;
 import io.gridgo.bean.BObject;
 import io.gridgo.bean.serialization.text.JsonSerializer;
+import io.gridgo.utils.pojo.PojoJsonUtils;
 
 public class TestBElementPojoHelper {
 
     @Test
     public void testSimpleArray() {
-        var e = JsonSerializer.anyToJsonElement(new int[] { 1, 2, 3, 4 });
+        var e = PojoJsonUtils.toJsonElement(BArray.of(new int[] { 1, 2, 3, 4 }));
         Assert.assertTrue(e instanceof List);
         Assert.assertEquals(4, ((List<?>) e).size());
     }
 
     @Test
-    public void testBArray() {
-        assertList(JsonSerializer.anyToJsonElement(new Object[] {1, "2", BObject.of("k", "v"), new int[] { 3, 4 }}));
-        assertList(JsonSerializer.anyToJsonElement(BArray.ofSequence(1, "2", BObject.of("k", "v"), new int[] { 3, 4 })));
-    }
-
     @SuppressWarnings("unchecked")
-    private void assertList(Object e) {
+    public void testBArray() {
+        var e = JsonSerializer.toJsonElement(BArray.ofSequence(1, "2", BObject.of("k", "v"), new int[] { 3, 4 }));
         Assert.assertTrue(e instanceof List);
         var list = (List<?>) e;
         Assert.assertEquals(4, list.size());
