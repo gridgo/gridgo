@@ -35,56 +35,17 @@ public class JsonSerializer extends AbstractBSerializer {
 
     public static final String NAME = "json";
 
+    private ElementJsonWriter<BElement> jsonWriter = new CompositeJsonWriter();
+
     @Override
     public void serialize(@NonNull BElement element, @NonNull OutputStream out) {
         var outWriter = new OutputStreamWriter(out);
         try {
-            writeElement(element, outWriter);
+            jsonWriter.writeElement(element, outWriter);
             outWriter.flush();
         } catch (IOException e) {
             throw new RuntimeIOException("Error while write out json", e);
         }
-    }
-
-    private void writeElement(BElement element, Appendable outWriter) throws IOException {
-        if (element.isArray()) {
-            writeElement(element.asArray(), outWriter);
-        } else if (element.isObject()) {
-            writeElement(element.asObject(), outWriter);
-        } else if (element.isValue()) {
-            writeElement(element.asValue(), outWriter);
-        } else if (element.isReference()) {
-            writeElement(element.asReference(), outWriter);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private void writeElement(BReference element, Appendable outWriter) throws IOException {
-        var jsonElement = toJsonElement(element);
-
-        if (Collection.class.isInstance(jsonElement)) {
-            JSONArray.writeJSONString((List<? extends Object>) jsonElement, outWriter);
-            return;
-        }
-
-        if (Map.class.isInstance(jsonElement)) {
-            JSONObject.writeJSON((Map<String, ? extends Object>) jsonElement, outWriter);
-            return;
-        }
-
-        JSONValue.writeJSONString(jsonElement, outWriter);
-    }
-
-    private void writeElement(BValue element, Appendable outWriter) throws IOException {
-        JSONValue.writeJSONString(toJsonElement(element), outWriter);
-    }
-
-    private void writeElement(BObject element, Appendable outWriter) throws IOException {
-        JSONObject.writeJSON(toJsonElement(element), outWriter);
-    }
-
-    private void writeElement(BArray element, Appendable outWriter) throws IOException {
-        JSONArray.writeJSONString(toJsonElement(element), outWriter);
     }
 
     @Override
@@ -100,54 +61,143 @@ public class JsonSerializer extends AbstractBSerializer {
         return new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE).parse(in);
     }
 
-    @SuppressWarnings("unchecked")
-    public static final <T> T toJsonElement(BElement element) {
-        if (element.isArray()) {
-            return (T) toJsonElement(element.asArray());
-        }
-        if (element.isObject()) {
-            return (T) toJsonElement(element.asObject());
-        }
-        if (element.isValue()) {
-            return (T) toJsonElement(element.asValue());
-        }
-        if (element.isReference()) {
-            return (T) toJsonElement(element.asReference());
-        }
-        return null;
+    interface ElementJsonWriter<T extends BElement> {
+
+        public void writeElement(T element, Appendable outWriter) throws IOException;
+
+        public Object toJsonElement(T element);
     }
 
-    private static final List<?> toJsonElement(BArray arr) {
-        List<?> list = new LinkedList<>();
-        for (BElement element : arr) {
-            list.add(toJsonElement(element));
+    static class CompositeJsonWriter implements ElementJsonWriter<BElement> {
+
+        private static final ElementJsonWriter<BElement> INSTANCE = new CompositeJsonWriter();
+
+        public static final ElementJsonWriter<BElement> getInstance() {
+            return INSTANCE;
         }
-        return list;
-    }
 
-    private static final Map<String, Object> toJsonElement(BObject obj) {
-        Map<String, Object> map = new TreeMap<>();
-        for (Entry<String, BElement> entry : obj.entrySet()) {
-            map.put(entry.getKey(), toJsonElement(entry.getValue()));
+        private ElementJsonWriter<BObject> objectJsonWriter = new BObjectJsonWriter();
+
+        private ElementJsonWriter<BArray> arrayJsonWriter = new BArrayJsonWriter();
+
+        private ElementJsonWriter<BValue> valueJsonWriter = new BValueJsonWriter();
+
+        private ElementJsonWriter<BReference> refJsonWriter = new BReferenceJsonWriter();
+
+        private CompositeJsonWriter() {
+
         }
-        return map;
+
+        @Override
+        public void writeElement(BElement element, Appendable outWriter) throws IOException {
+            if (element.isArray()) {
+                arrayJsonWriter.writeElement(element.asArray(), outWriter);
+            } else if (element.isObject()) {
+                objectJsonWriter.writeElement(element.asObject(), outWriter);
+            } else if (element.isValue()) {
+                valueJsonWriter.writeElement(element.asValue(), outWriter);
+            } else if (element.isReference()) {
+                refJsonWriter.writeElement(element.asReference(), outWriter);
+            }
+        }
+
+        @Override
+        public Object toJsonElement(BElement element) {
+            if (element.isArray()) {
+                return arrayJsonWriter.toJsonElement(element.asArray());
+            }
+            if (element.isObject()) {
+                return objectJsonWriter.toJsonElement(element.asObject());
+            }
+            if (element.isValue()) {
+                return valueJsonWriter.toJsonElement(element.asValue());
+            }
+            if (element.isReference()) {
+                return refJsonWriter.toJsonElement(element.asReference());
+            }
+            return null;
+        }
+
     }
 
-    @SuppressWarnings("unchecked")
-    private static final <T> T toJsonElement(BReference reference) {
-        var ref = reference.getReference();
-        return ref == null ? null : (T) PojoJsonUtils.toJsonElement(reference.getReference());
+    static class BArrayJsonWriter implements ElementJsonWriter<BArray> {
+
+        @Override
+        public void writeElement(BArray element, Appendable outWriter) throws IOException {
+            JSONArray.writeJSONString(toJsonElement(element), outWriter);
+        }
+
+        @Override
+        public List<?> toJsonElement(BArray arr) {
+            List<Object> list = new LinkedList<>();
+            for (BElement element : arr) {
+                list.add(CompositeJsonWriter.getInstance().toJsonElement(element));
+            }
+            return list;
+        }
     }
 
-    @SuppressWarnings("unchecked")
-    private static final <T> T toJsonElement(BValue val) {
-        switch (val.getType()) {
-        case RAW:
-            return (T) ByteArrayUtils.toHex(val.getRaw(), "0x");
-        case CHAR:
-            return (T) val.getString();
-        default:
-            return (T) val.getData();
+    static class BObjectJsonWriter implements ElementJsonWriter<BObject> {
+
+        @Override
+        public void writeElement(BObject element, Appendable outWriter) throws IOException {
+            JSONObject.writeJSON(toJsonElement(element), outWriter);
+        }
+
+        @Override
+        public Map<String, Object> toJsonElement(BObject obj) {
+            Map<String, Object> map = new TreeMap<>();
+            for (Entry<String, BElement> entry : obj.entrySet()) {
+                map.put(entry.getKey(), CompositeJsonWriter.getInstance().toJsonElement(entry.getValue()));
+            }
+            return map;
+        }
+    }
+
+    static class BValueJsonWriter implements ElementJsonWriter<BValue> {
+
+        @Override
+        public void writeElement(BValue element, Appendable outWriter) throws IOException {
+            JSONValue.writeJSONString(toJsonElement(element), outWriter);
+        }
+
+        @Override
+        public Object toJsonElement(BValue val) {
+            switch (val.getType()) {
+            case RAW:
+                return ByteArrayUtils.toHex(val.getRaw(), "0x");
+            case CHAR:
+                return val.getString();
+            default:
+                return val.getData();
+            }
+        }
+    }
+
+    static class BReferenceJsonWriter implements ElementJsonWriter<BReference> {
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public void writeElement(BReference element, Appendable outWriter) throws IOException {
+            var jsonElement = toJsonElement(element);
+
+            if (Collection.class.isInstance(jsonElement)) {
+                JSONArray.writeJSONString((List<? extends Object>) jsonElement, outWriter);
+                return;
+            }
+
+            if (Map.class.isInstance(jsonElement)) {
+                JSONObject.writeJSON((Map<String, ? extends Object>) jsonElement, outWriter);
+                return;
+            }
+
+            JSONValue.writeJSONString(jsonElement, outWriter);
+        }
+
+        @Override
+        public Object toJsonElement(BReference reference) {
+            var obj = reference.getReference();
+            return obj == null ? null : PojoJsonUtils.toJsonElement(obj);
         }
     }
 }
