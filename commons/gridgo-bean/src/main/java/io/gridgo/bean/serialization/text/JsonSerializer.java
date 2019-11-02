@@ -1,7 +1,5 @@
 package io.gridgo.bean.serialization.text;
 
-import static io.gridgo.bean.support.BElementPojoHelper.anyToJsonElement;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -10,6 +8,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+
+import static io.gridgo.bean.support.BElementPojoHelper.anyToJsonElement;
 
 import io.gridgo.bean.BElement;
 import io.gridgo.bean.exceptions.BeanSerializationException;
@@ -42,24 +42,7 @@ public class JsonSerializer extends AbstractBSerializer {
     @SuppressWarnings("unchecked")
     private void writeAny(Object obj, Appendable outWriter) throws IOException {
         if (obj instanceof BElement) {
-            BElement element = (BElement) obj;
-
-            if (element.isArray()) {
-                JSONArray.writeJSONString(element.asArray().toJsonElement(), outWriter);
-                return;
-            }
-
-            if (element.isObject()) {
-                JSONObject.writeJSON(element.asObject().toJsonElement(), outWriter);
-                return;
-            }
-
-            if (element.isReference()) {
-                writeAny(element.asReference().getReference(), outWriter);
-                return;
-            }
-
-            JSONValue.writeJSONString(element.toJsonElement(), outWriter);
+            writeBElement(obj, outWriter);
             return;
         }
 
@@ -78,12 +61,33 @@ public class JsonSerializer extends AbstractBSerializer {
         JSONValue.writeJSONString(jsonElement, outWriter);
     }
 
+    private void writeBElement(Object obj, Appendable outWriter) throws IOException {
+        BElement element = (BElement) obj;
+
+        if (element.isArray()) {
+            JSONArray.writeJSONString(element.asArray().toJsonElement(), outWriter);
+            return;
+        }
+
+        if (element.isObject()) {
+            JSONObject.writeJSON(element.asObject().toJsonElement(), outWriter);
+            return;
+        }
+
+        if (element.isReference()) {
+            writeAny(element.asReference().getReference(), outWriter);
+            return;
+        }
+
+        JSONValue.writeJSONString(element.toJsonElement(), outWriter);
+    }
+
     @Override
     public BElement deserialize(@NonNull InputStream in) {
         try {
             return getFactory().fromAny(deserializeToJsonElement(in));
         } catch (UnsupportedEncodingException | ParseException e) {
-            throw new BeanSerializationException("Cannot parse json");
+            throw new BeanSerializationException("Cannot parse json", e);
         }
     }
 
