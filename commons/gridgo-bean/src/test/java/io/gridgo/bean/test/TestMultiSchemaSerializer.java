@@ -1,6 +1,7 @@
 package io.gridgo.bean.test;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -11,6 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.gridgo.bean.BReference;
+import io.gridgo.bean.exceptions.BeanSerializationException;
 import io.gridgo.bean.factory.BFactory;
 import io.gridgo.bean.serialization.AbstractMultiSchemaSerializer;
 import lombok.AllArgsConstructor;
@@ -18,13 +20,18 @@ import lombok.Getter;
 
 public class TestMultiSchemaSerializer {
 
-    @Test
-    public void testMultiSchema() throws IOException {
-        var serializer = new DummyMultiSchemaSerializer();
+    private AbstractMultiSchemaSerializer<Schema> serializer;
+
+    @Before
+    public void setUp() {
+        this.serializer = new DummyMultiSchemaSerializer();
         serializer.setFactory(BFactory.DEFAULT);
         serializer.registerSchema(CustomSchema1.class, 1);
         serializer.registerSchema(CustomSchema2.class, 2);
+    }
 
+    @Test
+    public void testMultiSchema() throws IOException {
         var obj = BReference.of(new CustomSchema1("helloworld"));
         var out = new ByteArrayOutputStream();
         serializer.serialize(obj, out);
@@ -35,6 +42,22 @@ public class TestMultiSchemaSerializer {
         Assert.assertTrue(after.asReference().getReference() instanceof CustomSchema1);
         CustomSchema1 deserialized = after.asReference().getReference();
         Assert.assertEquals("helloworld", deserialized.getContent());
+    }
+
+    @Test(expected = BeanSerializationException.class)
+    public void testSchemaDeregisterByClass() {
+        serializer.deregisterSchema(CustomSchema1.class);
+        var obj = BReference.of(new CustomSchema1("helloworld"));
+        var out = new ByteArrayOutputStream();
+        serializer.serialize(obj, out);
+    }
+
+    @Test(expected = BeanSerializationException.class)
+    public void testSchemaDeregisterById() {
+        serializer.deregisterSchema(1);
+        var obj = BReference.of(new CustomSchema1("helloworld"));
+        var out = new ByteArrayOutputStream();
+        serializer.serialize(obj, out);
     }
 
     @Getter
