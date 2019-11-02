@@ -1,5 +1,10 @@
 package io.gridgo.utils.pojo;
 
+import static io.gridgo.utils.StringUtils.upperCaseFirstLetter;
+import static io.gridgo.utils.format.StringFormatter.transform;
+import static io.gridgo.utils.pojo.PojoUtils.isSupported;
+
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
@@ -10,9 +15,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import static io.gridgo.utils.format.StringFormatter.transform;
-import static io.gridgo.utils.pojo.PojoUtils.isSupported;
 
 import io.gridgo.utils.annotations.Transient;
 import io.gridgo.utils.pojo.exception.InvalidFieldNameException;
@@ -68,8 +70,8 @@ public abstract class AbstractMethodSignatureExtractor implements MethodSignatur
         return nameToMethod.values();
     }
 
-    protected String transformFieldName(Class<?> targetType, Method method, String fieldName, String transformRule, Set<String> ignoredFields,
-            Class<?> signatureType) {
+    protected String transformFieldName(Class<?> targetType, Method method, String fieldName, String transformRule,
+            Set<String> ignoredFields, Class<?> signatureType) {
         String transformedFieldName = findTransformedFieldName(targetType, method, fieldName);
         if (transformedFieldName == null && transformRule != null) {
             if (ignoredFields == null || ignoredFields.size() == 0 || !ignoredFields.contains(fieldName)) {
@@ -85,27 +87,39 @@ public abstract class AbstractMethodSignatureExtractor implements MethodSignatur
         return transformedFieldName;
     }
 
-    private String findTransformedFieldName(Class<?> targetType, Method method, String fieldName) {
-        FieldName annotation = null;
-        if (method.isAnnotationPresent(FieldName.class)) {
-            annotation = method.getAnnotation(FieldName.class);
-        } else {
+    private Field getDeclaredField(Class<?> type, String... names) {
+        for (String fieldName : names) {
             try {
-                var field = targetType.getDeclaredField(fieldName);
-                if (field.isAnnotationPresent(FieldName.class)) {
-                    annotation = field.getAnnotation(FieldName.class);
-                }
+                return type.getDeclaredField(fieldName);
             } catch (Exception e) {
-                log.warn("Cannot get declared field", e);
+                // do nothing
             }
+        }
+        return null;
+    }
+
+    private Field getCorespondingField(Method method, String interpretedFieldName) {
+        var returnType = method.getReturnType();
+        String booleanFieldName = null;
+        if (returnType == Boolean.class || returnType == Boolean.TYPE)
+            booleanFieldName = "is" + upperCaseFirstLetter(interpretedFieldName);
+        return getDeclaredField(method.getDeclaringClass(), interpretedFieldName, booleanFieldName);
+    }
+
+    private String findTransformedFieldName(Class<?> targetType, Method method, String fieldName) {
+        FieldName annotation = method.getAnnotation(FieldName.class);
+        if (annotation == null) {
+            var field = getCorespondingField(method, fieldName);
+            if (field != null && field.isAnnotationPresent(FieldName.class))
+                annotation = field.getAnnotation(FieldName.class);
         }
 
         String transformedFieldName = null;
         if (annotation != null) {
             transformedFieldName = annotation.value();
             if (transformedFieldName.isBlank()) {
-                throw new InvalidFieldNameException("invalid field name: " + transformedFieldName + " in method or field " + fieldName
-                        + ", type: " + targetType.getName());
+                throw new InvalidFieldNameException("invalid field name: " + transformedFieldName
+                        + " in method or field " + fieldName + ", type: " + targetType.getName());
             }
         }
 
@@ -132,6 +146,6 @@ public abstract class AbstractMethodSignatureExtractor implements MethodSignatur
 
     protected abstract String extractFieldName(String methodName);
 
-    protected abstract PojoMethodSignature extract(Class<?> targetType, Method method, String fieldName, String transformRule,
-            Set<String> ignoredFields);
+    protected abstract PojoMethodSignature extract(Class<?> targetType, Method method, String fieldName,
+            String transformRule, Set<String> ignoredFields);
 }
