@@ -35,7 +35,7 @@ public class JsonSerializer extends AbstractBSerializer {
 
     public static final String NAME = "json";
 
-    private ElementJsonWriter<BElement> jsonWriter = new CompositeJsonWriter();
+    private ElementJsonWriter<BElement> jsonWriter = CompositeJsonWriter.getInstance();
 
     @Override
     public void serialize(@NonNull BElement element, @NonNull OutputStream out) {
@@ -199,5 +199,10 @@ public class JsonSerializer extends AbstractBSerializer {
             var obj = reference.getReference();
             return obj == null ? null : PojoJsonUtils.toJsonElement(obj);
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> T toJsonElement(BElement ref) {
+        return (T) CompositeJsonWriter.getInstance().toJsonElement(ref);
     }
 }
