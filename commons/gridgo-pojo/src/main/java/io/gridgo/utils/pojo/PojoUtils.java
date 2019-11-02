@@ -4,6 +4,7 @@ import static io.gridgo.utils.ArrayUtils.foreachArray;
 import static io.gridgo.utils.ClasspathUtils.scanForAnnotatedTypes;
 import static io.gridgo.utils.PrimitiveUtils.isPrimitive;
 import static io.gridgo.utils.StringUtils.lowerCaseFirstLetter;
+import static io.gridgo.utils.StringUtils.upperCaseFirstLetter;
 import static io.gridgo.utils.format.StringFormatter.transform;
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.END_ARRAY;
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.END_MAP;
@@ -35,7 +36,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.gridgo.utils.ArrayUtils;
-import io.gridgo.utils.StringUtils;
 import io.gridgo.utils.annotations.Transient;
 import io.gridgo.utils.pojo.exception.InvalidFieldNameException;
 import io.gridgo.utils.pojo.exception.RuntimeReflectiveOperationException;
@@ -184,13 +184,14 @@ public class PojoUtils {
             return true;
         }
 
-        try {
-            var field = method.getDeclaringClass().getDeclaredField(fieldName);
-            if (field.isAnnotationPresent(Transient.class))
-                return true;
-        } catch (Exception e) {
-            // do nothing
-        }
+        var returnType = method.getReturnType();
+        var booleanFieldName = returnType == Boolean.class || returnType == Boolean.TYPE
+                ? "is" + upperCaseFirstLetter(fieldName)
+                : null;
+
+        var field = getField(method.getDeclaringClass(), fieldName, booleanFieldName);
+        if (field != null && field.isAnnotationPresent(Transient.class))
+            return true;
 
         return false;
     }
@@ -210,13 +211,14 @@ public class PojoUtils {
     }
 
     private static String findTransformedFieldName(Class<?> targetType, Method method, String fieldName) {
-        FieldName annotation = null;
-        if (method.isAnnotationPresent(FieldName.class)) {
-            annotation = method.getAnnotation(FieldName.class);
-        } else {
-            var booleanFieldName = method.getReturnType() == Boolean.class || method.getReturnType() == Boolean.TYPE //
-                    ? "is" + StringUtils.upperCaseFirstLetter(fieldName)
+        var annotation = method.getAnnotation(FieldName.class);
+
+        if (annotation == null) {
+            var returnType = method.getReturnType();
+            var booleanFieldName = returnType == Boolean.class || returnType == Boolean.TYPE
+                    ? "is" + upperCaseFirstLetter(fieldName)
                     : null;
+
             var field = getField(targetType, fieldName, booleanFieldName);
             if (field != null && field.isAnnotationPresent(FieldName.class))
                 annotation = field.getAnnotation(FieldName.class);
