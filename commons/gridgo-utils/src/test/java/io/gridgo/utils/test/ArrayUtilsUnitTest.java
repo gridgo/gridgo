@@ -113,10 +113,8 @@ public class ArrayUtilsUnitTest {
     @Test
     public void testToPrimitiveArray() {
         Assert.assertNull(ArrayUtils.toPrimitiveArray(null, int.class));
-        Assert.assertArrayEquals(new int[] { 1, 2, 3 },
-                (int[]) ArrayUtils.toPrimitiveArray(Arrays.asList(1, 2, 3), int.class));
-        Assert.assertArrayEquals(new long[] { 1, 2, 3 },
-                (long[]) ArrayUtils.toPrimitiveArray(Arrays.asList(1L, 2L, 3L), long.class));
+        Assert.assertArrayEquals(new int[] { 1, 2, 3 }, (int[]) ArrayUtils.toPrimitiveArray(Arrays.asList(1, 2, 3), int.class));
+        Assert.assertArrayEquals(new long[] { 1, 2, 3 }, (long[]) ArrayUtils.toPrimitiveArray(Arrays.asList(1L, 2L, 3L), long.class));
         Assert.assertArrayEquals(new double[] { 1.1, 2.2, 3.3 },
                 (double[]) ArrayUtils.toPrimitiveArray(Arrays.asList(1.1, 2.2, 3.3), double.class), 0);
         Assert.assertArrayEquals(new float[] { 1.1f, 2.2f, 3.3f },
@@ -132,5 +130,15 @@ public class ArrayUtilsUnitTest {
     @Test(expected = IllegalArgumentException.class)
     public void testToPrimitiveArrayInvalidClass() {
         ArrayUtils.toPrimitiveArray(Arrays.asList(1, 2, 3), Integer.class);
+    }
+
+    @Test
+    public void testIncompatibleConversion() {
+        Assert.assertArrayEquals(new byte[] { 1, 2, 3, 4 },
+                (byte[]) ArrayUtils.toPrimitiveArray(Arrays.asList(1, 2.2, 3.3f, 4L), byte.class));
+        Assert.assertArrayEquals(new int[] { 1, 2, 3, 4 },
+                (int[]) ArrayUtils.toPrimitiveArray(Arrays.asList((byte) 1, 2.2, 3.3f, 4L), int.class));
+        Assert.assertArrayEquals(new double[] { 1, 2.2, 3.3, 4 },
+                (double[]) ArrayUtils.toPrimitiveArray(Arrays.asList((byte) 1, 2.2, 3.3f, 4L), double.class), 0.0001);
     }
 }

@@ -6,15 +6,31 @@ public interface BArrayOptional {
 
     BArray getBArray();
 
+    default Optional<BValue> getValue(int index) {
+        var arr = getBArray();
+        if (index < 0 || index >= arr.size())
+            return Optional.empty();
+        return Optional.ofNullable(arr.getValue(index));
+    }
+
     default Optional<BObject> getObject(int index) {
-        return Optional.ofNullable(this.getBArray().getObject(index));
+        var arr = getBArray();
+        if (index < 0 || index >= arr.size())
+            return Optional.empty();
+        return Optional.ofNullable(arr.getObject(index));
     }
 
     default Optional<BArray> getArray(int index) {
-        return Optional.ofNullable(this.getBArray().getArray(index));
+        var arr = getBArray();
+        if (index < 0 || index >= arr.size())
+            return Optional.empty();
+        return Optional.ofNullable(arr.getArray(index));
     }
 
     default Optional<BReference> getReference(int index) {
-        return Optional.ofNullable(this.getBArray().getReference(index));
+        var arr = getBArray();
+        if (index < 0 || index >= arr.size())
+            return Optional.empty();
+        return Optional.ofNullable(arr.getReference(index));
     }
 }

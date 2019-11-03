@@ -14,6 +14,7 @@ import static org.junit.Assert.assertEquals;
 import io.gridgo.bean.BArray;
 import io.gridgo.bean.BElement;
 import io.gridgo.bean.BObject;
+import io.gridgo.bean.BType;
 import io.gridgo.bean.BValue;
 import io.gridgo.bean.exceptions.InvalidTypeException;
 import io.gridgo.bean.test.support.Bar;
@@ -132,11 +133,16 @@ public class BObjectUnitTest {
 
     @Test
     public void testBytes() {
-        var obj = BObject.of("id", 1).setAny("_id", new int[] { 1, 2, 3 }).setAny("abc", null);
+        var obj = BObject.of("id", 1) //
+                .setAny("abc", null) //
+                .setAny("_id", new int[] { 1, 2, 3 }) //
+                .setAny("byteArr", BValue.of(new byte[] {1, 2, 3, 4})) //
+;
         var clone = BElement.ofBytes(obj.toBytes());
         Assert.assertNotNull(clone);
         Assert.assertTrue(clone.isObject());
         Assert.assertEquals(1, clone.asObject().getInteger("id").intValue());
+        Assert.assertArrayEquals(new byte[] {1, 2, 3, 4}, clone.asObject().getRaw("byteArr"));
         Assert.assertEquals(obj, clone);
     }
 
@@ -198,7 +204,67 @@ public class BObjectUnitTest {
         var obj = BObject.ofEmpty();
         var arr = obj.getArrayOrEmpty("k1");
         Assert.assertNotNull(arr);
-        Assert.assertNotNull(arr.isEmpty());
+        Assert.assertTrue(arr.isEmpty());
+    }
+
+    @Test
+    public void testGetObjectOrEmpty() {
+        var obj = BObject.ofEmpty();
+        var arr = obj.getObjectOrEmpty("k1");
+        Assert.assertNotNull(arr);
+        Assert.assertTrue(arr.isEmpty());
+    }
+
+    @Test
+    public void testGetValueOrEmpty() {
+        var obj = BObject.ofEmpty();
+        var arr = obj.getValueOrEmpty("k1");
+        Assert.assertNotNull(arr);
+        Assert.assertTrue(arr.isNull());
+        arr = obj.getValue("k1", BValue.of(1));
+        Assert.assertEquals(1, arr.getData());
+    }
+
+    @Test
+    public void testFromBObject() {
+        var obj1 = BObject.ofEmpty();
+        var obj2 = BObject.of(obj1);
+        Assert.assertTrue(obj1 == obj2);
+    }
+
+    @Test
+    public void testTypeOf() {
+        var obj = BObject.of("k1", "v1").setAny("k2", 2).setAny("k3", BArray.ofEmpty()).setAny("k4", BObject.ofEmpty());
+        Assert.assertEquals(BType.STRING, obj.typeOf("k1"));
+        Assert.assertEquals(BType.INTEGER, obj.typeOf("k2"));
+        Assert.assertEquals(BType.ARRAY, obj.typeOf("k3"));
+        Assert.assertEquals(BType.OBJECT, obj.typeOf("k4"));
+        Assert.assertNull(obj.typeOf("k5"));
+    }
+
+    @Test
+    public void testOptional() {
+        var obj = BObject.of("k1", "v1").setAny("k2", 2).setAny("k3", BArray.ofEmpty()).setAny("k4", BObject.ofEmpty());
+        var optional = obj.asOptional();
+        Assert.assertTrue(optional.get("k1").isPresent());
+        Assert.assertTrue(optional.getString("k1").isPresent());
+        Assert.assertTrue(optional.getInteger("k2").isPresent());
+        Assert.assertTrue(optional.getValue("k2").isPresent());
+        Assert.assertTrue(optional.getArray("k3").isPresent());
+        Assert.assertTrue(optional.getObject("k4").isPresent());
+        Assert.assertTrue(optional.getString("k5").isEmpty());
+        Assert.assertTrue(optional.getInteger("k5").isEmpty());
+        Assert.assertTrue(optional.getBoolean("k5").isEmpty());
+        Assert.assertTrue(optional.getDouble("k5").isEmpty());
+        Assert.assertTrue(optional.getRaw("k5").isEmpty());
+        Assert.assertTrue(optional.getShort("k5").isEmpty());
+        Assert.assertTrue(optional.getLong("k5").isEmpty());
+        Assert.assertTrue(optional.getChar("k5").isEmpty());
+        Assert.assertTrue(optional.getByte("k5").isEmpty());
+        Assert.assertTrue(optional.getFloat("k5").isEmpty());
+        Assert.assertTrue(optional.getReference("k5").isEmpty());
+        Assert.assertTrue(optional.getObject("k5").isEmpty());
+        Assert.assertTrue(optional.getArray("k5").isEmpty());
     }
 
     class EmptyMap<K, V> extends HashMap<K, V> {
