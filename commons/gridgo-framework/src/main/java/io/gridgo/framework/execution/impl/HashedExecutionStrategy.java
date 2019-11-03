@@ -1,7 +1,6 @@
 package io.gridgo.framework.execution.impl;
 
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 import io.gridgo.framework.execution.ExecutionStrategy;
 import io.gridgo.framework.support.Message;
@@ -14,11 +13,11 @@ public class HashedExecutionStrategy extends AbstractMultiExecutionStrategy {
 
     private Function<Message, Integer> hashFunction;
 
-    public HashedExecutionStrategy(final int noThreads, Supplier<ExecutionStrategy> executorSupplier) {
+    public HashedExecutionStrategy(final int noThreads, Function<Integer, ExecutionStrategy> executorSupplier) {
         this(noThreads, executorSupplier, DEFAULT_HASH_FUNCTION);
     }
 
-    public HashedExecutionStrategy(final int noThreads, Supplier<ExecutionStrategy> executorSupplier,
+    public HashedExecutionStrategy(final int noThreads, Function<Integer, ExecutionStrategy> executorSupplier,
             Function<Message, Integer> hashFunction) {
         super(noThreads, executorSupplier);
         this.hashFunction = hashFunction;

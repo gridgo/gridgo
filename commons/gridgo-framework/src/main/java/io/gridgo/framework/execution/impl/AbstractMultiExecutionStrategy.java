@@ -1,6 +1,6 @@
 package io.gridgo.framework.execution.impl;
 
-import java.util.function.Supplier;
+import java.util.function.Function;
 
 import io.gridgo.framework.execution.ExecutionStrategy;
 
@@ -8,11 +8,11 @@ public abstract class AbstractMultiExecutionStrategy implements ExecutionStrateg
 
     protected final int noThreads;
 
-    protected final Supplier<ExecutionStrategy> executorSupplier;
+    protected final Function<Integer, ExecutionStrategy> executorSupplier;
 
     protected ExecutionStrategy[] executors;
 
-    public AbstractMultiExecutionStrategy(final int noThreads, final Supplier<ExecutionStrategy> executorSupplier) {
+    public AbstractMultiExecutionStrategy(final int noThreads, final Function<Integer, ExecutionStrategy> executorSupplier) {
         this.noThreads = noThreads;
         this.executorSupplier = executorSupplier;
     }
@@ -21,7 +21,7 @@ public abstract class AbstractMultiExecutionStrategy implements ExecutionStrateg
     public void start() {
         var executors = new ExecutionStrategy[noThreads];
         for (var i = 0; i < noThreads; i++) {
-            executors[i] = executorSupplier.get();
+            executors[i] = executorSupplier.apply(i);
             executors[i].start();
         }
         this.executors = executors;

@@ -1,7 +1,7 @@
 package io.gridgo.framework.execution.impl;
 
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.Supplier;
+import java.util.function.Function;
 
 import io.gridgo.framework.execution.ExecutionStrategy;
 import io.gridgo.framework.support.Message;
@@ -13,7 +13,7 @@ public class RoundRobinExecutionStrategy extends AbstractMultiExecutionStrategy 
 
     private AtomicLong counter = new AtomicLong();
 
-    public RoundRobinExecutionStrategy(final int noThreads, Supplier<ExecutionStrategy> executorSupplier) {
+    public RoundRobinExecutionStrategy(final int noThreads, Function<Integer, ExecutionStrategy> executorSupplier) {
         super(noThreads, executorSupplier);
         if (!isPowerOf2(noThreads))
             throw new IllegalArgumentException("Number of threads must be power of 2");
