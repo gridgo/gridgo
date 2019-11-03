@@ -77,7 +77,8 @@ public class BElementPojoHelper {
         proxy.walkThrough(target, (signature, value) -> {
             String fieldName = signature.getTransformedOrDefaultFieldName();
             PojoGetterProxy elementGetterProxy = signature.getElementGetterProxy();
-            BElement entryValue = anyToBElement(value, elementGetterProxy == null ? signature.getGetterProxy() : elementGetterProxy);
+            BElement entryValue = anyToBElement(value,
+                    elementGetterProxy == null ? signature.getGetterProxy() : elementGetterProxy);
             result.put(fieldName, entryValue);
         });
         return result;
@@ -128,7 +129,8 @@ public class BElementPojoHelper {
         try {
             result = type.getConstructor().newInstance();
         } catch (Exception e) {
-            throw new RuntimeException("Cannot convert BObject to POJO, cannot create instance of: " + type.getName(), e);
+            throw new RuntimeException("Cannot convert BObject to POJO, cannot create instance of: " + type.getName(),
+                    e);
         }
         fillToPojo(src, result, proxy);
         return result;
@@ -139,9 +141,7 @@ public class BElementPojoHelper {
     }
 
     public static <T> void fillToPojo(BObject src, T result, PojoSetterProxy proxy) {
-        proxy.walkThrough(result, (signature) -> {
-            return doFillPojo(src, signature);
-        });
+        proxy.walkThrough(result, (signature) -> doFillPojo(src, signature));
     }
 
     private static Object doFillPojo(BObject src, PojoMethodSignature signature) {
@@ -182,7 +182,8 @@ public class BElementPojoHelper {
                 return PrimitiveUtils.getValueFrom(fieldType, data);
             } catch (Exception e) {
                 throw new InvalidValueException(
-                        "Invalid value for field '" + fieldName + "', expected type: " + fieldType + ", got: " + data, e);
+                        "Invalid value for field '" + fieldName + "', expected type: " + fieldType + ", got: " + data,
+                        e);
             }
         }
 
@@ -314,7 +315,8 @@ public class BElementPojoHelper {
         return map;
     }
 
-    private static Object convertBElementToType(PojoMethodSignature signature, Class<?> valueType, BElement theEntryValue) {
+    private static Object convertBElementToType(PojoMethodSignature signature, Class<?> valueType,
+            BElement theEntryValue) {
         if (valueType == Object.class)
             return theEntryValue;
         if (theEntryValue.isValue())
