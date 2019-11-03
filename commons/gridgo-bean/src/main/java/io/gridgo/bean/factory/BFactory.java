@@ -111,13 +111,6 @@ public interface BFactory {
         Map<?, ?> map;
         if (Map.class.isAssignableFrom(mapData.getClass())) {
             map = (Map<?, ?>) mapData;
-        } else if (mapData instanceof Properties) {
-            var map1 = new HashMap<>();
-            var props = (Properties) mapData;
-            for (var entry : props.entrySet()) {
-                map1.put(entry.getKey(), entry.getValue());
-            }
-            map = map1;
         } else {
             throw new InvalidTypeException("Cannot create new object from non-map data: " + mapData.getClass());
         }

@@ -1,6 +1,8 @@
 package io.gridgo.bean.serialization.msgpack;
 
-import static io.gridgo.utils.pojo.PojoUtils.getGetterProxy;
+import org.msgpack.core.MessageFormat;
+import org.msgpack.core.MessagePacker;
+import org.msgpack.core.MessageUnpacker;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,9 +11,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.msgpack.core.MessageFormat;
-import org.msgpack.core.MessagePacker;
-import org.msgpack.core.MessageUnpacker;
+import static io.gridgo.utils.pojo.PojoUtils.getGetterProxy;
 
 import io.gridgo.bean.BArray;
 import io.gridgo.bean.BElement;
@@ -34,6 +34,17 @@ public class MsgpackSerializer extends AbstractBSerializer {
     public static final String NAME = "msgpack";
     private final ThreadLocal<MsgpackerAndBuffer> PACKERS = ThreadLocal.withInitial(MsgpackerAndBuffer::new);
     private final ThreadLocal<MsgunpackerAndBuffer> UNPACKERS = ThreadLocal.withInitial(MsgunpackerAndBuffer::new);
+
+    @Override
+    public void serialize(@NonNull BElement element, @NonNull OutputStream out) {
+        try (var holder = PACKERS.get()) {
+            var packer = holder.reset(out);
+            packAny(element, packer);
+            packer.flush();
+        } catch (Exception e) {
+            throw new BeanSerializationException("Error while serialize element", e);
+        }
+    }
 
     private void packAny(Object obj, MessagePacker packer) throws IOException {
         if (obj == null) {
@@ -178,17 +189,6 @@ public class MsgpackSerializer extends AbstractBSerializer {
                 throw new RuntimeIOException(e);
             }
         });
-    }
-
-    @Override
-    public void serialize(@NonNull BElement element, @NonNull OutputStream out) {
-        try (var holder = PACKERS.get()) {
-            var packer = holder.reset(out);
-            packAny(element, packer);
-            packer.flush();
-        } catch (Exception e) {
-            throw new BeanSerializationException("Error while serialize element", e);
-        }
     }
 
     private BArray unpackArray(MessageUnpacker unpacker) throws IOException {

@@ -1,5 +1,7 @@
 package io.gridgo.bean.test.support;
 
+import java.util.Map;
+
 import io.gridgo.bean.impl.BReferenceBeautifulPrint;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,18 +17,27 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @BReferenceBeautifulPrint
-//@FieldNameTransform(value = "{{fieldName > camelToSnake}}")
 public class Foo extends SuperFoo {
 
     private int intValue;
 
-    // @Transient
     private int[] intArrayValue;
+
+    private long[] longArrayValue;
+
+    private byte[] byteArrayValue;
 
     private double doubleValue;
 
-//    @FieldName("string_value_override")
     private String stringValue;
 
+    private byte byteValue;
+
+    private short shortValue;
+
+    private float floatValue;
+
     private Bar barValue;
+
+    private Map<String, Long> longMap;
 }

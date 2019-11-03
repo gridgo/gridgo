@@ -5,11 +5,13 @@ import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import io.gridgo.bean.BArray;
 import io.gridgo.bean.BElement;
 import io.gridgo.bean.BObject;
 import io.gridgo.bean.BReference;
@@ -18,6 +20,44 @@ import io.gridgo.bean.test.support.Bar;
 import io.gridgo.bean.test.support.Foo;
 
 public class TestJsonSerializer {
+
+    @Test
+    public void testArray() {
+        var arr = BArray.ofSequence(1, 2, 3, 4);
+        var json = arr.toJson();
+        var after = BElement.ofJson(json);
+        Assert.assertEquals(arr, after);
+    }
+
+    @Test
+    public void testRef() {
+        var pojo = Foo.builder() //
+                .intValue(1) //
+                .intArrayValue(new int[] { 1, 2, 3, 4 }) //
+                .build();
+
+        var ref = BReference.of(pojo);
+        var json = ref.toJson();
+        var after = BElement.ofJson(json).asObject();
+        Assert.assertEquals(1, (int) after.getInteger("intValue"));
+        Assert.assertEquals(Arrays.asList(1, 2, 3, 4), after.getArray("intArrayValue").toList());
+
+        ref = BReference.of(pojo.getIntArrayValue());
+        json = ref.toJson();
+        var arr = BElement.ofJson(json).asArray();
+        Assert.assertEquals(Arrays.asList(1, 2, 3, 4), arr.toList());
+
+        ref = BReference.of(pojo.getIntValue());
+        json = ref.toJson();
+        var val = BElement.ofJson(json).asValue();
+        Assert.assertEquals(1, val.getData());
+
+        var obj = BObject.of("ref", BReference.of(pojo));
+        json = obj.toJson();
+        after = BElement.ofJson(json).asObject();
+        Assert.assertEquals(1, (int) after.getObject("ref").getInteger("intValue"));
+        Assert.assertEquals(Arrays.asList(1, 2, 3, 4), after.getObject("ref").getArray("intArrayValue").toList());
+    }
 
     @Test
     public void testJsonSerializer() {
@@ -34,8 +74,6 @@ public class TestJsonSerializer {
                 .set("obj", BObject.ofEmpty().setAny("int", 2)) //
         ;
 
-        // System.out.println("origin object: " + obj);
-
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         obj.writeBytes(out, "json");
         byte[] bytes = out.toByteArray();
@@ -45,7 +83,6 @@ public class TestJsonSerializer {
         assertTrue(unpackedEle.isObject());
         unpackedEle.asObject().getValue("raw").decodeHex();
 
-        // System.out.println("unpacked object: " + unpackedEle);
         assertEquals(obj, unpackedEle);
     }
 
