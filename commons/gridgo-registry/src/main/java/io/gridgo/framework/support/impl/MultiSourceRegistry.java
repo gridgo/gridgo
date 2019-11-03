@@ -32,14 +32,6 @@ public class MultiSourceRegistry extends SimpleRegistry {
                          .findAny().orElse(null);
     }
 
-    @Override
-    public Object lookupByType(Class<?> type) {
-        return registries.stream() //
-                         .map(registry -> registry.lookupByType(type)) //
-                         .filter(Objects::nonNull) //
-                         .findAny().orElse(null);
-    }
-
     public MultiSourceRegistry addRegistry(Registry registry) {
         registries.add(registry);
         return this;
