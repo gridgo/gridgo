@@ -13,6 +13,7 @@ import io.gridgo.framework.execution.impl.DefaultExecutionStrategy;
 import io.gridgo.framework.execution.impl.ExecutorExecutionStrategy;
 import io.gridgo.framework.execution.impl.HashedExecutionStrategy;
 import io.gridgo.framework.execution.impl.RoundRobinExecutionStrategy;
+import io.gridgo.framework.execution.impl.disruptor.DisruptorWorkerPoolExecutionStrategy;
 import io.gridgo.framework.execution.impl.disruptor.MultiProducerDisruptorExecutionStrategy;
 import io.gridgo.framework.execution.impl.disruptor.SingleConsumerDisruptorExecutionStrategy;
 import io.gridgo.framework.execution.impl.disruptor.SingleProducerDisruptorExecutionStrategy;
@@ -76,6 +77,17 @@ public class ExecutionStrategyUnitTest {
         }
         latch4.await();
         s5.stop();
+
+        var latch5 = new CountDownLatch(10);
+        var s6 = new DisruptorWorkerPoolExecutionStrategy<>();
+        s6.start();
+        for (int i = 0; i < 10; i++) {
+            s6.execute(() -> {
+                latch5.countDown();
+            });
+        }
+        latch5.await();
+        s6.stop();
     }
 
     @Test
@@ -105,10 +117,12 @@ public class ExecutionStrategyUnitTest {
         }
         Assert.assertEquals(4, counter.get());
 
-        es.execute(() -> {});
+        es.execute(() -> {
+        });
         Assert.assertEquals(3, eses.get(0).counter);
 
-        es.execute(() -> {});
+        es.execute(() -> {
+        });
         Assert.assertEquals(4, eses.get(0).counter);
 
         es.stop();
@@ -141,10 +155,12 @@ public class ExecutionStrategyUnitTest {
         }
         Assert.assertEquals(4, counter.get());
 
-        es.execute(() -> {});
+        es.execute(() -> {
+        });
         Assert.assertEquals(3, eses.get(0).counter);
 
-        es.execute(() -> {});
+        es.execute(() -> {
+        });
         Assert.assertEquals(3, eses.get(1).counter);
 
         es.stop();
