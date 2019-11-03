@@ -30,8 +30,10 @@ public class RegistryUnitTest {
         assertXmlRegistry(XmlRegistry.ofFile("src/test/files/test-registry.xml"));
 
         var queryRegistry = new XmlQueryRegistry(XmlRegistry.ofResource("test-query.xml"));
+        queryRegistry.register("key3", "hello");
         Assert.assertEquals("select * from t1", queryRegistry.lookup("key1"));
         Assert.assertEquals("select * from t2", queryRegistry.lookup("key2"));
+        Assert.assertNull(queryRegistry.lookup("key3"));
     }
 
     @Test
