@@ -23,16 +23,16 @@ public class BElementUnitTest {
 
     @Test
     public void testAsThen() {
-        Assert.assertEquals(1, BObject.of("k1", 1).isObjectThen(b -> {
+        Assert.assertEquals(1, (int) BObject.of("k1", 1).isObjectThen(b -> {
             return (int) b.getInteger("k1");
         }));
-        Assert.assertEquals(1, BArray.ofSequence(1).isArrayThen(b -> {
+        Assert.assertEquals(1, (int) BArray.ofSequence(1).isArrayThen(b -> {
             return (int) b.getInteger(0);
         }));
-        Assert.assertEquals(1, BValue.of(1).isValueThen(b -> {
+        Assert.assertEquals(1, (int) BValue.of(1).isValueThen(b -> {
             return (int) b.getInteger();
         }));
-        Assert.assertEquals(1, BReference.of(1).isReferenceThen(b -> {
+        Assert.assertEquals(1, (int) BReference.of(1).isReferenceThen(b -> {
             return (int) b.getReference();
         }));
 
