@@ -4,6 +4,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.List;
 
 import io.gridgo.framework.support.exceptions.BeanNotFoundException;
@@ -40,11 +42,17 @@ public class RegistryUnitTest {
     }
 
     @Test
-    public void testPropertyRegistry() {
+    public void testPropertyRegistry() throws FileNotFoundException {
         var classLoader = getClass().getClassLoader();
         var file = new File(classLoader.getResource("test.properties").getFile());
         var registry = new PropertiesFileRegistry(file);
         Assert.assertEquals("hello", registry.lookup("msg"));
+
+        registry = new PropertiesFileRegistry(new FileInputStream(file));
+        Assert.assertEquals("hello", registry.lookup("msg"));
+        registry.register("msg", "world");
+        Assert.assertEquals("world", registry.lookup("msg"));
+
         registry = new PropertiesFileRegistry(file.getAbsolutePath());
         Assert.assertEquals("hello", registry.lookup("msg"));
         registry.register("msg", "world");
@@ -76,8 +84,7 @@ public class RegistryUnitTest {
     @Test
     public void testMultiSource() {
         var registry1 = new SimpleRegistry().register("key1", "value1");
-        var registry2 = new SimpleRegistry().register("key1", "value2")
-                .register("key2", "value2");
+        var registry2 = new SimpleRegistry().register("key1", "value2").register("key2", "value2");
         var reg = new MultiSourceRegistry(registry1, registry2);
         Assert.assertEquals("value1", reg.lookup("key1", String.class));
         Assert.assertEquals("value2", reg.lookup("key2", String.class));
@@ -89,8 +96,7 @@ public class RegistryUnitTest {
 
     @Test
     public void testSubstitute() {
-        var reg = new SimpleRegistry().register("key1", "value1=${key2}")
-                .register("key2", "value2");
+        var reg = new SimpleRegistry().register("key1", "value1=${key2}").register("key2", "value2");
         Assert.assertEquals("value1=${key2}", reg.lookup("key1"));
         Assert.assertEquals("value1=value2", reg.lookup("key1", String.class));
         Assert.assertEquals("test=value2", reg.substituteRegistries("test=${key2}"));
