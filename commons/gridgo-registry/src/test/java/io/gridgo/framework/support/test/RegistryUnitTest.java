@@ -23,13 +23,20 @@ public class RegistryUnitTest {
 
     @Test
     public void testXml() {
-        var registry = XmlRegistry.ofResource("test-registry.xml");
-        Assert.assertEquals("value1", registry.lookup("/root/item[@name='key1']"));
-        Assert.assertEquals("value2", registry.lookup("/root/item[@name='key2']"));
+        assertXmlRegistry(XmlRegistry.ofResource("test-registry.xml"));
+        assertXmlRegistry(XmlRegistry.ofFile("src/test/files/test-registry.xml"));
 
         var queryRegistry = new XmlQueryRegistry(XmlRegistry.ofResource("test-query.xml"));
         Assert.assertEquals("select * from t1", queryRegistry.lookup("key1"));
         Assert.assertEquals("select * from t2", queryRegistry.lookup("key2"));
+    }
+
+    private void assertXmlRegistry(XmlRegistry registry) {
+        Assert.assertEquals("value1", registry.lookup("/root/item[@name='key1']"));
+        Assert.assertEquals("value2", registry.lookup("/root/item[@name='key2']"));
+        // XMLRegistry does not support registration
+        registry.register("/root/item[@name='key3']", "value3");
+        Assert.assertNull(registry.lookup("/root/item[@name='key3']"));
     }
 
     @Test
