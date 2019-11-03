@@ -23,6 +23,8 @@ public class Foo extends SuperFoo {
 
     private int[] intArrayValue;
 
+    private long[] longArrayValue;
+
     private byte[] byteArrayValue;
 
     private double doubleValue;

@@ -185,7 +185,7 @@ public final class ArrayUtils {
             int[] arr = new int[list.size()];
             int index = 0;
             for (Object obj : list) {
-                arr[index++] = obj == null ? 0 : (int) obj;
+                arr[index++] = obj == null ? 0 : ((Number) obj).intValue();
             }
             return arr;
         }
@@ -193,7 +193,7 @@ public final class ArrayUtils {
             long[] arr = new long[list.size()];
             int index = 0;
             for (Object obj : list) {
-                arr[index++] = obj == null ? 0 : (long) obj;
+                arr[index++] = obj == null ? 0 : ((Number) obj).longValue();
             }
             return arr;
         }
@@ -201,7 +201,7 @@ public final class ArrayUtils {
             double[] arr = new double[list.size()];
             int index = 0;
             for (Object obj : list) {
-                arr[index++] = obj == null ? 0 : (double) obj;
+                arr[index++] = obj == null ? 0 : ((Number) obj).doubleValue();
             }
             return arr;
         }
@@ -209,7 +209,7 @@ public final class ArrayUtils {
             float[] arr = new float[list.size()];
             int index = 0;
             for (Object obj : list) {
-                arr[index++] = obj == null ? 0 : (float) obj;
+                arr[index++] = obj == null ? 0 : ((Number) obj).floatValue();
             }
             return arr;
         }
@@ -225,7 +225,7 @@ public final class ArrayUtils {
             short[] arr = new short[list.size()];
             int index = 0;
             for (Object obj : list) {
-                arr[index++] = obj == null ? 0 : (short) obj;
+                arr[index++] = obj == null ? 0 : ((Number) obj).shortValue();
             }
             return arr;
         }

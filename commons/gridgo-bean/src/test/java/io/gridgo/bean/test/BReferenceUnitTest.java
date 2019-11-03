@@ -32,6 +32,7 @@ public class BReferenceUnitTest {
                 .floatValue(1.1f) //
                 .stringValue("hello") //
                 .intArrayValue(new int[] { 1, 2, 3, 4 }) //
+                .longArrayValue(new long[] {1, 2, 3, 4}) //
                 .longMap(Map.of("k1", 1L, "k2", 2L)) //
                 .build();
         var ref = BReference.of(pojo);
@@ -46,6 +47,7 @@ public class BReferenceUnitTest {
         Assert.assertEquals("hello", foo.getStringValue());
         Assert.assertArrayEquals(new int[] { 1, 2, 3, 4 }, foo.getIntArrayValue());
         Assert.assertArrayEquals(new byte[] { 1, 2, 3, 4 }, foo.getByteArrayValue());
+        Assert.assertArrayEquals(new long[] { 1, 2, 3, 4 }, foo.getLongArrayValue());
         Assert.assertEquals(1, (long) foo.getLongMap().get("k1"));
         Assert.assertEquals(2, (long) foo.getLongMap().get("k2"));
     }
