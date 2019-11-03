@@ -18,7 +18,7 @@ public interface BArray extends BContainer, List<BElement> {
     }
 
     static BArray ofEmpty() {
-        return BFactory.DEFAULT.newArray();
+        return BFactory.newDefaultArray();
     }
 
     static BArray of(Object data) {

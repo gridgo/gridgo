@@ -10,7 +10,7 @@ import io.gridgo.utils.PrimitiveUtils;
 public interface BValue extends BElement {
 
     static BValue ofEmpty() {
-        return BFactory.DEFAULT.newValue();
+        return BFactory.newDefaultValue();
     }
 
     static BValue of(Object data) {

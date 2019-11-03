@@ -23,7 +23,7 @@ public interface BObject extends BContainer, Map<String, BElement> {
     }
 
     static BObject ofEmpty() {
-        return BFactory.DEFAULT.newObject();
+        return BFactory.newDefaultObject();
     }
 
     static BObject of(String name, Object value) {
