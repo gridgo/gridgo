@@ -14,7 +14,7 @@ public class MultiSourceRegistry extends SimpleRegistry {
     private List<Registry> registries = new CopyOnWriteArrayList<>();
 
     public MultiSourceRegistry(Registry... registries) {
-        this.registries.addAll(Arrays.asList(registries));
+        this(Arrays.asList(registries));
     }
 
     public MultiSourceRegistry(@NonNull Collection<Registry> registries) {
@@ -28,14 +28,6 @@ public class MultiSourceRegistry extends SimpleRegistry {
             return answer;
         return registries.stream() //
                          .map(registry -> registry.lookup(name)) //
-                         .filter(Objects::nonNull) //
-                         .findAny().orElse(null);
-    }
-
-    @Override
-    public Object lookupByType(Class<?> type) {
-        return registries.stream() //
-                         .map(registry -> registry.lookupByType(type)) //
                          .filter(Objects::nonNull) //
                          .findAny().orElse(null);
     }

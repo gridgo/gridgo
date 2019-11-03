@@ -3,22 +3,47 @@ package io.gridgo.bean.test;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import io.gridgo.bean.BReference;
+import io.gridgo.bean.serialization.text.JsonSerializer;
 import io.gridgo.bean.test.support.Foo;
 
 public class BReferenceUnitTest {
 
     @Test
+    public void testIsReference() {
+        Assert.assertTrue(BReference.ofEmpty().asOptional().isEmpty());
+        Assert.assertTrue(BReference.of("hello").asOptional().isPresent());
+        Assert.assertNull(BReference.ofEmpty().getReferenceClass());
+        Assert.assertFalse(BReference.ofEmpty().referenceInstanceOf(String.class));
+        Assert.assertEquals(String.class, BReference.of("hello").getReferenceClass());
+        Assert.assertTrue(BReference.of("hello").referenceInstanceOf(String.class));
+        Assert.assertTrue(BReference.of(new int[] { 1, 2, 3 }).referenceInstanceOf(int[].class));
+        Assert.assertTrue(BReference.of(new int[] { 1, 2, 3 }).referenceInstanceOf(int[].class));
+        Assert.assertEquals("hello", BReference.of("hello").getInnerValue());
+
+        var counter = new AtomicInteger();
+        BReference.of(new int[] { 1, 2, 3 }).ifReferenceInstanceOf(int[].class, arr -> {
+            counter.addAndGet(Arrays.stream(arr).sum());
+        });
+        BReference.of(new int[] { 1, 2, 3 }).ifReferenceInstanceOf(double[].class, arr -> {
+            counter.addAndGet((int) Arrays.stream(arr).sum());
+        });
+        Assert.assertEquals(6, counter.get());
+    }
+
+    @Test
     public void testToJson() {
-//        var pojo = Foo.builder().doubleValue(1.0).intValue(1).stringValue("hello").build();
-//        var ref = BReference.of(pojo);
-//        Map<String, Object> jsonElement = JsonSerializer.toJsonElement(ref);
-//        Assert.assertEquals(1.0, jsonElement.get("doubleValue"));
-//        Assert.assertEquals(1, jsonElement.get("intValue"));
-//        Assert.assertEquals("hello", jsonElement.get("stringValue"));
-//        Assert.assertEquals(pojo, ref.getInnerValue());
+        var pojo = Foo.builder().doubleValue(1.0).intValue(1).stringValue("hello").build();
+        var ref = BReference.of(pojo);
+        Map<String, Object> jsonElement = JsonSerializer.toJsonElement(ref);
+        Assert.assertEquals(1.0, jsonElement.get("doubleValue"));
+        Assert.assertEquals(1, jsonElement.get("intValue"));
+        Assert.assertEquals("hello", jsonElement.get("stringValue"));
+        Assert.assertEquals(pojo, ref.getInnerValue());
     }
 
     @Test
