@@ -4,6 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 
 import io.gridgo.bean.BArray;
 import io.gridgo.bean.BObject;
@@ -22,10 +23,18 @@ public class BElementUnitTest {
 
     @Test
     public void testAsThen() {
-        Assert.assertEquals(1, BObject.of("k1", 1).isObjectThen(b -> (int) b.getInteger("k1")));
-        Assert.assertEquals(1, BArray.ofSequence(1).isArrayThen(b -> (int) b.getInteger(0)));
-        Assert.assertEquals(1, BValue.of(1).isValueThen(b -> (int) b.getInteger()));
-        Assert.assertEquals(1, BReference.of(1).isReferenceThen(b -> (int) b.getReference()));
+        Assert.assertEquals(1, BObject.of("k1", 1).isObjectThen(b -> {
+            return (int) b.getInteger("k1");
+        }));
+        Assert.assertEquals(1, BArray.ofSequence(1).isArrayThen(b -> {
+            return (int) b.getInteger(0);
+        }));
+        Assert.assertEquals(1, BValue.of(1).isValueThen(b -> {
+            return (int) b.getInteger();
+        }));
+        Assert.assertEquals(1, BReference.of(1).isReferenceThen(b -> {
+            return (int) b.getReference();
+        }));
 
         var counter = new AtomicInteger(0);
         BObject.of("k1", 1).isObjectThen(b -> {
@@ -45,10 +54,10 @@ public class BElementUnitTest {
 
     @Test
     public void testNotAsThen() {
-        Assert.assertNull(BObject.of("k1", 1).isArrayThen(b -> 1));
-        Assert.assertNull(BArray.ofSequence(1).isValueThen(b -> 1));
-        Assert.assertNull(BValue.of(1).isReferenceThen(b -> 1));
-        Assert.assertNull(BReference.of(1).isObjectThen(b -> 1));
+        Assert.assertNull(BObject.of("k1", 1).isArrayThen((Function<BArray, Integer>) b -> 1));
+        Assert.assertNull(BArray.ofSequence(1).isValueThen((Function<BValue, Integer>) b -> 1));
+        Assert.assertNull(BValue.of(1).isReferenceThen((Function<BReference, Integer>) b -> 1));
+        Assert.assertNull(BReference.of(1).isObjectThen((Function<BObject, Integer>) b -> 1));
 
         var counter = new AtomicInteger(0);
         BArray.ofSequence(1).isObjectThen(b -> {
