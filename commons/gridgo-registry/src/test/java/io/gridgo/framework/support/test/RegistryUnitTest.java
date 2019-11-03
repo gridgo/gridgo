@@ -12,6 +12,7 @@ import io.gridgo.framework.support.exceptions.BeanNotFoundException;
 import io.gridgo.framework.support.impl.MultiSourceRegistry;
 import io.gridgo.framework.support.impl.PropertiesFileRegistry;
 import io.gridgo.framework.support.impl.SimpleRegistry;
+import io.gridgo.framework.support.impl.SystemPropertyRegistry;
 import io.gridgo.framework.support.impl.XmlQueryRegistry;
 import io.gridgo.framework.support.impl.XmlRegistry;
 
@@ -31,6 +32,29 @@ public class RegistryUnitTest {
         var queryRegistry = new XmlQueryRegistry(XmlRegistry.ofResource("test-query.xml"));
         Assert.assertEquals("select * from t1", queryRegistry.lookup("key1"));
         Assert.assertEquals("select * from t2", queryRegistry.lookup("key2"));
+    }
+
+    @Test
+    public void testSystemProperties() {
+        System.setProperty("k1", "v1");
+        var registry = new SystemPropertyRegistry();
+        registry.register("k2", "v2");
+        Assert.assertEquals("v1", registry.lookup("k1"));
+        Assert.assertEquals("v2", registry.lookup("k2"));
+        registry.register("k2", "v3");
+        Assert.assertEquals("v3", registry.lookup("k2"));
+    }
+
+    @Test
+    public void testSystemPropertiesNull() {
+        var registry = new SystemPropertyRegistry();
+        Assert.assertNull(registry.lookup("k3"));
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testSystemPropertiesRegisterNull() {
+        var registry = new SystemPropertyRegistry();
+        registry.register("k3", null);
     }
 
     private void assertXmlRegistry(XmlRegistry registry) {
