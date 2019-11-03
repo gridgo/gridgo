@@ -14,7 +14,7 @@ public class MultiSourceRegistry extends SimpleRegistry {
     private List<Registry> registries = new CopyOnWriteArrayList<>();
 
     public MultiSourceRegistry(Registry... registries) {
-        this.registries.addAll(Arrays.asList(registries));
+        this(Arrays.asList(registries));
     }
 
     public MultiSourceRegistry(@NonNull Collection<Registry> registries) {
