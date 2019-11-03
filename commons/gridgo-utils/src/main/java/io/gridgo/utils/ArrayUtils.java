@@ -217,7 +217,7 @@ public final class ArrayUtils {
             byte[] arr = new byte[list.size()];
             int index = 0;
             for (Object obj : list) {
-                arr[index++] = obj == null ? 0 : (byte) obj;
+                arr[index++] = obj == null ? 0 : ((Number) obj).byteValue();
             }
             return arr;
         }

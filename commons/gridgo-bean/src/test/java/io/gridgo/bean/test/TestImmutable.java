@@ -45,7 +45,11 @@ public class TestImmutable {
         map.put("0", 0);
         map.put("1", 1);
         Bar bar = Bar.builder().b(true).map(map).build();
-        Foo foo = new Foo(0, new int[] { 1, 2, 3 }, 22.02, "this is test text", bar);
+        Foo foo = Foo.builder().intValue(0) //
+                .intArrayValue(new int[] { 1, 2, 3 }) //
+                .doubleValue(22.02).stringValue("this is test text") //
+                .barValue(bar) //
+                .build();
 
         Map<String, Object> fooMap = BObject.ofPojo(foo).toMap();
         BElement obj = BElement.wrapAny(fooMap);
