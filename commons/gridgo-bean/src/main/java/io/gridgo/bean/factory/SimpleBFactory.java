@@ -21,7 +21,7 @@ import io.gridgo.bean.serialization.BSerializerRegistry;
 import lombok.Getter;
 
 @Getter
-class SimpleBFactory implements BFactory, BFactoryConfigurable {
+public class SimpleBFactory implements BFactory, BFactoryConfigurable {
 
     private Supplier<BValue> valueSupplier = MutableBValue::new;
     private Supplier<BReference> referenceSupplier = MutableBReference::new;
@@ -58,6 +58,7 @@ class SimpleBFactory implements BFactory, BFactoryConfigurable {
         return this;
     }
 
+    @Override
     public BFactoryConfigurable setWrappedArraySupplier(Function<Collection<?>, BArray> wrappedArraySupplier) {
         this.wrappedArraySupplier = wrappedArraySupplier;
         return this;

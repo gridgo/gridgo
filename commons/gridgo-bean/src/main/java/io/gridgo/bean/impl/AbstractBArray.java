@@ -4,7 +4,6 @@ import io.gridgo.bean.BArray;
 import io.gridgo.bean.serialization.text.BPrinter;
 import io.gridgo.utils.ArrayUtils;
 
-@SuppressWarnings("unchecked")
 public abstract class AbstractBArray extends AbstractBContainer implements BArray {
 
     @Override

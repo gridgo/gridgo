@@ -8,8 +8,6 @@ import io.gridgo.bean.serialization.BSerializerRegistryAware;
 
 public interface BJsonSupport extends BSerializerRegistryAware {
 
-    <T> T toJsonElement();
-
     default void writeJson(OutputStream out) {
         if (this instanceof BElement)
             lookupSerializer("json").serialize((BElement) this, out);

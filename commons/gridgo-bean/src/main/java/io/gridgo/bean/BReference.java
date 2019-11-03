@@ -10,8 +10,6 @@ import java.nio.ByteBuffer;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import static io.gridgo.bean.support.BElementPojoHelper.anyToJsonElement;
-
 import io.gridgo.bean.exceptions.BeanSerializationException;
 import io.gridgo.bean.factory.BFactory;
 import io.gridgo.utils.wrapper.ByteBufferInputStream;
@@ -149,13 +147,6 @@ public interface BReference extends BElement {
         }
 
         return false;
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    default <T> T toJsonElement() {
-        var ref = this.getReference();
-        return ref == null ? null : (T) anyToJsonElement(this.getReference());
     }
 
     default BObject toBObject() {

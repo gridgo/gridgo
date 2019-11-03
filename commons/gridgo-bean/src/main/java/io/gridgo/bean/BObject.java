@@ -353,16 +353,6 @@ public interface BObject extends BContainer, Map<String, BElement> {
         return result;
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
-    default Map<String, Object> toJsonElement() {
-        Map<String, Object> map = new TreeMap<>();
-        for (Entry<String, BElement> entry : this.entrySet()) {
-            map.put(entry.getKey(), entry.getValue().toJsonElement());
-        }
-        return map;
-    }
-
     default <T> T toPojo(Class<T> clazz) {
         return BElementPojoHelper.bObjectToPojo(this, clazz);
     }
