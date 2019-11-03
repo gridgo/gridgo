@@ -18,6 +18,11 @@ public interface BValue extends BElement {
     }
 
     @Override
+    default boolean isContainer() {
+        return false;
+    }
+
+    @Override
     default boolean isArray() {
         return false;
     }
