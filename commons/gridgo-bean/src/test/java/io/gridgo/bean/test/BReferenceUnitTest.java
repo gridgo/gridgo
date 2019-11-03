@@ -23,6 +23,7 @@ public class BReferenceUnitTest {
         Assert.assertTrue(BReference.of("hello").referenceInstanceOf(String.class));
         Assert.assertTrue(BReference.of(new int[] { 1, 2, 3 }).referenceInstanceOf(int[].class));
         Assert.assertTrue(BReference.of(new int[] { 1, 2, 3 }).referenceInstanceOf(int[].class));
+        Assert.assertEquals("hello", BReference.of("hello").getInnerValue());
 
         var counter = new AtomicInteger();
         BReference.of(new int[] { 1, 2, 3 }).ifReferenceInstanceOf(int[].class, arr -> {
