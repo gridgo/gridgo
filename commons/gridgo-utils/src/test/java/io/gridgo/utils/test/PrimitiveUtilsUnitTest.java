@@ -54,15 +54,35 @@ public class PrimitiveUtilsUnitTest {
     }
 
     @Test
+    public void testIsNumberClass() {
+        Assert.assertTrue(PrimitiveUtils.isNumberClass(Integer.class));
+        Assert.assertTrue(PrimitiveUtils.isNumberClass(Float.class));
+        Assert.assertTrue(PrimitiveUtils.isNumberClass(Double.class));
+        Assert.assertTrue(PrimitiveUtils.isNumberClass(Long.class));
+        Assert.assertTrue(PrimitiveUtils.isNumberClass(Byte.class));
+        Assert.assertTrue(PrimitiveUtils.isNumberClass(Short.class));
+
+        Assert.assertTrue(PrimitiveUtils.isNumberClass(int.class));
+        Assert.assertTrue(PrimitiveUtils.isNumberClass(float.class));
+        Assert.assertTrue(PrimitiveUtils.isNumberClass(double.class));
+        Assert.assertTrue(PrimitiveUtils.isNumberClass(long.class));
+        Assert.assertTrue(PrimitiveUtils.isNumberClass(byte.class));
+        Assert.assertTrue(PrimitiveUtils.isNumberClass(short.class));
+    }
+
+    @Test
     public void testIsPrimitive() {
         Assert.assertTrue(PrimitiveUtils.isPrimitive(int.class));
         Assert.assertTrue(PrimitiveUtils.isPrimitive(Byte.class));
         Assert.assertTrue(PrimitiveUtils.isPrimitive(String.class));
         Assert.assertTrue(PrimitiveUtils.isPrimitive(Boolean.class));
+        Assert.assertTrue(PrimitiveUtils.isPrimitive(Character.TYPE));
+        Assert.assertTrue(PrimitiveUtils.isPrimitive(Boolean.TYPE));
         Assert.assertTrue(PrimitiveUtils.isPrimitive(Character.class));
         Assert.assertTrue(PrimitiveUtils.isPrimitive(Integer.class));
         Assert.assertTrue(PrimitiveUtils.isPrimitive(Long.class));
         Assert.assertTrue(PrimitiveUtils.isPrimitive(Double.class));
+        Assert.assertFalse(PrimitiveUtils.isPrimitive(int[].class));
         Assert.assertFalse(PrimitiveUtils.isPrimitive(Byte[].class));
         Assert.assertFalse(PrimitiveUtils.isPrimitive(String[].class));
         Assert.assertFalse(PrimitiveUtils.isPrimitive(Object[].class));

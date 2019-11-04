@@ -93,11 +93,10 @@ public class PrimitiveUtils {
         if (resultType.isPrimitive()) {
             return true;
         }
-        return (resultType == String.class //
+        return resultType == String.class //
                 || isNumberClass(resultType) //
-                || resultType == Character.TYPE || resultType == Character.class //
-                || resultType == Boolean.TYPE || resultType == Boolean.class) //
-                && !resultType.isArray();
+                || resultType == Character.class //
+                || resultType == Boolean.class;
     }
 
     @SuppressWarnings("unchecked")
@@ -297,8 +296,7 @@ public class PrimitiveUtils {
     /**
      * return boolean value for specific obj <br>
      * if obj is number, return false if obj == 0, true for otherwise <br>
-     * else if obj is character, return false if obj == '\0' char (null value), true
-     * for otherwise <br>
+     * else if obj is character, return false if obj == '\0' char (null value), true for otherwise <br>
      * else return object != null
      *
      * @param obj

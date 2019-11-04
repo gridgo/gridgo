@@ -159,6 +159,7 @@ public class ThreadUtils {
         var remaining = new LinkedList<Integer>();
 
         list.addAll(shutdownTasks.keySet());
+
         list.sort((i1, i2) -> i1 - i2);
 
         for (Integer order : list) {
