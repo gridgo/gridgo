@@ -132,8 +132,6 @@ public class PrimitiveUtils {
     }
 
     private static BigDecimal getBigDecimalFrom(Object obj) {
-        if (obj instanceof BigDecimal)
-            return (BigDecimal) obj;
         if (obj instanceof Number)
             return BigDecimal.valueOf(((Number) obj).doubleValue());
         if (obj instanceof byte[])
@@ -142,8 +140,6 @@ public class PrimitiveUtils {
     }
 
     private static BigInteger getBigIntegerFrom(Object obj) {
-        if (obj instanceof BigInteger)
-            return (BigInteger) obj;
         if (obj instanceof Number)
             return BigInteger.valueOf(((Number) obj).longValue());
         if (obj instanceof byte[])

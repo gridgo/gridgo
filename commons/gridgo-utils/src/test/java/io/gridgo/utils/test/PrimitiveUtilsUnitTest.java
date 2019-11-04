@@ -16,18 +16,31 @@ public class PrimitiveUtilsUnitTest {
         Assert.assertEquals(1, (int) PrimitiveUtils.getValueFrom(int.class, 1));
         Assert.assertEquals("1", PrimitiveUtils.getValueFrom(String.class, 1));
         Assert.assertEquals(1, (int) PrimitiveUtils.getValueFrom(Integer.class, 1));
+        Assert.assertEquals(1, (int) PrimitiveUtils.getValueFrom(Integer.class, 1.1));
         Assert.assertEquals(1, (int) PrimitiveUtils.getValueFrom(int.class, Integer.valueOf(1)));
+        Assert.assertTrue(PrimitiveUtils.getValueFrom(Boolean.class, 1));
         Assert.assertTrue(PrimitiveUtils.getValueFrom(boolean.class, 1));
         Assert.assertTrue(PrimitiveUtils.getValueFrom(boolean.class, "true"));
         Assert.assertFalse(PrimitiveUtils.getValueFrom(boolean.class, 0));
         Assert.assertFalse(PrimitiveUtils.getValueFrom(boolean.class, "false"));
+        Assert.assertEquals(BigInteger.valueOf(1), PrimitiveUtils.getValueFrom(BigInteger.class, new byte[] {0, 0, 0, 1}));
         Assert.assertEquals(BigInteger.valueOf(1), PrimitiveUtils.getValueFrom(BigInteger.class, Integer.valueOf(1)));
         Assert.assertEquals(BigInteger.valueOf(1), PrimitiveUtils.getValueFrom(BigInteger.class, "1"));
+        Assert.assertEquals(BigDecimal.valueOf(1), PrimitiveUtils.getValueFrom(BigDecimal.class, new byte[] {0, 0, 0, 1}));
         Assert.assertEquals(BigDecimal.valueOf(1.1), PrimitiveUtils.getValueFrom(BigDecimal.class, Double.valueOf(1.1)));
         Assert.assertEquals(BigDecimal.valueOf(1.1), PrimitiveUtils.getValueFrom(BigDecimal.class, "1.1"));
         Assert.assertEquals(Double.valueOf(1.1), PrimitiveUtils.getValueFrom(double.class, Double.valueOf(1.1)));
+        Assert.assertEquals(Double.valueOf(1.1), PrimitiveUtils.getValueFrom(Double.class, Float.valueOf(1.1f)), 0.001);
         Assert.assertEquals('A', (char) PrimitiveUtils.getValueFrom(char.class, 65));
         Assert.assertEquals(Character.valueOf('A'), PrimitiveUtils.getValueFrom(Character.class, 65));
+        Assert.assertEquals(Float.valueOf(1.1f), PrimitiveUtils.getValueFrom(Float.class, Double.valueOf(1.1)));
+        Assert.assertEquals(Float.valueOf(1.1f), PrimitiveUtils.getValueFrom(float.class, Double.valueOf(1.1)));
+        Assert.assertEquals(Long.valueOf((long) Math.pow(2, 33)), PrimitiveUtils.getValueFrom(Long.class, Math.pow(2, 33)));
+        Assert.assertEquals(Long.valueOf((long) Math.pow(2, 33)), PrimitiveUtils.getValueFrom(long.class, Math.pow(2, 33)));
+        Assert.assertEquals(Byte.valueOf((byte) 1), PrimitiveUtils.getValueFrom(byte.class, Integer.valueOf(1)));
+        Assert.assertEquals(Byte.valueOf((byte) 1), PrimitiveUtils.getValueFrom(Byte.class, Integer.valueOf(1)));
+        Assert.assertEquals(Short.valueOf((short) 1), PrimitiveUtils.getValueFrom(short.class, Integer.valueOf(1)));
+        Assert.assertEquals(Short.valueOf((short) 1), PrimitiveUtils.getValueFrom(Short.class, Integer.valueOf(1)));
     }
 
     @Test
