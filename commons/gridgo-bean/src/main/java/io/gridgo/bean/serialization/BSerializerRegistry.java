@@ -75,10 +75,6 @@ public final class BSerializerRegistry implements ClasspathScanner {
                 if (this.cachedDefaultSerializer == null) {
                     if (log.isWarnEnabled()) {
                         log.warn("Serializer for default name " + currDefaultSerializerName + " doesn't exist");
-                    } else {
-                        new NullPointerException(
-                                "Serializer for default name " + currDefaultSerializerName + " doesn't exist")
-                                        .printStackTrace();
                     }
                 }
             }

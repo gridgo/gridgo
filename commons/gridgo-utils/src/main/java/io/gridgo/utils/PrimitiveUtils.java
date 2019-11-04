@@ -93,11 +93,10 @@ public class PrimitiveUtils {
         if (resultType.isPrimitive()) {
             return true;
         }
-        return (resultType == String.class //
+        return resultType == String.class //
                 || isNumberClass(resultType) //
-                || resultType == Character.TYPE || resultType == Character.class //
-                || resultType == Boolean.TYPE || resultType == Boolean.class) //
-                && !resultType.isArray();
+                || resultType == Character.class //
+                || resultType == Boolean.class;
     }
 
     @SuppressWarnings("unchecked")
@@ -132,8 +131,6 @@ public class PrimitiveUtils {
     }
 
     private static BigDecimal getBigDecimalFrom(Object obj) {
-        if (obj instanceof BigDecimal)
-            return (BigDecimal) obj;
         if (obj instanceof Number)
             return BigDecimal.valueOf(((Number) obj).doubleValue());
         if (obj instanceof byte[])
@@ -142,8 +139,6 @@ public class PrimitiveUtils {
     }
 
     private static BigInteger getBigIntegerFrom(Object obj) {
-        if (obj instanceof BigInteger)
-            return (BigInteger) obj;
         if (obj instanceof Number)
             return BigInteger.valueOf(((Number) obj).longValue());
         if (obj instanceof byte[])
@@ -301,8 +296,7 @@ public class PrimitiveUtils {
     /**
      * return boolean value for specific obj <br>
      * if obj is number, return false if obj == 0, true for otherwise <br>
-     * else if obj is character, return false if obj == '\0' char (null value), true
-     * for otherwise <br>
+     * else if obj is character, return false if obj == '\0' char (null value), true for otherwise <br>
      * else return object != null
      *
      * @param obj
