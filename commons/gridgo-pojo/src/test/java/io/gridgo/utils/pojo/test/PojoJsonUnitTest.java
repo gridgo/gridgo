@@ -13,6 +13,7 @@ import io.gridgo.utils.pojo.PojoJsonUtils;
 import io.gridgo.utils.pojo.test.support.BooleanVO;
 import io.gridgo.utils.pojo.test.support.PrimitiveArrayVO;
 import io.gridgo.utils.pojo.test.support.PrimitiveVO;
+import io.gridgo.utils.pojo.test.support.TransientVO;
 
 public class PojoJsonUnitTest {
 
@@ -23,6 +24,15 @@ public class PojoJsonUnitTest {
         var jsonElement = (Map<String, Object>) PojoJsonUtils.toJsonElement(vo);
         Assert.assertEquals(false, jsonElement.get("is_boolean_value1"));
         Assert.assertEquals(false, jsonElement.get("boolean_value2"));
+    }
+
+    @SuppressWarnings({ "unchecked" })
+    @Test
+    public void testTransient() {
+        TransientVO vo = new TransientVO(true, true);
+        var jsonElement = (Map<String, Object>) PojoJsonUtils.toJsonElement(vo);
+        Assert.assertTrue((boolean) jsonElement.get("booleanValue"));
+        Assert.assertNull(jsonElement.get("transientValue"));
     }
 
     @SuppressWarnings("unchecked")
