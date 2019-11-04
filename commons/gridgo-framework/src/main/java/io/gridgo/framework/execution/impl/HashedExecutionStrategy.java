@@ -1,33 +1,25 @@
 package io.gridgo.framework.execution.impl;
 
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 import io.gridgo.framework.execution.ExecutionStrategy;
 import io.gridgo.framework.support.Message;
 import io.gridgo.framework.support.context.ExecutionContext;
 import lombok.NonNull;
 
-public class HashedExecutionStrategy implements ExecutionStrategy {
+public class HashedExecutionStrategy extends AbstractMultiExecutionStrategy {
 
     private static final Function<Message, Integer> DEFAULT_HASH_FUNCTION = Message::hashCode;
 
-    private Supplier<ExecutionStrategy> executorSupplier;
-
     private Function<Message, Integer> hashFunction;
 
-    private int noThreads;
-
-    private ExecutionStrategy[] executors;
-
-    public HashedExecutionStrategy(final int noThreads, Supplier<ExecutionStrategy> executorSupplier) {
+    public HashedExecutionStrategy(final int noThreads, Function<Integer, ExecutionStrategy> executorSupplier) {
         this(noThreads, executorSupplier, DEFAULT_HASH_FUNCTION);
     }
 
-    public HashedExecutionStrategy(final int noThreads, Supplier<ExecutionStrategy> executorSupplier,
+    public HashedExecutionStrategy(final int noThreads, Function<Integer, ExecutionStrategy> executorSupplier,
             Function<Message, Integer> hashFunction) {
-        this.noThreads = noThreads;
-        this.executorSupplier = executorSupplier;
+        super(noThreads, executorSupplier);
         this.hashFunction = hashFunction;
     }
 
@@ -47,22 +39,5 @@ public class HashedExecutionStrategy implements ExecutionStrategy {
         if (request == null)
             return 0;
         return hashFunction.apply(request) % noThreads;
-    }
-
-    @Override
-    public void start() {
-        var executors = new ExecutionStrategy[noThreads];
-        for (var i = 0; i < noThreads; i++) {
-            executors[i] = executorSupplier.get();
-            executors[i].start();
-        }
-        this.executors = executors;
-    }
-
-    @Override
-    public void stop() {
-        for (var executor : executors) {
-            executor.stop();
-        }
     }
 }

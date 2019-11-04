@@ -10,11 +10,16 @@ import io.gridgo.utils.PrimitiveUtils;
 public interface BValue extends BElement {
 
     static BValue ofEmpty() {
-        return BFactory.DEFAULT.newValue();
+        return BFactory.newDefaultValue();
     }
 
     static BValue of(Object data) {
         return BFactory.DEFAULT.newValue(data);
+    }
+
+    @Override
+    default boolean isContainer() {
+        return false;
     }
 
     @Override

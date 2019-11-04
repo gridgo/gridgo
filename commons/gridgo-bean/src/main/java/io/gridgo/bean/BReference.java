@@ -26,10 +26,9 @@ public interface BReference extends BElement {
     }
 
     /**
-     * return an instanceof BReference which deserialized from input stream. if
-     * stream deserialized to key-value, it use BObject.toPojo() method. if stream
-     * deserialized to breference which contains an instanceof targetType, return
-     * itself.
+     * return an instanceof BReference which deserialized from input stream. if stream deserialized to key-value,
+     * it use BObject.toPojo() method. if stream deserialized to breference which contains an instanceof
+     * targetType, return itself.
      *
      * @param inputStream    input stream
      * @param serializerName serialzier name, null mean default (msgpack)
@@ -55,6 +54,11 @@ public interface BReference extends BElement {
 
     static BReference ofBytes(ByteBuffer buffer, String serializerName, Class<?> targetType) {
         return ofBytes(new ByteBufferInputStream(buffer), serializerName, targetType);
+    }
+
+    @Override
+    default boolean isContainer() {
+        return false;
     }
 
     @Override
@@ -117,8 +121,7 @@ public interface BReference extends BElement {
     }
 
     /**
-     * Support for I/O operator when reference object is ByteBuffer or InputStream
-     * or File
+     * Support for I/O operator when reference object is ByteBuffer or InputStream or File
      *
      * @param output where data will be write to
      * @return success or not

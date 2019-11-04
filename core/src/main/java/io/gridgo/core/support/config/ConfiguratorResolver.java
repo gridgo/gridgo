@@ -36,11 +36,10 @@ public interface ConfiguratorResolver {
                 throw new AmbiguousException("Only one constructor is allowed");
             var constructor = constructors[0];
             var params = Arrays.stream(constructor.getParameterTypes()) //
-                               .map(type -> lookupForType(registry, type)) //
-                               .toArray(size -> new Object[size]);
+                    .map(type -> lookupForType(registry, type)) //
+                    .toArray(size -> new Object[size]);
             return constructor.newInstance(params);
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException
-                | ClassNotFoundException e) {
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
     }
@@ -48,10 +47,7 @@ public interface ConfiguratorResolver {
     public default Object lookupForType(Registry registry, Class<?> type) {
         if (type == Registry.class)
             return registry;
-        var answer = registry.lookupByType(type);
-        if (answer == null)
-            throw new BeanNotFoundException("Cannot find any bean with the required type " + type.getName());
-        return answer;
+        throw new BeanNotFoundException("Cannot find any bean with the required type " + type.getName());
     }
 
     public default Object resolveBean(String name, Registry registry) {
