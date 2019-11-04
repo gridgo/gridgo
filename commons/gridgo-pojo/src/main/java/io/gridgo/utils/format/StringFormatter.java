@@ -101,7 +101,8 @@ public class StringFormatter {
                         value = transformer.transform(value instanceof Supplier ? ((Supplier<?>) value).get() : value);
                     }
                 }
-                result = result.replaceAll(StringUtils.normalizeForRegex(key), PrimitiveUtils.getStringValueFrom(value));
+                result = result.replaceAll(StringUtils.normalizeForRegex(key),
+                        PrimitiveUtils.getStringValueFrom(value));
             }
         }
 

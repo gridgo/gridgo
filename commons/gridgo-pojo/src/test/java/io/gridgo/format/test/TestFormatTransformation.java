@@ -1,13 +1,12 @@
 package io.gridgo.format.test;
 
-import org.junit.Test;
+import static io.gridgo.utils.PrimitiveUtils.getDoubleValueFrom;
+import static io.gridgo.utils.format.StringFormatter.transform;
+import static org.junit.Assert.assertEquals;
 
 import java.text.DecimalFormat;
 
-import static io.gridgo.utils.PrimitiveUtils.getDoubleValueFrom;
-import static io.gridgo.utils.format.CommonNumberTransformerRegistry.newXEvalExpTransformer;
-import static io.gridgo.utils.format.StringFormatter.transform;
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
 import io.gridgo.utils.format.GlobalFormatTransformerRegistry;
 import io.gridgo.utils.format.StringFormatter;
@@ -26,7 +25,7 @@ public class TestFormatTransformation {
         var obj = new Dummy("MY_NAME", 30, 10000000.97, "VND", "0.9756", now);
 
         var transformerRegistry = GlobalFormatTransformerRegistry.getInstance();
-        transformerRegistry.addTransformer("decrement10%", newXEvalExpTransformer("0.9 * x"));
+        transformerRegistry.addTransformer("decrement10%", value -> Double.valueOf((double) value * 0.9).longValue());
         transformerRegistry.addTransformer("decrement50", value -> getDoubleValueFrom(value) - 50);
         transformerRegistry.addAlias("nameTransform", "lowerCase > capitalize", "stripAccents");
 
@@ -35,7 +34,8 @@ public class TestFormatTransformation {
         assertEquals(expectedResult, actual);
         actual = transform("{{name}}", obj, null);
         assertEquals("MY_NAME", actual);
-        var option = StringFormatOption.builder().decimalFormat(new DecimalFormat("###,###.##")).autoFormatNumber(true).build();
+        var option = StringFormatOption.builder().decimalFormat(new DecimalFormat("###,###.##")).autoFormatNumber(true)
+                .build();
         actual = StringFormatter.format("{{name}} {{salary}}", obj, option);
         assertEquals("MY_NAME 10,000,000.97", actual);
         option = StringFormatOption.builder().autoFormatNumber(true).build();

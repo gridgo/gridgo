@@ -11,5 +11,7 @@ public class BooleanVO {
     @FieldName("is_boolean_value1")
     private boolean booleanValue1;
 
+    private Boolean isBooleanValue2;
+
     private boolean booleanValue2;
 }
