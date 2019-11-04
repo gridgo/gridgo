@@ -1,8 +1,14 @@
 package io.gridgo.utils.pojo;
 
-import org.cliffc.high_scale_lib.NonBlockingHashMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static io.gridgo.utils.ArrayUtils.foreachArray;
+import static io.gridgo.utils.ClasspathUtils.scanForAnnotatedTypes;
+import static io.gridgo.utils.PrimitiveUtils.isPrimitive;
+import static io.gridgo.utils.pojo.PojoFlattenIndicator.END_ARRAY;
+import static io.gridgo.utils.pojo.PojoFlattenIndicator.END_MAP;
+import static io.gridgo.utils.pojo.PojoFlattenIndicator.KEY;
+import static io.gridgo.utils.pojo.PojoFlattenIndicator.START_ARRAY;
+import static io.gridgo.utils.pojo.PojoFlattenIndicator.START_MAP;
+import static io.gridgo.utils.pojo.PojoFlattenIndicator.VALUE;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -15,15 +21,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import static io.gridgo.utils.ArrayUtils.foreachArray;
-import static io.gridgo.utils.ClasspathUtils.scanForAnnotatedTypes;
-import static io.gridgo.utils.PrimitiveUtils.isPrimitive;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.END_ARRAY;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.END_MAP;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.KEY;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.START_ARRAY;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.START_MAP;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.VALUE;
+import org.cliffc.high_scale_lib.NonBlockingHashMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.gridgo.utils.ArrayUtils;
 import io.gridgo.utils.pojo.exception.RuntimeReflectiveOperationException;
@@ -124,9 +124,7 @@ public class PojoUtils {
         if (type.isArray()) {
             int length = ArrayUtils.length(target);
             walker.accept(START_ARRAY, length);
-            foreachArray(target, ele -> {
-                walkThroughGetter(ele, proxy, walker);
-            });
+            foreachArray(target, ele -> walkThroughGetter(ele, proxy, walker));
             walker.accept(END_ARRAY, length);
             return;
         }
@@ -135,15 +133,14 @@ public class PojoUtils {
             int length = ((Collection) target).size();
             walker.accept(START_ARRAY, length);
             var it = ((Collection) target).iterator();
-            while (it.hasNext()) {
+            while (it.hasNext())
                 walkThroughGetter(it.next(), proxy, walker);
-            }
             walker.accept(END_ARRAY, length);
             return;
         }
 
         if (Map.class.isInstance(target)) {
-            Map<?, ?> map = (Map<?, ?>) target;
+            var map = (Map<?, ?>) target;
             int size = map.size();
             walker.accept(START_MAP, size);
             var it = map.entrySet().iterator();

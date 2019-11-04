@@ -2,10 +2,6 @@ package io.gridgo.utils.format;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import com.udojava.evalex.Expression;
 
 public class CommonNumberTransformerRegistry extends DefaultFormatTransformerRegistry {
 
@@ -26,33 +22,33 @@ public class CommonNumberTransformerRegistry extends DefaultFormatTransformerReg
         };
     }
 
-    public static final FormatTransformer newEvalExpTransformer(final String expression,
-            final String defaultSingleVariable) {
-        return source -> {
-            if (source == null) {
-                return null;
-            }
+//    public static final FormatTransformer newEvalExpTransformer(final String expression,
+//            final String defaultSingleVariable) {
+//        return source -> {
+//            if (source == null) {
+//                return null;
+//            }
+//
+//            final Expression exp = new Expression(expression);
+//            if (source instanceof Map) {
+//                for (Entry<?, ?> entry : ((Map<?, ?>) source).entrySet()) {
+//                    exp.with(entry.getKey().toString(),
+//                            entry.getValue() instanceof Number
+//                                    ? BigDecimal.valueOf(((Number) entry.getValue()).doubleValue())
+//                                    : new BigDecimal(entry.getValue().toString()));
+//                }
+//            } else {
+//                exp.with(defaultSingleVariable,
+//                        source instanceof Number ? BigDecimal.valueOf(((Number) source).doubleValue())
+//                                : new BigDecimal(source.toString()));
+//            }
+//            return exp.eval();
+//        };
+//    }
 
-            final Expression exp = new Expression(expression);
-            if (source instanceof Map) {
-                for (Entry<?, ?> entry : ((Map<?, ?>) source).entrySet()) {
-                    exp.with(entry.getKey().toString(),
-                            entry.getValue() instanceof Number
-                                    ? BigDecimal.valueOf(((Number) entry.getValue()).doubleValue())
-                                    : new BigDecimal(entry.getValue().toString()));
-                }
-            } else {
-                exp.with(defaultSingleVariable,
-                        source instanceof Number ? BigDecimal.valueOf(((Number) source).doubleValue())
-                                : new BigDecimal(source.toString()));
-            }
-            return exp.eval();
-        };
-    }
-
-    public static final FormatTransformer newXEvalExpTransformer(final String expression) {
-        return newEvalExpTransformer(expression, "x");
-    }
+//    public static final FormatTransformer newXEvalExpTransformer(final String expression) {
+//        return newEvalExpTransformer(expression, "x");
+//    }
 
     public static final CommonNumberTransformerRegistry newInstance() {
         return new CommonNumberTransformerRegistry();

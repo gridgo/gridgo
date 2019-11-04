@@ -1,25 +1,14 @@
 package io.gridgo.utils.pojo.test.perf;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
 
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.END_ARRAY;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.END_MAP;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.KEY;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.START_ARRAY;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.START_MAP;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.VALUE;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-import io.gridgo.utils.exception.RuntimeIOException;
+import io.gridgo.utils.pojo.PojoFlattenIndicator;
 import io.gridgo.utils.pojo.PojoUtils;
 import io.gridgo.utils.pojo.getter.GetterMethodSignatureExtractor;
 import io.gridgo.utils.pojo.getter.PojoGetterProxy;
@@ -52,40 +41,31 @@ public class TestPojoUtils {
                 )) //
                 .date(new Date()) //
                 .build();
-
-        // warm up
-        PojoUtils.walkThroughGetter(obj, null, (indicator, vaue) -> {
-            // do nothing
-        });
     }
 
-    private void walk(int indicator, Object value) {
-        try (var output = new ByteArrayOutputStream(512)) {
-            var sb = new OutputStreamWriter(output);
-            switch (indicator) {
-            case START_MAP:
-                sb.append("{");
-                break;
-            case KEY:
-                sb.append(String.valueOf(value)).append(":");
-                break;
-            case VALUE:
-                sb.append(value == null ? "null" : String.valueOf(value)).append(",");
-                break;
-            case END_MAP:
-                sb.append("}");
-                break;
-            case START_ARRAY:
-                sb.append("[");
-                break;
-            case END_ARRAY:
-                sb.append("]");
-                break;
-            default:
-                break;
-            }
-        } catch (IOException e) {
-            throw new RuntimeIOException(e);
+    private void walk(PojoFlattenIndicator indicator, Object value) {
+        var sb = new StringBuilder();
+        switch (indicator) {
+        case START_MAP:
+            sb.append("{");
+            break;
+        case KEY:
+            sb.append(String.valueOf(value)).append(":");
+            break;
+        case VALUE:
+            sb.append(value == null ? "null" : String.valueOf(value)).append(",");
+            break;
+        case END_MAP:
+            sb.append("}");
+            break;
+        case START_ARRAY:
+            sb.append("[");
+            break;
+        case END_ARRAY:
+            sb.append("]");
+            break;
+        default:
+            break;
         }
     }
 
@@ -100,16 +80,6 @@ public class TestPojoUtils {
     @Test
     public void testPojoUtils() {
         PojoGetterProxy proxy = PojoUtils.getGetterProxy(Foo.class);
-        int round = 1;
-        long nanoTime = System.nanoTime();
-
-        long start = nanoTime;
-        for (int i = 0; i < round; i++) {
-            PojoUtils.walkThroughGetter(obj, proxy, this::walk);
-        }
-        double seconds = Double.valueOf(System.nanoTime() - start) / 1e9;
-        double pace = Double.valueOf(round) / seconds;
-
-        System.out.println("pojo-utils pace: " + new DecimalFormat("###,###.##").format(pace) + " ops/s");
+        PojoUtils.walkThroughGetter(obj, proxy, this::walk);
     }
 }
