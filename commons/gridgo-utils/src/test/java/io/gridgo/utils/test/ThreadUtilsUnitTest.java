@@ -20,12 +20,16 @@ public class ThreadUtilsUnitTest {
         }
     }
 
-    @Test(expected = ThreadingException.class)
+    @Test
     public void testInterruptedSleep() {
         Thread.currentThread().interrupt();
-        ThreadUtils.sleep(500);
+        try {
+            ThreadUtils.sleep(500);
+            Assert.fail("Must throw exception");
+        } catch (ThreadingException e) {
+        }
         Assert.assertTrue(Thread.currentThread().isInterrupted());
-        ThreadUtils.sleepSilence(500);
+        Assert.assertFalse(ThreadUtils.sleepSilence(500));
         Assert.assertTrue(Thread.currentThread().isInterrupted());
     }
 
