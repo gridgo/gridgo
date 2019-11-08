@@ -1,13 +1,13 @@
 package io.gridgo.bean.test;
 
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Before;
+import org.junit.Test;
 
 import io.gridgo.bean.BElement;
 import io.gridgo.bean.BObject;

@@ -263,7 +263,7 @@ public class BElementPojoHelper {
             coll.addAll(array.toList());
         } else {
             for (BElement bElement : array) {
-                if (bElement.isNullValue()) {
+                if (bElement == null || bElement.isNullValue()) {
                     if (!signature.isSetType())
                         coll.add(null);
                     else

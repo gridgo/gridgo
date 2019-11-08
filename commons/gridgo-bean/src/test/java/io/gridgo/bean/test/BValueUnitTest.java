@@ -1,22 +1,24 @@
 package io.gridgo.bean.test;
 
+import java.math.BigInteger;
+
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.math.BigInteger;
 
 import io.gridgo.bean.BElement;
 import io.gridgo.bean.BType;
 import io.gridgo.bean.BValue;
 import io.gridgo.bean.exceptions.InvalidTypeException;
-import io.gridgo.bean.serialization.text.JsonSerializer;
+import io.gridgo.bean.serialization.json.writer.CompositeJsonWriter;
 
 public class BValueUnitTest {
 
+    private static final CompositeJsonWriter JSON_WRITER = CompositeJsonWriter.getNoCompressInstance();
+
     @Test
     public void testNull() {
-        Assert.assertNull(JsonSerializer.toJsonElement(BValue.of(null)));
-        Assert.assertNull(JsonSerializer.toJsonElement(BValue.ofEmpty()));
+        Assert.assertNull(JSON_WRITER.toJsonElement(BValue.of(null)));
+        Assert.assertNull(JSON_WRITER.toJsonElement(BValue.ofEmpty()));
         Assert.assertNull(BValue.ofEmpty().getData());
         Assert.assertNull(BValue.ofEmpty().getBoolean());
         Assert.assertNull(BValue.ofEmpty().getChar());
@@ -60,7 +62,7 @@ public class BValueUnitTest {
 
     @Test
     public void testInteger() {
-        Assert.assertEquals(1, (int) JsonSerializer.toJsonElement(BValue.of(1)));
+        Assert.assertEquals(1, (int) JSON_WRITER.toJsonElement(BValue.of(1)));
     }
 
     @Test

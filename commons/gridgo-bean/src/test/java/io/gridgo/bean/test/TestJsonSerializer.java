@@ -1,15 +1,15 @@
 package io.gridgo.bean.test;
 
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import org.junit.Assert;
+import org.junit.Test;
 
 import io.gridgo.bean.BArray;
 import io.gridgo.bean.BElement;
@@ -103,7 +103,7 @@ public class TestJsonSerializer {
                 .build();
 
         var reference = BReference.of(foo);
-        var json = reference.toJson();
+        var json = new String(reference.toBytes("jsonMaxCompress"));
         var after = BElement.ofJson(json).asObject().toPojo(Foo.class);
 
         Assert.assertArrayEquals(foo.getIntArrayValue(), after.getIntArrayValue());

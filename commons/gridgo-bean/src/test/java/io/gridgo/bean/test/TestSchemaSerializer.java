@@ -1,15 +1,15 @@
 package io.gridgo.bean.test;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 import io.gridgo.bean.BReference;
 import io.gridgo.bean.exceptions.BeanSerializationException;

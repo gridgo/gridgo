@@ -1,17 +1,19 @@
 package io.gridgo.bean.test;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 import java.util.List;
 import java.util.Map;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import io.gridgo.bean.BArray;
 import io.gridgo.bean.BObject;
-import io.gridgo.bean.serialization.text.JsonSerializer;
+import io.gridgo.bean.serialization.json.writer.CompositeJsonWriter;
 import io.gridgo.utils.pojo.PojoJsonUtils;
 
 public class TestBElementPojoHelper {
+
+    private static final CompositeJsonWriter JSON_WRITER = CompositeJsonWriter.getNoCompressInstance();
 
     @Test
     public void testSimpleArray() {
@@ -23,7 +25,7 @@ public class TestBElementPojoHelper {
     @Test
     @SuppressWarnings("unchecked")
     public void testBArray() {
-        var e = JsonSerializer.toJsonElement(BArray.ofSequence(1, "2", BObject.of("k", "v"), new int[] { 3, 4 }));
+        var e = JSON_WRITER.toJsonElement(BArray.ofSequence(1, "2", BObject.of("k", "v"), new int[] { 3, 4 }));
         Assert.assertTrue(e instanceof List);
         var list = (List<?>) e;
         Assert.assertEquals(4, list.size());
