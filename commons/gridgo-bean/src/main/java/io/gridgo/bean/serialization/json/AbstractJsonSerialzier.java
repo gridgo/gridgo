@@ -21,19 +21,19 @@ public abstract class AbstractJsonSerialzier extends AbstractBSerializer {
 
     private final ThreadLocal<JSONParser> jsonParsers;
 
-    protected AbstractJsonSerialzier(@NonNull JsonCompressMode compressMode, JsonParsingMode parsingMode) {
-        switch (compressMode) {
-        case LT_COMPRESS:
-            jsonWriter = CompositeJsonWriter.getLtCompressInstance();
+    protected AbstractJsonSerialzier(@NonNull JsonCompactMode compactMode, JsonParsingMode parsingMode) {
+        switch (compactMode) {
+        case LT_COMPACT:
+            jsonWriter = CompositeJsonWriter.getLtCompactInstance();
             break;
-        case MAX_COMPRESS:
-            jsonWriter = CompositeJsonWriter.getMaxCompressInstance();
+        case MAX_COMPACT:
+            jsonWriter = CompositeJsonWriter.getMaxCompactInstance();
             break;
-        case NO_COMPRESS:
-            jsonWriter = CompositeJsonWriter.getNoCompressInstance();
+        case NO_COMPACT:
+            jsonWriter = CompositeJsonWriter.getNoCompactInstance();
             break;
-        case NORMAL_COMPRESS:
-            jsonWriter = CompositeJsonWriter.getNormalCompressInstance();
+        case NORMAL_COMPACT:
+            jsonWriter = CompositeJsonWriter.getNormalCompactInstance();
             break;
         default:
             throw new IllegalArgumentException("JsonCompressMode unsupported");

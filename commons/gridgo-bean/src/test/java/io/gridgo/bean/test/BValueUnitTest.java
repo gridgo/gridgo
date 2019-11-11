@@ -13,7 +13,7 @@ import io.gridgo.bean.serialization.json.writer.CompositeJsonWriter;
 
 public class BValueUnitTest {
 
-    private static final CompositeJsonWriter JSON_WRITER = CompositeJsonWriter.getNoCompressInstance();
+    private static final CompositeJsonWriter JSON_WRITER = CompositeJsonWriter.getNoCompactInstance();
 
     @Test
     public void testNull() {

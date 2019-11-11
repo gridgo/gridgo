@@ -1,6 +1,6 @@
 package io.gridgo.bean.serialization.json;
 
-import static io.gridgo.bean.serialization.json.JsonCompressMode.NO_COMPRESS;
+import static io.gridgo.bean.serialization.json.JsonCompactMode.NO_COMPACT;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,22 +23,22 @@ public class DefaultJsonSerializer extends AbstractJsonSerialzier {
     private final boolean mutable;
 
     public DefaultJsonSerializer() {
-        this(NO_COMPRESS, null, true);
+        this(NO_COMPACT, null, true);
     }
 
     public DefaultJsonSerializer(boolean mutable) {
-        this(NO_COMPRESS, null, mutable);
+        this(NO_COMPACT, null, mutable);
     }
 
-    protected DefaultJsonSerializer(JsonCompressMode compressMode) {
+    protected DefaultJsonSerializer(JsonCompactMode compressMode) {
         this(compressMode, null, true);
     }
 
-    protected DefaultJsonSerializer(JsonCompressMode compressMode, boolean mutable) {
+    protected DefaultJsonSerializer(JsonCompactMode compressMode, boolean mutable) {
         this(compressMode, null, mutable);
     }
 
-    protected DefaultJsonSerializer(JsonCompressMode compressMode, JsonParsingMode parsingMode, boolean mutable) {
+    protected DefaultJsonSerializer(JsonCompactMode compressMode, JsonParsingMode parsingMode, boolean mutable) {
         super(compressMode, parsingMode);
         this.mutable = mutable;
     }

@@ -13,7 +13,7 @@ import io.gridgo.utils.pojo.PojoJsonUtils;
 
 public class TestBElementPojoHelper {
 
-    private static final CompositeJsonWriter JSON_WRITER = CompositeJsonWriter.getNoCompressInstance();
+    private static final CompositeJsonWriter JSON_WRITER = CompositeJsonWriter.getNoCompactInstance();
 
     @Test
     public void testSimpleArray() {

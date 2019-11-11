@@ -20,16 +20,16 @@ public class CompositeJsonWriter implements ElementJsonWriter<BElement> {
     private static final JSONStyle NORMAL_STYLE = new JSONStyle(FLAG_IGNORE_NULL);
 
     @Getter
-    private static final CompositeJsonWriter normalCompressInstance = new CompositeJsonWriter(NORMAL_STYLE);
+    private static final CompositeJsonWriter normalCompactInstance = new CompositeJsonWriter(NORMAL_STYLE);
 
     @Getter
-    private static final CompositeJsonWriter noCompressInstance = new CompositeJsonWriter(NO_COMPRESS);
+    private static final CompositeJsonWriter noCompactInstance = new CompositeJsonWriter(NO_COMPRESS);
 
     @Getter
-    private static final CompositeJsonWriter maxCompressInstance = new CompositeJsonWriter(MAX_COMPRESS);
+    private static final CompositeJsonWriter maxCompactInstance = new CompositeJsonWriter(MAX_COMPRESS);
 
     @Getter
-    private static final CompositeJsonWriter ltCompressInstance = new CompositeJsonWriter(LT_COMPRESS);
+    private static final CompositeJsonWriter ltCompactInstance = new CompositeJsonWriter(LT_COMPRESS);
 
     @Getter
     private final ElementJsonWriter<BObject> objectJsonWriter;

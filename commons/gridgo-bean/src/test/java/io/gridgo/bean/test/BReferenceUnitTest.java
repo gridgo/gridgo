@@ -13,7 +13,7 @@ import io.gridgo.bean.test.support.Foo;
 
 public class BReferenceUnitTest {
 
-    private static final CompositeJsonWriter JSON_WRITER = CompositeJsonWriter.getNoCompressInstance();
+    private static final CompositeJsonWriter JSON_WRITER = CompositeJsonWriter.getNoCompactInstance();
 
     @Test
     public void testIsReference() {
