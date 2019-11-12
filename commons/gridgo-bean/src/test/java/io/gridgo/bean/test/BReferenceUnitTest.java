@@ -1,17 +1,19 @@
 package io.gridgo.bean.test;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import io.gridgo.bean.BReference;
-import io.gridgo.bean.serialization.text.JsonSerializer;
+import io.gridgo.bean.serialization.json.writer.CompositeJsonWriter;
 import io.gridgo.bean.test.support.Foo;
 
 public class BReferenceUnitTest {
+
+    private static final CompositeJsonWriter JSON_WRITER = CompositeJsonWriter.getNoCompactInstance();
 
     @Test
     public void testIsReference() {
@@ -39,7 +41,8 @@ public class BReferenceUnitTest {
     public void testToJson() {
         var pojo = Foo.builder().doubleValue(1.0).intValue(1).stringValue("hello").build();
         var ref = BReference.of(pojo);
-        Map<String, Object> jsonElement = JsonSerializer.toJsonElement(ref);
+        @SuppressWarnings("unchecked")
+        var jsonElement = (Map<String, Object>) JSON_WRITER.getRefJsonWriter().toJsonElement(ref);
         Assert.assertEquals(1.0, jsonElement.get("doubleValue"));
         Assert.assertEquals(1, jsonElement.get("intValue"));
         Assert.assertEquals("hello", jsonElement.get("stringValue"));

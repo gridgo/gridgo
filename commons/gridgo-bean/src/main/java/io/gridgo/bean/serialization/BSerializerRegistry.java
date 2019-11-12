@@ -132,7 +132,7 @@ public final class BSerializerRegistry implements ClasspathScanner {
                 }
             } catch (Exception e) {
                 throw new SerializationPluginException(
-                        "Cannot create instance for class " + clazz + ", require non-args constructor");
+                        "Cannot create instance for class " + clazz + ", require non-args constructor", e);
             }
         }, classLoaders);
     }
