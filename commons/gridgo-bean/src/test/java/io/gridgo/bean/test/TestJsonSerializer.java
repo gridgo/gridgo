@@ -116,7 +116,8 @@ public class TestJsonSerializer {
 
     @Test
     public void testArbitraryPrecisionNumerical() {
-        var decimal = new BigDecimal("3.01E+7");
+        double dValue = 3.01E+7;
+        var decimal = new BigDecimal(dValue);
         var integer = BigInteger.valueOf(1232341234134513453l);
 
         double d1 = 0.03;
