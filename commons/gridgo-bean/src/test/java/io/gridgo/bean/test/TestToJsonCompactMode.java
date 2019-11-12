@@ -9,7 +9,7 @@ import org.junit.Test;
 import io.gridgo.bean.BElement;
 import io.gridgo.bean.BObject;
 
-public class TestToJsonCompressMode {
+public class TestToJsonCompactMode {
 
     private BObject bObject;
 
@@ -28,29 +28,29 @@ public class TestToJsonCompressMode {
     }
 
     @Test
-    public void testMaxCompress() {
-        var json = toJson("jsonMaxCompress");
+    public void testMaxCompact() {
+        var json = toJson("jsonMaxCompact");
         var obj = BElement.ofJson(json).asObject();
         assertFalse(obj.containsKey("nullValue"));
     }
 
     @Test
-    public void testLtCompress() {
-        var json = toJson("jsonLtCompress");
+    public void testLtCompact() {
+        var json = toJson("jsonLtCompact");
         var obj = BElement.ofJson(json).asObject();
         assertTrue(obj.containsKey("nullValue"));
     }
 
     @Test
-    public void testNoCompress() {
+    public void testNoCompact() {
         var json = toJson("json");
         var obj = BElement.ofJson(json).asObject();
         assertTrue(obj.containsKey("nullValue"));
     }
 
     @Test
-    public void testNormalCompress() {
-        var json = toJson("jsonNormal");
+    public void testNormalCompact() {
+        var json = toJson("jsonNormalCompact");
         var obj = BElement.ofJson(json).asObject();
         assertFalse(obj.containsKey("nullValue"));
     }

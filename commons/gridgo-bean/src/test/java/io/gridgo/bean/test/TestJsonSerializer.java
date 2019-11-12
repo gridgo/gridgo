@@ -6,6 +6,8 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Arrays;
 
 import org.junit.Assert;
@@ -16,6 +18,7 @@ import io.gridgo.bean.BElement;
 import io.gridgo.bean.BObject;
 import io.gridgo.bean.BReference;
 import io.gridgo.bean.BValue;
+import io.gridgo.bean.test.support.ArbitraryPrecisionNumerical;
 import io.gridgo.bean.test.support.Bar;
 import io.gridgo.bean.test.support.Foo;
 
@@ -103,11 +106,31 @@ public class TestJsonSerializer {
                 .build();
 
         var reference = BReference.of(foo);
-        var json = new String(reference.toBytes("jsonMaxCompress"));
+        var json = new String(reference.toBytes("jsonNormalCompact"));
         var after = BElement.ofJson(json).asObject().toPojo(Foo.class);
 
         Assert.assertArrayEquals(foo.getIntArrayValue(), after.getIntArrayValue());
         Assert.assertEquals(foo.getDoubleValue(), after.getDoubleValue(), 0);
         Assert.assertEquals(foo.getBarValue().isB(), after.getBarValue().isB());
+    }
+
+    @Test
+    public void testArbitraryPrecisionNumerical() {
+        var decimal = new BigDecimal("3.01E+7");
+        var integer = BigInteger.valueOf(1232341234134513453l);
+
+        double d1 = 0.03;
+        double d2 = 0.02;
+        double d = d1 - d2;
+
+        var value = ArbitraryPrecisionNumerical.builder() //
+                .decimal(decimal) //
+                .integer(integer) //
+                .d(d) //
+                .build();
+
+        var json = BReference.of(value).toJson();
+        System.out.println(json);
+        assertEquals("{\"d\":" + d + ",\"integer\":" + integer + ",\"decimal\":" + decimal + "}", json);
     }
 }

@@ -130,19 +130,44 @@ public class PrimitiveUtils {
         throw new UnsupportedTypeException(UNSUPPORTED_TYPE_MSG + resultType.getName());
     }
 
-    private static BigDecimal getBigDecimalFrom(Object obj) {
-        if (obj instanceof Number)
-            return BigDecimal.valueOf(((Number) obj).doubleValue());
-        if (obj instanceof byte[])
+    public static BigDecimal getBigDecimalFrom(Object obj) {
+        if (BigDecimal.class.isInstance(obj))
+            return (BigDecimal) obj;
+
+        if (BigInteger.class.isInstance(obj))
+            return new BigDecimal((BigInteger) obj);
+
+        if (byte[].class.isInstance(obj))
             return new BigDecimal(new BigInteger((byte[]) obj));
+
+        if (Double.class.isInstance(obj))
+            return BigDecimal.valueOf((double) obj);
+
+        if (Float.class.isInstance(obj))
+            return BigDecimal.valueOf((float) obj);
+
+        if (Long.class.isInstance(obj))
+            return BigDecimal.valueOf((long) obj);
+
+        if (Number.class.isInstance(obj))
+            return BigDecimal.valueOf(((Number) obj).intValue());
+
         return new BigDecimal(getStringValueFrom(obj));
     }
 
-    private static BigInteger getBigIntegerFrom(Object obj) {
-        if (obj instanceof Number)
-            return BigInteger.valueOf(((Number) obj).longValue());
-        if (obj instanceof byte[])
+    public static BigInteger getBigIntegerFrom(Object obj) {
+        if (BigInteger.class.isInstance(obj))
+            return (BigInteger) obj;
+
+        if (BigDecimal.class.isInstance(obj))
+            return ((BigDecimal) obj).toBigInteger();
+
+        if (byte[].class.isInstance(obj))
             return new BigInteger((byte[]) obj);
+
+        if (Number.class.isInstance(obj))
+            return BigInteger.valueOf(((Number) obj).longValue());
+
         return new BigInteger(getStringValueFrom(obj));
     }
 
@@ -296,7 +321,8 @@ public class PrimitiveUtils {
     /**
      * return boolean value for specific obj <br>
      * if obj is number, return false if obj == 0, true for otherwise <br>
-     * else if obj is character, return false if obj == '\0' char (null value), true for otherwise <br>
+     * else if obj is character, return false if obj == '\0' char (null value), true
+     * for otherwise <br>
      * else return object != null
      *
      * @param obj

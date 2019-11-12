@@ -5,7 +5,7 @@ import io.gridgo.bean.serialization.BSerializationPlugin;
 @BSerializationPlugin(NormalCompactJsonSerializer.NAME)
 public class NormalCompactJsonSerializer extends DefaultJsonSerializer {
 
-    public static final String NAME = "jsonNormal";
+    public static final String NAME = "jsonNormalCompact";
 
     public NormalCompactJsonSerializer() {
         super(JsonCompactMode.NORMAL_COMPACT);

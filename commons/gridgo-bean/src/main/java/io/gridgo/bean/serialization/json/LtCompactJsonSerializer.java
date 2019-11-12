@@ -7,7 +7,7 @@ import io.gridgo.bean.serialization.BSerializationPlugin;
 @BSerializationPlugin(LtCompactJsonSerializer.NAME)
 public class LtCompactJsonSerializer extends DefaultJsonSerializer {
 
-    public static final String NAME = "jsonLtCompress";
+    public static final String NAME = "jsonLtCompact";
 
     public LtCompactJsonSerializer() {
         super(LT_COMPACT);

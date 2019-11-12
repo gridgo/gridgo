@@ -7,7 +7,7 @@ import io.gridgo.bean.serialization.BSerializationPlugin;
 @BSerializationPlugin(MaxCompactJsonSerializer.NAME)
 public class MaxCompactJsonSerializer extends DefaultJsonSerializer {
 
-    public static final String NAME = "jsonMaxCompress";
+    public static final String NAME = "jsonMaxCompact";
 
     public MaxCompactJsonSerializer() {
         super(MAX_COMPACT);
