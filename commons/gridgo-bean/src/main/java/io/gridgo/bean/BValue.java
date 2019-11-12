@@ -44,43 +44,31 @@ public interface BValue extends BElement {
 
     @Override
     default BType getType() {
-        if (this.isNull()) {
+        if (this.isNull())
             return BType.NULL;
-        }
-
-        if (this.getData() instanceof Boolean) {
+        if (Boolean.class.isInstance(this.getData()))
             return BType.BOOLEAN;
-        }
-        if (this.getData() instanceof Character) {
+        if (Character.class.isInstance(this.getData()))
             return BType.CHAR;
-        }
-        if (this.getData() instanceof Byte) {
+        if (Byte.class.isInstance(this.getData()))
             return BType.BYTE;
-        }
-        if (this.getData() instanceof Short) {
+        if (Short.class.isInstance(this.getData()))
             return BType.SHORT;
-        }
-        if (this.getData() instanceof Integer) {
+        if (Integer.class.isInstance(this.getData()))
             return BType.INTEGER;
-        }
-        if (this.getData() instanceof Float) {
+        if (Float.class.isInstance(this.getData()))
             return BType.FLOAT;
-        }
-        if (this.getData() instanceof Long) {
+        if (Long.class.isInstance(this.getData()))
             return BType.LONG;
-        }
-        if (this.getData() instanceof Double) {
+        if (Double.class.isInstance(this.getData()))
             return BType.DOUBLE;
-        }
-        if (this.getData() instanceof String) {
+        if (String.class.isInstance(this.getData()))
             return BType.STRING;
-        }
-        if (this.getData() instanceof byte[]) {
+        if (byte[].class.isInstance(this.getData()))
             return BType.RAW;
-        }
-        if (this.getData() instanceof Number) {
+        if (Number.class.isInstance(this.getData()))
             return BType.GENERIC_NUMBER;
-        }
+
         throw new InvalidTypeException("Cannot recognize data type: " + this.getData().getClass());
     }
 

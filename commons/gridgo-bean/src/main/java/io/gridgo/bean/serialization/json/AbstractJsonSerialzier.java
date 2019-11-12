@@ -1,67 +1,52 @@
 package io.gridgo.bean.serialization.json;
 
-import static lombok.AccessLevel.PROTECTED;
+import static io.gridgo.bean.serialization.json.BElementJsonSerializer.COMPACT;
+import static io.gridgo.bean.serialization.json.BElementJsonSerializer.NO_COMPACT;
 
+import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.OutputStream;
+
+import com.dslplatform.json.DslJson;
+import com.dslplatform.json.DslJson.Settings;
 
 import io.gridgo.bean.BElement;
+import io.gridgo.bean.exceptions.BeanSerializationException;
 import io.gridgo.bean.serialization.AbstractBSerializer;
-import io.gridgo.bean.serialization.json.writer.CompositeJsonWriter;
-import io.gridgo.bean.serialization.json.writer.ElementJsonWriter;
-import lombok.Getter;
 import lombok.NonNull;
-import net.minidev.json.parser.JSONParser;
-import net.minidev.json.parser.ParseException;
 
 public abstract class AbstractJsonSerialzier extends AbstractBSerializer {
 
-    @Getter(PROTECTED)
-    private final ElementJsonWriter<BElement> jsonWriter;
+    @NonNull
+    private final DslJson<BElement> dslJson;
 
-    private final ThreadLocal<JSONParser> jsonParsers;
+    protected AbstractJsonSerialzier(@NonNull JsonCompactMode compactMode) {
 
-    protected AbstractJsonSerialzier(@NonNull JsonCompactMode compactMode, JsonParsingMode parsingMode) {
-        switch (compactMode) {
-        case LT_COMPACT:
-            jsonWriter = CompositeJsonWriter.getLtCompactInstance();
-            break;
-        case MAX_COMPACT:
-            jsonWriter = CompositeJsonWriter.getMaxCompactInstance();
-            break;
-        case NO_COMPACT:
-            jsonWriter = CompositeJsonWriter.getNoCompactInstance();
-            break;
-        case NORMAL_COMPACT:
-            jsonWriter = CompositeJsonWriter.getNormalCompactInstance();
-            break;
-        default:
-            throw new IllegalArgumentException("JsonCompressMode unsupported");
-        }
+        var omitDefaults = compactMode == JsonCompactMode.COMPACT;
+        var settings = new Settings<BElement>() //
+                .includeServiceLoader() //
+                .skipDefaultValues(omitDefaults);
 
-        if (parsingMode == null)
-            parsingMode = JsonParsingMode.DEFAULT;
+        dslJson = new DslJson<>(settings);
+        dslJson.registerWriter(BElement.class, omitDefaults ? COMPACT::write : NO_COMPACT::write);
+        dslJson.registerReader(BElement.class, omitDefaults ? COMPACT::read : NO_COMPACT::read);
+    }
 
-        switch (parsingMode) {
-        case SIMPLE:
-            jsonParsers = ThreadLocal.withInitial(() -> new JSONParser(JSONParser.MODE_JSON_SIMPLE));
-            break;
-        case PERMISSIVE:
-            jsonParsers = ThreadLocal.withInitial(() -> new JSONParser(JSONParser.MODE_PERMISSIVE));
-            break;
-        case STRICTEST:
-            jsonParsers = ThreadLocal.withInitial(() -> new JSONParser(JSONParser.MODE_STRICTEST));
-            break;
-        case RFC4627:
-            jsonParsers = ThreadLocal.withInitial(() -> new JSONParser(JSONParser.MODE_RFC4627));
-            break;
-        default:
-            jsonParsers = ThreadLocal.withInitial(() -> new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE));
-            break;
+    @Override
+    public void serialize(BElement element, OutputStream out) {
+        try {
+            dslJson.serialize(element, out);
+        } catch (IOException e) {
+            throw new BeanSerializationException("Cannot serialize element as json", e);
         }
     }
 
-    protected Object deserializeToJsonElement(InputStream in) throws ParseException, UnsupportedEncodingException {
-        return jsonParsers.get().parse(in);
+    @Override
+    public BElement deserialize(InputStream in) {
+        try {
+            return dslJson.deserialize(BElement.class, in);
+        } catch (IOException e) {
+            throw new BeanSerializationException("Cannot deserialize input data", e);
+        }
     }
 }

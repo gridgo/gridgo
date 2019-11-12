@@ -9,16 +9,11 @@ import io.gridgo.bean.BElement;
 import io.gridgo.bean.BType;
 import io.gridgo.bean.BValue;
 import io.gridgo.bean.exceptions.InvalidTypeException;
-import io.gridgo.bean.serialization.json.writer.CompositeJsonWriter;
 
 public class BValueUnitTest {
 
-    private static final CompositeJsonWriter JSON_WRITER = CompositeJsonWriter.getNoCompactInstance();
-
     @Test
     public void testNull() {
-        Assert.assertNull(JSON_WRITER.toJsonElement(BValue.of(null)));
-        Assert.assertNull(JSON_WRITER.toJsonElement(BValue.ofEmpty()));
         Assert.assertNull(BValue.ofEmpty().getData());
         Assert.assertNull(BValue.ofEmpty().getBoolean());
         Assert.assertNull(BValue.ofEmpty().getChar());
@@ -58,11 +53,6 @@ public class BValueUnitTest {
         Assert.assertEquals((long) Math.pow(2, 33), ((BigInteger) val.getData()).longValue());
         Assert.assertEquals((long) Math.pow(2, 33), (long) val.getLong());
         Assert.assertEquals(BType.GENERIC_NUMBER, val.getType());
-    }
-
-    @Test
-    public void testInteger() {
-        Assert.assertEquals(1, (int) JSON_WRITER.toJsonElement(BValue.of(1)));
     }
 
     @Test
