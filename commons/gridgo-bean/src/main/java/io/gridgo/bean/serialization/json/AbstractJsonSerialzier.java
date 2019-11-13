@@ -1,7 +1,7 @@
 package io.gridgo.bean.serialization.json;
 
-import static io.gridgo.bean.serialization.json.BElementJsonSerializer.COMPACT;
-import static io.gridgo.bean.serialization.json.BElementJsonSerializer.NO_COMPACT;
+import static io.gridgo.bean.serialization.json.codec.BElementJsonCodec.COMPACT;
+import static io.gridgo.bean.serialization.json.codec.BElementJsonCodec.NO_COMPACT;
 
 import java.io.IOException;
 import java.io.InputStream;
