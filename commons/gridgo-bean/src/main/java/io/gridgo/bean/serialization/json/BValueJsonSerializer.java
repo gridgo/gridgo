@@ -45,7 +45,7 @@ public class BValueJsonSerializer implements ReadWriteObject<BValue> {
             if (!reader.wasNull()) {
                 throw reader.newParseErrorAt("Expecting 'null' for null constant", 0);
             }
-            return null;
+            return BValue.of(null);
         case 't':
             if (!reader.wasTrue()) {
                 throw reader.newParseErrorAt("Expecting 'true' for true constant", 0);
