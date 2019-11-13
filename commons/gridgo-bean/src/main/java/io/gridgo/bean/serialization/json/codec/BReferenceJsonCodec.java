@@ -14,7 +14,7 @@ import lombok.NonNull;
 public class BReferenceJsonCodec implements JsonCodec<BReference> {
 
     @NonNull
-    private final BElementJsonCodec elementCodec;
+    private final BElementJsonCodec compositeCodec;
 
     @Override
     public void write(JsonWriter writer, BReference value) {

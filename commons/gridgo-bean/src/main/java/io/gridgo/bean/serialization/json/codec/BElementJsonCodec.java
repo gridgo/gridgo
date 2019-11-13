@@ -23,7 +23,7 @@ public class BElementJsonCodec implements JsonCodec<BElement> {
     private BElementJsonCodec(JsonCompactMode compactMode) {
         objectCodec = new BObjectJsonCodec(this, compactMode);
         arrayCodec = new BArrayJsonCodec(this);
-        valueCodec = new BValueJsonCodec(this);
+        valueCodec = new BValueJsonCodec();
         referenceCodec = new BReferenceJsonCodec(this);
     }
 
