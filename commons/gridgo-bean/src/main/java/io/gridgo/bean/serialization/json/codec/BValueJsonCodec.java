@@ -7,14 +7,13 @@ import com.dslplatform.json.JsonWriter;
 import com.dslplatform.json.NumberConverter;
 
 import io.gridgo.bean.BValue;
-import io.gridgo.bean.serialization.json.ReadWriteObject;
 import io.gridgo.utils.ByteArrayUtils;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 
 @AllArgsConstructor
 @SuppressWarnings("rawtypes")
-public class BValueJsonCodec implements ReadWriteObject<BValue> {
+public class BValueJsonCodec implements JsonCodec<BValue> {
 
     @NonNull
     private final BElementJsonCodec elementCodec;

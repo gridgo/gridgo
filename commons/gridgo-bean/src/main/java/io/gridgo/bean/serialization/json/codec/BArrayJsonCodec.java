@@ -8,13 +8,12 @@ import com.dslplatform.json.JsonWriter;
 
 import io.gridgo.bean.BArray;
 import io.gridgo.bean.BElement;
-import io.gridgo.bean.serialization.json.ReadWriteObject;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 
 @AllArgsConstructor
 @SuppressWarnings("rawtypes")
-public class BArrayJsonCodec implements ReadWriteObject<BArray> {
+public class BArrayJsonCodec implements JsonCodec<BArray> {
 
     @NonNull
     private final BElementJsonCodec compositeCodec;

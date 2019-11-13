@@ -6,13 +6,12 @@ import com.dslplatform.json.JsonReader;
 import com.dslplatform.json.JsonWriter;
 
 import io.gridgo.bean.BReference;
-import io.gridgo.bean.serialization.json.ReadWriteObject;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 
 @AllArgsConstructor
 @SuppressWarnings("rawtypes")
-public class BReferenceJsonCodec implements ReadWriteObject<BReference> {
+public class BReferenceJsonCodec implements JsonCodec<BReference> {
 
     @NonNull
     private final BElementJsonCodec elementCodec;

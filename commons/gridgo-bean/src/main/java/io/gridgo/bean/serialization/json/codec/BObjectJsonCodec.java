@@ -12,13 +12,12 @@ import com.dslplatform.json.JsonWriter;
 import io.gridgo.bean.BElement;
 import io.gridgo.bean.BObject;
 import io.gridgo.bean.serialization.json.JsonCompactMode;
-import io.gridgo.bean.serialization.json.ReadWriteObject;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 
 @AllArgsConstructor
 @SuppressWarnings("rawtypes")
-public class BObjectJsonCodec implements ReadWriteObject<BObject> {
+public class BObjectJsonCodec implements JsonCodec<BObject> {
 
     @NonNull
     private final BElementJsonCodec compositeCodec;

@@ -7,10 +7,9 @@ import com.dslplatform.json.JsonWriter;
 
 import io.gridgo.bean.BElement;
 import io.gridgo.bean.serialization.json.JsonCompactMode;
-import io.gridgo.bean.serialization.json.ReadWriteObject;
 
 @SuppressWarnings("rawtypes")
-public class BElementJsonCodec implements ReadWriteObject<BElement> {
+public class BElementJsonCodec implements JsonCodec<BElement> {
 
     public static final BElementJsonCodec NO_COMPACT = new BElementJsonCodec(JsonCompactMode.FULL);
 
