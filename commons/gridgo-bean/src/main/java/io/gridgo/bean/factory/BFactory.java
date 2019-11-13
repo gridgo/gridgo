@@ -69,13 +69,13 @@ public interface BFactory {
         T result;
         if (data == null || PrimitiveUtils.isPrimitive(clazz = data.getClass())) {
             result = (T) newValue(data);
-        } else if (Collection.class.isAssignableFrom(clazz)) {
+        } else if (Collection.class.isInstance(data)) {
             result = (T) this.getWrappedArraySupplier().apply((Collection) data);
         } else if (clazz.isArray()) {
             final List<Object> list = new ArrayList<>();
             ArrayUtils.foreach(data, entry -> list.add(entry));
             result = (T) this.getWrappedArraySupplier().apply(list);
-        } else if (Map.class.isAssignableFrom(clazz)) {
+        } else if (Map.class.isInstance(data)) {
             result = (T) this.getWrappedObjectSupplier().apply((Map<?, ?>) data);
         } else {
             result = (T) newReference(data);

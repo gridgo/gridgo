@@ -14,16 +14,18 @@ import io.gridgo.bean.BElement;
 import io.gridgo.bean.exceptions.BeanSerializationException;
 import io.gridgo.bean.serialization.AbstractBSerializer;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public abstract class AbstractJsonSerialzier extends AbstractBSerializer {
 
     @NonNull
-    private final DslJson<BElement> dslJson;
+    private final DslJson<Object> dslJson;
 
     protected AbstractJsonSerialzier(@NonNull JsonCompactMode compactMode) {
 
         var omitDefaults = compactMode == JsonCompactMode.COMPACT;
-        var settings = new Settings<BElement>() //
+        var settings = new Settings<Object>() //
                 .includeServiceLoader() //
                 .skipDefaultValues(omitDefaults);
 
@@ -35,6 +37,19 @@ public abstract class AbstractJsonSerialzier extends AbstractBSerializer {
     @Override
     public void serialize(BElement element, OutputStream out) {
         try {
+            if (element.isReference()) {
+                var reference = element.asReference().getReference();
+                if (reference != null) {
+                    var manifiest = reference.getClass();
+                    if (reference != null && dslJson.canSerialize(manifiest)) {
+                        if (log.isDebugEnabled())
+                            log.debug("Manifest '{}' can be serialized by dsl json directly", manifiest);
+                        dslJson.serialize(reference, out);
+                        return;
+                    }
+                }
+            }
+
             dslJson.serialize(element, out);
         } catch (IOException e) {
             throw new BeanSerializationException("Cannot serialize element as json", e);
