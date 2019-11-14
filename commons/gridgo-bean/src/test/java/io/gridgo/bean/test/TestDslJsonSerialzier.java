@@ -1,16 +1,20 @@
 package io.gridgo.bean.test;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.Arrays;
 import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
 
+import io.gridgo.bean.BElement;
+import io.gridgo.bean.BObject;
 import io.gridgo.bean.BReference;
 import io.gridgo.bean.test.support.Bar;
 import io.gridgo.bean.test.support.Foo;
 
-public class TestDslCompiledJson {
+public class TestDslJsonSerialzier {
 
     private Foo original;
 
@@ -38,8 +42,9 @@ public class TestDslCompiledJson {
 
     @Test
     public void testCompiledJsonPojo() {
-        var json = BReference.of(original).toJson();
-        System.out.println("got json: " + json);
+        var json = new String(BReference.of(original).toBytes("jsonCompact"));
+        var valueFromJson = BElement.ofJson(json).asObject().toPojo(Foo.class);
+        assertEquals(BObject.ofPojo(original), BObject.ofPojo(valueFromJson));
     }
 
 }

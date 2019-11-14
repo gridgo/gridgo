@@ -6,6 +6,7 @@ import static io.gridgo.utils.PrimitiveUtils.isPrimitive;
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.END_ARRAY;
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.END_MAP;
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.KEY;
+import static io.gridgo.utils.pojo.PojoFlattenIndicator.KEY_NULL;
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.START_ARRAY;
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.START_MAP;
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.VALUE;
@@ -148,8 +149,12 @@ public class PojoUtils {
                 var entry = it.next();
                 var key = entry.getKey();
                 var value = entry.getValue();
-                walker.accept(KEY, key);
-                walkThroughGetter(value, proxy, walker);
+                if (value == null) {
+                    walker.accept(KEY_NULL, key);
+                } else {
+                    walker.accept(KEY, key);
+                    walkThroughGetter(value, proxy, walker);
+                }
             }
             walker.accept(END_MAP, size);
             return;
@@ -159,8 +164,13 @@ public class PojoUtils {
         int length = _proxy.getFields().length;
         walker.accept(START_MAP, length);
         _proxy.walkThrough(target, (signature, value) -> {
-            walker.accept(KEY, signature.getTransformedOrDefaultFieldName());
-            walkThroughGetter(value, signature.getElementGetterProxy(), walker);
+            var key = signature.getTransformedOrDefaultFieldName();
+            if (value == null) {
+                walker.accept(KEY_NULL, key);
+            } else {
+                walker.accept(KEY, key);
+                walkThroughGetter(value, signature.getElementGetterProxy(), walker);
+            }
         });
         walker.accept(END_MAP, length);
     }
