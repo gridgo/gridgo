@@ -47,7 +47,7 @@ public class BReferenceCompactJsonCodec extends BReferenceJsonCodec {
 
                 if (indexStack.size() > 0)
                     indexStack.peek().incrementAndGet();
-                
+
                 break;
             case END_MAP:
                 indexStack.pop();
@@ -63,10 +63,10 @@ public class BReferenceCompactJsonCodec extends BReferenceJsonCodec {
                 alreadyWriteValue.set(false);
                 lengthStack.push((int) val);
                 indexStack.push(new AtomicInteger(0));
-                
+
                 if (indexStack.size() > 0)
                     indexStack.peek().incrementAndGet();
-                
+
                 break;
             case END_ARRAY:
                 indexStack.pop();
