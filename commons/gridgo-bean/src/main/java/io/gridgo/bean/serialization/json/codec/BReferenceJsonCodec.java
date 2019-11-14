@@ -36,33 +36,44 @@ public class BReferenceJsonCodec implements JsonCodec<BReference> {
         walkThroughGetter(reference, (indicator, val) -> {
             switch (indicator) {
             case START_MAP:
+                writer.writeByte(OBJECT_START);
+
                 if (indexStack.size() > 0)
                     indexStack.peek().incrementAndGet();
+
                 lengthStack.push((int) val);
                 indexStack.push(new AtomicInteger(0));
 
-                writer.writeByte(OBJECT_START);
                 break;
             case END_MAP:
+                writer.writeByte(OBJECT_END);
+
                 indexStack.pop();
                 lengthStack.pop();
-                writer.writeByte(OBJECT_END);
+
                 if (lengthStack.size() > 0 && lengthStack.peek() > indexStack.peek().get())
                     writer.writeByte(COMMA);
+
                 break;
             case START_ARRAY:
-                if (indexStack.size() > 0)
-                    indexStack.peek().incrementAndGet();
+                writer.writeByte(ARRAY_START);
+
                 lengthStack.push((int) val);
                 indexStack.push(new AtomicInteger(0));
-                writer.writeByte(ARRAY_START);
+
+                if (indexStack.size() > 0)
+                    indexStack.peek().incrementAndGet();
+
                 break;
             case END_ARRAY:
+                writer.writeByte(ARRAY_END);
+
                 indexStack.pop();
                 lengthStack.pop();
-                writer.writeByte(ARRAY_END);
+
                 if (lengthStack.size() > 0 && lengthStack.peek() > indexStack.peek().get())
                     writer.writeByte(COMMA);
+
                 break;
             case KEY:
                 writer.writeString((String) val);
@@ -72,8 +83,10 @@ public class BReferenceJsonCodec implements JsonCodec<BReference> {
                 writer.writeString((String) val);
                 writer.writeByte(SEMI);
                 writer.writeNull();
+
                 if (lengthStack.size() > 0 && indexStack.peek().incrementAndGet() < lengthStack.peek())
                     writer.writeByte(COMMA);
+
                 break;
             case VALUE:
                 writer.serializeObject(val);
