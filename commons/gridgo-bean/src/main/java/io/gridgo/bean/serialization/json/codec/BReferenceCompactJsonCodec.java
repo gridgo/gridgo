@@ -6,6 +6,8 @@ import static com.dslplatform.json.JsonWriter.COMMA;
 import static com.dslplatform.json.JsonWriter.OBJECT_END;
 import static com.dslplatform.json.JsonWriter.OBJECT_START;
 import static com.dslplatform.json.JsonWriter.SEMI;
+import static io.gridgo.utils.pojo.PojoFlattenIndicator.END_ARRAY;
+import static io.gridgo.utils.pojo.PojoFlattenIndicator.START_ARRAY;
 import static io.gridgo.utils.pojo.PojoUtils.walkThroughGetter;
 
 import java.util.Stack;
@@ -32,47 +34,29 @@ public class BReferenceCompactJsonCodec extends BReferenceJsonCodec {
         var lengthStack = new Stack<Integer>();
         var indexStack = new Stack<AtomicInteger>();
         var keyRef = new AtomicReference<String>(null);
-        var alreadyWriteValue = new AtomicBoolean(false);
+        var waitingForComma = new AtomicBoolean(false);
 
         walkThroughGetter(reference, (indicator, val) -> {
             switch (indicator) {
             case START_MAP:
-                tryWriteComma(writer, alreadyWriteValue);
+            case START_ARRAY:
+                tryWriteComma(writer, waitingForComma);
                 tryWriteWaitingKey(writer, keyRef);
-                writer.writeByte(OBJECT_START);
+                writer.writeByte(indicator == START_ARRAY ? ARRAY_START : OBJECT_START);
 
-                alreadyWriteValue.set(false);
+                waitingForComma.set(false);
                 lengthStack.push((int) val);
                 indexStack.push(new AtomicInteger(0));
 
                 if (indexStack.size() > 0)
                     indexStack.peek().incrementAndGet();
-
                 break;
             case END_MAP:
-                indexStack.pop();
-                lengthStack.pop();
-                writer.writeByte(OBJECT_END);
-                alreadyWriteValue.set(true);
-                break;
-            case START_ARRAY:
-                tryWriteComma(writer, alreadyWriteValue);
-                tryWriteWaitingKey(writer, keyRef);
-                writer.writeByte(ARRAY_START);
-
-                alreadyWriteValue.set(false);
-                lengthStack.push((int) val);
-                indexStack.push(new AtomicInteger(0));
-
-                if (indexStack.size() > 0)
-                    indexStack.peek().incrementAndGet();
-
-                break;
             case END_ARRAY:
                 indexStack.pop();
                 lengthStack.pop();
-                writer.writeByte(ARRAY_END);
-                alreadyWriteValue.set(true);
+                writer.writeByte(indicator == END_ARRAY ? ARRAY_END : OBJECT_END);
+                waitingForComma.set(true);
                 break;
             case KEY:
                 keyRef.set((String) val);
@@ -81,11 +65,11 @@ public class BReferenceCompactJsonCodec extends BReferenceJsonCodec {
                 indexStack.peek().incrementAndGet();
                 break;
             case VALUE:
-                tryWriteComma(writer, alreadyWriteValue);
+                tryWriteComma(writer, waitingForComma);
                 tryWriteWaitingKey(writer, keyRef);
                 writer.serializeObject(val);
                 indexStack.peek().incrementAndGet();
-                alreadyWriteValue.set(true);
+                waitingForComma.set(true);
                 break;
             }
         });

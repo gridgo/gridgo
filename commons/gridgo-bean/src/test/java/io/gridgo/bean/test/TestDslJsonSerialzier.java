@@ -41,10 +41,25 @@ public class TestDslJsonSerialzier {
     }
 
     @Test
-    public void testCompiledJsonPojo() {
-        var json = new String(BReference.of(original).toBytes("jsonCompact"));
+    public void testJsonSerialization() {
+        var serializerName = "json";
+        var json = toJson(serializerName);
+        System.out.println("got json: " + json);
         var valueFromJson = BElement.ofJson(json).asObject().toPojo(Foo.class);
         assertEquals(BObject.ofPojo(original), BObject.ofPojo(valueFromJson));
+    }
+
+    @Test
+    public void testCompactJsonSerialization() {
+        var serializerName = "jsonCompact";
+        var json = toJson(serializerName);
+        var valueFromJson = BElement.ofJson(json).asObject().toPojo(Foo.class);
+        assertEquals(BObject.ofPojo(original), BObject.ofPojo(valueFromJson));
+    }
+
+    private String toJson(String serializerName) {
+        var json = new String(BReference.of(original).toBytes(serializerName));
+        return json;
     }
 
 }
