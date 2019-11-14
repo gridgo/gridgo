@@ -97,10 +97,10 @@ public class BReferenceCompactJsonCodec extends BReferenceJsonCodec {
     }
 
     private void tryWriteWaitingKey(JsonWriter writer, AtomicReference<String> keyRef) {
-        if (keyRef.get() != null) {
-            writer.writeString(keyRef.get());
-            writer.writeByte(SEMI);
-            keyRef.set(null);
-        }
+        if (keyRef.get() == null)
+            return;
+        writer.writeString(keyRef.get());
+        writer.writeByte(SEMI);
+        keyRef.set(null);
     }
 }
