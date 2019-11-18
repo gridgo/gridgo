@@ -23,22 +23,8 @@ public class TestToJsonCompactMode {
 
     private String toJson(String serializerName) {
         var value = new String(bObject.toBytes(serializerName));
-        System.out.println(serializerName + ": " + value);
+        System.out.println(serializerName + "\t\t: " + value);
         return value;
-    }
-
-    @Test
-    public void testMaxCompact() {
-        var json = toJson("jsonMaxCompact");
-        var obj = BElement.ofJson(json).asObject();
-        assertFalse(obj.containsKey("nullValue"));
-    }
-
-    @Test
-    public void testLtCompact() {
-        var json = toJson("jsonLtCompact");
-        var obj = BElement.ofJson(json).asObject();
-        assertTrue(obj.containsKey("nullValue"));
     }
 
     @Test
@@ -50,7 +36,7 @@ public class TestToJsonCompactMode {
 
     @Test
     public void testNormalCompact() {
-        var json = toJson("jsonNormalCompact");
+        var json = toJson("jsonCompact");
         var obj = BElement.ofJson(json).asObject();
         assertFalse(obj.containsKey("nullValue"));
     }

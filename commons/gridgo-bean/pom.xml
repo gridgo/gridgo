@@ -11,11 +11,25 @@
 	</parent>
 
 	<properties>
+		<dsl.json.version>1.9.3</dsl.json.version>
 		<msgpack.version>0.8.18</msgpack.version>
-		<jsonsmart.version>2.3</jsonsmart.version>
 		<reflections.version>0.9.11</reflections.version>
 		<junit.version>4.12</junit.version>
 	</properties>
+
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<annotationProcessors>
+						<annotationProcessor>lombok.launch.AnnotationProcessorHider$AnnotationProcessor</annotationProcessor>
+						<annotationProcessor>com.dslplatform.json.processor.CompiledJsonAnnotationProcessor</annotationProcessor>
+					</annotationProcessors>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 
 	<dependencies>
 		<dependency>
@@ -29,9 +43,9 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.minidev</groupId>
-			<artifactId>json-smart</artifactId>
-			<version>${jsonsmart.version}</version>
+			<groupId>com.dslplatform</groupId>
+			<artifactId>dsl-json-java8</artifactId>
+			<version>${dsl.json.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.carrotsearch</groupId>
