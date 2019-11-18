@@ -134,6 +134,9 @@ public class MsgpackSerializer extends AbstractBSerializer {
         case STRING:
             packer.packString(value.getString());
             return;
+        case GENERIC_NUMBER:
+            packer.packDouble(value.getDouble());
+            return;
         default:
             throw new BeanSerializationException("Cannot writeValue object type: " + type);
         }

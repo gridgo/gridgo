@@ -1,13 +1,13 @@
 package io.gridgo.bean.test;
 
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Before;
+import org.junit.Test;
 
 import io.gridgo.bean.BElement;
 import io.gridgo.bean.BObject;
@@ -108,16 +108,13 @@ public class TestPojo {
                         2.1, //
                         3.2))) //
                 // map
-                .byteMap(Map.of(
-                        "1", (byte) 1, //
+                .byteMap(Map.of("1", (byte) 1, //
                         "2", (byte) 2, //
                         "3", (byte) 3)) //
-                .shortMap(Map.of(
-                        "1", (short) 1, //
+                .shortMap(Map.of("1", (short) 1, //
                         "2", (short) 2, //
                         "3", (short) 3)) //
-                .integerMap(Map.of(
-                        "1", 1, //
+                .integerMap(Map.of("1", 1, //
                         "2", 2, //
                         "3", 3)) //
                 .longMap(Map.of( //

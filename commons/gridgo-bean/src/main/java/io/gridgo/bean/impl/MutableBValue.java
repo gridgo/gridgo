@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class MutableBValue extends AbstractBElement implements BValue {
 
-    private transient static final BinaryHashCodeCalculator binaryHashCodeCalculator = BinaryHashCodeCalculator.XXHASH32_JAVA_SAFE;
+    private transient static final BinaryHashCodeCalculator binaryHashCodeCalculator = BinaryHashCodeCalculator.XXHASH32_JNI;
 
     @Getter
     private Object data;

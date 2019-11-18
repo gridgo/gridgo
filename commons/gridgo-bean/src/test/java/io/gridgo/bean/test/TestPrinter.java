@@ -1,11 +1,11 @@
 package io.gridgo.bean.test;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 
 import io.gridgo.bean.BArray;
 import io.gridgo.bean.BElement;

@@ -1,14 +1,13 @@
 package io.gridgo.bean.test;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import io.gridgo.bean.BReference;
-import io.gridgo.bean.serialization.text.JsonSerializer;
 import io.gridgo.bean.test.support.Foo;
 
 public class BReferenceUnitTest {
@@ -33,17 +32,6 @@ public class BReferenceUnitTest {
             counter.addAndGet((int) Arrays.stream(arr).sum());
         });
         Assert.assertEquals(6, counter.get());
-    }
-
-    @Test
-    public void testToJson() {
-        var pojo = Foo.builder().doubleValue(1.0).intValue(1).stringValue("hello").build();
-        var ref = BReference.of(pojo);
-        Map<String, Object> jsonElement = JsonSerializer.toJsonElement(ref);
-        Assert.assertEquals(1.0, jsonElement.get("doubleValue"));
-        Assert.assertEquals(1, jsonElement.get("intValue"));
-        Assert.assertEquals("hello", jsonElement.get("stringValue"));
-        Assert.assertEquals(pojo, ref.getInnerValue());
     }
 
     @Test

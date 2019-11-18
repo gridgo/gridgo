@@ -31,7 +31,7 @@ public class Foo extends SuperFoo {
 
     private String stringValue;
 
-    private byte byteValue;
+    private byte byteValue; 
 
     private short shortValue;
 

@@ -1,22 +1,19 @@
 package io.gridgo.bean.test;
 
+import java.math.BigInteger;
+
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.math.BigInteger;
 
 import io.gridgo.bean.BElement;
 import io.gridgo.bean.BType;
 import io.gridgo.bean.BValue;
 import io.gridgo.bean.exceptions.InvalidTypeException;
-import io.gridgo.bean.serialization.text.JsonSerializer;
 
 public class BValueUnitTest {
 
     @Test
     public void testNull() {
-        Assert.assertNull(JsonSerializer.toJsonElement(BValue.of(null)));
-        Assert.assertNull(JsonSerializer.toJsonElement(BValue.ofEmpty()));
         Assert.assertNull(BValue.ofEmpty().getData());
         Assert.assertNull(BValue.ofEmpty().getBoolean());
         Assert.assertNull(BValue.ofEmpty().getChar());
@@ -56,11 +53,6 @@ public class BValueUnitTest {
         Assert.assertEquals((long) Math.pow(2, 33), ((BigInteger) val.getData()).longValue());
         Assert.assertEquals((long) Math.pow(2, 33), (long) val.getLong());
         Assert.assertEquals(BType.GENERIC_NUMBER, val.getType());
-    }
-
-    @Test
-    public void testInteger() {
-        Assert.assertEquals(1, (int) JsonSerializer.toJsonElement(BValue.of(1)));
     }
 
     @Test

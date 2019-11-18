@@ -1,10 +1,10 @@
 package io.gridgo.bean.test;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
+
+import org.junit.Assert;
+import org.junit.Test;
 
 import io.gridgo.bean.BArray;
 import io.gridgo.bean.BObject;

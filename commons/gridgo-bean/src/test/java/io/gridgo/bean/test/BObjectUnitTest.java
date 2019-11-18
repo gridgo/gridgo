@@ -1,7 +1,6 @@
 package io.gridgo.bean.test;
 
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 import java.sql.Date;
 import java.util.Collections;
@@ -9,7 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Assert;
+import org.junit.Test;
 
 import io.gridgo.bean.BArray;
 import io.gridgo.bean.BElement;
@@ -42,19 +42,20 @@ public class BObjectUnitTest {
         obj.setAny("bool", true);
         Assert.assertTrue(obj.getBoolean("bool", false));
 
-        var json = "{\"arr\":[1,2,3],\"bool\":true,\"byte\":1,\"char\":\"a\",\"double\":1.11,\"int\":1,\"long\":1,\"obj\":{\"int\":2},\"str\":\"hello\"}";
+        var json = "{\"str\":\"hello\",\"arr\":[1,2,3],\"bool\":true,\"double\":1.11,\"byte\":1,\"obj\":{\"int\":2},\"char\":\"a\",\"int\":1,\"long\":1}";
+        System.out.println(obj.toJson());
         Assert.assertEquals(json, obj.toJson());
         obj = BElement.ofJson(json);
         assertObject(obj);
 
         var map = obj.toMap();
-        Assert.assertEquals(1, map.get("int"));
+        Assert.assertEquals(1, ((Number) map.get("int")).intValue());
         Assert.assertEquals("hello", map.get("str"));
-        Assert.assertEquals(1, map.get("long"));
+        Assert.assertEquals(1l, map.get("long"));
         Assert.assertEquals("a", map.get("char"));
-        Assert.assertEquals(1.11, map.get("double"));
+        Assert.assertEquals(1.11, ((Number) map.get("double")).doubleValue(), 0.001);
         var list = (List<?>) map.get("arr");
-        Assert.assertArrayEquals(new Integer[] { 1, 2, 3 }, list.toArray());
+        Assert.assertArrayEquals(new Long[] { 1l, 2l, 3l }, list.toArray());
 
         obj = BElement.ofBytes(obj.toBytes());
         assertObject(obj);
@@ -75,7 +76,8 @@ public class BObjectUnitTest {
         Assert.assertEquals("hello", obj.getString("str", null));
         Assert.assertArrayEquals(new Integer[] { 1, 2, 3 }, //
                 obj.getArray("arr", BArray.ofEmpty()).stream() //
-                        .map(e -> e.asValue().getData()) //
+                        .map(BElement::asValue) //
+                        .map(BValue::getInteger) //
                         .toArray(size -> new Integer[size]));
         Assert.assertEquals(Long.valueOf(1L), obj.getLong("long", -1));
         Assert.assertEquals(Character.valueOf('a'), obj.getChar("char", '\0'));
@@ -136,13 +138,13 @@ public class BObjectUnitTest {
         var obj = BObject.of("id", 1) //
                 .setAny("abc", null) //
                 .setAny("_id", new int[] { 1, 2, 3 }) //
-                .setAny("byteArr", BValue.of(new byte[] {1, 2, 3, 4})) //
-;
+                .setAny("byteArr", BValue.of(new byte[] { 1, 2, 3, 4 })) //
+        ;
         var clone = BElement.ofBytes(obj.toBytes());
         Assert.assertNotNull(clone);
         Assert.assertTrue(clone.isObject());
         Assert.assertEquals(1, clone.asObject().getInteger("id").intValue());
-        Assert.assertArrayEquals(new byte[] {1, 2, 3, 4}, clone.asObject().getRaw("byteArr"));
+        Assert.assertArrayEquals(new byte[] { 1, 2, 3, 4 }, clone.asObject().getRaw("byteArr"));
         Assert.assertEquals(obj, clone);
     }
 
