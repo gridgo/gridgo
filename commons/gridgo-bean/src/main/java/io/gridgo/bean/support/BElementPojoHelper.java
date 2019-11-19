@@ -116,12 +116,10 @@ public class BElementPojoHelper {
     }
 
     public static <T> T bObjectToPojo(BObject src, @NonNull Class<T> type) {
-        if (src == null) {
+        if (src == null)
             return null;
-        }
         var proxy = PojoUtils.getSetterProxy(type);
-        T result = bObjectToPojo(src, type, proxy);
-        return result;
+        return bObjectToPojo(src, type, proxy);
     }
 
     public static <T> T bObjectToPojo(BObject src, Class<T> type, PojoSetterProxy proxy) {

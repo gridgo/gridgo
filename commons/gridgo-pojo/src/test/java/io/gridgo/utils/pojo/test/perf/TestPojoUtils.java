@@ -1,12 +1,12 @@
 package io.gridgo.utils.pojo.test.perf;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Map;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Map;
 
 import io.gridgo.utils.pojo.PojoFlattenIndicator;
 import io.gridgo.utils.pojo.PojoUtils;

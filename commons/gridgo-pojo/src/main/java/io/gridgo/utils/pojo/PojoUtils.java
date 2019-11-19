@@ -1,15 +1,8 @@
 package io.gridgo.utils.pojo;
 
-import static io.gridgo.utils.ArrayUtils.foreachArray;
-import static io.gridgo.utils.ClasspathUtils.scanForAnnotatedTypes;
-import static io.gridgo.utils.PrimitiveUtils.isPrimitive;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.END_ARRAY;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.END_MAP;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.KEY;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.KEY_NULL;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.START_ARRAY;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.START_MAP;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.VALUE;
+import org.cliffc.high_scale_lib.NonBlockingHashMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -22,9 +15,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.cliffc.high_scale_lib.NonBlockingHashMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static io.gridgo.utils.ArrayUtils.foreachArray;
+import static io.gridgo.utils.ClasspathUtils.scanForAnnotatedTypes;
+import static io.gridgo.utils.PrimitiveUtils.isPrimitive;
+import static io.gridgo.utils.pojo.PojoFlattenIndicator.END_ARRAY;
+import static io.gridgo.utils.pojo.PojoFlattenIndicator.END_MAP;
+import static io.gridgo.utils.pojo.PojoFlattenIndicator.KEY;
+import static io.gridgo.utils.pojo.PojoFlattenIndicator.KEY_NULL;
+import static io.gridgo.utils.pojo.PojoFlattenIndicator.START_ARRAY;
+import static io.gridgo.utils.pojo.PojoFlattenIndicator.START_MAP;
+import static io.gridgo.utils.pojo.PojoFlattenIndicator.VALUE;
 
 import io.gridgo.utils.ArrayUtils;
 import io.gridgo.utils.pojo.exception.RuntimeReflectiveOperationException;
