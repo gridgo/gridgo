@@ -16,6 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.dslplatform.json.JsonWriter;
 
+import io.gridgo.bean.BElement;
 import io.gridgo.bean.BReference;
 import lombok.AllArgsConstructor;
 
@@ -63,7 +64,7 @@ public class BReferenceJsonCodec implements JsonWriter.WriteObject<BReference> {
 
                 break;
             case VALUE:
-                writer.serializeObject(val);
+                writer.serializeObject(BElement.wrapAny(val));
                 tryWriteCommaAfterValue(writer, lengthStack, indexStack);
                 break;
             }

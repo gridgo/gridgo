@@ -17,6 +17,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import com.dslplatform.json.JsonWriter;
 
+import io.gridgo.bean.BElement;
 import io.gridgo.bean.BReference;
 import lombok.AllArgsConstructor;
 
@@ -67,7 +68,7 @@ public class BReferenceCompactJsonCodec extends BReferenceJsonCodec {
             case VALUE:
                 tryWriteComma(writer, waitingForComma);
                 tryWriteWaitingKey(writer, keyRef);
-                writer.serializeObject(val);
+                writer.serializeObject(BElement.wrapAny(val));
                 indexStack.peek().incrementAndGet();
                 waitingForComma.set(true);
                 break;
@@ -75,8 +76,8 @@ public class BReferenceCompactJsonCodec extends BReferenceJsonCodec {
         });
     }
 
-    private void tryWriteComma(JsonWriter writer, AtomicBoolean alreadyWriteValue) {
-        if (alreadyWriteValue.get())
+    private void tryWriteComma(JsonWriter writer, AtomicBoolean waitingForComma) {
+        if (waitingForComma.get())
             writer.writeByte(COMMA);
     }
 
