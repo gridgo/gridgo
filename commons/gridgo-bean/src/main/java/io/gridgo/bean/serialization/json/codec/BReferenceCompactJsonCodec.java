@@ -8,7 +8,7 @@ import static com.dslplatform.json.JsonWriter.OBJECT_START;
 import static com.dslplatform.json.JsonWriter.SEMI;
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.END_ARRAY;
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.START_ARRAY;
-import static io.gridgo.utils.pojo.PojoUtils.walkThroughGetter;
+import static io.gridgo.utils.pojo.PojoUtils.walkThroughGetterShallowly;
 
 import java.util.Stack;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -36,7 +36,7 @@ public class BReferenceCompactJsonCodec extends BReferenceJsonCodec {
         var keyRef = new AtomicReference<String>(null);
         var waitingForComma = new AtomicBoolean(false);
 
-        walkThroughGetter(reference, (indicator, val) -> {
+        walkThroughGetterShallowly(reference, (indicator, val) -> {
             switch (indicator) {
             case START_MAP:
             case START_ARRAY:

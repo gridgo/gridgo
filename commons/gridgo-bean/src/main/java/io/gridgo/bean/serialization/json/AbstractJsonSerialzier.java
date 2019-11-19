@@ -8,6 +8,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import com.dslplatform.json.DslJson;
+import com.dslplatform.json.JsonReader;
+import com.dslplatform.json.JsonWriter;
 import com.dslplatform.json.DslJson.Settings;
 
 import io.gridgo.bean.BElement;
@@ -32,6 +34,19 @@ public abstract class AbstractJsonSerialzier extends AbstractBSerializer {
         dslJson = new DslJson<>(settings);
         dslJson.registerWriter(BElement.class, omitDefaults ? COMPACT::write : NO_COMPACT::write);
         dslJson.registerReader(BElement.class, omitDefaults ? COMPACT::read : NO_COMPACT::read);
+        dslJson.registerReader(byte.class, this::readByte);
+        dslJson.registerWriter(byte.class, this::writeByte);
+        dslJson.registerReader(Byte.class, this::readByte);
+        dslJson.registerWriter(Byte.class, this::writeByte);
+    }
+
+    @SuppressWarnings("rawtypes")
+    private Object readByte(JsonReader reader) throws IOException {
+        return reader.read();
+    }
+
+    private void writeByte(JsonWriter writer, byte value) {
+        writer.writeByte(value);
     }
 
     @Override
@@ -51,7 +66,7 @@ public abstract class AbstractJsonSerialzier extends AbstractBSerializer {
             }
 
             dslJson.serialize(element, out);
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new BeanSerializationException("Cannot serialize element as json", e);
         }
     }
@@ -60,7 +75,7 @@ public abstract class AbstractJsonSerialzier extends AbstractBSerializer {
     public BElement deserialize(InputStream in) {
         try {
             return dslJson.deserialize(BElement.class, in);
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new BeanSerializationException("Cannot deserialize input data", e);
         }
     }

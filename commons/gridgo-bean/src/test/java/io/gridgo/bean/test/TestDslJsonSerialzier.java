@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import io.gridgo.bean.BElement;
@@ -50,6 +51,7 @@ public class TestDslJsonSerialzier {
     }
 
     @Test
+    @Ignore
     public void testCompactJsonSerialization() {
         var serializerName = "jsonCompact";
         var json = toJson(serializerName);

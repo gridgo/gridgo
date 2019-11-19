@@ -9,7 +9,7 @@ import static com.dslplatform.json.JsonWriter.SEMI;
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.END_ARRAY;
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.KEY_NULL;
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.START_ARRAY;
-import static io.gridgo.utils.pojo.PojoUtils.walkThroughGetter;
+import static io.gridgo.utils.pojo.PojoUtils.walkThroughGetterShallowly;
 
 import java.util.Stack;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -33,7 +33,7 @@ public class BReferenceJsonCodec implements JsonWriter.WriteObject<BReference> {
         var lengthStack = new Stack<Integer>();
         var indexStack = new Stack<AtomicInteger>();
 
-        walkThroughGetter(reference, (indicator, val) -> {
+        walkThroughGetterShallowly(reference, (indicator, val) -> {
             switch (indicator) {
             case START_MAP:
             case START_ARRAY:

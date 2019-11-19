@@ -4,11 +4,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.dslplatform.json.CompiledJson;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 @Data
+@CompiledJson
 @SuperBuilder
 @NoArgsConstructor
 public class SuperFoo {

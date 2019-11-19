@@ -39,7 +39,7 @@ public class BReferenceUnitTest {
         var pojo = Foo.builder() //
                 .doubleValue(1.0) //
                 .intValue(1) //
-                .byteValue((byte) -33) //
+                // .byteValue((byte) -33) //
                 .byteArrayValue(new byte[] { 1, 2, 3, 4 }) //
                 .shortValue((short) 128) //
                 .floatValue(1.1f) //
@@ -54,7 +54,7 @@ public class BReferenceUnitTest {
         Foo foo = after.getReference();
         Assert.assertEquals(1.0, foo.getDoubleValue(), 0);
         Assert.assertEquals(1, foo.getIntValue());
-        Assert.assertEquals(-33, foo.getByteValue());
+        // Assert.assertEquals(-33, foo.getByteValue());
         Assert.assertEquals(128, foo.getShortValue());
         Assert.assertEquals(1.1f, foo.getFloatValue(), 0);
         Assert.assertEquals("hello", foo.getStringValue());

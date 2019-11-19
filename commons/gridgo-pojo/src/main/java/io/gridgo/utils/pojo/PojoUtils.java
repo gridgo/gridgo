@@ -175,6 +175,77 @@ public class PojoUtils {
         walker.accept(END_MAP, length);
     }
 
+    public static final void walkThroughGetterShallowly(Object target, PojoFlattenWalker walker) {
+        walkThroughGetterShallowly(target, null, walker);
+    }
+
+    @SuppressWarnings({ "rawtypes" })
+    public static final void walkThroughGetterShallowly(Object target, PojoGetterProxy proxy,
+            PojoFlattenWalker walker) {
+        final Class<?> type;
+
+        if (target == null //
+                || isPrimitive(type = target.getClass()) //
+                || type == Date.class //
+                || type == java.sql.Date.class) {
+
+            walker.accept(VALUE, target);
+            return;
+        }
+
+        if (type.isArray()) {
+            int length = ArrayUtils.length(target);
+            walker.accept(START_ARRAY, length);
+            foreachArray(target, ele -> walkThroughGetter(ele, proxy, walker));
+            walker.accept(END_ARRAY, length);
+            return;
+        }
+
+        if (Collection.class.isInstance(target)) {
+            int length = ((Collection) target).size();
+            walker.accept(START_ARRAY, length);
+            var it = ((Collection) target).iterator();
+            while (it.hasNext())
+                walker.accept(VALUE, it.next());
+            walker.accept(END_ARRAY, length);
+            return;
+        }
+
+        if (Map.class.isInstance(target)) {
+            var map = (Map<?, ?>) target;
+            int size = map.size();
+            walker.accept(START_MAP, size);
+            var it = map.entrySet().iterator();
+            while (it.hasNext()) {
+                var entry = it.next();
+                var key = entry.getKey();
+                var value = entry.getValue();
+                if (value == null) {
+                    walker.accept(KEY_NULL, key);
+                } else {
+                    walker.accept(KEY, key);
+                    walker.accept(VALUE, value);
+                }
+            }
+            walker.accept(END_MAP, size);
+            return;
+        }
+
+        var _proxy = proxy != null ? proxy : getGetterProxy(type);
+        int length = _proxy.getFields().length;
+        walker.accept(START_MAP, length);
+        _proxy.walkThrough(target, (signature, value) -> {
+            var key = signature.getTransformedOrDefaultFieldName();
+            if (value == null) {
+                walker.accept(KEY_NULL, key);
+            } else {
+                walker.accept(KEY, key);
+                walker.accept(VALUE, value);
+            }
+        });
+        walker.accept(END_MAP, length);
+    }
+
     /**
      * when field have generic type declaration
      *
