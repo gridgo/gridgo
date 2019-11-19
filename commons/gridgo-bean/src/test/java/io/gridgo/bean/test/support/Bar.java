@@ -2,9 +2,8 @@ package io.gridgo.bean.test.support;
 
 import java.util.Map;
 
-import com.dslplatform.json.CompiledJson;
-
 import io.gridgo.bean.impl.BReferenceBeautifulPrint;
+import io.gridgo.utils.annotations.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,10 +14,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @BReferenceBeautifulPrint
-@CompiledJson
 public class Bar {
 
-    private boolean b;
+    private Boolean bool;
 
     private Map<String, Integer> map;
+
+    @Transient
+    public boolean isBool() {
+        return bool == null ? false : bool.booleanValue();
+    }
 }

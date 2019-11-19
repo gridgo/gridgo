@@ -20,18 +20,18 @@ public class BValueJsonCodec implements JsonCodec<BValue> {
             writer.writeNull();
             return;
         }
-        var data = value.getData();
-        if (Character.class.isInstance(data)) {
+        
+        switch (value.getType()) {
+        case CHAR:
             writer.writeString(value.getString());
-            return;
-        }
-
-        if (byte[].class.isInstance(data)) {
+            break;
+        case RAW:
             writer.writeString(ByteArrayUtils.toHex(value.getRaw(), "0x"));
-            return;
+            break;
+        default:
+            writer.serializeObject(value.getData());
+            break;        
         }
-
-        writer.serializeObject(data);
     }
 
     @Override

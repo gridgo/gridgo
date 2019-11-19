@@ -1,8 +1,6 @@
 package io.gridgo.bean.test.support;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-
+import io.gridgo.bean.impl.BReferenceBeautifulPrint;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,11 +11,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class ArbitraryPrecisionNumerical {
+@BReferenceBeautifulPrint
+public class DslJsonUnsupportedPojo {
 
-    private BigDecimal decimal;
-
-    private BigInteger integer;
-
-    private double d;
+    private boolean booleanVal;
+    private byte byteVal;
 }

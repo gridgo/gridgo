@@ -3,7 +3,7 @@ package io.gridgo.bean.serialization.json;
 import io.gridgo.bean.serialization.BSerializationPlugin;
 
 @BSerializationPlugin(DefaultJsonSerializer.NAME)
-public class DefaultJsonSerializer extends AbstractJsonSerialzier {
+public class DefaultJsonSerializer extends AbstractJsonSerializier {
 
     public static final String NAME = "json";
 

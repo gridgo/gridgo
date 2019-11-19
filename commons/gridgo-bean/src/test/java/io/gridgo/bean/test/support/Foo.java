@@ -2,8 +2,6 @@ package io.gridgo.bean.test.support;
 
 import java.util.Map;
 
-import com.dslplatform.json.CompiledJson;
-
 import io.gridgo.bean.impl.BReferenceBeautifulPrint;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,7 +11,6 @@ import lombok.experimental.SuperBuilder;
 
 @Data
 @SuperBuilder
-@CompiledJson
 @NoArgsConstructor
 @AllArgsConstructor
 @BReferenceBeautifulPrint

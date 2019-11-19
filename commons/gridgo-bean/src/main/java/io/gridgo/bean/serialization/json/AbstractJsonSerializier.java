@@ -3,13 +3,10 @@ package io.gridgo.bean.serialization.json;
 import static io.gridgo.bean.serialization.json.codec.BElementJsonCodec.COMPACT;
 import static io.gridgo.bean.serialization.json.codec.BElementJsonCodec.NO_COMPACT;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
 import com.dslplatform.json.DslJson;
-import com.dslplatform.json.JsonReader;
-import com.dslplatform.json.JsonWriter;
 import com.dslplatform.json.DslJson.Settings;
 
 import io.gridgo.bean.BElement;
@@ -19,34 +16,19 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public abstract class AbstractJsonSerialzier extends AbstractBSerializer {
+public abstract class AbstractJsonSerializier extends AbstractBSerializer {
 
     @NonNull
     private final DslJson<Object> dslJson;
 
-    protected AbstractJsonSerialzier(@NonNull JsonCompactMode compactMode) {
+    protected AbstractJsonSerializier(@NonNull JsonCompactMode compactMode) {
 
-        var omitDefaults = compactMode == JsonCompactMode.COMPACT;
-        var settings = new Settings<Object>() //
-                .includeServiceLoader() //
-                .skipDefaultValues(omitDefaults);
+        var skipNull = compactMode == JsonCompactMode.COMPACT;
+        var settings = new Settings<Object>().includeServiceLoader().skipDefaultValues(skipNull);
 
         dslJson = new DslJson<>(settings);
-        dslJson.registerWriter(BElement.class, omitDefaults ? COMPACT::write : NO_COMPACT::write);
-        dslJson.registerReader(BElement.class, omitDefaults ? COMPACT::read : NO_COMPACT::read);
-        dslJson.registerReader(byte.class, this::readByte);
-        dslJson.registerWriter(byte.class, this::writeByte);
-        dslJson.registerReader(Byte.class, this::readByte);
-        dslJson.registerWriter(Byte.class, this::writeByte);
-    }
-
-    @SuppressWarnings("rawtypes")
-    private Object readByte(JsonReader reader) throws IOException {
-        return reader.read();
-    }
-
-    private void writeByte(JsonWriter writer, byte value) {
-        writer.writeByte(value);
+        dslJson.registerWriter(BElement.class, skipNull ? COMPACT::write : NO_COMPACT::write);
+        dslJson.registerReader(BElement.class, skipNull ? COMPACT::read : NO_COMPACT::read);
     }
 
     @Override

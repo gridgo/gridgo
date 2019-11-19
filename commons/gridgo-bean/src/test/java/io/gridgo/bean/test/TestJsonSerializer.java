@@ -103,7 +103,7 @@ public class TestJsonSerializer {
                 .intArrayValue(new int[] { 1, 2, 3, 4 }) //
                 .doubleValue(0.123) //
                 .barValue(Bar.builder() //
-                        .b(true) //
+                        .bool(true) //
                         .build()) //
                 .build();
 
@@ -113,7 +113,7 @@ public class TestJsonSerializer {
 
         Assert.assertArrayEquals(foo.getIntArrayValue(), after.getIntArrayValue());
         Assert.assertEquals(foo.getDoubleValue(), after.getDoubleValue(), 0);
-        Assert.assertEquals(foo.getBarValue().isB(), after.getBarValue().isB());
+        Assert.assertEquals(foo.getBarValue().isBool(), after.getBarValue().isBool());
     }
 
     @Test

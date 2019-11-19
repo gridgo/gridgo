@@ -27,7 +27,7 @@ public class TestPojo {
                 .intArrayValue(new int[] { 1, 2, 3, 4 }) //
                 .doubleValue(0.123) //
                 .barValue(Bar.builder() //
-                        .b(true) //
+                        .bool(true) //
                         .build()) //
                 .intArrayList(Arrays.asList( //
                         new int[] { 1, 2, 3 }, //
@@ -37,7 +37,7 @@ public class TestPojo {
                         "longarr2", new long[] { 6l, 9l })) //
                 .barMap(Map.of( //
                         "key", Bar.builder() //
-                                .b(true) //
+                                .bool(true) //
                                 .map(Map.of("key1", 10)) //
                                 .build())) //
                 .build();

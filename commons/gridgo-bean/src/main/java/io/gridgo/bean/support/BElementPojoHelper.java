@@ -141,7 +141,7 @@ public class BElementPojoHelper {
     }
 
     public static <T> void fillToPojo(BObject src, T result, PojoSetterProxy proxy) {
-        proxy.walkThrough(result, (signature) -> doFillPojo(src, signature));
+        proxy.walkThrough(result, signature -> doFillPojo(src, signature));
     }
 
     private static Object doFillPojo(BObject src, PojoMethodSignature signature) {

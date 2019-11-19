@@ -43,8 +43,9 @@ public class BObjectUnitTest {
         Assert.assertTrue(obj.getBoolean("bool", false));
 
         var json = "{\"str\":\"hello\",\"arr\":[1,2,3],\"bool\":true,\"double\":1.11,\"byte\":1,\"obj\":{\"int\":2},\"char\":\"a\",\"int\":1,\"long\":1}";
-        System.out.println(obj.toJson());
-        Assert.assertEquals(json, obj.toJson());
+        var json2 = obj.toJson();
+        System.out.println(json2);
+        Assert.assertEquals(json, json2);
         obj = BElement.ofJson(json);
         assertObject(obj);
 
@@ -89,14 +90,14 @@ public class BObjectUnitTest {
 
     @Test
     public void testPojoRecursive() {
-        var bar = Bar.builder().b(true).build();
+        var bar = Bar.builder().bool(true).build();
         var pojo = Foo.builder().doubleValue(1.0).intValue(1).stringValue("hello").barValue(bar).build();
         BObject bObject = BObject.ofPojo(pojo);
         var deserialized = bObject.toPojo(Foo.class);
         Assert.assertEquals(pojo.getDoubleValue(), deserialized.getDoubleValue(), 0.0);
         Assert.assertEquals(pojo.getIntValue(), deserialized.getIntValue());
         Assert.assertEquals(pojo.getStringValue(), deserialized.getStringValue());
-        Assert.assertEquals(pojo.getBarValue().isB(), deserialized.getBarValue().isB());
+        Assert.assertEquals(pojo.getBarValue().isBool(), deserialized.getBarValue().isBool());
         var wrapped = BObject.ofEmpty().setAnyPojo("k1", pojo);
         Assert.assertEquals(pojo.getDoubleValue(), wrapped.getObject("k1").getDouble("doubleValue"), 0);
         Assert.assertEquals(pojo.getIntValue(), (int) wrapped.getObject("k1").getInteger("intValue"));
