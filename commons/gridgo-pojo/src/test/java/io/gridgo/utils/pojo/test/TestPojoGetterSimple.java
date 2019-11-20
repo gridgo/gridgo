@@ -1,12 +1,14 @@
 package io.gridgo.utils.pojo.test;
 
-import static org.junit.Assert.assertEquals;
-
+import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 import io.gridgo.utils.pojo.PojoUtils;
 import io.gridgo.utils.pojo.test.support.AbstractTest;
 import io.gridgo.utils.pojo.test.support.PrimitiveVO;
+import io.gridgo.utils.pojo.test.support.TransientVO;
 
 public class TestPojoGetterSimple extends AbstractTest {
 
@@ -109,5 +111,12 @@ public class TestPojoGetterSimple extends AbstractTest {
 
         var got = PojoUtils.getValue(target, fieldName);
         assertEquals(value, got);
+    }
+
+    @Test
+    public void testTransient() {
+        var transientVO = new TransientVO(true, true);
+        Assert.assertNull(PojoUtils.getValue(transientVO, "transientValue"));
+        Assert.assertTrue((boolean) PojoUtils.getValue(transientVO, "booleanValue"));
     }
 }

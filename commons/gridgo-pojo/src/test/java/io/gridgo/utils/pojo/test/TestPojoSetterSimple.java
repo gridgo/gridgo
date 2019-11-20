@@ -1,12 +1,14 @@
 package io.gridgo.utils.pojo.test;
 
-import static org.junit.Assert.assertEquals;
-
+import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 import io.gridgo.utils.pojo.PojoUtils;
 import io.gridgo.utils.pojo.test.support.AbstractTest;
 import io.gridgo.utils.pojo.test.support.PrimitiveVO;
+import io.gridgo.utils.pojo.test.support.TransientVO;
 
 public class TestPojoSetterSimple extends AbstractTest {
 
@@ -78,7 +80,7 @@ public class TestPojoSetterSimple extends AbstractTest {
     @Test
     public void testSimpleDouble() throws Exception {
         String fieldName = "doubleValue";
-        var value = (double) 10.1;
+        var value = 10.1;
 
         PojoUtils.setValue(target, fieldName, value);
         assertEquals(value, target.getDoubleValue(), 0.01);
@@ -91,5 +93,14 @@ public class TestPojoSetterSimple extends AbstractTest {
 
         PojoUtils.setValue(target, fieldName, value);
         assertEquals(value, target.getStringValue());
+    }
+
+    @Test
+    public void testTransient() {
+        var transientVO = new TransientVO(false, false);
+        PojoUtils.setValue(transientVO, "transientValue", true);
+        PojoUtils.setValue(transientVO, "booleanValue", true);
+        Assert.assertFalse(transientVO.isTransientValue());
+        Assert.assertTrue(transientVO.isBooleanValue());
     }
 }
