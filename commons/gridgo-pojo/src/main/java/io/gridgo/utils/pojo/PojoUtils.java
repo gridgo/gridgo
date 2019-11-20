@@ -92,10 +92,6 @@ public class PojoUtils {
         return SETTER_REGISTRY.getSetterProxy(type);
     }
 
-    public static final void walkThroughGetter(Object target, PojoFlattenWalker walker) {
-        walkThroughGetter(target, null, walker);
-    }
-
     @SuppressWarnings({ "rawtypes", "unchecked" })
     private static final void walk(Object target, PojoGetterProxy proxy, PojoFlattenWalker walker, boolean shallowly) {
         final Class<?> type;
@@ -179,6 +175,10 @@ public class PojoUtils {
             }
         });
         walker.accept(END_MAP, length);
+    }
+
+    public static final void walkThroughGetter(Object target, PojoFlattenWalker walker) {
+        walkThroughGetter(target, null, walker);
     }
 
     public static final void walkThroughGetter(Object target, PojoGetterProxy proxy, PojoFlattenWalker walker) {
