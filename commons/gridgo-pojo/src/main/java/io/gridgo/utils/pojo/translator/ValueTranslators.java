@@ -97,7 +97,7 @@ public class ValueTranslators implements ClasspathScanner {
     public ValueTranslator lookupMandatory(@NonNull String key) {
         var result = lookup(key);
         if (result == null)
-            throw new NullPointerException("ValueTranslator cannot be found for key: " + key);
+            throw new RuntimeException("ValueTranslator cannot be found for key: " + key);
         return result;
     }
 }

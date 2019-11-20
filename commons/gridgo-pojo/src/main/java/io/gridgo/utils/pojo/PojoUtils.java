@@ -161,8 +161,9 @@ public class PojoUtils {
         _proxy.walkThrough(target, (signature, value) -> {
             var key = signature.getTransformedOrDefaultFieldName();
 
-            if (signature.getValueTranslator() != null && signature.getValueTranslator().canApply(value))
-                value = signature.getValueTranslator().translate(value);
+            var valueTranslator = signature.getValueTranslator();
+            if (valueTranslator != null && valueTranslator.translatable(value))
+                value = valueTranslator.translate(value);
 
             if (value == null) {
                 walker.accept(KEY_NULL, key);

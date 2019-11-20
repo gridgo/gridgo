@@ -4,7 +4,7 @@ public interface ValueTranslator<From, To> {
 
     To translate(From obj);
 
-    default boolean canApply(Object obj) {
+    default boolean translatable(Object obj) {
         return true;
     }
 }

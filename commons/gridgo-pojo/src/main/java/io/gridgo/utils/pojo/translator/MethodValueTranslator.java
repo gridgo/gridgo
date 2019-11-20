@@ -4,8 +4,7 @@ import java.lang.reflect.Method;
 
 import lombok.NonNull;
 
-@SuppressWarnings("rawtypes")
-public class MethodValueTranslator implements ValueTranslator {
+public class MethodValueTranslator implements ValueTranslator<Object, Object> {
 
     private final FunctionAccessor accessor;
     private final Class<?> acceptedType;
@@ -20,7 +19,7 @@ public class MethodValueTranslator implements ValueTranslator {
     }
 
     @Override
-    public boolean canApply(Object obj) {
+    public boolean translatable(Object obj) {
         return acceptedType.isInstance(obj);
     }
 
