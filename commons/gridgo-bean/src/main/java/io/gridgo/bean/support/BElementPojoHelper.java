@@ -151,7 +151,7 @@ public class BElementPojoHelper {
                 ? src.getOrDefault(transformedFieldName, () -> src.getOrDefault(fieldName, () -> null)) //
                 : src.getOrDefault(fieldName, () -> null);
 
-        if (signature.getValueTranslator() != null)
+        if (signature.getValueTranslator() != null && signature.getValueTranslator().canApply(value))
             return signature.getValueTranslator().translate(value);
 
         if (value == null)

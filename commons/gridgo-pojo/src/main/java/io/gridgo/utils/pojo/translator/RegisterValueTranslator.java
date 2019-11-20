@@ -11,5 +11,5 @@ import java.lang.annotation.Target;
 @Target({ TYPE, METHOD })
 public @interface RegisterValueTranslator {
 
-    String value();
+    String value() default "";
 }

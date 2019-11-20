@@ -4,7 +4,6 @@ import static io.gridgo.utils.ClasspathUtils.scanForAnnotatedMethods;
 import static io.gridgo.utils.ClasspathUtils.scanForAnnotatedTypes;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Map;
@@ -68,37 +67,7 @@ public class ValueTranslators implements ClasspathScanner {
     }
 
     private void acceptAnnotatedMethod(@NonNull Method method, @NonNull RegisterValueTranslator annotation) {
-        var modifiers = method.getModifiers();
-        var methodNameAnDeclaringClass = method.getName() + ", " + method.getDeclaringClass();
-        if (!Modifier.isStatic(modifiers))
-            throw new IllegalArgumentException(
-                    "method to be registered as value translator must be static: " + methodNameAnDeclaringClass);
-
-        if (!Modifier.isPublic(modifiers))
-            throw new IllegalArgumentException(
-                    "method to be registered as value translator must be public: " + methodNameAnDeclaringClass);
-
-        if (Modifier.isAbstract(modifiers))
-            throw new IllegalArgumentException(
-                    "method to be registered as value translator cannot be abstract: " + methodNameAnDeclaringClass);
-
-        var returnType = method.getReturnType();
-        if (returnType == Void.class || returnType == void.class)
-            throw new IllegalArgumentException(
-                    "method to be registered as value translator must return non-void: " + methodNameAnDeclaringClass);
-
-        if (method.getParameterCount() != 1)
-            throw new IllegalArgumentException(
-                    "method to be registered as value translator must accept 1 and only 1 parameter: "
-                            + methodNameAnDeclaringClass);
-
-        register(annotation.value(), from -> {
-            try {
-                return method.invoke(null, from);
-            } catch (Exception e) {
-                throw new RuntimeException("Error while invoke value translator", e);
-            }
-        });
+        register(annotation.value(), new MethodValueTranslator(method));
     }
 
     private void acceptAnnotatedClass(@NonNull Class<?> clz, @NonNull RegisterValueTranslator annotation) {
