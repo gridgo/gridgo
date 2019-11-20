@@ -43,7 +43,7 @@ public abstract class AbstractMethodSignatureExtractor implements MethodSignatur
         for (Method method : methods) {
             String methodName = method.getName();
 
-            if (isApplicable(method, methodName)) {
+            if (isApplicable(method)) {
                 var fieldName = extractFieldName(methodName);
 
                 if (!isTransient(method, fieldName)) {
@@ -98,10 +98,10 @@ public abstract class AbstractMethodSignatureExtractor implements MethodSignatur
         return null;
     }
 
-    private Field getCorespondingField(Method method, String interpretedFieldName) {
+    protected Field getCorespondingField(Method method, String interpretedFieldName) {
         var returnType = method.getReturnType();
         String booleanFieldName = null;
-        if (returnType == Boolean.class || returnType == Boolean.TYPE)
+        if (returnType == Boolean.class || returnType == boolean.class)
             booleanFieldName = "is" + upperCaseFirstLetter(interpretedFieldName);
         return getDeclaredField(method.getDeclaringClass(), interpretedFieldName, booleanFieldName);
     }
@@ -137,7 +137,7 @@ public abstract class AbstractMethodSignatureExtractor implements MethodSignatur
         return false;
     }
 
-    protected abstract boolean isApplicable(Method method, String methodName);
+    protected abstract boolean isApplicable(Method method);
 
     protected abstract String extractFieldName(String methodName);
 

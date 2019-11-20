@@ -21,6 +21,7 @@ import lombok.Setter;
 
 @Getter
 @Setter(PACKAGE)
+@SuppressWarnings("rawtypes")
 public final class PojoMethodSignature {
 
     private final @NonNull Method method;

@@ -1,7 +1,7 @@
 package io.gridgo.utils.pojo.translator;
 
 @FunctionalInterface
-public interface ValueTranslator {
+public interface ValueTranslator<From, To> {
 
-    Object translate(Object obj);
+    To translate(From obj);
 }

@@ -7,7 +7,7 @@ import io.gridgo.bean.BElement;
 import io.gridgo.bean.BObject;
 import io.gridgo.bean.BValue;
 import io.gridgo.utils.annotations.Transient;
-import io.gridgo.utils.pojo.translator.UseValueTranslator;
+import io.gridgo.utils.pojo.translator.OnSetTranslate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,13 +19,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor(access = PRIVATE)
 public class PojoWithBElement {
 
-    @UseValueTranslator("toBValue")
+    @OnSetTranslate("toBValue")
     private BValue bValue;
 
-    @UseValueTranslator("toBObject")
+    @OnSetTranslate("toBObject")
     private BObject bObject;
 
-    @UseValueTranslator("toBArray")
+    @OnSetTranslate("toBArray")
     private BArray bArray;
 
     @Transient

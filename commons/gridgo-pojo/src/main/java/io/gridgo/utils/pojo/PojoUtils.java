@@ -1,7 +1,6 @@
 package io.gridgo.utils.pojo;
 
 import static io.gridgo.utils.ArrayUtils.foreachArray;
-import static io.gridgo.utils.ClasspathUtils.scanForAnnotatedTypes;
 import static io.gridgo.utils.PrimitiveUtils.isPrimitive;
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.END_ARRAY;
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.END_MAP;
@@ -22,10 +21,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.cliffc.high_scale_lib.NonBlockingHashMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.gridgo.utils.ArrayUtils;
 import io.gridgo.utils.pojo.exception.RuntimeReflectiveOperationException;
 import io.gridgo.utils.pojo.getter.PojoFlattenWalker;
@@ -33,22 +28,14 @@ import io.gridgo.utils.pojo.getter.PojoGetterProxy;
 import io.gridgo.utils.pojo.getter.PojoGetterRegistry;
 import io.gridgo.utils.pojo.setter.PojoSetterProxy;
 import io.gridgo.utils.pojo.setter.PojoSetterRegistry;
-import io.gridgo.utils.pojo.translator.RegisterValueTranslator;
-import io.gridgo.utils.pojo.translator.ValueTranslator;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class PojoUtils {
-
-    private static final Logger log = LoggerFactory.getLogger(PojoUtils.class);
-
-    private static final Map<String, ValueTranslator> VALUE_TRANSLATOR_REGISTRY = new NonBlockingHashMap<>();
 
     private static final PojoGetterRegistry GETTER_REGISTRY = PojoGetterRegistry.DEFAULT;
     private static final PojoSetterRegistry SETTER_REGISTRY = PojoSetterRegistry.DEFAULT;
-
-    static {
-        scanForValueTranslators("io.gridgo");
-    }
 
     public static String extractMethodDescriptor(Method method) {
         String sig;
@@ -109,7 +96,7 @@ public class PojoUtils {
         walkThroughGetter(target, null, walker);
     }
 
-    @SuppressWarnings({ "rawtypes" })
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public static final void walkThroughGetter(Object target, PojoGetterProxy proxy, PojoFlattenWalker walker) {
         final Class<?> type;
 
@@ -165,6 +152,9 @@ public class PojoUtils {
         walker.accept(START_MAP, length);
         _proxy.walkThrough(target, (signature, value) -> {
             var key = signature.getTransformedOrDefaultFieldName();
+            if (signature.getValueTranslator() != null)
+                value = signature.getValueTranslator().translate(value);
+
             if (value == null) {
                 walker.accept(KEY_NULL, key);
             } else {
@@ -179,7 +169,7 @@ public class PojoUtils {
         walkThroughGetterShallowly(target, null, walker);
     }
 
-    @SuppressWarnings({ "rawtypes" })
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public static final void walkThroughGetterShallowly(Object target, PojoGetterProxy proxy,
             PojoFlattenWalker walker) {
         final Class<?> type;
@@ -236,6 +226,9 @@ public class PojoUtils {
         walker.accept(START_MAP, length);
         _proxy.walkThrough(target, (signature, value) -> {
             var key = signature.getTransformedOrDefaultFieldName();
+            if (signature.getValueTranslator() != null)
+                value = signature.getValueTranslator().translate(value);
+
             if (value == null) {
                 walker.accept(KEY_NULL, key);
             } else {
@@ -320,38 +313,6 @@ public class PojoUtils {
                     output.add((Class<?>) parameterArgType);
             }
         }
-    }
-
-    public static void scanForValueTranslators(String packageName, ClassLoader... classLoaders) {
-        scanForAnnotatedTypes(packageName, RegisterValueTranslator.class,
-                (clz, annotation) -> registerValueTranslator(annotation.value(), clz), classLoaders);
-    }
-
-    public static ValueTranslator registerValueTranslator(@NonNull String key, @NonNull Class<?> clazz) {
-        try {
-            return registerValueTranslator(key, (ValueTranslator) clazz.getConstructor().newInstance());
-        } catch (Exception e) {
-            throw new RuntimeException("Invalid registered translator type: " + clazz + " for key: `" + key + "`");
-        }
-    }
-
-    public static ValueTranslator registerValueTranslator(@NonNull String key, @NonNull ValueTranslator translator) {
-        return VALUE_TRANSLATOR_REGISTRY.putIfAbsent(key, translator);
-    }
-
-    public static ValueTranslator unregisterValueTranslator(@NonNull String key) {
-        return VALUE_TRANSLATOR_REGISTRY.remove(key);
-    }
-
-    public static ValueTranslator lookupValueTranslator(@NonNull String key) {
-        return VALUE_TRANSLATOR_REGISTRY.get(key);
-    }
-
-    public static ValueTranslator lookupValueTranslatorMandatory(@NonNull String key) {
-        var result = VALUE_TRANSLATOR_REGISTRY.get(key);
-        if (result == null)
-            throw new NullPointerException("ValueTranslator cannot be found for key: " + key);
-        return result;
     }
 
     @SuppressWarnings("unchecked")

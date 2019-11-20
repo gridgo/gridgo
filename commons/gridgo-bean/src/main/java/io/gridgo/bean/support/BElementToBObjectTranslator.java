@@ -1,14 +1,15 @@
 package io.gridgo.bean.support;
 
 import io.gridgo.bean.BElement;
+import io.gridgo.bean.BObject;
 import io.gridgo.utils.pojo.translator.RegisterValueTranslator;
 import io.gridgo.utils.pojo.translator.ValueTranslator;
 
-@RegisterValueTranslator("toBObject")
-public class BElementToBObjectTranslator implements ValueTranslator {
+@RegisterValueTranslator(value = "toBObject")
+public class BElementToBObjectTranslator implements ValueTranslator<BElement, BObject> {
 
     @Override
-    public Object translate(Object obj) {
+    public BObject translate(BElement obj) {
         if (obj == null)
             return null;
         return ((BElement) obj).asObject();

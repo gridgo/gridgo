@@ -144,6 +144,7 @@ public class BElementPojoHelper {
         proxy.walkThrough(result, signature -> doFillPojo(src, signature));
     }
 
+    @SuppressWarnings("unchecked")
     private static Object doFillPojo(BObject src, PojoMethodSignature signature) {
         var fieldName = signature.getFieldName();
         var transformedFieldName = signature.getTransformedFieldName();

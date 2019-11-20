@@ -1,16 +1,20 @@
 package io.gridgo.utils.pojo.getter;
 
+import static io.gridgo.utils.StringUtils.lowerCaseFirstLetter;
+import static java.lang.reflect.Modifier.isPublic;
+
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import static io.gridgo.utils.StringUtils.lowerCaseFirstLetter;
-
 import io.gridgo.utils.pojo.AbstractMethodSignatureExtractor;
 import io.gridgo.utils.pojo.MethodSignatureExtractor;
 import io.gridgo.utils.pojo.PojoMethodSignature;
+import io.gridgo.utils.pojo.translator.OnGetTranslate;
+import io.gridgo.utils.pojo.translator.ValueTranslator;
+import io.gridgo.utils.pojo.translator.ValueTranslators;
+import lombok.NonNull;
 
 public class GetterMethodSignatureExtractor extends AbstractMethodSignatureExtractor {
 
@@ -31,22 +35,25 @@ public class GetterMethodSignatureExtractor extends AbstractMethodSignatureExtra
     @Override
     protected PojoMethodSignature extract(Class<?> targetType, Method method, String fieldName, String transformRule,
             Set<String> ignoredFields) {
-        Class<?> signatureType = method.getReturnType();
 
-        String transformedFieldName = transformFieldName(targetType, method, fieldName, transformRule, ignoredFields, signatureType);
+        var signatureType = method.getReturnType();
+        var transformedFieldName = transformFieldName(targetType, method, fieldName, transformRule, ignoredFields,
+                signatureType);
 
         return PojoMethodSignature.builder() //
                 .method(method) //
                 .fieldType(signatureType) //
                 .fieldName(fieldName) //
                 .transformedFieldName(transformedFieldName) //
+                .valueTranslator(extractValueTranslator(method, fieldName)) //
                 .build();
     }
 
     @Override
-    protected boolean isApplicable(Method method, String methodName) {
+    protected boolean isApplicable(@NonNull Method method) {
+        var methodName = method.getName();
         var result = method.getParameterCount() == 0 //
-                && Modifier.isPublic(method.getModifiers()) //
+                && isPublic(method.getModifiers()) //
                 && method.getReturnType() != Void.TYPE //
                 && GETTER_PREFIXES.stream().anyMatch(prefix -> methodName.startsWith(prefix));
         if (!result)
@@ -54,5 +61,26 @@ public class GetterMethodSignatureExtractor extends AbstractMethodSignatureExtra
 
         int skip = methodName.startsWith("is") ? 2 : 3;
         return methodName.length() > skip;
+    }
+
+    @SuppressWarnings("rawtypes")
+    private ValueTranslator extractValueTranslator(Method method, String fieldName) {
+        var annotationType = OnGetTranslate.class;
+        if (method.isAnnotationPresent(annotationType)) {
+            var key = method.getAnnotation(annotationType).value();
+            return ValueTranslators.getInstance().lookupMandatory(key);
+        }
+
+        try {
+            var field = getCorespondingField(method, fieldName);
+            if (field.isAnnotationPresent(annotationType)) {
+                var key = field.getAnnotation(annotationType).value();
+                return ValueTranslators.getInstance().lookupMandatory(key);
+            }
+        } catch (Exception e) {
+            // do nothing
+        }
+
+        return null;
     }
 }
