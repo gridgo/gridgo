@@ -2,6 +2,7 @@ package io.gridgo.bean.impl;
 
 import java.util.Arrays;
 
+import io.gridgo.bean.BType;
 import io.gridgo.bean.BValue;
 import io.gridgo.bean.exceptions.InvalidTypeException;
 import io.gridgo.bean.serialization.text.BPrinter;
@@ -19,6 +20,10 @@ public class MutableBValue extends AbstractBElement implements BValue {
     @Getter
     private Object data;
 
+    @Getter
+    @Transient
+    private transient BType type = null;
+
     @Transient
     private transient int hashCode;
 
@@ -35,6 +40,7 @@ public class MutableBValue extends AbstractBElement implements BValue {
     @Override
     public void setData(Object data) {
         this.data = data;
+        this.type = BValue.super.getType();
         this.hashCodeFlag = true;
     }
 

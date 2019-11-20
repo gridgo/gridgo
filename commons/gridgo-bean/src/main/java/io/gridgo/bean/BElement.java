@@ -53,13 +53,17 @@ public interface BElement extends BSerializerRegistryAware, BJsonSupport, BXmlSu
         return ofBytes(bytes, null);
     }
 
-    boolean isContainer();
+    default boolean isContainer() {
+        return false;
+    }
 
     default boolean isNullValue() {
         return this.isValue() && this.asValue().isNull();
     }
 
-    boolean isArray();
+    default boolean isArray() {
+        return false;
+    }
 
     default <T> T isArrayThen(Function<BArray, T> handler) {
         if (this.isArray()) {
@@ -74,7 +78,9 @@ public interface BElement extends BSerializerRegistryAware, BJsonSupport, BXmlSu
         }
     }
 
-    boolean isObject();
+    default boolean isObject() {
+        return false;
+    }
 
     default <T> T isObjectThen(Function<BObject, T> handler) {
         if (this.isObject()) {
@@ -89,7 +95,9 @@ public interface BElement extends BSerializerRegistryAware, BJsonSupport, BXmlSu
         }
     }
 
-    boolean isValue();
+    default boolean isValue() {
+        return false;
+    }
 
     default <T> T isValueThen(Function<BValue, T> handler) {
         if (this.isValue()) {
@@ -104,7 +112,9 @@ public interface BElement extends BSerializerRegistryAware, BJsonSupport, BXmlSu
         }
     }
 
-    boolean isReference();
+    default boolean isReference() {
+        return false;
+    }
 
     default <T> T isReferenceThen(Function<BReference, T> handler) {
         if (this.isReference()) {

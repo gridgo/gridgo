@@ -127,7 +127,7 @@ public class BElementPojoHelper {
         try {
             result = type.getConstructor().newInstance();
         } catch (Exception e) {
-            throw new RuntimeException("Cannot convert BObject to POJO, cannot create instance of: " + type.getName(),
+            throw new RuntimeException("Convert BObject to POJO errored, cannot create instance of: " + type.getName(),
                     e);
         }
         fillToPojo(src, result, proxy);

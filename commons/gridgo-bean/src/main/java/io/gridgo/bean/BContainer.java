@@ -14,24 +14,4 @@ public interface BContainer extends BElement, BFactoryAware {
     default boolean isContainer() {
         return true;
     }
-
-    @Override
-    default boolean isValue() {
-        return false;
-    }
-
-    @Override
-    default boolean isObject() {
-        return false;
-    }
-
-    @Override
-    default boolean isArray() {
-        return false;
-    }
-
-    @Override
-    default boolean isReference() {
-        return false;
-    }
 }
