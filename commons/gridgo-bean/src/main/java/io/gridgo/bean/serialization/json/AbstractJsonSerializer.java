@@ -16,12 +16,12 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public abstract class AbstractJsonSerializier extends AbstractBSerializer {
+public abstract class AbstractJsonSerializer extends AbstractBSerializer {
 
     @NonNull
     private final DslJson<Object> dslJson;
 
-    protected AbstractJsonSerializier(@NonNull JsonCompactMode compactMode) {
+    protected AbstractJsonSerializer(@NonNull JsonCompactMode compactMode) {
 
         var skipNull = compactMode == JsonCompactMode.COMPACT;
         var settings = new Settings<Object>().includeServiceLoader().skipDefaultValues(skipNull);
