@@ -13,10 +13,6 @@ import lombok.NonNull;
 
 public interface BSerializer {
 
-    default int getMinimumOutputCapactity() {
-        return 1024;
-    }
-
     void serialize(BElement element, OutputStream out);
 
     default void serialize(BElement element, ByteBuffer out) {
