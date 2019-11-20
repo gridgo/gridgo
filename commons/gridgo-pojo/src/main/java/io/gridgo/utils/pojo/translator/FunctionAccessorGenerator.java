@@ -12,28 +12,22 @@ class FunctionAccessorGenerator {
 
     static FunctionAccessor generate(Method method) throws Exception {
         var modifiers = method.getModifiers();
-        var methodNameAnDeclaringClass = method.getName() + ", " + method.getDeclaringClass();
+        var methodInfo = method.getName() + ", " + method.getDeclaringClass();
         if (!Modifier.isStatic(modifiers))
-            throw new IllegalArgumentException(
-                    "method to be registered as value translator must be static: " + methodNameAnDeclaringClass);
+            throw new IllegalArgumentException("method must be static: " + methodInfo);
 
         if (!Modifier.isPublic(modifiers))
-            throw new IllegalArgumentException(
-                    "method to be registered as value translator must be public: " + methodNameAnDeclaringClass);
+            throw new IllegalArgumentException("method must be public: " + methodInfo);
 
         if (Modifier.isAbstract(modifiers))
-            throw new IllegalArgumentException(
-                    "method to be registered as value translator cannot be abstract: " + methodNameAnDeclaringClass);
+            throw new IllegalArgumentException("method cannot be abstract: " + methodInfo);
 
         var returnType = method.getReturnType();
         if (returnType == Void.class || returnType == void.class)
-            throw new IllegalArgumentException(
-                    "method to be registered as value translator must return non-void: " + methodNameAnDeclaringClass);
+            throw new IllegalArgumentException("method must return non-void: " + methodInfo);
 
         if (method.getParameterCount() != 1)
-            throw new IllegalArgumentException(
-                    "method to be registered as value translator must accept 1 and only 1 parameter: "
-                            + methodNameAnDeclaringClass);
+            throw new IllegalArgumentException("method must accept 1 and only 1 parameter: " + methodInfo);
 
         return buildApplyMethod(method);
     }
