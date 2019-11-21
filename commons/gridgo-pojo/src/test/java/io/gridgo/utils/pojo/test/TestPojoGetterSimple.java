@@ -1,12 +1,18 @@
 package io.gridgo.utils.pojo.test;
 
-import static org.junit.Assert.assertEquals;
-
+import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.HashSet;
+
+import static org.junit.Assert.assertEquals;
+
 import io.gridgo.utils.pojo.PojoUtils;
+import io.gridgo.utils.pojo.getter.PojoGetterProxy;
 import io.gridgo.utils.pojo.test.support.AbstractTest;
 import io.gridgo.utils.pojo.test.support.PrimitiveVO;
+import io.gridgo.utils.pojo.test.support.TransientVO;
 
 public class TestPojoGetterSimple extends AbstractTest {
 
@@ -109,5 +115,27 @@ public class TestPojoGetterSimple extends AbstractTest {
 
         var got = PojoUtils.getValue(target, fieldName);
         assertEquals(value, got);
+    }
+
+    @Test
+    public void testTransient() {
+        var transientVO = new TransientVO(true, true);
+        Assert.assertNull(PojoUtils.getValue(transientVO, "transientValue"));
+        Assert.assertTrue((boolean) PojoUtils.getValue(transientVO, "booleanValue"));
+    }
+
+    @Test
+    public void testWalkthrough() {
+        var set = new HashSet<>(Arrays.asList("booleanValue", "stringValue", //
+                "intValue", "charValue", "doubleValue", "floatValue", //
+                "byteValue", "longValue", "shortValue"));
+        var proxy = PojoUtils.getGetterProxy(PrimitiveVO.class);
+        proxy.walkThrough(target, (signature, value) -> {
+            String fieldName = signature.getTransformedOrDefaultFieldName();
+            PojoGetterProxy getterProxy = signature.getGetterProxy();
+            Assert.assertTrue(set.remove(fieldName));
+            Assert.assertNull(getterProxy);
+        });
+        Assert.assertTrue(set.isEmpty());
     }
 }

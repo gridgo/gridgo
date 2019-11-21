@@ -1,11 +1,11 @@
 package io.gridgo.utils.pojo.setter;
 
-import static io.gridgo.utils.StringUtils.lowerCaseFirstLetter;
-import static java.lang.reflect.Modifier.isPublic;
-
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Set;
+
+import static io.gridgo.utils.StringUtils.lowerCaseFirstLetter;
+import static java.lang.reflect.Modifier.isPublic;
 
 import io.gridgo.utils.pojo.AbstractMethodSignatureExtractor;
 import io.gridgo.utils.pojo.MethodSignatureExtractor;
@@ -65,14 +65,12 @@ public class SetterMethodSignatureExtractor extends AbstractMethodSignatureExtra
             return ValueTranslators.getInstance().lookupMandatory(key);
         }
 
-        try {
-            var field = getCorespondingField(method, fieldName);
-            if (field.isAnnotationPresent(annotationType)) {
-                var key = field.getAnnotation(annotationType).value();
-                return ValueTranslators.getInstance().lookupMandatory(key);
-            }
-        } catch (Exception e) {
-            // do nothing
+        var field = getCorespondingField(method, fieldName);
+        if (field == null)
+            return null;
+        if (field.isAnnotationPresent(annotationType)) {
+            var key = field.getAnnotation(annotationType).value();
+            return ValueTranslators.getInstance().lookupMandatory(key);
         }
 
         return null;
