@@ -10,4 +10,11 @@ public class ValueTranslatedVO {
 
     @UseValueTranslator("toString")
     private String translatedValue;
+
+    private String translatedValue2;
+
+    @UseValueTranslator("toString")
+    public void setTranslatedValue2(String value) {
+        this.translatedValue2 = value;
+    }
 }
