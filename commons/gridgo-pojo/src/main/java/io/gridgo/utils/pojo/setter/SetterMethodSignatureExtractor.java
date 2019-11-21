@@ -1,16 +1,17 @@
 package io.gridgo.utils.pojo.setter;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.util.Set;
 
 import static io.gridgo.utils.StringUtils.lowerCaseFirstLetter;
-import static io.gridgo.utils.pojo.PojoUtils.lookupValueTranslator;
 
 import io.gridgo.utils.pojo.AbstractMethodSignatureExtractor;
 import io.gridgo.utils.pojo.MethodSignatureExtractor;
 import io.gridgo.utils.pojo.PojoMethodSignature;
+import io.gridgo.utils.pojo.ValueTranslatorRegistry;
 import io.gridgo.utils.pojo.translator.UseValueTranslator;
 import io.gridgo.utils.pojo.translator.ValueTranslator;
 
@@ -55,17 +56,26 @@ public class SetterMethodSignatureExtractor extends AbstractMethodSignatureExtra
     }
 
     private ValueTranslator extractValueTranslator(Method method, String fieldName) {
-        if (method.isAnnotationPresent(UseValueTranslator.class))
-            return lookupValueTranslator(method.getAnnotation(UseValueTranslator.class).value());
-
-        try {
-            var field = method.getDeclaringClass().getDeclaredField(fieldName);
-            if (field.isAnnotationPresent(UseValueTranslator.class))
-                return lookupValueTranslator(field.getAnnotation(UseValueTranslator.class).value());
-        } catch (Exception e) {
-            // do nothing
+        if (method.isAnnotationPresent(UseValueTranslator.class)) {
+            return ValueTranslatorRegistry.getInstance()
+                    .lookupValueTranslatorMandatory(method.getAnnotation(UseValueTranslator.class).value());
         }
 
+        Field field = getField(method, fieldName);
+        if (field == null)
+            return null;
+        if (field.isAnnotationPresent(UseValueTranslator.class)) {
+            return ValueTranslatorRegistry.getInstance()
+                    .lookupValueTranslatorMandatory(field.getAnnotation(UseValueTranslator.class).value());
+        }
         return null;
+    }
+
+    private Field getField(Method method, String fieldName) {
+        try {
+            return method.getDeclaringClass().getDeclaredField(fieldName);
+        } catch (NoSuchFieldException | SecurityException e) {
+            return null;
+        }
     }
 }
