@@ -9,6 +9,7 @@ import io.gridgo.utils.pojo.PojoUtils;
 import io.gridgo.utils.pojo.test.support.AbstractTest;
 import io.gridgo.utils.pojo.test.support.PrimitiveVO;
 import io.gridgo.utils.pojo.test.support.TransientVO;
+import io.gridgo.utils.pojo.test.support.ValueTranslatedVO;
 
 public class TestPojoSetterSimple extends AbstractTest {
 
@@ -102,5 +103,11 @@ public class TestPojoSetterSimple extends AbstractTest {
         PojoUtils.setValue(transientVO, "booleanValue", true);
         Assert.assertFalse(transientVO.isTransientValue());
         Assert.assertTrue(transientVO.isBooleanValue());
+    }
+
+    @Test
+    public void testValueTranslator() {
+        var translatedVO = new ValueTranslatedVO("1");
+        PojoUtils.setValue(translatedVO, "translatedValue", "1");
     }
 }
