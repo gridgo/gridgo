@@ -4,7 +4,6 @@ import java.util.Arrays;
 
 import io.gridgo.bean.BValue;
 import io.gridgo.bean.exceptions.InvalidTypeException;
-import io.gridgo.bean.serialization.text.BPrinter;
 import io.gridgo.utils.PrimitiveUtils;
 import io.gridgo.utils.annotations.Transient;
 import io.gridgo.utils.hash.BinaryHashCodeCalculator;
@@ -39,13 +38,6 @@ public class MutableBValue extends AbstractBElement implements BValue {
     }
 
     @Override
-    public String toString() {
-        StringBuilder writer = new StringBuilder();
-        BPrinter.print(writer, this);
-        return writer.toString();
-    }
-
-    @Override
     public boolean equals(Object obj) {
         var otherData = obj;
         if (obj instanceof BValue) {
@@ -65,10 +57,10 @@ public class MutableBValue extends AbstractBElement implements BValue {
             return ((Number) data).doubleValue() == ((Number) otherData).doubleValue();
 
         if (data instanceof String && otherData instanceof Character)
-            return data.equals(String.valueOf((Character) otherData));
+            return data.equals(String.valueOf(otherData));
 
         if (data instanceof Character && otherData instanceof String)
-            return otherData.equals(String.valueOf((Character) data));
+            return otherData.equals(String.valueOf(data));
 
         if (data instanceof byte[] && otherData instanceof byte[])
             return Arrays.equals((byte[]) data, (byte[]) otherData);
