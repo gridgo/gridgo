@@ -1,9 +1,9 @@
 package io.gridgo.bean.test;
 
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 import io.gridgo.bean.BArray;
 import io.gridgo.bean.BObject;
@@ -29,11 +29,7 @@ public class TestPojoWithBElement {
     @Test
     public void testToBelement() {
         var serialized = BElementPojoHelper.anyToBElement(pojo);
-        System.out.println(serialized);
-
         var deserialized = BElementPojoHelper.bObjectToPojo(serialized.asObject(), PojoWithBElement.class);
-        System.out.println(deserialized);
-
         assertEquals(pojo, deserialized);
     }
 }

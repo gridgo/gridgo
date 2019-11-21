@@ -12,7 +12,6 @@ import io.gridgo.utils.pojo.AbstractMethodSignatureExtractor;
 import io.gridgo.utils.pojo.MethodSignatureExtractor;
 import io.gridgo.utils.pojo.PojoMethodSignature;
 import io.gridgo.utils.pojo.ValueTranslatorRegistry;
-import io.gridgo.utils.pojo.exception.RuntimeReflectiveOperationException;
 import io.gridgo.utils.pojo.translator.UseValueTranslator;
 import io.gridgo.utils.pojo.translator.ValueTranslator;
 
@@ -63,6 +62,8 @@ public class SetterMethodSignatureExtractor extends AbstractMethodSignatureExtra
         }
 
         Field field = getField(method, fieldName);
+        if (field == null)
+            return null;
         if (field.isAnnotationPresent(UseValueTranslator.class)) {
             return ValueTranslatorRegistry.getInstance()
                     .lookupValueTranslatorMandatory(field.getAnnotation(UseValueTranslator.class).value());
@@ -74,7 +75,7 @@ public class SetterMethodSignatureExtractor extends AbstractMethodSignatureExtra
         try {
             return method.getDeclaringClass().getDeclaredField(fieldName);
         } catch (NoSuchFieldException | SecurityException e) {
-            throw new RuntimeReflectiveOperationException(e);
+            return null;
         }
     }
 }
