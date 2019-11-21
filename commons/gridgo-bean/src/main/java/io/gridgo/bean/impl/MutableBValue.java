@@ -57,10 +57,10 @@ public class MutableBValue extends AbstractBElement implements BValue {
             return ((Number) data).doubleValue() == ((Number) otherData).doubleValue();
 
         if (data instanceof String && otherData instanceof Character)
-            return data.equals(String.valueOf(otherData));
+            return data.equals(String.valueOf((Character) otherData));
 
         if (data instanceof Character && otherData instanceof String)
-            return otherData.equals(String.valueOf(data));
+            return otherData.equals(String.valueOf((Character) data));
 
         if (data instanceof byte[] && otherData instanceof byte[])
             return Arrays.equals((byte[]) data, (byte[]) otherData);
