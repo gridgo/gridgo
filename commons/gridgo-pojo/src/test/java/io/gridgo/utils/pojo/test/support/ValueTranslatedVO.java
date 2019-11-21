@@ -17,4 +17,8 @@ public class ValueTranslatedVO {
     public void setTranslatedValue2(String value) {
         this.translatedValue2 = value;
     }
+
+    public void setTranslatedValue3(String value) {
+
+    }
 }

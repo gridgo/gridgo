@@ -110,5 +110,6 @@ public class TestPojoSetterSimple extends AbstractTest {
         var translatedVO = new ValueTranslatedVO(null, null);
         PojoUtils.setValue(translatedVO, "translatedValue", "1");
         PojoUtils.setValue(translatedVO, "translatedValue2", "2");
+        PojoUtils.setValue(translatedVO, "translatedValue3", "3");
     }
 }
