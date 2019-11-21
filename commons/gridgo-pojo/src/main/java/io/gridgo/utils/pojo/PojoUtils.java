@@ -9,6 +9,8 @@ import static io.gridgo.utils.pojo.PojoFlattenIndicator.KEY_NULL;
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.START_ARRAY;
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.START_MAP;
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.VALUE;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -33,6 +35,8 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class PojoUtils {
+
+    private static final Logger log = LoggerFactory.getLogger(PojoUtils.class);
 
     private static final PojoGetterRegistry GETTER_REGISTRY = PojoGetterRegistry.DEFAULT;
     private static final PojoSetterRegistry SETTER_REGISTRY = PojoSetterRegistry.DEFAULT;

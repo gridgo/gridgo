@@ -12,4 +12,9 @@ public abstract class AbstractBElement implements BElement {
     @Getter
     @Transient
     private transient BSerializerRegistry serializerRegistry;
+
+    @Override
+    public String toString() {
+        return new String(this.toBytes("print"));
+    }
 }
