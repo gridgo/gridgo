@@ -4,7 +4,6 @@ import java.util.Arrays;
 
 import io.gridgo.bean.BValue;
 import io.gridgo.bean.exceptions.InvalidTypeException;
-import io.gridgo.bean.serialization.text.BPrinter;
 import io.gridgo.utils.PrimitiveUtils;
 import io.gridgo.utils.annotations.Transient;
 import io.gridgo.utils.hash.BinaryHashCodeCalculator;
@@ -36,13 +35,6 @@ public class MutableBValue extends AbstractBElement implements BValue {
     public void setData(Object data) {
         this.data = data;
         this.hashCodeFlag = true;
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder writer = new StringBuilder();
-        BPrinter.print(writer, this);
-        return writer.toString();
     }
 
     @Override

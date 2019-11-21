@@ -1,7 +1,6 @@
 package io.gridgo.bean.impl;
 
 import io.gridgo.bean.BReference;
-import io.gridgo.bean.serialization.text.BPrinter;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,13 +14,6 @@ public class MutableBReference extends AbstractBElement implements BReference {
     @Setter
     @Getter
     private Object reference;
-
-    @Override
-    public String toString() {
-        StringBuilder writer = new StringBuilder();
-        BPrinter.print(writer, this);
-        return writer.toString();
-    }
 
     @Override
     public boolean equals(Object obj) {
