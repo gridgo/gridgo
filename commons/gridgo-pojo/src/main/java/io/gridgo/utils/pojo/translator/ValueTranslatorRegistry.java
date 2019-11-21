@@ -1,4 +1,4 @@
-package io.gridgo.utils.pojo;
+package io.gridgo.utils.pojo.translator;
 
 import org.cliffc.high_scale_lib.NonBlockingHashMap;
 
@@ -7,8 +7,6 @@ import java.util.Map;
 import static io.gridgo.utils.ClasspathUtils.scanForAnnotatedTypes;
 
 import io.gridgo.utils.pojo.exception.PojoProxyException;
-import io.gridgo.utils.pojo.translator.RegisterValueTranslator;
-import io.gridgo.utils.pojo.translator.ValueTranslator;
 import lombok.NonNull;
 
 public class ValueTranslatorRegistry {
