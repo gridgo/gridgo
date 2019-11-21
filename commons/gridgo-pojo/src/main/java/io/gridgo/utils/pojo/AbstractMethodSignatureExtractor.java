@@ -1,9 +1,5 @@
 package io.gridgo.utils.pojo;
 
-import static io.gridgo.utils.StringUtils.upperCaseFirstLetter;
-import static io.gridgo.utils.format.StringFormatter.transform;
-import static io.gridgo.utils.pojo.PojoUtils.isSupported;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -15,6 +11,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static io.gridgo.utils.StringUtils.upperCaseFirstLetter;
+import static io.gridgo.utils.format.StringFormatter.transform;
+import static io.gridgo.utils.pojo.PojoUtils.isSupported;
 
 import io.gridgo.utils.annotations.Transient;
 import io.gridgo.utils.pojo.exception.InvalidFieldNameException;

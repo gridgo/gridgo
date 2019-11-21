@@ -1,17 +1,5 @@
 package io.gridgo.utils.pojo;
 
-import static io.gridgo.utils.ArrayUtils.foreachArray;
-import static io.gridgo.utils.PrimitiveUtils.isPrimitive;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.END_ARRAY;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.END_MAP;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.KEY;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.KEY_NULL;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.START_ARRAY;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.START_MAP;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.VALUE;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -22,6 +10,16 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
+import static io.gridgo.utils.ArrayUtils.foreachArray;
+import static io.gridgo.utils.PrimitiveUtils.isPrimitive;
+import static io.gridgo.utils.pojo.PojoFlattenIndicator.END_ARRAY;
+import static io.gridgo.utils.pojo.PojoFlattenIndicator.END_MAP;
+import static io.gridgo.utils.pojo.PojoFlattenIndicator.KEY;
+import static io.gridgo.utils.pojo.PojoFlattenIndicator.KEY_NULL;
+import static io.gridgo.utils.pojo.PojoFlattenIndicator.START_ARRAY;
+import static io.gridgo.utils.pojo.PojoFlattenIndicator.START_MAP;
+import static io.gridgo.utils.pojo.PojoFlattenIndicator.VALUE;
 
 import io.gridgo.utils.ArrayUtils;
 import io.gridgo.utils.pojo.exception.RuntimeReflectiveOperationException;
@@ -35,8 +33,6 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class PojoUtils {
-
-    private static final Logger log = LoggerFactory.getLogger(PojoUtils.class);
 
     private static final PojoGetterRegistry GETTER_REGISTRY = PojoGetterRegistry.DEFAULT;
     private static final PojoSetterRegistry SETTER_REGISTRY = PojoSetterRegistry.DEFAULT;
