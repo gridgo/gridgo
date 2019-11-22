@@ -26,7 +26,8 @@ public abstract class AbstractPojoProcessor<T> extends AbstractProcessor {
 
     @Override
     public void process(RoutingContext rc, GridgoContext gc) {
-        var body = rc.getMessage().body();
+        var msg = rc.getMessage();
+        var body = msg != null ? msg.body() : null;
         if (body != null && body.isArray()) {
             var request = convertBodyToList(body);
             processMulti(request, rc.getMessage(), rc.getDeferred(), gc);
