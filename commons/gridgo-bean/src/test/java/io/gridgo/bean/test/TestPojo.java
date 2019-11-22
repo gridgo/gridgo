@@ -12,7 +12,7 @@ import org.junit.Test;
 import io.gridgo.bean.BElement;
 import io.gridgo.bean.BObject;
 import io.gridgo.bean.BReference;
-import io.gridgo.bean.support.BElementPojoHelper;
+import io.gridgo.bean.pojo.BElementPojoHelper;
 import io.gridgo.bean.test.support.Bar;
 import io.gridgo.bean.test.support.Foo;
 import io.gridgo.bean.test.support.NumberCollectionPojo;

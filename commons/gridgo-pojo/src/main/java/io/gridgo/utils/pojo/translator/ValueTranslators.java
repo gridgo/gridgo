@@ -41,20 +41,16 @@ public class ValueTranslators implements ClasspathScanner {
         var list = new ArrayList<String>(packages);
         list.sort((s1, s2) -> s1.length() - s2.length());
 
-        var processed = new ArrayList<>();
+        var processed = new ArrayList<String>();
+        var contextClassLoader = Thread.currentThread().getContextClassLoader();
+
+        nextPackage: // for each package name, do...
         for (var packageName : list) {
-            boolean next = false;
-            for (var processedPackage : processed) {
-                if (packageName.startsWith(processedPackage + ".")) {
-                    next = true;
-                    break;
-                }
-            }
+            for (var processedPackage : processed)
+                if (packageName.startsWith(processedPackage + "."))
+                    continue nextPackage;
 
-            if (next)
-                continue;
-
-            this.scan(packageName, Thread.currentThread().getContextClassLoader());
+            scan(packageName, contextClassLoader);
             processed.add(packageName);
         }
     }

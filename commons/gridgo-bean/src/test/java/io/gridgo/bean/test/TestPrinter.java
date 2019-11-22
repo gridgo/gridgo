@@ -1,19 +1,19 @@
 package io.gridgo.bean.test;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 
 import io.gridgo.bean.BArray;
 import io.gridgo.bean.BElement;
 import io.gridgo.bean.BObject;
 import io.gridgo.bean.BReference;
 import io.gridgo.bean.BValue;
+import io.gridgo.bean.pojo.BElementPojoHelper;
 import io.gridgo.bean.serialization.text.BPrinter;
-import io.gridgo.bean.support.BElementPojoHelper;
 import io.gridgo.bean.test.support.Bar;
 import io.gridgo.bean.test.support.PojoWithBElement;
 

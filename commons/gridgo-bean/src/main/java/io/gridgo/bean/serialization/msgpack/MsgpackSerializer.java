@@ -1,8 +1,6 @@
 package io.gridgo.bean.serialization.msgpack;
 
-import org.msgpack.core.MessageFormat;
-import org.msgpack.core.MessagePacker;
-import org.msgpack.core.MessageUnpacker;
+import static io.gridgo.utils.pojo.PojoUtils.getGetterProxy;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,7 +9,9 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import static io.gridgo.utils.pojo.PojoUtils.getGetterProxy;
+import org.msgpack.core.MessageFormat;
+import org.msgpack.core.MessagePacker;
+import org.msgpack.core.MessageUnpacker;
 
 import io.gridgo.bean.BArray;
 import io.gridgo.bean.BElement;

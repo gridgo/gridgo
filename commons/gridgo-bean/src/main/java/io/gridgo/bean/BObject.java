@@ -4,11 +4,9 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Supplier;
 
-import static io.gridgo.bean.support.BElementPojoHelper.anyToBElement;
-
 import io.gridgo.bean.exceptions.InvalidTypeException;
 import io.gridgo.bean.factory.BFactory;
-import io.gridgo.bean.support.BElementPojoHelper;
+import io.gridgo.bean.pojo.BElementPojoHelper;
 import io.gridgo.utils.pojo.setter.PojoSetterProxy;
 import lombok.NonNull;
 
@@ -37,7 +35,7 @@ public interface BObject extends BContainer, Map<String, BElement> {
     static BObject ofPojo(Object pojo) {
         if (pojo == null)
             return null;
-        return anyToBElement(pojo).asObject();
+        return BElementPojoHelper.anyToBElement(pojo).asObject();
     }
 
     static BObject ofSequence(Object... sequence) {
@@ -175,7 +173,8 @@ public interface BObject extends BContainer, Map<String, BElement> {
             return null;
         if (element.isReference())
             return element.asReference();
-        throw new InvalidTypeException("BObject contains element with type " + element.getType() + " which cannot get as BReference");
+        throw new InvalidTypeException(
+                "BObject contains element with type " + element.getType() + " which cannot get as BReference");
     }
 
     default BReference getReference(String field, BReference defaultValue) {
@@ -189,8 +188,8 @@ public interface BObject extends BContainer, Map<String, BElement> {
             return null;
         if (element.isValue())
             return element.asValue();
-        throw new InvalidTypeException(
-                "BObject contains field " + field + " in type of " + element.getType() + " which cannot convert to BValue");
+        throw new InvalidTypeException("BObject contains field " + field + " in type of " + element.getType()
+                + " which cannot convert to BValue");
     }
 
     default BValue getValue(String field, BValue defaultValue) {
@@ -213,7 +212,8 @@ public interface BObject extends BContainer, Map<String, BElement> {
             return null;
         if (element.isObject())
             return element.asObject();
-        throw new InvalidTypeException("BObject contains element with type " + element.getType() + " which cannot get as BObject");
+        throw new InvalidTypeException(
+                "BObject contains element with type " + element.getType() + " which cannot get as BObject");
     }
 
     default BObject getObject(String field, BObject defaultValue) {
@@ -236,7 +236,8 @@ public interface BObject extends BContainer, Map<String, BElement> {
             return null;
         if (element.isArray())
             return element.asArray();
-        throw new InvalidTypeException("BObject contains element with type " + element.getType() + " which cannot get as BArray");
+        throw new InvalidTypeException(
+                "BObject contains element with type " + element.getType() + " which cannot get as BArray");
     }
 
     default BArray getArray(String field, BArray defaultValue) {
@@ -270,32 +271,30 @@ public interface BObject extends BContainer, Map<String, BElement> {
     }
 
     default BElement putAnyPojo(String name, Object pojo) {
-        return this.putAny(name, pojo == null ? null : anyToBElement(pojo).asObject());
+        return this.putAny(name, pojo == null ? null : BElementPojoHelper.anyToBElement(pojo).asObject());
     }
 
     default BElement putAnyPojoIfAbsent(String name, Object pojo) {
-        return this.putAnyIfAbsent(name, pojo == null ? null : anyToBElement(pojo).asObject());
+        return this.putAnyIfAbsent(name, pojo == null ? null : BElementPojoHelper.anyToBElement(pojo).asObject());
     }
 
     default void putAnyAllPojo(Object pojo) {
-        if (pojo != null) {
-            this.putAnyAll(anyToBElement(pojo).asObject());
-        }
+        if (pojo == null)
+            return;
+        putAnyAll(BElementPojoHelper.anyToBElement(pojo).asObject());
     }
 
     default void putAnySequence(Object... elements) {
-        if (elements.length % 2 != 0) {
+        if (elements.length % 2 != 0)
             throw new IllegalArgumentException("Sequence's length must be even");
-        }
-        for (int i = 0; i < elements.length - 1; i += 2) {
+
+        for (int i = 0; i < elements.length - 1; i += 2)
             this.putAny(elements[i].toString(), elements[i + 1]);
-        }
     }
 
     default BElement getOrDefault(String field, Supplier<BElement> supplierForNonPresent) {
-        if (this.containsKey(field)) {
+        if (this.containsKey(field))
             return this.get(field);
-        }
         return supplierForNonPresent.get();
     }
 

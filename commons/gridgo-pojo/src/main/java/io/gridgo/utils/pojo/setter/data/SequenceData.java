@@ -1,6 +1,7 @@
 package io.gridgo.utils.pojo.setter.data;
 
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -14,7 +15,13 @@ public interface SequenceData extends GenericData, Iterable<GenericData> {
 
     GenericData get(int index);
 
-    List toList();
+    default List toList() {
+        var list = new LinkedList<Object>();
+        for (var data : this) {
+            list.add(data.getInnerValue());
+        }
+        return list;
+    }
 
     default Set toSet() {
         return new HashSet(this.toList());

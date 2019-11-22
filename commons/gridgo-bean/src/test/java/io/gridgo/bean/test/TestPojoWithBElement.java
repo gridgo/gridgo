@@ -1,15 +1,15 @@
 package io.gridgo.bean.test;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
 
 import io.gridgo.bean.BArray;
 import io.gridgo.bean.BObject;
 import io.gridgo.bean.BReference;
 import io.gridgo.bean.BValue;
-import io.gridgo.bean.support.BElementPojoHelper;
+import io.gridgo.bean.pojo.BElementPojoHelper;
 import io.gridgo.bean.test.support.PojoWithBElement;
 
 public class TestPojoWithBElement {

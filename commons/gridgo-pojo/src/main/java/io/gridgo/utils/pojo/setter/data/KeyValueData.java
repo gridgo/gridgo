@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
-public interface KeyValueData extends GenericData, Iterable<Map.Entry<String, ? extends GenericData>> {
+public interface KeyValueData extends GenericData, Iterable<Map.Entry<String, GenericData>> {
 
     @Override
     default boolean isKeyValue() {
