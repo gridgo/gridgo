@@ -33,24 +33,4 @@ public class TestGenericData {
 
         assertNull(genericData.getInnerValue());
     }
-
-    @Test(expected = RuntimeException.class)
-    public void testAsKeyValue() {
-        assertNull(genericData.asKeyValue());
-    }
-
-    @Test(expected = RuntimeException.class)
-    public void testAsPrimitive() {
-        assertNull(genericData.asPrimitive());
-    }
-
-    @Test(expected = RuntimeException.class)
-    public void testAsSequence() {
-        assertNull(genericData.asSequence());
-    }
-
-    @Test(expected = RuntimeException.class)
-    public void testAsReference() {
-        assertNull(genericData.asReference());
-    }
 }

@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Date;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import io.gridgo.utils.pojo.PojoMethodSignature;
@@ -42,6 +43,11 @@ public class TestValueTranslator {
             classCalled = true;
             return "Hello " + obj;
         }
+    }
+
+    @Before
+    public void setup() {
+        System.setProperty("gridgo.pojo.translator.scan", "io.gridgo.utils,");
     }
 
     @Test

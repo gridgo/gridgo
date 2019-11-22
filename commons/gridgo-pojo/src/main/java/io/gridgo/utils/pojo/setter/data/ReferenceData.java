@@ -3,6 +3,11 @@ package io.gridgo.utils.pojo.setter.data;
 public interface ReferenceData extends GenericData {
 
     @Override
+    default boolean isNull() {
+        return this.getReference() == null;
+    }
+
+    @Override
     default boolean isReference() {
         return true;
     }

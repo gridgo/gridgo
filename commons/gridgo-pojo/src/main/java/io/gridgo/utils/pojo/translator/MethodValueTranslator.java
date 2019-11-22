@@ -12,14 +12,8 @@ public class MethodValueTranslator implements ValueTranslator<Object, Object> {
     private final Class<?> acceptedType;
 
     MethodValueTranslator(Method method) {
+        this.accessor = MethodAccessors.forStaticTwoParamsFunction(method);
         try {
-            if (method.getParameterCount() == 2)
-                if (method.getParameterTypes()[1] != PojoMethodSignature.class)
-                    throw new IllegalArgumentException(
-                            "Method to be used as value translator must accept 2 params, the second must be "
-                                    + PojoMethodSignature.class.getName());
-
-            this.accessor = MethodAccessors.forStaticTwoParamsFunction(method);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

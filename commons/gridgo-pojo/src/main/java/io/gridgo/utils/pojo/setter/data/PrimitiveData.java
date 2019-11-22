@@ -16,7 +16,7 @@ public interface PrimitiveData extends GenericData {
 
     Object getData();
 
-    default Class<?> getValueClass() {
+    default Class<?> getDataClass() {
         var data = getData();
         return data == null ? null : data.getClass();
     }

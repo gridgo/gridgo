@@ -78,21 +78,6 @@ public class TestKeyValueData {
 
     @Test
     public void testAsKeyValue() {
-        assertTrue(data.asKeyValue() == data);
-    }
-
-    @Test(expected = RuntimeException.class)
-    public void testAsPrimitive() {
-        assertNull(data.asPrimitive());
-    }
-
-    @Test(expected = RuntimeException.class)
-    public void testAsSequence() {
-        assertNull(data.asSequence());
-    }
-
-    @Test(expected = RuntimeException.class)
-    public void testAsReference() {
-        assertNull(data.asReference());
+        assertEquals(data, data.asKeyValue());
     }
 }

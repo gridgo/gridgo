@@ -32,9 +32,8 @@ public class ValueTranslators implements ClasspathScanner {
             var arr = tobeScanned.split(",");
             for (var packageName : arr) {
                 packageName = packageName.trim();
-                if (packageName.isBlank())
-                    continue;
-                packages.add(packageName);
+                if (!packageName.isBlank())
+                    packages.add(packageName);
             }
         }
 
@@ -82,11 +81,11 @@ public class ValueTranslators implements ClasspathScanner {
         return registry.putIfAbsent(key, translator);
     }
 
-    public ValueTranslator unregister(@NonNull String key) {
+    public ValueTranslator unregister(String key) {
         return registry.remove(key);
     }
 
-    public ValueTranslator lookup(@NonNull String key) {
+    public ValueTranslator lookup(String key) {
         return registry.get(key);
     }
 

@@ -37,51 +37,56 @@ public class MethodAccessors {
 
     @SuppressWarnings("unchecked")
     private static <T> T buildStaticMethodAccessor(Method method, Class<T> theInterface, String interfaceFunctionName,
-            String interfaceReturnTypeName) throws Exception {
-        Class<?> target = method.getDeclaringClass();
-        ClassPool pool = ClassPool.getDefault();
-        pool.insertClassPath(new ClassClassPath(target));
+            String interfaceReturnTypeName) {
+        try {
+            Class<?> target = method.getDeclaringClass();
+            ClassPool pool = ClassPool.getDefault();
+            pool.insertClassPath(new ClassClassPath(target));
 
-        String className = target.getName().replaceAll("\\.", "_") + "_" + method.getName() + "_" + System.nanoTime();
-        CtClass cc = pool.makeClass(className);
+            String className = target.getName().replaceAll("\\.", "_") + "_" + method.getName() + "_"
+                    + System.nanoTime();
+            CtClass cc = pool.makeClass(className);
 
-        cc.defrost();
-        cc.addInterface(pool.get(theInterface.getName()));
+            cc.defrost();
+            cc.addInterface(pool.get(theInterface.getName()));
 
-        var paramCount = 0;
-        var paramKeys = new StringBuilder();
-        var paramValues = new StringBuilder();
-        for (var paramType : method.getParameterTypes()) {
-            if (paramCount > 0) {
-                paramValues.append(", ");
-                paramKeys.append(", ");
+            var paramCount = 0;
+            var paramKeys = new StringBuilder();
+            var paramValues = new StringBuilder();
+            for (var paramType : method.getParameterTypes()) {
+                if (paramCount > 0) {
+                    paramValues.append(", ");
+                    paramKeys.append(", ");
+                }
+                var paramName = "param" + paramCount++;
+                paramKeys.append("Object " + paramName);
+                paramValues.append("(" + paramType.getName() + ") " + paramName);
             }
-            var paramName = "param" + paramCount++;
-            paramKeys.append("Object " + paramName);
-            paramValues.append("(" + paramType.getName() + ") " + paramName);
+
+            var returnValue = target.getName() + "." + method.getName() + "(" + paramValues.toString() + ")";
+            var returnType = method.getReturnType();
+            if (returnType.isPrimitive() && !returnType.isArray()) {
+                var wrappedForReturnType = PrimitiveUtils.getWrapperType(returnType);
+                returnValue = wrappedForReturnType.getName() + ".valueOf(" + returnValue + ")";
+            }
+            var methodCall = ("void".equals(interfaceReturnTypeName) ? "" : "return ") + returnValue;
+
+            String body = "public " + interfaceReturnTypeName + " " + interfaceFunctionName //
+                    + "(" + paramKeys.toString() + ") { " + methodCall + ";}"; // end of method
+
+            cc.addMethod(CtMethod.make(body, cc));
+            return (T) cc.toClass().getConstructor().newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-
-        var returnValue = target.getName() + "." + method.getName() + "(" + paramValues.toString() + ")";
-        var returnType = method.getReturnType();
-        if (returnType.isPrimitive() && !returnType.isArray()) {
-            var wrappedForReturnType = PrimitiveUtils.getWrapperType(returnType);
-            returnValue = wrappedForReturnType.getName() + ".valueOf(" + returnValue + ")";
-        }
-        var methodCall = ("void".equals(interfaceReturnTypeName) ? "" : "return ") + returnValue;
-
-        String body = "public " + interfaceReturnTypeName + " " + interfaceFunctionName //
-                + "(" + paramKeys.toString() + ") { " + methodCall + ";}"; // end of method
-
-        cc.addMethod(CtMethod.make(body, cc));
-        return (T) cc.toClass().getConstructor().newInstance();
     }
 
-    public static FunctionAccessor forStaticSingleParamFunction(Method method) throws Exception {
+    public static FunctionAccessor forStaticSingleParamFunction(Method method) {
         checkValidMethod(method, 1, true);
         return buildStaticMethodAccessor(method, FunctionAccessor.class, "apply", "Object");
     }
 
-    public static BiFunctionAccessor forStaticTwoParamsFunction(Method method) throws Exception {
+    public static BiFunctionAccessor forStaticTwoParamsFunction(Method method) {
         checkValidMethod(method, 2, true);
         return buildStaticMethodAccessor(method, BiFunctionAccessor.class, "apply", "Object");
     }
