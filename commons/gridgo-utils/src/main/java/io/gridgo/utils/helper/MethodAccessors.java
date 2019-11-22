@@ -3,6 +3,7 @@ package io.gridgo.utils.helper;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
+import io.gridgo.utils.PrimitiveUtils;
 import javassist.ClassClassPath;
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -60,9 +61,13 @@ public class MethodAccessors {
             paramValues.append("(" + paramType.getName() + ") " + paramName);
         }
 
-        var isVoid = "void".equals(interfaceReturnTypeName);
-        var methodCall = (isVoid ? "" : "return ") //
-                + target.getName() + "." + method.getName() + "(" + paramValues.toString() + ")";
+        var returnValue = target.getName() + "." + method.getName() + "(" + paramValues.toString() + ")";
+        var returnType = method.getReturnType();
+        if (returnType.isPrimitive() && !returnType.isArray()) {
+            var wrappedForReturnType = PrimitiveUtils.getWrapperType(returnType);
+            returnValue = wrappedForReturnType.getName() + ".valueOf(" + returnValue + ")";
+        }
+        var methodCall = ("void".equals(interfaceReturnTypeName) ? "" : "return ") + returnValue;
 
         String body = "public " + interfaceReturnTypeName + " " + interfaceFunctionName //
                 + "(" + paramKeys.toString() + ") { " + methodCall + ";}"; // end of method
