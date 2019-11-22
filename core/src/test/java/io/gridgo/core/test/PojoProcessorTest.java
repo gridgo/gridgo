@@ -1,12 +1,12 @@
 package io.gridgo.core.test;
 
-import java.util.List;
-
 import org.joo.promise4j.Deferred;
 import org.joo.promise4j.PromiseException;
 import org.joo.promise4j.impl.CompletableDeferredObject;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.List;
 
 import io.gridgo.bean.BArray;
 import io.gridgo.bean.BObject;
@@ -22,8 +22,7 @@ public class PojoProcessorTest {
         var processor = new AbstractPojoProcessor<Integer>(Integer.class) {
 
             @Override
-            public void processSingle(Integer request, Message msg, Deferred<Message, Exception> deferred,
-                    GridgoContext gc) {
+            public void processSingle(Integer request, Message msg, Deferred<Message, Exception> deferred, GridgoContext gc) {
                 deferred.resolve(Message.ofAny(request));
             }
         };
@@ -32,6 +31,17 @@ public class PojoProcessorTest {
         var rc = new DefaultRoutingContext(null, msg, deferred);
         processor.process(rc, null);
         Assert.assertEquals(1, deferred.get().body().asValue().getInteger().intValue());
+
+        deferred = new CompletableDeferredObject<Message, Exception>();
+        msg = Message.ofAny(null);
+        rc = new DefaultRoutingContext(null, msg, deferred);
+        processor.process(rc, null);
+        Assert.assertTrue(deferred.get().body().isNullValue());
+
+        deferred = new CompletableDeferredObject<Message, Exception>();
+        rc = new DefaultRoutingContext(null, null, deferred);
+        processor.process(rc, null);
+        Assert.assertTrue(deferred.get().body().isNullValue());
     }
 
     @Test
@@ -39,8 +49,7 @@ public class PojoProcessorTest {
         var processor = new AbstractPojoProcessor<Pojo>(Pojo.class) {
 
             @Override
-            public void processSingle(Pojo request, Message msg, Deferred<Message, Exception> deferred,
-                    GridgoContext gc) {
+            public void processSingle(Pojo request, Message msg, Deferred<Message, Exception> deferred, GridgoContext gc) {
                 deferred.resolve(Message.ofAny(request.getId()));
             }
         };
@@ -56,8 +65,7 @@ public class PojoProcessorTest {
         var processor = new AbstractPojoProcessor<Integer>(Integer.class) {
 
             @Override
-            public void processMulti(List<Integer> request, Message msg, Deferred<Message, Exception> deferred,
-                    GridgoContext gc) {
+            public void processMulti(List<Integer> request, Message msg, Deferred<Message, Exception> deferred, GridgoContext gc) {
                 deferred.resolve(Message.ofAny(request.size()));
             }
         };
@@ -73,12 +81,11 @@ public class PojoProcessorTest {
         var processor = new AbstractPojoProcessor<Pojo>(Pojo.class) {
 
             @Override
-            public void processMulti(List<Pojo> request, Message msg, Deferred<Message, Exception> deferred,
-                    GridgoContext gc) {
+            public void processMulti(List<Pojo> request, Message msg, Deferred<Message, Exception> deferred, GridgoContext gc) {
                 var response = request.stream() //
-                                      .map(Pojo::getId) //
-                                      .reduce((a, b) -> a + b) //
-                                      .orElse(0);
+                        .map(Pojo::getId) //
+                        .reduce((a, b) -> a + b) //
+                        .orElse(0);
                 deferred.resolve(Message.ofAny(response));
             }
         };
