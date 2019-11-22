@@ -11,9 +11,9 @@ import static io.gridgo.utils.StringUtils.lowerCaseFirstLetter;
 import io.gridgo.utils.pojo.AbstractMethodSignatureExtractor;
 import io.gridgo.utils.pojo.MethodSignatureExtractor;
 import io.gridgo.utils.pojo.PojoMethodSignature;
-import io.gridgo.utils.pojo.ValueTranslatorRegistry;
 import io.gridgo.utils.pojo.translator.UseValueTranslator;
 import io.gridgo.utils.pojo.translator.ValueTranslator;
+import io.gridgo.utils.pojo.translator.ValueTranslatorRegistry;
 
 public class SetterMethodSignatureExtractor extends AbstractMethodSignatureExtractor {
 
