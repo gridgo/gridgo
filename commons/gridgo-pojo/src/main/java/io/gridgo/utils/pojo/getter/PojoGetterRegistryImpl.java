@@ -33,5 +33,4 @@ class PojoGetterRegistryImpl extends AbstractProxyRegistry<PojoGetterProxy> impl
     protected void setFieldElementProxy(PojoMethodSignature signature, PojoGetterProxy proxy) {
         injectElementGetterProxy(signature, proxy);
     }
-
 }

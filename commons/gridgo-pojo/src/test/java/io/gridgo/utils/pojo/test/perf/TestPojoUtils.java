@@ -1,17 +1,17 @@
 package io.gridgo.utils.pojo.test.perf;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
 
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
 import io.gridgo.utils.pojo.PojoFlattenIndicator;
 import io.gridgo.utils.pojo.PojoUtils;
 import io.gridgo.utils.pojo.getter.GetterMethodSignatureExtractor;
-import io.gridgo.utils.pojo.getter.PojoGetterProxy;
+import io.gridgo.utils.pojo.getter.PojoGetter;
 import io.gridgo.utils.pojo.setter.SetterMethodSignatureExtractor;
 import io.gridgo.utils.pojo.test.support.Bar;
 import io.gridgo.utils.pojo.test.support.Foo;
@@ -79,7 +79,7 @@ public class TestPojoUtils {
 
     @Test
     public void testPojoUtils() {
-        PojoGetterProxy proxy = PojoUtils.getGetterProxy(Foo.class);
-        PojoUtils.walkThroughGetter(obj, proxy, this::walk);
+        var proxy = PojoUtils.getGetterProxy(Foo.class);
+        PojoGetter.of(obj, proxy).walk(false, this::walk);
     }
 }

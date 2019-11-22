@@ -1,5 +1,11 @@
 package io.gridgo.bean.support;
 
+import static io.gridgo.utils.ArrayUtils.foreachArray;
+import static io.gridgo.utils.ArrayUtils.toArray;
+import static io.gridgo.utils.ArrayUtils.toPrimitiveArray;
+import static io.gridgo.utils.PrimitiveUtils.getWrapperType;
+import static io.gridgo.utils.PrimitiveUtils.isPrimitive;
+
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -9,12 +15,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import static io.gridgo.utils.ArrayUtils.foreachArray;
-import static io.gridgo.utils.ArrayUtils.toArray;
-import static io.gridgo.utils.ArrayUtils.toPrimitiveArray;
-import static io.gridgo.utils.PrimitiveUtils.getWrapperType;
-import static io.gridgo.utils.PrimitiveUtils.isPrimitive;
 
 import io.gridgo.bean.BArray;
 import io.gridgo.bean.BElement;
@@ -60,15 +60,15 @@ public class BElementPojoHelper {
         }
 
         if (type.isArray()) {
-            return arrayToBElement(target, proxy);
+            return arrayToBArray(target, proxy);
         }
 
         if (Collection.class.isInstance(target)) {
-            return collectionToBElement(target, proxy);
+            return collectionToBArray(target, proxy);
         }
 
         if (Map.class.isInstance(target)) {
-            return mapToBElement(target, proxy);
+            return mapToBObject(target, proxy);
         }
 
         proxy = proxy == null ? PojoUtils.getGetterProxy(type) : proxy;
@@ -84,7 +84,7 @@ public class BElementPojoHelper {
         return result;
     }
 
-    private static BElement mapToBElement(Object target, PojoGetterProxy proxy) {
+    private static BElement mapToBObject(Object target, PojoGetterProxy proxy) {
         var result = BObject.ofEmpty();
         var map = (Map<?, ?>) target;
         var it = map.entrySet().iterator();
@@ -97,7 +97,7 @@ public class BElementPojoHelper {
         return result;
     }
 
-    private static BElement collectionToBElement(Object target, PojoGetterProxy proxy) {
+    private static BElement collectionToBArray(Object target, PojoGetterProxy proxy) {
         var it = ((Collection<?>) target).iterator();
         var list = BArray.ofEmpty();
         while (it.hasNext()) {
@@ -106,12 +106,9 @@ public class BElementPojoHelper {
         return list;
     }
 
-    private static BElement arrayToBElement(Object target, PojoGetterProxy proxy) {
+    private static BElement arrayToBArray(Object array, PojoGetterProxy proxy) {
         var list = BArray.ofEmpty();
-        var _proxy = proxy;
-        foreachArray(target, ele -> {
-            list.add(anyToBElement(ele, _proxy));
-        });
+        foreachArray(array, ele -> list.add(anyToBElement(ele, proxy)));
         return list;
     }
 
@@ -147,12 +144,13 @@ public class BElementPojoHelper {
         var fieldName = signature.getFieldName();
         var transformedFieldName = signature.getTransformedFieldName();
 
-        BElement value = transformedFieldName != null && !transformedFieldName.isBlank() //
+        BElement value = transformedFieldName != null //
                 ? src.getOrDefault(transformedFieldName, () -> src.getOrDefault(fieldName, () -> null)) //
                 : src.getOrDefault(fieldName, () -> null);
 
-        if (signature.getValueTranslator() != null && signature.getValueTranslator().translatable(value))
-            return signature.getValueTranslator().translate(value);
+        var valueTranslator = signature.getValueTranslator();
+        if (valueTranslator != null && valueTranslator.translatable(value))
+            return valueTranslator.translate(value, signature);
 
         if (value == null)
             return ValueHolder.NO_VALUE;
@@ -204,6 +202,7 @@ public class BElementPojoHelper {
             }
             if (BObject.class.isAssignableFrom(fieldType))
                 return value.asObject();
+
             return toMapOrPojo(value.asObject(), signature);
         }
 

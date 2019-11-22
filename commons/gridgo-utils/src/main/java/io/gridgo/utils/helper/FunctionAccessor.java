@@ -1,4 +1,4 @@
-package io.gridgo.utils.pojo.translator;
+package io.gridgo.utils.helper;
 
 public interface FunctionAccessor {
 

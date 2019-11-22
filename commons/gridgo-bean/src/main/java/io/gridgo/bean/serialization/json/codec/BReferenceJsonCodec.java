@@ -9,7 +9,6 @@ import static com.dslplatform.json.JsonWriter.SEMI;
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.END_ARRAY;
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.KEY_NULL;
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.START_ARRAY;
-import static io.gridgo.utils.pojo.PojoUtils.walkThroughGetterShallowly;
 
 import java.util.Stack;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -18,6 +17,7 @@ import com.dslplatform.json.JsonWriter;
 
 import io.gridgo.bean.BElement;
 import io.gridgo.bean.BReference;
+import io.gridgo.utils.pojo.getter.PojoGetter;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
@@ -34,7 +34,7 @@ public class BReferenceJsonCodec implements JsonWriter.WriteObject<BReference> {
         var lengthStack = new Stack<Integer>();
         var indexStack = new Stack<AtomicInteger>();
 
-        walkThroughGetterShallowly(reference, (indicator, val) -> {
+        PojoGetter.of(reference).walk(true, (indicator, val) -> {
             switch (indicator) {
             case START_MAP:
             case START_ARRAY:

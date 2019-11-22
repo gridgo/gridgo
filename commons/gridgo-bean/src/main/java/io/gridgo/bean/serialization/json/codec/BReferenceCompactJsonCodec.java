@@ -1,14 +1,9 @@
 package io.gridgo.bean.serialization.json.codec;
 
-import static com.dslplatform.json.JsonWriter.ARRAY_END;
-import static com.dslplatform.json.JsonWriter.ARRAY_START;
 import static com.dslplatform.json.JsonWriter.COMMA;
-import static com.dslplatform.json.JsonWriter.OBJECT_END;
-import static com.dslplatform.json.JsonWriter.OBJECT_START;
 import static com.dslplatform.json.JsonWriter.SEMI;
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.END_ARRAY;
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.START_ARRAY;
-import static io.gridgo.utils.pojo.PojoUtils.walkThroughGetterShallowly;
 
 import java.util.Stack;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -19,6 +14,7 @@ import com.dslplatform.json.JsonWriter;
 
 import io.gridgo.bean.BElement;
 import io.gridgo.bean.BReference;
+import io.gridgo.utils.pojo.getter.PojoGetter;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
@@ -37,13 +33,13 @@ public class BReferenceCompactJsonCodec extends BReferenceJsonCodec {
         var keyRef = new AtomicReference<String>(null);
         var waitingForComma = new AtomicBoolean(false);
 
-        walkThroughGetterShallowly(reference, (indicator, val) -> {
+        PojoGetter.of(reference).walk(true, (indicator, val) -> {
             switch (indicator) {
             case START_MAP:
             case START_ARRAY:
                 tryWriteComma(writer, waitingForComma);
                 tryWriteWaitingKey(writer, keyRef);
-                writer.writeByte(indicator == START_ARRAY ? ARRAY_START : OBJECT_START);
+                writer.writeByte(indicator == START_ARRAY ? JsonWriter.ARRAY_START : JsonWriter.OBJECT_START);
 
                 waitingForComma.set(false);
                 lengthStack.push((int) val);
@@ -56,7 +52,7 @@ public class BReferenceCompactJsonCodec extends BReferenceJsonCodec {
             case END_ARRAY:
                 indexStack.pop();
                 lengthStack.pop();
-                writer.writeByte(indicator == END_ARRAY ? ARRAY_END : OBJECT_END);
+                writer.writeByte(indicator == END_ARRAY ? JsonWriter.ARRAY_END : JsonWriter.OBJECT_END);
                 waitingForComma.set(true);
                 break;
             case KEY:

@@ -60,6 +60,8 @@ public final class PojoMethodSignature {
     private final Class<?>[] genericTypes;
 
     private final ValueTranslator valueTranslator;
+    private final boolean isSetter;
+    private final boolean isGetter;
 
     @Builder
     private PojoMethodSignature(Method method, String fieldName, Class<?> fieldType, String transformedFieldName,
@@ -70,6 +72,8 @@ public final class PojoMethodSignature {
         this.fieldType = fieldType;
         this.transformedFieldName = transformedFieldName;
         this.valueTranslator = valueTranslator;
+        this.isSetter = method.getReturnType() == void.class;
+        this.isGetter = !isSetter;
 
         this.isPrimitiveType = fieldType.isPrimitive();
         this.isWrapperType = PrimitiveUtils.isWrapperType(fieldType);

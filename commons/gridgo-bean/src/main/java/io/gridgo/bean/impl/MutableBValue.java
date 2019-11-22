@@ -21,7 +21,7 @@ public class MutableBValue extends AbstractBElement implements BValue {
 
     @Getter
     @Transient
-    private transient BType type = null;
+    private transient BType type = BType.NULL;
 
     @Transient
     private transient int hashCode;

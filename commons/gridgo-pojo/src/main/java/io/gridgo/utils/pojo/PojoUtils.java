@@ -1,5 +1,7 @@
 package io.gridgo.utils.pojo;
 
+import static io.gridgo.utils.PrimitiveUtils.isPrimitive;
+
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -11,19 +13,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import static io.gridgo.utils.ArrayUtils.foreachArray;
-import static io.gridgo.utils.PrimitiveUtils.isPrimitive;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.END_ARRAY;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.END_MAP;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.KEY;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.KEY_NULL;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.START_ARRAY;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.START_MAP;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.VALUE;
-
-import io.gridgo.utils.ArrayUtils;
 import io.gridgo.utils.pojo.exception.RuntimeReflectiveOperationException;
-import io.gridgo.utils.pojo.getter.PojoFlattenWalker;
 import io.gridgo.utils.pojo.getter.PojoGetterProxy;
 import io.gridgo.utils.pojo.getter.PojoGetterRegistry;
 import io.gridgo.utils.pojo.setter.PojoSetterProxy;
@@ -90,109 +80,6 @@ public class PojoUtils {
 
     public static final PojoSetterProxy getSetterProxy(Class<?> type) {
         return SETTER_REGISTRY.getSetterProxy(type);
-    }
-
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    private static final void walk(Object target, PojoGetterProxy proxy, PojoFlattenWalker walker, boolean shallowly) {
-        final Class<?> type;
-
-        if (target == null //
-                || isPrimitive(type = target.getClass()) //
-                || type == Date.class //
-                || type == java.sql.Date.class) {
-
-            walker.accept(VALUE, target);
-            return;
-        }
-
-        if (type.isArray()) {
-            int length = ArrayUtils.length(target);
-            walker.accept(START_ARRAY, length);
-            foreachArray(target, value -> {
-                if (shallowly)
-                    walker.accept(VALUE, value);
-                else
-                    walkThroughGetter(value, proxy, walker);
-            });
-            walker.accept(END_ARRAY, length);
-            return;
-        }
-
-        if (Collection.class.isInstance(target)) {
-            int length = ((Collection) target).size();
-            walker.accept(START_ARRAY, length);
-            var it = ((Collection) target).iterator();
-            while (it.hasNext())
-                if (shallowly)
-                    walker.accept(VALUE, it.next());
-                else
-                    walkThroughGetter(it.next(), proxy, walker);
-            walker.accept(END_ARRAY, length);
-            return;
-        }
-
-        if (Map.class.isInstance(target)) {
-            var map = (Map<?, ?>) target;
-            int size = map.size();
-            walker.accept(START_MAP, size);
-            var it = map.entrySet().iterator();
-            while (it.hasNext()) {
-                var entry = it.next();
-                var key = entry.getKey();
-                var value = entry.getValue();
-
-                if (value == null) {
-                    walker.accept(KEY_NULL, key);
-                } else {
-                    walker.accept(KEY, key);
-                    if (shallowly)
-                        walker.accept(VALUE, value);
-                    else
-                        walkThroughGetter(value, proxy, walker);
-                }
-            }
-            walker.accept(END_MAP, size);
-            return;
-        }
-
-        var _proxy = proxy != null ? proxy : getGetterProxy(type);
-        int length = _proxy.getFields().length;
-        walker.accept(START_MAP, length);
-        _proxy.walkThrough(target, (signature, value) -> {
-            var key = signature.getTransformedOrDefaultFieldName();
-
-            var valueTranslator = signature.getValueTranslator();
-            if (valueTranslator != null && valueTranslator.translatable(value))
-                value = valueTranslator.translate(value);
-
-            if (value == null) {
-                walker.accept(KEY_NULL, key);
-            } else {
-                walker.accept(KEY, key);
-                if (shallowly)
-                    walker.accept(VALUE, value);
-                else
-                    walkThroughGetter(value, signature.getElementGetterProxy(), walker);
-            }
-        });
-        walker.accept(END_MAP, length);
-    }
-
-    public static final void walkThroughGetter(Object target, PojoFlattenWalker walker) {
-        walkThroughGetter(target, null, walker);
-    }
-
-    public static final void walkThroughGetter(Object target, PojoGetterProxy proxy, PojoFlattenWalker walker) {
-        walk(target, proxy, walker, false);
-    }
-
-    public static final void walkThroughGetterShallowly(Object target, PojoFlattenWalker walker) {
-        walkThroughGetterShallowly(target, null, walker);
-    }
-
-    public static final void walkThroughGetterShallowly(Object target, PojoGetterProxy proxy,
-            PojoFlattenWalker walker) {
-        walk(target, proxy, walker, true);
     }
 
     /**
