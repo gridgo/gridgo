@@ -23,10 +23,6 @@ import lombok.NonNull;
 @AllArgsConstructor(access = PRIVATE)
 public class PojoGetter {
 
-    private final Object target;
-
-    private final PojoGetterProxy proxy;
-
     public static PojoGetter of(@NonNull Object target, @NonNull PojoGetterProxy proxy) {
         return new PojoGetter(target, proxy);
     }
@@ -34,6 +30,14 @@ public class PojoGetter {
     public static PojoGetter of(@NonNull Object target) {
         return of(target, PojoGetterRegistry.DEFAULT.getGetterProxy(target.getClass()));
     }
+
+    /********************************************************
+     ********************* END OF STATIC ********************
+     ********************************************************/
+
+    private final Object target;
+
+    private final PojoGetterProxy proxy;
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public void walk(boolean shallowly, PojoFlattenAcceptor walker) {

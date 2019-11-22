@@ -82,4 +82,9 @@ public class BKeyValueData extends BGenericData implements KeyValueData {
             return BGenericData.ofAny(ele);
         return onAbsentSupplier.get();
     }
+    
+    @Override
+    public BElement getBElement() {
+        return this.value;
+    }
 }

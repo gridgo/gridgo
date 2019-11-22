@@ -31,6 +31,7 @@ public class PojoWithBElement {
     @Transient
     private transient BElement myBElement;
 
+    @OnSetTranslate("toBElement")
     public void setBElement(BElement belement) {
         this.myBElement = belement;
     }

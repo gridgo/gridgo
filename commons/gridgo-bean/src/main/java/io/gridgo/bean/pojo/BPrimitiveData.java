@@ -1,5 +1,6 @@
 package io.gridgo.bean.pojo;
 
+import io.gridgo.bean.BElement;
 import io.gridgo.bean.BValue;
 import io.gridgo.utils.pojo.setter.data.PrimitiveData;
 import lombok.AccessLevel;
@@ -15,5 +16,10 @@ public class BPrimitiveData extends BGenericData implements PrimitiveData {
     @Override
     public Object getData() {
         return value.getData();
+    }
+    
+    @Override
+    public BElement getBElement() {
+        return this.value;
     }
 }

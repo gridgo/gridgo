@@ -47,4 +47,6 @@ public abstract class BGenericData implements GenericData {
 
         throw new IllegalArgumentException("cannot create generic data from element: " + element);
     }
+
+    public abstract BElement getBElement();
 }

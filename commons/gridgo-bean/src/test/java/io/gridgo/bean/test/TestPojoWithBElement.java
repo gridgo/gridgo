@@ -29,6 +29,7 @@ public class TestPojoWithBElement {
     @Test
     public void testToBelement() {
         var serialized = BElementPojoHelper.anyToBElement(pojo);
+        System.out.println("serialized: " + serialized);
         var deserialized = BElementPojoHelper.bObjectToPojo(serialized.asObject(), PojoWithBElement.class);
         assertEquals(pojo, deserialized);
     }

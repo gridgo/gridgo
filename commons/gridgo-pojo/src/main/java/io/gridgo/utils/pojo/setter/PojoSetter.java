@@ -3,6 +3,7 @@ package io.gridgo.utils.pojo.setter;
 import static io.gridgo.utils.ArrayUtils.toArray;
 import static io.gridgo.utils.ArrayUtils.toPrimitiveArray;
 import static io.gridgo.utils.PrimitiveUtils.getWrapperType;
+import static io.gridgo.utils.pojo.setter.ValueHolder.NO_VALUE;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -92,12 +93,12 @@ public class PojoSetter {
             return valueTranslator.translate(value, signature);
 
         if (value == null)
-            return ValueHolder.NO_VALUE;
+            return NO_VALUE;
 
         var fieldType = signature.getFieldType();
         if (value.isPrimitive() && value.asPrimitive().getData() == null) {
             if (fieldType.isPrimitive())
-                return ValueHolder.NO_VALUE;
+                return NO_VALUE;
             return null;
         }
 
@@ -122,9 +123,9 @@ public class PojoSetter {
         }
 
         if (signature.isSequenceType()) {
-            if (!value.isSequence()) {
+            if (!value.isSequence())
                 throw new PojoProxyException("Field '" + fieldName + "' expected sequence");
-            }
+
             return toSequence(value.asSequence(), signature);
         }
 
@@ -138,7 +139,7 @@ public class PojoSetter {
             return toMapOrPojo(value.asKeyValue(), signature);
         }
 
-        return ValueHolder.NO_VALUE;
+        return NO_VALUE;
     }
 
     private Object toSequence(SequenceData array, PojoMethodSignature signature) {

@@ -58,10 +58,9 @@ public class BElementPojoHelper {
 
         var result = BObject.ofEmpty();
         proxy.walkThrough(target, (signature, value) -> {
-            String fieldName = signature.getTransformedOrDefaultFieldName();
-            PojoGetterProxy elementGetterProxy = signature.getElementGetterProxy();
-            BElement entryValue = anyToBElement(value,
-                    elementGetterProxy == null ? signature.getGetterProxy() : elementGetterProxy);
+            var fieldName = signature.getTransformedOrDefaultFieldName();
+            var elementProxy = signature.getElementGetterProxy();
+            var entryValue = anyToBElement(value, elementProxy == null ? signature.getGetterProxy() : elementProxy);
             result.put(fieldName, entryValue);
         });
         return result;
@@ -96,16 +95,12 @@ public class BElementPojoHelper {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> T bObjectToPojo(BObject src, @NonNull Class<T> type) {
-        if (src == null)
-            return null;
+    public static <T> T bObjectToPojo(@NonNull BObject src, @NonNull Class<T> type) {
         return (T) PojoSetter.ofType(type).from(BGenericData.ofObject(src)).fill();
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> T bObjectToPojo(BObject src, Class<T> type, PojoSetterProxy proxy) {
-        if (src == null)
-            return null;
+    public static <T> T bObjectToPojo(@NonNull BObject src, Class<T> type, PojoSetterProxy proxy) {
         return (T) PojoSetter.ofType(type, proxy).from(BGenericData.ofObject(src)).fill();
     }
 }
