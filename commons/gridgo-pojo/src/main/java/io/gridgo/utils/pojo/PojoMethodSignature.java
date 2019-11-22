@@ -32,6 +32,7 @@ public final class PojoMethodSignature {
 
     private PojoGetterProxy getterProxy;
     private PojoSetterProxy setterProxy;
+
     private PojoGetterProxy elementGetterProxy;
     private PojoSetterProxy elementSetterProxy;
 

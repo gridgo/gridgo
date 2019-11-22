@@ -9,17 +9,14 @@ import static io.gridgo.utils.pojo.PojoFlattenIndicator.KEY_NULL;
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.START_ARRAY;
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.START_MAP;
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.VALUE;
-import static lombok.AccessLevel.PRIVATE;
 
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 
 import io.gridgo.utils.ArrayUtils;
-import lombok.AllArgsConstructor;
 import lombok.NonNull;
 
-@AllArgsConstructor(access = PRIVATE)
 public class PojoGetter {
 
     public static PojoGetter of(@NonNull Object target, PojoGetterProxy proxy) {
@@ -38,8 +35,28 @@ public class PojoGetter {
 
     private final PojoGetterProxy proxy;
 
+    private boolean shallowly = false;
+
+    @NonNull
+    private PojoFlattenAcceptor walker;
+
+    private PojoGetter(Object target, PojoGetterProxy proxy) {
+        this.target = target;
+        this.proxy = proxy;
+    }
+
+    public PojoGetter shallowly(boolean shallowly) {
+        this.shallowly = shallowly;
+        return this;
+    }
+
+    public PojoGetter walker(PojoFlattenAcceptor walker) {
+        this.walker = walker;
+        return this;
+    }
+
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public void walk(boolean shallowly, PojoFlattenAcceptor walker) {
+    public void walk() {
         Class<?> type;
 
         if (target == null //
@@ -58,7 +75,7 @@ public class PojoGetter {
                 if (shallowly)
                     walker.accept(VALUE, value);
                 else
-                    PojoGetter.of(value, proxy).walk(shallowly, walker);
+                    PojoGetter.of(value, proxy).shallowly(shallowly).walker(walker).walk();
             });
             walker.accept(END_ARRAY, length);
             return;
@@ -72,7 +89,7 @@ public class PojoGetter {
                 if (shallowly)
                     walker.accept(VALUE, it.next());
                 else
-                    PojoGetter.of(it.next(), proxy).walk(shallowly, walker);
+                    PojoGetter.of(it.next(), proxy).shallowly(shallowly).walker(walker).walk();
             walker.accept(END_ARRAY, length);
             return;
         }
@@ -94,7 +111,7 @@ public class PojoGetter {
                     if (shallowly)
                         walker.accept(VALUE, value);
                     else
-                        PojoGetter.of(value, proxy).walk(shallowly, walker);
+                        PojoGetter.of(value, proxy).shallowly(shallowly).walker(walker).walk();
                 }
             }
             walker.accept(END_MAP, size);
@@ -118,7 +135,7 @@ public class PojoGetter {
                 if (shallowly)
                     walker.accept(VALUE, value);
                 else
-                    PojoGetter.of(value, signature.getGetterProxy()).walk(shallowly, walker);
+                    PojoGetter.of(value, signature.getGetterProxy()).shallowly(shallowly).walker(walker).walk();
             }
         });
         walker.accept(END_MAP, length);

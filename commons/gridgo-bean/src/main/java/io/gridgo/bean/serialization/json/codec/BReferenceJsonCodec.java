@@ -34,7 +34,7 @@ public class BReferenceJsonCodec implements JsonWriter.WriteObject<BReference> {
         var lengthStack = new Stack<Integer>();
         var indexStack = new Stack<AtomicInteger>();
 
-        PojoGetter.of(reference).walk(true, (indicator, val) -> {
+        PojoGetter.of(reference).shallowly(true).walker((indicator, val) -> {
             switch (indicator) {
             case START_MAP:
             case START_ARRAY:
@@ -68,7 +68,7 @@ public class BReferenceJsonCodec implements JsonWriter.WriteObject<BReference> {
                 tryWriteCommaAfterValue(writer, lengthStack, indexStack);
                 break;
             }
-        });
+        }).walk();
     }
 
     private void tryIncreaseTopIndexerOnNewContainer(Stack<AtomicInteger> indexStack) {

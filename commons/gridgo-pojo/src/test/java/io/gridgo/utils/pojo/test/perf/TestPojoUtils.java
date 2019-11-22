@@ -80,6 +80,6 @@ public class TestPojoUtils {
     @Test
     public void testPojoUtils() {
         var proxy = PojoUtils.getGetterProxy(Foo.class);
-        PojoGetter.of(obj, proxy).walk(false, this::walk);
+        PojoGetter.of(obj, proxy).shallowly(false).walker(this::walk).walk();
     }
 }
