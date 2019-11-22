@@ -9,7 +9,7 @@ import io.gridgo.bean.factory.BFactory;
 import io.gridgo.bean.serialization.BSerializerRegistryAware;
 import lombok.NonNull;
 
-public interface BElement extends BSerializerRegistryAware, BJsonSupport, BXmlSupport, BBytesSupport {
+public interface BElement extends BSerializerRegistryAware, BJsonSupport, BBytesSupport {
 
     static <T extends BElement> T wrapAny(Object data) {
         return BFactory.DEFAULT.wrap(data);
