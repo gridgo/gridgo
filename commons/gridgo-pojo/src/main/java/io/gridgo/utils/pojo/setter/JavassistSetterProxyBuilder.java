@@ -17,6 +17,7 @@ class JavassistSetterProxyBuilder extends AbstractProxyBuilder implements PojoSe
     public PojoSetterProxy buildSetterProxy(Class<?> target) {
         try {
             ClassPool pool = ClassPool.getDefault();
+            pool.insertClassPath(new ClassClassPath(PojoSetterProxy.class));
             pool.insertClassPath(new ClassClassPath(target));
 
             String className = target.getName().replaceAll("\\.", "_") + "_setter_proxy_" + System.nanoTime();
