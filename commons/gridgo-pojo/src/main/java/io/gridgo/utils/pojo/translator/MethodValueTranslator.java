@@ -5,14 +5,13 @@ import java.lang.reflect.Method;
 import io.gridgo.utils.helper.BiFunctionAccessor;
 import io.gridgo.utils.helper.MethodAccessors;
 import io.gridgo.utils.pojo.PojoMethodSignature;
-import lombok.NonNull;
 
 public class MethodValueTranslator implements ValueTranslator<Object, Object> {
 
     private final BiFunctionAccessor accessor;
     private final Class<?> acceptedType;
 
-    MethodValueTranslator(@NonNull Method method) {
+    MethodValueTranslator(Method method) {
         try {
             if (method.getParameterCount() == 2)
                 if (method.getParameterTypes()[1] != PojoMethodSignature.class)

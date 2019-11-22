@@ -62,11 +62,11 @@ public class ValueTranslators implements ClasspathScanner {
         scanForAnnotatedMethods(reflections, RegisterValueTranslator.class, this::acceptAnnotatedMethod);
     }
 
-    private void acceptAnnotatedMethod(@NonNull Method method, @NonNull RegisterValueTranslator annotation) {
+    private void acceptAnnotatedMethod(Method method, RegisterValueTranslator annotation) {
         register(annotation.value(), new MethodValueTranslator(method));
     }
 
-    private void acceptAnnotatedClass(@NonNull Class<?> clz, @NonNull RegisterValueTranslator annotation) {
+    private void acceptAnnotatedClass(Class<?> clz, RegisterValueTranslator annotation) {
         register(annotation.value(), clz);
     }
 
@@ -90,7 +90,7 @@ public class ValueTranslators implements ClasspathScanner {
         return registry.get(key);
     }
 
-    public ValueTranslator lookupMandatory(@NonNull String key) {
+    public ValueTranslator lookupMandatory(String key) {
         var result = lookup(key);
         if (result == null)
             throw new RuntimeException("ValueTranslator cannot be found for key: " + key);
