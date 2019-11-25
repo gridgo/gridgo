@@ -42,21 +42,24 @@ class JavassistSetterProxyBuilder extends AbstractProxyBuilder implements PojoSe
 
             buildGetSignaturesMethod(cc);
             buildGetFieldsMethod(cc, allFields);
-            buildSignatureMethod(cc, methodSignatures);
+            buildSetSignatureMethod(cc, methodSignatures);
             buildApplyValueMethod(cc, methodSignatures, targetType);
             buildWalkthroughAllMethod(cc, methodSignatures, targetType);
             buildWalkthroughMethod(cc, methodSignatures, targetType, allFields);
 
-            Class<?> resultClass = cc.toClass();
-            var result = (PojoSetterProxy) resultClass.getConstructor().newInstance();
-            var signatureSetter = resultClass.getMethod("setMethodSignature", String.class, PojoMethodSignature.class);
-            for (PojoMethodSignature methodSignature : methodSignatures) {
-                signatureSetter.invoke(result, methodSignature.getFieldName(), methodSignature);
-            }
-            return result;
+            return makeProxy(methodSignatures, cc.toClass());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private PojoSetterProxy makeProxy(List<PojoMethodSignature> methodSignatures, Class<?> resultClass)
+            throws Exception {
+        var result = (PojoSetterProxy) resultClass.getConstructor().newInstance();
+        var signatureSetter = resultClass.getMethod("setMethodSignature", String.class, PojoMethodSignature.class);
+        for (PojoMethodSignature methodSignature : methodSignatures)
+            signatureSetter.invoke(result, methodSignature.getFieldName(), methodSignature);
+        return result;
     }
 
     private void buildApplyValueMethod(CtClass cc, List<PojoMethodSignature> methodSignatures, String targetType)

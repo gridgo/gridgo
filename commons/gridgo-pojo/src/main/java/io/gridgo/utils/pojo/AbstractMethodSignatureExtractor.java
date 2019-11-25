@@ -100,9 +100,13 @@ public abstract class AbstractMethodSignatureExtractor implements MethodSignatur
 
     protected Field getCorespondingField(Method method, String interpretedFieldName) {
         var returnType = method.getReturnType();
+        if (returnType == void.class) // incase the method were setter
+            returnType = method.getParameters()[0].getType();
+
         String booleanFieldName = null;
-        if (returnType == Boolean.class || returnType == boolean.class)
+        if (returnType == Boolean.class || returnType == Boolean.TYPE || returnType == boolean.class)
             booleanFieldName = "is" + upperCaseFirstLetter(interpretedFieldName);
+
         return getDeclaredField(method.getDeclaringClass(), interpretedFieldName, booleanFieldName);
     }
 
@@ -117,10 +121,9 @@ public abstract class AbstractMethodSignatureExtractor implements MethodSignatur
         String transformedFieldName = null;
         if (annotation != null) {
             transformedFieldName = annotation.value();
-            if (transformedFieldName.isBlank()) {
+            if (transformedFieldName.isBlank())
                 throw new InvalidFieldNameException("invalid field name: " + transformedFieldName
                         + " in method or field " + fieldName + ", type: " + targetType.getName());
-            }
         }
 
         return transformedFieldName;

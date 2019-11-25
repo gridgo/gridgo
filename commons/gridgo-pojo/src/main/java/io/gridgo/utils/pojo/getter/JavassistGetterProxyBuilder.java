@@ -40,7 +40,7 @@ class JavassistGetterProxyBuilder extends AbstractProxyBuilder implements PojoGe
 
             buildGetSignaturesMethod(cc);
             buildGetFieldsMethod(cc, allFields);
-            buildSignatureMethod(cc, methodSignatures);
+            buildSetSignatureMethod(cc, methodSignatures);
             buildGetValueMethod(cc, typeName, methodSignatures);
             buildWalkThroughAllMethod(cc, typeName, methodSignatures);
             buildWalkThroughMethod(cc, typeName, methodSignatures, allFields);

@@ -45,7 +45,7 @@ public class SetterMethodSignatureExtractor extends AbstractMethodSignatureExtra
         Parameter param = method.getParameters()[0];
         Class<?> signatureType = param.getType();
 
-        String transformedFieldName = transformFieldName(targetType, method, fieldName, transformRule, ignoredFields,
+        var transformedFieldName = transformFieldName(targetType, method, fieldName, transformRule, ignoredFields,
                 signatureType);
 
         return PojoMethodSignature.builder() //

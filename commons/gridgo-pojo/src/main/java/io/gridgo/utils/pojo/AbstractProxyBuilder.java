@@ -9,7 +9,8 @@ import javassist.CtMethod;
 
 public class AbstractProxyBuilder {
 
-    protected void buildSignatureMethod(CtClass cc, List<PojoMethodSignature> methodSignatures) throws CannotCompileException {
+    protected void buildSetSignatureMethod(CtClass cc, List<PojoMethodSignature> methodSignatures)
+            throws CannotCompileException {
         String type = "io.gridgo.utils.pojo.PojoMethodSignature";
         String subfix = "Signature";
         for (PojoMethodSignature methodSignature : methodSignatures) {
@@ -18,16 +19,15 @@ public class AbstractProxyBuilder {
         }
 
         String method = "public void setMethodSignature(String fieldName, " + type + " value) {\n";
-        method += "\tfor (int i=0; i<this.fields.length; i++) {"; // start for loop via all field
         for (PojoMethodSignature methodSignature : methodSignatures) {
             String fieldName = methodSignature.getFieldName();
             String signFieldName = fieldName + subfix;
-            method += "\t\tif (\"" + fieldName + "\".equals(fieldName)) {\n";
-            method += "\t\t\t" + signFieldName + " = value;\n";
-            method += "\t\t\tthis.signatures.add(value); \n";
-            method += "\t\t}\n";
+            method += "\tif (\"" + fieldName + "\".equals(fieldName)) {\n";
+            method += "\t\t" + signFieldName + " = value;\n";
+            method += "\t\tthis.signatures.add(value); \n";
+            method += "\t\treturn;\n";
+            method += "\t}\n";
         }
-        method += "\t}\n"; // end of for
         method += "}"; // end of method
 
         cc.addMethod(CtMethod.make(method, cc));
