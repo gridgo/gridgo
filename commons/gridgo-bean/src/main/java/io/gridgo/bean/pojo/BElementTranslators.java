@@ -17,8 +17,14 @@ public abstract class BElementTranslators {
         if (ele == null)
             return null;
 
-        if (BGenericData.class.isInstance(ele))
-            return ((BGenericData) ele).getBElement().asArray();
+        if (BGenericData.class.isInstance(ele)) {
+            var bElement = ((BGenericData) ele).getBElement();
+
+            if (bElement.isNullValue())
+                return null;
+
+            return bElement.asArray();
+        }
 
         return BArray.of(ele.asSequence().toList());
     }
@@ -30,6 +36,9 @@ public abstract class BElementTranslators {
 
         if (BGenericData.class.isInstance(ele)) {
             var bElement = ((BGenericData) ele).getBElement();
+
+            if (bElement.isNullValue())
+                return null;
 
             if (bElement.isObject())
                 return bElement.asObject();
@@ -47,8 +56,14 @@ public abstract class BElementTranslators {
     public static BValue toBValue(GenericData ele, PojoMethodSignature signature) {
         if (ele == null)
             return null;
-        if (BGenericData.class.isInstance(ele))
-            return ((BGenericData) ele).getBElement().asValue();
+        if (BGenericData.class.isInstance(ele)) {
+            var bElement = ((BGenericData) ele).getBElement();
+
+            if (bElement.isNullValue())
+                return null;
+
+            return bElement.asValue();
+        }
 
         return BValue.of(ele.asPrimitive().getData());
     }
@@ -58,15 +73,21 @@ public abstract class BElementTranslators {
         if (ele == null)
             return null;
 
-        if (BGenericData.class.isInstance(ele))
-            return ((BGenericData) ele).getBElement().asReference();
+        if (BGenericData.class.isInstance(ele)) {
+            var bElement = ((BGenericData) ele).getBElement();
+
+            if (bElement.isNullValue())
+                return null;
+
+            return bElement.asReference();
+        }
 
         return BReference.of(ele.asReference().getReference());
     }
 
     @RegisterValueTranslator("toBContainer")
     public static BContainer toBContainer(GenericData ele, PojoMethodSignature signature) {
-        if (ele == null)
+        if (ele == null || ele.isNull())
             return null;
 
         if (ele.isKeyValue())

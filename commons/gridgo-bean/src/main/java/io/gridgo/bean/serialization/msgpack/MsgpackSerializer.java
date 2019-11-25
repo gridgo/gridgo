@@ -1,7 +1,5 @@
 package io.gridgo.bean.serialization.msgpack;
 
-import static io.gridgo.utils.pojo.PojoUtils.getGetterProxy;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -24,12 +22,15 @@ import io.gridgo.bean.serialization.BSerializationPlugin;
 import io.gridgo.utils.ArrayUtils;
 import io.gridgo.utils.PrimitiveUtils;
 import io.gridgo.utils.exception.RuntimeIOException;
+import io.gridgo.utils.pojo.getter.PojoGetter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @BSerializationPlugin({ "raw", MsgpackSerializer.NAME })
 public class MsgpackSerializer extends AbstractBSerializer {
+
+    private final boolean compact = false;
 
     public static final String NAME = "msgpack";
     private final ThreadLocal<MsgpackerAndBuffer> PACKERS = ThreadLocal.withInitial(MsgpackerAndBuffer::new);
@@ -182,16 +183,32 @@ public class MsgpackSerializer extends AbstractBSerializer {
     }
 
     private void packPojo(Object target, MessagePacker packer) throws IOException {
-        var proxy = getGetterProxy(target.getClass());
-        packer.packMapHeader(proxy.getFields().length);
-        proxy.walkThrough(target, (signature, value) -> {
+        PojoGetter.of(target).shallowly(true).walker((indicator, value) -> {
             try {
-                packer.packString(signature.getTransformedOrDefaultFieldName());
-                packAny(value, packer);
-            } catch (IOException e) {
-                throw new RuntimeIOException(e);
+                switch (indicator) {
+                case KEY_NULL:
+                    if (!compact) {
+                        packer.packString((String) value);
+                        packer.packNil();
+                    }
+                    break;
+                case KEY:
+                    packer.packString((String) value);
+                    break;
+                case START_MAP:
+                    packer.packMapHeader((int) value);
+                    break;
+                case VALUE:
+                    packAny(value, packer);
+                    break;
+                default:
+                    // do nothing...
+                    break;
+                }
+            } catch (Exception e) {
+                throw new BeanSerializationException("Error while serialize pojo", e);
             }
-        });
+        }).walk();
     }
 
     private BArray unpackArray(MessageUnpacker unpacker) throws IOException {

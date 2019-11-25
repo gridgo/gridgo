@@ -85,11 +85,15 @@ public class PojoGetter {
             int length = ((Collection) target).size();
             walker.accept(START_ARRAY, length);
             var it = ((Collection) target).iterator();
-            while (it.hasNext())
+            while (it.hasNext()) {
                 if (shallowly)
                     walker.accept(VALUE, it.next());
                 else
-                    PojoGetter.of(it.next(), proxy).shallowly(shallowly).walker(walker).walk();
+                    PojoGetter.of(it.next(), proxy) //
+                            .shallowly(shallowly) //
+                            .walker(walker) //
+                            .walk();
+            }
             walker.accept(END_ARRAY, length);
             return;
         }
@@ -111,7 +115,10 @@ public class PojoGetter {
                     if (shallowly)
                         walker.accept(VALUE, value);
                     else
-                        PojoGetter.of(value, proxy).shallowly(shallowly).walker(walker).walk();
+                        PojoGetter.of(value, proxy) //
+                                .shallowly(shallowly) //
+                                .walker(walker) //
+                                .walk();
                 }
             }
             walker.accept(END_MAP, size);
@@ -135,7 +142,10 @@ public class PojoGetter {
                 if (shallowly)
                     walker.accept(VALUE, value);
                 else
-                    PojoGetter.of(value, signature.getGetterProxy()).shallowly(shallowly).walker(walker).walk();
+                    PojoGetter.of(value, signature.getGetterProxy()) //
+                            .shallowly(shallowly) //
+                            .walker(walker) //
+                            .walk();
             }
         });
         walker.accept(END_MAP, length);
