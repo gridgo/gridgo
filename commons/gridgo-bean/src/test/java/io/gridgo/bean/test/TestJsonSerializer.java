@@ -8,10 +8,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Arrays;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import io.gridgo.bean.BArray;
@@ -34,7 +32,6 @@ public class TestJsonSerializer {
     }
 
     @Test
-    @Ignore
     public void testRef() {
         var pojo = Foo.builder() //
                 .intValue(1) //
@@ -45,23 +42,25 @@ public class TestJsonSerializer {
         var json = ref.toJson();
         var after = BElement.ofJson(json).asObject();
         Assert.assertEquals(1, (int) after.getInteger("intValue"));
-        Assert.assertEquals(Arrays.asList(1, 2, 3, 4), after.getArray("intArrayValue").toList());
+        Assert.assertArrayEquals(new Long[] { 1l, 2l, 3l, 4l },
+                after.getArray("intArrayValue").toList().toArray(new Long[0]));
 
         ref = BReference.of(pojo.getIntArrayValue());
         json = ref.toJson();
         var arr = BElement.ofJson(json).asArray();
-        Assert.assertEquals(Arrays.asList(1, 2, 3, 4), arr.toList());
+        Assert.assertArrayEquals(new Long[] { 1l, 2l, 3l, 4l }, arr.toList().toArray(new Long[0]));
 
         ref = BReference.of(pojo.getIntValue());
         json = ref.toJson();
         var val = BElement.ofJson(json).asValue();
-        Assert.assertEquals(1, val.getData());
+        Assert.assertEquals(1l, val.getData());
 
         var obj = BObject.of("ref", BReference.of(pojo));
         json = obj.toJson();
         after = BElement.ofJson(json).asObject();
         Assert.assertEquals(1, (int) after.getObject("ref").getInteger("intValue"));
-        Assert.assertEquals(Arrays.asList(1, 2, 3, 4), after.getObject("ref").getArray("intArrayValue").toList());
+        Assert.assertArrayEquals(new Long[] { 1l, 2l, 3l, 4l },
+                after.getObject("ref").getArray("intArrayValue").toList().toArray(new Long[0]));
     }
 
     @Test
@@ -97,7 +96,6 @@ public class TestJsonSerializer {
     }
 
     @Test
-    @Ignore
     public void testSerializePojo() {
         Foo foo = Foo.builder() //
                 .intArrayValue(new int[] { 1, 2, 3, 4 }) //
@@ -108,7 +106,7 @@ public class TestJsonSerializer {
                 .build();
 
         var reference = BReference.of(foo);
-        var json = new String(reference.toBytes("jsonNormalCompact"));
+        var json = new String(reference.toBytes("jsonCompact"));
         var after = BElement.ofJson(json).asObject().toPojo(Foo.class);
 
         Assert.assertArrayEquals(foo.getIntArrayValue(), after.getIntArrayValue());
@@ -117,7 +115,6 @@ public class TestJsonSerializer {
     }
 
     @Test
-    @Ignore
     public void testArbitraryPrecisionNumerical() {
         double dValue = 3.01E+7;
         var decimal = new BigDecimal(dValue);
@@ -134,13 +131,14 @@ public class TestJsonSerializer {
                 .build();
 
         var json = BReference.of(value).toJson();
-        System.out.println(json);
-        assertEquals("{\"d\":" + d + ",\"integer\":" + integer + ",\"decimal\":" + decimal + "}", json);
+        assertEquals(BReference.of(value).toBObject(), BElement.ofJson(json));
     }
 
     @Test
     public void testJsonFromString() {
-        var value = BElement.ofJson("this is test text");
-        System.out.println(value);
+        var orginalText = "this is test text";
+        var value = BElement.ofJson(orginalText);
+        assertTrue(value.isValue());
+        assertEquals(orginalText, value.asValue().getString());
     }
 }
