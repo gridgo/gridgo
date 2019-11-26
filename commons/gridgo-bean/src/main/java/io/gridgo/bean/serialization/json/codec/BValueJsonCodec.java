@@ -37,65 +37,33 @@ public class BValueJsonCodec implements JsonCodec<BValue> {
 
     @Override
     public BValue read(JsonReader reader) throws IOException {
-        return _read(reader, true);
+        return read(reader, true);
     }
 
-    BValue _read(JsonReader reader, boolean isBeginning) throws ParsingException, IOException {
-        switch (reader.last()) {
-        case 'n':
-            var wasNull = false;
-            try {
-                wasNull = reader.wasNull();
-            } catch (ParsingException e) {
-                if (isBeginning)
-                    return BValue.of(reader.toString());
-            }
-
-            if (!wasNull)
-                throw reader.newParseErrorAt("Expecting 'null' for false constant", 0);
-
-            return BValue.of(null);
-        case 't':
-            var wasTrue = false;
-            try {
-                wasTrue = reader.wasTrue();
-            } catch (ParsingException e) {
-                if (isBeginning)
-                    return BValue.of(reader.toString());
-            }
-
-            if (!wasTrue)
-                throw reader.newParseErrorAt("Expecting 'true' for false constant", 0);
-
-            return BValue.of(true);
-        case 'f':
-            var wasFalse = false;
-            try {
-                wasFalse = reader.wasFalse();
-            } catch (ParsingException e) {
-                if (isBeginning)
-                    return BValue.of(reader.toString());
-            }
-
-            if (!wasFalse)
-                throw reader.newParseErrorAt("Expecting 'false' for false constant", 0);
-            return BValue.of(false);
-        case '"':
-            try {
+    BValue read(JsonReader reader, boolean isBeginning) throws ParsingException, IOException {
+        try {
+            switch (reader.last()) {
+            case 'n':
+                if (!reader.wasNull())
+                    throw reader.newParseErrorAt("Expecting 'null' for false constant", 0);
+                return BValue.of(null);
+            case 't':
+                if (!reader.wasTrue())
+                    throw reader.newParseErrorAt("Expecting 'true' for false constant", 0);
+                return BValue.of(true);
+            case 'f':
+                if (!reader.wasFalse())
+                    throw reader.newParseErrorAt("Expecting 'false' for false constant", 0);
+                return BValue.of(false);
+            case '"':
                 return BValue.of(reader.readString());
-            } catch (ParsingException ex) {
-                if (isBeginning)
-                    return BValue.of(reader.toString());
-                throw ex;
-            }
-        default:
-            try {
+            default:
                 return BValue.of(NumberConverter.deserializeNumber(reader));
-            } catch (ParsingException ex) {
-                if (isBeginning)
-                    return BValue.of(reader.toString());
-                throw ex;
             }
+        } catch (ParsingException e) {
+            if (isBeginning)
+                return BValue.of(reader.toString());
+            throw e;
         }
     }
 }

@@ -54,7 +54,7 @@ public class BElementJsonCodec implements JsonCodec<BElement> {
         case '[':
             return arrayCodec.read(reader);
         default:
-            return valueCodec._read(reader, isBeginning);
+            return valueCodec.read(reader, isBeginning);
         }
     }
 
