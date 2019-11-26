@@ -64,11 +64,11 @@ public class BObjectJsonCodec implements JsonCodec<BObject> {
             return res;
 
         String key = reader.readKey();
-        res.put(key, compositeCodec.read(reader));
+        res.put(key, compositeCodec.read(reader, false));
         while ((nextToken = reader.getNextToken()) == ',') {
             reader.getNextToken();
             key = reader.readKey();
-            res.put(key, compositeCodec.read(reader));
+            res.put(key, compositeCodec.read(reader, false));
         }
         if (nextToken != '}')
             throw reader.newParseError("Expecting '}' for map end");

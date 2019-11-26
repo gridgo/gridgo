@@ -47,16 +47,19 @@ public class BElementJsonCodec implements JsonCodec<BElement> {
             referenceCodec.write(writer, value.asReference());
     }
 
-    @Override
-    public BElement read(JsonReader reader) throws IOException {
+    BElement read(JsonReader reader, boolean isBeginning) throws IOException {
         switch (reader.last()) {
         case '{':
             return objectCodec.read(reader);
         case '[':
             return arrayCodec.read(reader);
         default:
-            return valueCodec.read(reader);
+            return valueCodec._read(reader, isBeginning);
         }
     }
 
+    @Override
+    public BElement read(JsonReader reader) throws IOException {
+        return read(reader, true);
+    }
 }

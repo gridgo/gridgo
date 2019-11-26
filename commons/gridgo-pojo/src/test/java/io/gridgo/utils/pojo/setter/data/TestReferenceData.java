@@ -23,7 +23,6 @@ public class TestReferenceData {
             public Object getReference() {
                 return testValue;
             }
-
         };
     }
 

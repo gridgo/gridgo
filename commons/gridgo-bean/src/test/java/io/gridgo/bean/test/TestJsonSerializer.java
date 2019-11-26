@@ -137,4 +137,10 @@ public class TestJsonSerializer {
         System.out.println(json);
         assertEquals("{\"d\":" + d + ",\"integer\":" + integer + ",\"decimal\":" + decimal + "}", json);
     }
+
+    @Test
+    public void testJsonFromString() {
+        var value = BElement.ofJson("this is test text");
+        System.out.println(value);
+    }
 }

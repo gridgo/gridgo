@@ -5,6 +5,7 @@ import java.io.IOException;
 import com.dslplatform.json.JsonReader;
 import com.dslplatform.json.JsonWriter;
 import com.dslplatform.json.NumberConverter;
+import com.dslplatform.json.ParsingException;
 
 import io.gridgo.bean.BValue;
 import io.gridgo.utils.ByteArrayUtils;
@@ -20,7 +21,7 @@ public class BValueJsonCodec implements JsonCodec<BValue> {
             writer.writeNull();
             return;
         }
-        
+
         switch (value.getType()) {
         case CHAR:
             writer.writeString(value.getString());
@@ -30,32 +31,71 @@ public class BValueJsonCodec implements JsonCodec<BValue> {
             break;
         default:
             writer.serializeObject(value.getData());
-            break;        
+            break;
         }
     }
 
     @Override
     public BValue read(JsonReader reader) throws IOException {
+        return _read(reader, true);
+    }
+
+    BValue _read(JsonReader reader, boolean isBeginning) throws ParsingException, IOException {
         switch (reader.last()) {
         case 'n':
-            if (!reader.wasNull()) {
-                throw reader.newParseErrorAt("Expecting 'null' for null constant", 0);
+            var wasNull = false;
+            try {
+                wasNull = reader.wasNull();
+            } catch (ParsingException e) {
+                if (isBeginning)
+                    return BValue.of(reader.toString());
             }
+
+            if (!wasNull)
+                throw reader.newParseErrorAt("Expecting 'null' for false constant", 0);
+
             return BValue.of(null);
         case 't':
-            if (!reader.wasTrue()) {
-                throw reader.newParseErrorAt("Expecting 'true' for true constant", 0);
+            var wasTrue = false;
+            try {
+                wasTrue = reader.wasTrue();
+            } catch (ParsingException e) {
+                if (isBeginning)
+                    return BValue.of(reader.toString());
             }
+
+            if (!wasTrue)
+                throw reader.newParseErrorAt("Expecting 'true' for false constant", 0);
+
             return BValue.of(true);
         case 'f':
-            if (!reader.wasFalse()) {
-                throw reader.newParseErrorAt("Expecting 'false' for false constant", 0);
+            var wasFalse = false;
+            try {
+                wasFalse = reader.wasFalse();
+            } catch (ParsingException e) {
+                if (isBeginning)
+                    return BValue.of(reader.toString());
             }
+
+            if (!wasFalse)
+                throw reader.newParseErrorAt("Expecting 'false' for false constant", 0);
             return BValue.of(false);
         case '"':
-            return BValue.of(reader.readString());
+            try {
+                return BValue.of(reader.readString());
+            } catch (ParsingException ex) {
+                if (isBeginning)
+                    return BValue.of(reader.toString());
+                throw ex;
+            }
         default:
-            return BValue.of(NumberConverter.deserializeNumber(reader));
+            try {
+                return BValue.of(NumberConverter.deserializeNumber(reader));
+            } catch (ParsingException ex) {
+                if (isBeginning)
+                    return BValue.of(reader.toString());
+                throw ex;
+            }
         }
     }
 }
