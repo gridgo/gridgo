@@ -15,12 +15,17 @@ public class TestPojoWithBElement {
 
     private PojoWithBElement pojo;
 
+    private Object obj;
+
     @Before
     public void setup() {
+        obj = new Object();
         pojo = PojoWithBElement.builder() //
                 .bValue(BValue.of("this is test text")) //
                 .bObject(BObject.ofSequence("key1", "value", "key2", 1, "key3", true)) //
                 .bArray(BArray.ofSequence("text", false, 1, 'z')) //
+                .bContainer(BObject.ofSequence("key", true)) //
+                .bReference(BReference.of(obj)) //
                 .build();
         pojo.setBElement(BReference.of(TestPojoWithBElement.class));
     }
@@ -28,7 +33,6 @@ public class TestPojoWithBElement {
     @Test
     public void testToBelement() {
         var serialized = BObject.ofPojo(pojo);
-        System.out.println("serialized: " + serialized);
         var deserialized = serialized.asObject().toPojo(PojoWithBElement.class);
         assertEquals(pojo, deserialized);
     }

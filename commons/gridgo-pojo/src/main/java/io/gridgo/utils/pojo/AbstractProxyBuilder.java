@@ -6,7 +6,10 @@ import javassist.CannotCompileException;
 import javassist.CtClass;
 import javassist.CtField;
 import javassist.CtMethod;
+import javassist.bytecode.DuplicateMemberException;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class AbstractProxyBuilder {
 
     protected void buildSetSignatureMethod(CtClass cc, List<PojoMethodSignature> methodSignatures)
@@ -15,7 +18,11 @@ public class AbstractProxyBuilder {
         String subfix = "Signature";
         for (PojoMethodSignature methodSignature : methodSignatures) {
             String fieldName = methodSignature.getFieldName() + subfix;
-            cc.addField(CtField.make("private " + type + " " + fieldName + ";", cc));
+            try {
+                cc.addField(CtField.make("private " + type + " " + fieldName + ";", cc));
+            } catch (DuplicateMemberException e) {
+                log.debug("duplicate field with name: {}, target: {}", methodSignature.getFieldName(), cc.getName());
+            }
         }
 
         String method = "public void setMethodSignature(String fieldName, " + type + " value) {\n";

@@ -12,6 +12,7 @@ import java.util.function.Consumer;
 
 import io.gridgo.bean.exceptions.BeanSerializationException;
 import io.gridgo.bean.factory.BFactory;
+import io.gridgo.utils.annotations.Transient;
 import io.gridgo.utils.wrapper.ByteBufferInputStream;
 import lombok.NonNull;
 
@@ -59,6 +60,7 @@ public interface BReference extends BElement {
     }
 
     @Override
+    @Transient
     default boolean isReference() {
         return true;
     }

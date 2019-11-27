@@ -3,8 +3,10 @@ package io.gridgo.bean.test.support;
 import static lombok.AccessLevel.PRIVATE;
 
 import io.gridgo.bean.BArray;
+import io.gridgo.bean.BContainer;
 import io.gridgo.bean.BElement;
 import io.gridgo.bean.BObject;
+import io.gridgo.bean.BReference;
 import io.gridgo.bean.BValue;
 import io.gridgo.utils.annotations.Transient;
 import io.gridgo.utils.pojo.translator.OnSetTranslate;
@@ -27,6 +29,12 @@ public class PojoWithBElement {
 
     @OnSetTranslate("toBArray")
     private BArray bArray;
+
+    @OnSetTranslate("toBReference")
+    private BReference bReference;
+
+    @OnSetTranslate("toBContainer")
+    private BContainer bContainer;
 
     @Transient
     private transient BElement myBElement;

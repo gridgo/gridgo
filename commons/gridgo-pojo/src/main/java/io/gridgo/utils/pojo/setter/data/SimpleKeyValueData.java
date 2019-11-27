@@ -56,14 +56,15 @@ public class SimpleKeyValueData extends SimpleGenericData implements KeyValueDat
 
     @Override
     public GenericData getOrTake(String key, Supplier<GenericData> onAbsentSupplier) {
-        if (map.containsKey(key))
-            return SimpleGenericData.of(map.get(key));
-        return onAbsentSupplier.get();
+        var value = map.get(key);
+        if (value == null)
+            return onAbsentSupplier.get();
+        return SimpleGenericData.of(value);
     }
 
     @Override
     public GenericData getOrDefault(String key, GenericData def) {
-        var value = get(key);
+        var value = map.get(key);
         if (value == null)
             return def;
         return SimpleGenericData.of(value);

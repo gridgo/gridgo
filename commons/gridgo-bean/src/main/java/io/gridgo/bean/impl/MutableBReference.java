@@ -16,17 +16,17 @@ public class MutableBReference extends AbstractBElement implements BReference {
     private Object reference;
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(Object other) {
         final Object myValue = this.getReference();
-        final Object other;
-        if (obj instanceof BReference) {
-            other = ((BReference) obj).getReference();
-        } else {
-            other = obj;
-        }
+        Object otherValue = other;
+
+        if (other instanceof BReference)
+            otherValue = ((BReference) other).getReference();
+
         return myValue == null //
-                ? other == null //
-                : myValue.equals(obj);
+                ? otherValue == null //
+                : myValue.equals(otherValue);
+
     }
 
     @Override
