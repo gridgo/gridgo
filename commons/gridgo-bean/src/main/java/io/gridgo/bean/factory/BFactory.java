@@ -18,6 +18,7 @@ import io.gridgo.bean.BElement;
 import io.gridgo.bean.BObject;
 import io.gridgo.bean.BReference;
 import io.gridgo.bean.BValue;
+import io.gridgo.bean.exceptions.BeanSerializationException;
 import io.gridgo.bean.exceptions.InvalidTypeException;
 import io.gridgo.bean.serialization.BSerializer;
 import io.gridgo.bean.serialization.BSerializerRegistry;
@@ -227,7 +228,7 @@ public interface BFactory {
     default BSerializer lookupOrDefaultSerializer(String serializerName) {
         var serializer = this.getSerializerRegistry().lookupOrDefault(serializerName);
         if (serializer == null) {
-            throw new NullPointerException("Cannot found serializer name " + serializerName);
+            throw new BeanSerializationException("Cannot found serializer name " + serializerName);
         }
         return serializer;
     }
