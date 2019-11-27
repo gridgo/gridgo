@@ -13,7 +13,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import io.gridgo.utils.pojo.exception.RuntimeReflectiveOperationException;
 import io.gridgo.utils.pojo.getter.PojoGetterProxy;
 import io.gridgo.utils.pojo.getter.PojoGetterRegistry;
 import io.gridgo.utils.pojo.setter.PojoSetterProxy;
@@ -107,7 +106,7 @@ public class PojoUtils {
             } catch (NoSuchFieldException e) {
                 return null;
             } catch (Exception e) {
-                throw new RuntimeReflectiveOperationException(
+                throw new RuntimeException(
                         "Error while get declared field name `" + fieldName + "` in type: " + clazz.getName(), e);
             }
 

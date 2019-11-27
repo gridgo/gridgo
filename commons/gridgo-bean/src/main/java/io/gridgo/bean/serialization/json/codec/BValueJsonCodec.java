@@ -45,11 +45,11 @@ public class BValueJsonCodec implements JsonCodec<BValue> {
             switch (reader.last()) {
             case 'n':
                 if (!reader.wasNull())
-                    throw reader.newParseErrorAt("Expecting 'null' for false constant", 0);
+                    throw reader.newParseErrorAt("Expecting 'null' for null constant", 0);
                 return BValue.of(null);
             case 't':
                 if (!reader.wasTrue())
-                    throw reader.newParseErrorAt("Expecting 'true' for false constant", 0);
+                    throw reader.newParseErrorAt("Expecting 'true' for true constant", 0);
                 return BValue.of(true);
             case 'f':
                 if (!reader.wasFalse())

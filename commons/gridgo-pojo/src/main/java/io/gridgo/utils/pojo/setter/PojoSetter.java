@@ -194,19 +194,19 @@ public class PojoSetter {
         if (resultElementType == Object.class) {
             coll.addAll(array.toList());
         } else {
-            for (GenericData bElement : array) {
-                if (bElement == null || bElement.isNull()) {
+            for (var element : array) {
+                if (element == null || element.isNull()) {
                     if (!signature.isSetType())
                         coll.add(null);
                     else
                         log.warn("got null value for field {}, target is a set which doesn't allow null, ignored",
                                 signature.getFieldName());
-                } else if (bElement.isKeyValue()) {
+                } else if (element.isKeyValue()) {
                     coll.add(ofType(resultElementType, signature.getElementSetterProxy()) //
-                            .from(bElement.asKeyValue()) //
+                            .from(element.asKeyValue()) //
                             .fill());
-                } else if (bElement.isSequence()) {
-                    List<Object> list = bElement.asSequence().toList();
+                } else if (element.isSequence()) {
+                    List<Object> list = element.asSequence().toList();
                     if (resultElementType.isArray()) {
                         var compType = resultElementType.getComponentType();
                         if (compType.isPrimitive()) {
@@ -217,12 +217,12 @@ public class PojoSetter {
                     } else {
                         coll.add(list);
                     }
-                } else if (bElement.isPrimitive()) {
-                    coll.add(bElement.asPrimitive().getDataAs(resultElementType));
-                } else if (bElement.isReference()) {
-                    coll.add(bElement.asReference().getReference());
+                } else if (element.isPrimitive()) {
+                    coll.add(element.asPrimitive().getDataAs(resultElementType));
+                } else if (element.isReference()) {
+                    coll.add(element.asReference().getReference());
                 } else {
-                    throw new UnsupportedTypeException("Unknown element type: " + bElement.getClass());
+                    throw new UnsupportedTypeException("Unknown element type: " + element.getClass());
                 }
             }
         }

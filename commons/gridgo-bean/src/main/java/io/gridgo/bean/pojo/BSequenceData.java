@@ -34,11 +34,6 @@ public class BSequenceData extends BGenericData implements SequenceData {
     }
 
     @Override
-    public GenericData get(int index) {
-        return BGenericData.ofAny(value.get(index));
-    }
-
-    @Override
     public BElement getBElement() {
         return this.value;
     }

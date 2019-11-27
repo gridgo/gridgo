@@ -38,10 +38,6 @@ public class TestSequenceData {
                 return list.iterator();
             }
 
-            @Override
-            public GenericData get(int index) {
-                return list.get(index);
-            }
         };
     }
 
@@ -56,8 +52,6 @@ public class TestSequenceData {
 
         assertTrue(data.getInnerValue() instanceof List);
         assertEquals(1, ((List) data.getInnerValue()).size());
-
-        assertEquals(testData, data.get(0));
 
         var set = data.toSet();
         assertTrue(set instanceof Set);

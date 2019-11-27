@@ -13,8 +13,6 @@ public interface SequenceData extends GenericData, Iterable<GenericData> {
         return true;
     }
 
-    GenericData get(int index);
-
     default List toList() {
         var list = new LinkedList<Object>();
         for (var data : this) {
