@@ -9,7 +9,6 @@ import io.gridgo.bean.BArray;
 import io.gridgo.bean.BObject;
 import io.gridgo.bean.BReference;
 import io.gridgo.bean.BValue;
-import io.gridgo.bean.pojo.BElementPojoHelper;
 import io.gridgo.bean.test.support.PojoWithBElement;
 
 public class TestPojoWithBElement {
@@ -28,9 +27,9 @@ public class TestPojoWithBElement {
 
     @Test
     public void testToBelement() {
-        var serialized = BElementPojoHelper.anyToBElement(pojo);
+        var serialized = BObject.ofPojo(pojo);
         System.out.println("serialized: " + serialized);
-        var deserialized = BElementPojoHelper.bObjectToPojo(serialized.asObject(), PojoWithBElement.class);
+        var deserialized = serialized.asObject().toPojo(PojoWithBElement.class);
         assertEquals(pojo, deserialized);
     }
 }

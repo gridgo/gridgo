@@ -6,7 +6,8 @@ import java.util.function.Supplier;
 
 import io.gridgo.bean.exceptions.InvalidTypeException;
 import io.gridgo.bean.factory.BFactory;
-import io.gridgo.bean.pojo.BElementPojoHelper;
+import io.gridgo.bean.pojo.BGenericData;
+import io.gridgo.utils.pojo.setter.PojoSetter;
 import io.gridgo.utils.pojo.setter.PojoSetterProxy;
 import lombok.NonNull;
 
@@ -32,10 +33,16 @@ public interface BObject extends BContainer, Map<String, BElement> {
         return BFactory.DEFAULT.newObject(data);
     }
 
+    /**
+     * convert any pojo to mutable key-value BObject
+     * 
+     * @param pojo object tobe converted
+     * @return null if input pojo is null, result BObject otherwise
+     */
     static BObject ofPojo(Object pojo) {
         if (pojo == null)
             return null;
-        return BElementPojoHelper.anyToBElement(pojo).asObject();
+        return BElementUtils.anyToBElement(pojo, null).asObject();
     }
 
     static BObject ofSequence(Object... sequence) {
@@ -271,17 +278,17 @@ public interface BObject extends BContainer, Map<String, BElement> {
     }
 
     default BElement putAnyPojo(String name, Object pojo) {
-        return this.putAny(name, pojo == null ? null : BElementPojoHelper.anyToBElement(pojo).asObject());
+        return this.putAny(name, pojo == null ? null : BElementUtils.anyToBElement(pojo, null).asObject());
     }
 
     default BElement putAnyPojoIfAbsent(String name, Object pojo) {
-        return this.putAnyIfAbsent(name, pojo == null ? null : BElementPojoHelper.anyToBElement(pojo).asObject());
+        return this.putAnyIfAbsent(name, pojo == null ? null : BElementUtils.anyToBElement(pojo, null).asObject());
     }
 
     default void putAnyAllPojo(Object pojo) {
         if (pojo == null)
             return;
-        putAnyAll(BElementPojoHelper.anyToBElement(pojo).asObject());
+        putAnyAll(BElementUtils.anyToBElement(pojo, null).asObject());
     }
 
     default void putAnySequence(Object... elements) {
@@ -352,12 +359,14 @@ public interface BObject extends BContainer, Map<String, BElement> {
         return result;
     }
 
-    default <T> T toPojo(Class<T> clazz) {
-        return BElementPojoHelper.bObjectToPojo(this, clazz);
+    @SuppressWarnings("unchecked")
+    default <T> T toPojo(Class<T> toType) {
+        return (T) PojoSetter.ofType(toType).from(BGenericData.ofObject(this)).fill();
     }
 
-    default <T> T toPojo(Class<T> clazz, PojoSetterProxy setterProxy) {
-        return BElementPojoHelper.bObjectToPojo(this, clazz, setterProxy);
+    @SuppressWarnings("unchecked")
+    default <T> T toPojo(Class<T> toType, PojoSetterProxy setterProxy) {
+        return (T) PojoSetter.ofType(toType, setterProxy).from(BGenericData.ofObject(this)).fill();
     }
 
     @SuppressWarnings("unchecked")

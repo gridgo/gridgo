@@ -192,13 +192,14 @@ public interface BFactory {
     }
 
     default <T extends BElement> T fromAny(Object obj) {
-        if (obj instanceof BElement) {
+        Class<?> type;
+        if (BElement.class.isInstance(obj)) {
             return (T) ((BElement) obj);
-        } else if (obj == null || (obj instanceof byte[]) || PrimitiveUtils.isPrimitive(obj.getClass())) {
+        } else if (obj == null || (obj instanceof byte[]) || PrimitiveUtils.isPrimitive(type = obj.getClass())) {
             return (T) newValue(obj);
-        } else if (ArrayUtils.isArrayOrCollection(obj.getClass())) {
+        } else if (ArrayUtils.isArrayOrCollection(type)) {
             return (T) newArray(obj);
-        } else if (obj instanceof Map<?, ?> || obj instanceof Properties) {
+        } else if (Map.class.isInstance(obj) || Properties.class.isInstance(obj)) {
             return (T) newObject(obj);
         }
         return (T) newReference(obj);

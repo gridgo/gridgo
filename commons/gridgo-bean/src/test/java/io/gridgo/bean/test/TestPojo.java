@@ -12,7 +12,6 @@ import org.junit.Test;
 import io.gridgo.bean.BElement;
 import io.gridgo.bean.BObject;
 import io.gridgo.bean.BReference;
-import io.gridgo.bean.pojo.BElementPojoHelper;
 import io.gridgo.bean.test.support.Bar;
 import io.gridgo.bean.test.support.Foo;
 import io.gridgo.bean.test.support.NumberCollectionPojo;
@@ -48,7 +47,7 @@ public class TestPojo {
         BObject originalAsBObject = BObject.ofPojo(original);
         byte[] bytes = originalAsBObject.toBytes();
 
-        Foo rebuilt = BElementPojoHelper.bObjectToPojo(BElement.ofBytes(bytes), Foo.class);
+        Foo rebuilt = BElement.ofBytes(bytes).asObject().toPojo(Foo.class);
 
         // convert pojo to bobject to execute equals field by field
         assertEquals(originalAsBObject, BObject.ofPojo(rebuilt));

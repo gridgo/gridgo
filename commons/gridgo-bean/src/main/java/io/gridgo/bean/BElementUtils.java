@@ -1,4 +1,4 @@
-package io.gridgo.bean.pojo;
+package io.gridgo.bean;
 
 import static io.gridgo.utils.ArrayUtils.foreachArray;
 import static io.gridgo.utils.PrimitiveUtils.isPrimitive;
@@ -7,23 +7,12 @@ import java.sql.Date;
 import java.util.Collection;
 import java.util.Map;
 
-import io.gridgo.bean.BArray;
-import io.gridgo.bean.BElement;
-import io.gridgo.bean.BObject;
-import io.gridgo.bean.BReference;
-import io.gridgo.bean.BValue;
 import io.gridgo.utils.pojo.PojoUtils;
 import io.gridgo.utils.pojo.getter.PojoGetterProxy;
-import io.gridgo.utils.pojo.setter.PojoSetter;
-import io.gridgo.utils.pojo.setter.PojoSetterProxy;
-import lombok.NonNull;
 
-public class BElementPojoHelper {
+class BElementUtils {
 
-    public static BElement anyToBElement(Object any) {
-        return anyToBElement(any, null);
-    }
-
+    @SuppressWarnings("unchecked")
     public static BElement anyToBElement(Object target, PojoGetterProxy proxy) {
         if (target == null)
             return BValue.of(null);
@@ -47,11 +36,11 @@ public class BElementPojoHelper {
         }
 
         if (Collection.class.isInstance(target)) {
-            return collectionToBArray(target, proxy);
+            return collectionToBArray((Collection<?>) target, proxy);
         }
 
         if (Map.class.isInstance(target)) {
-            return mapToBObject(target, proxy);
+            return mapToBObject((Map<?, ?>) target, proxy);
         }
 
         proxy = proxy == null ? PojoUtils.getGetterProxy(type) : proxy;
@@ -60,15 +49,19 @@ public class BElementPojoHelper {
         proxy.walkThrough(target, (signature, value) -> {
             var fieldName = signature.getTransformedOrDefaultFieldName();
             var elementProxy = signature.getElementGetterProxy();
+
+            var valueTranslator = signature.getValueTranslator();
+            if (valueTranslator != null && valueTranslator.translatable(value))
+                value = valueTranslator.translate(value, signature);
+
             var entryValue = anyToBElement(value, elementProxy == null ? signature.getGetterProxy() : elementProxy);
             result.put(fieldName, entryValue);
         });
         return result;
     }
 
-    private static BElement mapToBObject(Object target, PojoGetterProxy proxy) {
+    private static BElement mapToBObject(Map<?, ?> map, PojoGetterProxy proxy) {
         var result = BObject.ofEmpty();
-        var map = (Map<?, ?>) target;
         var it = map.entrySet().iterator();
         while (it.hasNext()) {
             var entry = it.next();
@@ -79,12 +72,9 @@ public class BElementPojoHelper {
         return result;
     }
 
-    private static BElement collectionToBArray(Object target, PojoGetterProxy proxy) {
-        var it = ((Collection<?>) target).iterator();
+    private static BElement collectionToBArray(Collection<?> target, PojoGetterProxy proxy) {
         var list = BArray.ofEmpty();
-        while (it.hasNext()) {
-            list.add(anyToBElement(it.next(), proxy));
-        }
+        target.forEach(list::addAny);
         return list;
     }
 
@@ -92,15 +82,5 @@ public class BElementPojoHelper {
         var list = BArray.ofEmpty();
         foreachArray(array, ele -> list.add(anyToBElement(ele, proxy)));
         return list;
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <T> T bObjectToPojo(@NonNull BObject src, @NonNull Class<T> type) {
-        return (T) PojoSetter.ofType(type).from(BGenericData.ofObject(src)).fill();
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <T> T bObjectToPojo(@NonNull BObject src, Class<T> type, PojoSetterProxy proxy) {
-        return (T) PojoSetter.ofType(type, proxy).from(BGenericData.ofObject(src)).fill();
     }
 }
