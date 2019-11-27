@@ -19,14 +19,13 @@ import io.gridgo.bean.BObject;
 import io.gridgo.bean.BReference;
 import io.gridgo.bean.BValue;
 import io.gridgo.bean.exceptions.InvalidTypeException;
-import io.gridgo.bean.serialization.BSerializer;
-import io.gridgo.bean.serialization.BSerializerRegistry;
+import io.gridgo.bean.serialization.BSerializerRegistryAware;
 import io.gridgo.utils.ArrayUtils;
 import io.gridgo.utils.PrimitiveUtils;
 import lombok.NonNull;
 
 @SuppressWarnings("unchecked")
-public interface BFactory {
+public interface BFactory extends BSerializerRegistryAware {
 
     static final BFactory DEFAULT = new SimpleBFactory();
 
@@ -45,8 +44,6 @@ public interface BFactory {
     static BValue newDefaultValue() {
         return DEFAULT.newValue();
     }
-
-    BSerializerRegistry getSerializerRegistry();
 
     Supplier<BReference> getReferenceSupplier();
 
@@ -207,29 +204,13 @@ public interface BFactory {
     default <T extends BElement> T fromJson(InputStream inputStream) {
         if (inputStream == null)
             return null;
-        return this.fromAny(this.lookupDeserializer("json").deserialize(inputStream));
+        return this.fromAny(this.lookupSerializer("json").deserialize(inputStream));
     }
 
     default <T extends BElement> T fromJson(String json) {
         if (json == null)
             return null;
         return fromJson(new ByteArrayInputStream(json.getBytes(Charset.forName("UTF-8"))));
-    }
-
-    default BSerializer lookupDeserializer(String serializerName) {
-        var serializer = this.getSerializerRegistry().lookup(serializerName);
-        if (serializer == null) {
-            throw new NullPointerException("Cannot found serializer name " + serializerName);
-        }
-        return serializer;
-    }
-
-    default BSerializer lookupOrDefaultSerializer(String serializerName) {
-        var serializer = this.getSerializerRegistry().lookupOrDefault(serializerName);
-        if (serializer == null) {
-            throw new NullPointerException("Cannot found serializer name " + serializerName);
-        }
-        return serializer;
     }
 
     default <T extends BElement> T fromBytes(@NonNull InputStream in, String serializerName) {

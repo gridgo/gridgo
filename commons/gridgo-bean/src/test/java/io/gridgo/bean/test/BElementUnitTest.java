@@ -1,15 +1,16 @@
 package io.gridgo.bean.test;
 
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
-
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 
 import io.gridgo.bean.BArray;
 import io.gridgo.bean.BObject;
 import io.gridgo.bean.BReference;
 import io.gridgo.bean.BValue;
+import io.gridgo.bean.exceptions.BeanSerializationException;
 
 public class BElementUnitTest {
 
@@ -73,6 +74,11 @@ public class BElementUnitTest {
             counter.addAndGet((int) b.getReference());
         });
         Assert.assertEquals(0, counter.intValue());
+    }
 
+    @Test(expected = BeanSerializationException.class)
+    public void testSerializerNotFound() {
+        var val = BValue.of(1);
+        val.toBytes("test");
     }
 }
