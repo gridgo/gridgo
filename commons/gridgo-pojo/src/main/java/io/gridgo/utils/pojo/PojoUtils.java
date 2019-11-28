@@ -85,8 +85,6 @@ public class PojoUtils {
      * when field have generic type declaration
      *
      * @return list of generic types belong to corresponding field
-     * @throws RuntimeReflectiveOperationException if the corresponding field not
-     *                                             found
      */
     public static final Class<?>[] extractGenericTypes(Method method, String fieldName) {
 
