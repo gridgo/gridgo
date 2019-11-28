@@ -2,6 +2,9 @@ package io.gridgo.utils.pojo.translator;
 
 import static io.gridgo.utils.ClasspathUtils.scanForAnnotatedMethods;
 import static io.gridgo.utils.ClasspathUtils.scanForAnnotatedTypes;
+import static io.gridgo.utils.pojo.PojoMethodType.GETTER;
+import static io.gridgo.utils.pojo.PojoMethodType.NONE;
+import static io.gridgo.utils.pojo.PojoMethodType.SETTER;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -21,7 +24,11 @@ public class ValueTranslators implements ClasspathScanner {
     @Getter
     private static final ValueTranslators instance = new ValueTranslators();
 
-    private final Map<String, ValueTranslator> registry = new NonBlockingHashMap<>();
+    private final Map<String, ValueTranslator> nameRegistry = new NonBlockingHashMap<>();
+
+    private final Map<Class<?>, ValueTranslator> getterDefaultRegistry = new NonBlockingHashMap<>();
+
+    private final Map<Class<?>, ValueTranslator> setterDefaultRegistry = new NonBlockingHashMap<>();
 
     private ValueTranslators() {
         var packages = new HashSet<String>();
@@ -62,31 +69,80 @@ public class ValueTranslators implements ClasspathScanner {
     }
 
     private void acceptAnnotatedMethod(Method method, RegisterValueTranslator annotation) {
-        register(annotation.value(), new ReflectiveMethodValueTranslator(method));
+        var translator = new ReflectiveMethodValueTranslator(method);
+        registerByAnnotation(annotation, translator);
     }
 
-    private void acceptAnnotatedClass(Class<?> clz, RegisterValueTranslator annotation) {
-        register(annotation.value(), clz);
-    }
-
-    public ValueTranslator register(@NonNull String key, @NonNull Class<?> clazz) {
+    private void acceptAnnotatedClass(Class<?> clazz, RegisterValueTranslator annotation) {
+        ValueTranslator translator;
         try {
-            return register(key, (ValueTranslator) clazz.getConstructor().newInstance());
+            translator = (ValueTranslator) clazz.getConstructor().newInstance();
         } catch (Exception e) {
-            throw new RuntimeException("Invalid registered translator type: " + clazz + " for key: `" + key + "`");
+            throw new RuntimeException("Cannot create instance for value translator: " + clazz, e);
         }
+
+        registerByAnnotation(annotation, translator);
     }
 
-    public ValueTranslator register(@NonNull String key, @NonNull ValueTranslator translator) {
-        return registry.putIfAbsent(key, translator);
+    private void registerByAnnotation(RegisterValueTranslator annotation, ValueTranslator translator) {
+        Class<?> autoTranslatedType;
+        var defaultMethodType = annotation.defaultFor();
+        if ((autoTranslatedType = annotation.defaultType()) == null //
+                && defaultMethodType != null && defaultMethodType != NONE)
+            throw new RuntimeException("Invalid registering default translator, registered type is null");
+
+        registerByName(annotation.value(), translator);
+
+        if (defaultMethodType == GETTER)
+            registerGetterDefault(autoTranslatedType, translator);
+
+        if (defaultMethodType == SETTER)
+            registerSetterDefault(autoTranslatedType, translator);
     }
 
-    public ValueTranslator unregister(String key) {
-        return registry.remove(key);
+    /**************************************************************
+     ************************** REGISTER **************************
+     **************************************************************/
+    public ValueTranslator registerByName(String key, @NonNull ValueTranslator translator) {
+        return nameRegistry.put(key, translator);
+    }
+
+    public ValueTranslator registerGetterDefault(Class<?> autoTranslated, ValueTranslator translator) {
+        return getterDefaultRegistry.put(autoTranslated, translator);
+    }
+
+    public ValueTranslator registerSetterDefault(Class<?> autoTranslated, ValueTranslator translator) {
+        return setterDefaultRegistry.put(autoTranslated, translator);
+    }
+
+    /**************************************************************
+     ************************* UNREGISTER *************************
+     **************************************************************/
+    public ValueTranslator unregisterByName(String name) {
+        return nameRegistry.remove(name);
+    }
+
+    public ValueTranslator unregisterGetterDefault(Class<?> type) {
+        return getterDefaultRegistry.remove(type);
+    }
+
+    public ValueTranslator unregisterSetterDefault(Class<?> type) {
+        return setterDefaultRegistry.remove(type);
+    }
+
+    /**************************************************************
+     *************************** LOOKUP ***************************
+     **************************************************************/
+    public ValueTranslator lookupSetterDefault(Class<?> type) {
+        return setterDefaultRegistry.get(type);
+    }
+
+    public ValueTranslator lookupGetterDefault(Class<?> type) {
+        return getterDefaultRegistry.get(type);
     }
 
     public ValueTranslator lookup(String key) {
-        return registry.get(key);
+        return nameRegistry.get(key);
     }
 
     public ValueTranslator lookupMandatory(String key) {

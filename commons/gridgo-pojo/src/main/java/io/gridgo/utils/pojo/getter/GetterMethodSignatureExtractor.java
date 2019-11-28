@@ -9,6 +9,7 @@ import static io.gridgo.utils.StringUtils.lowerCaseFirstLetter;
 import static java.lang.reflect.Modifier.isPublic;
 
 import io.gridgo.utils.pojo.AbstractMethodSignatureExtractor;
+import io.gridgo.utils.pojo.IgnoreDefaultTranslator;
 import io.gridgo.utils.pojo.MethodSignatureExtractor;
 import io.gridgo.utils.pojo.PojoMethodSignature;
 import io.gridgo.utils.pojo.translator.OnGetTranslate;
@@ -72,12 +73,17 @@ public class GetterMethodSignatureExtractor extends AbstractMethodSignatureExtra
         }
 
         var field = getCorespondingField(method, fieldName);
-        if (field == null)
-            return null;
-        if (field.isAnnotationPresent(annotationType)) {
+        if (field != null && field.isAnnotationPresent(annotationType)) {
             var key = field.getAnnotation(annotationType).value();
             return ValueTranslators.getInstance().lookupMandatory(key);
         }
+
+        var isIgnoreDefault = method.isAnnotationPresent(IgnoreDefaultTranslator.class) //
+                || method.getDeclaringClass().isAnnotationPresent(IgnoreDefaultTranslator.class) //
+                || (field != null && field.isAnnotationPresent(IgnoreDefaultTranslator.class));
+
+        if (!isIgnoreDefault)
+            return ValueTranslators.getInstance().lookupGetterDefault(method.getReturnType());
 
         return null;
     }

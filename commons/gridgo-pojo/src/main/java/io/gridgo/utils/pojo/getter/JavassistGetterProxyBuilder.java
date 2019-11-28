@@ -25,8 +25,7 @@ class JavassistGetterProxyBuilder extends AbstractProxyBuilder implements PojoGe
             cc.defrost();
             cc.addInterface(pool.get(PojoGetterProxy.class.getName()));
 
-            List<PojoMethodSignature> methodSignatures = GetterMethodSignatureExtractor.getInstance()
-                    .extractMethodSignatures(target);
+            var methodSignatures = GetterMethodSignatureExtractor.getInstance().extractMethodSignatures(target);
             StringBuilder allFieldsBuilder = new StringBuilder();
             for (PojoMethodSignature signature : methodSignatures) {
                 if (allFieldsBuilder.length() > 0) {

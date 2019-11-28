@@ -32,19 +32,6 @@ public class TestValueTranslator {
         }
     }
 
-    public static class CannotCreateInstance implements ValueTranslator<String, String> {
-
-        private CannotCreateInstance() {
-            // cannot create
-        }
-
-        @Override
-        public String translate(String obj, PojoMethodSignature signature) {
-            classCalled = true;
-            return "Hello " + obj;
-        }
-    }
-
     @Before
     public void setup() {
         System.setProperty("gridgo.pojo.translator.scan", "io.gridgo.utils,");
@@ -66,7 +53,7 @@ public class TestValueTranslator {
 
         assertTrue(methodCalled);
 
-        var removed = ValueTranslators.getInstance().unregister("dateToTimeStamp");
+        var removed = ValueTranslators.getInstance().unregisterByName("dateToTimeStamp");
         assertTrue(translator == removed);
     }
 
@@ -85,7 +72,7 @@ public class TestValueTranslator {
 
         assertTrue(classCalled);
 
-        var removed = ValueTranslators.getInstance().unregister("greeting");
+        var removed = ValueTranslators.getInstance().unregisterByName("greeting");
         assertTrue(translator == removed);
     }
 
@@ -95,28 +82,18 @@ public class TestValueTranslator {
     }
 
     @Test(expected = RuntimeException.class)
-    public void testRegisterValueTranslatorError() {
-        ValueTranslators.getInstance().register("error", CannotCreateInstance.class);
-    }
-
-    @Test(expected = RuntimeException.class)
-    public void testRegisterValueTranslatorNullKey() {
-        ValueTranslators.getInstance().register(null, MyTranslator.class);
-    }
-
-    @Test(expected = RuntimeException.class)
     public void testRegisterValueTranslatorNullKey2() {
-        ValueTranslators.getInstance().register(null, new MyTranslator());
+        ValueTranslators.getInstance().registerByName(null, new MyTranslator());
     }
 
     @Test(expected = RuntimeException.class)
     public void testRegisterValueTranslatorNullValue() {
-        ValueTranslators.getInstance().register("", (Class<?>) null);
+        ValueTranslators.getInstance().registerByName("", null);
     }
 
     @SuppressWarnings("rawtypes")
     @Test(expected = RuntimeException.class)
     public void testRegisterValueTranslatorNullValue2() {
-        ValueTranslators.getInstance().register("", (ValueTranslator) null);
+        ValueTranslators.getInstance().registerByName("", (ValueTranslator) null);
     }
 }

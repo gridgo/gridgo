@@ -7,12 +7,13 @@ import io.gridgo.bean.BObject;
 import io.gridgo.bean.BReference;
 import io.gridgo.bean.BValue;
 import io.gridgo.utils.pojo.PojoMethodSignature;
+import io.gridgo.utils.pojo.PojoMethodType;
 import io.gridgo.utils.pojo.setter.data.GenericData;
 import io.gridgo.utils.pojo.translator.RegisterValueTranslator;
 
 public abstract class BElementTranslators {
 
-    @RegisterValueTranslator("toBArray")
+    @RegisterValueTranslator(value = "toBArray", defaultFor = PojoMethodType.SETTER, defaultType = BArray.class)
     public static BArray toBArray(GenericData ele, PojoMethodSignature signature) {
         if (ele == null)
             return null;
@@ -29,7 +30,7 @@ public abstract class BElementTranslators {
         return BArray.of(ele.asSequence().toList());
     }
 
-    @RegisterValueTranslator("toBObject")
+    @RegisterValueTranslator(value = "toBObject", defaultFor = PojoMethodType.SETTER, defaultType = BObject.class)
     public static BObject toBObject(GenericData ele, PojoMethodSignature signature) {
         if (ele == null)
             return null;
@@ -52,7 +53,7 @@ public abstract class BElementTranslators {
         return BObject.wrap(ele.asKeyValue().toMap());
     }
 
-    @RegisterValueTranslator("toBValue")
+    @RegisterValueTranslator(value = "toBValue", defaultFor = PojoMethodType.SETTER, defaultType = BValue.class)
     public static BValue toBValue(GenericData ele, PojoMethodSignature signature) {
         if (ele == null)
             return null;
@@ -68,7 +69,7 @@ public abstract class BElementTranslators {
         return BValue.of(ele.asPrimitive().getData());
     }
 
-    @RegisterValueTranslator("toBReference")
+    @RegisterValueTranslator(value = "toBReference", defaultFor = PojoMethodType.SETTER, defaultType = BReference.class)
     public static BReference toBReference(GenericData ele, PojoMethodSignature signature) {
         if (ele == null)
             return null;
@@ -85,7 +86,7 @@ public abstract class BElementTranslators {
         return BReference.of(ele.asReference().getReference());
     }
 
-    @RegisterValueTranslator("toBContainer")
+    @RegisterValueTranslator(value = "toBContainer", defaultFor = PojoMethodType.SETTER, defaultType = BContainer.class)
     public static BContainer toBContainer(GenericData ele, PojoMethodSignature signature) {
         if (ele == null || ele.isNull())
             return null;
@@ -102,7 +103,7 @@ public abstract class BElementTranslators {
         throw new IllegalArgumentException("Expect key-value or sequence or reference data, got " + ele);
     }
 
-    @RegisterValueTranslator("toBElement")
+    @RegisterValueTranslator(value = "toBElement", defaultFor = PojoMethodType.SETTER, defaultType = BElement.class)
     public static BElement toBElement(GenericData ele, PojoMethodSignature signature) {
         if (BGenericData.class.isInstance(ele))
             return ((BGenericData) ele).getBElement();

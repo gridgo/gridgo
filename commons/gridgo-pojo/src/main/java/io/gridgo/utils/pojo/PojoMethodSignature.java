@@ -65,14 +65,17 @@ public final class PojoMethodSignature {
     private final boolean isGetter;
 
     @Builder
-    private PojoMethodSignature(Method method, String fieldName, Class<?> fieldType, String transformedFieldName,
+    private PojoMethodSignature(//
+            Method method, //
+            String fieldName, //
+            Class<?> fieldType, //
+            String transformedFieldName, //
             ValueTranslator valueTranslator) {
 
         this.method = method;
         this.fieldName = fieldName;
         this.fieldType = fieldType;
         this.transformedFieldName = transformedFieldName;
-        this.valueTranslator = valueTranslator;
         this.isSetter = method.getReturnType() == void.class;
         this.isGetter = !isSetter;
 
@@ -100,5 +103,7 @@ public final class PojoMethodSignature {
         this.methodName = method.getName();
         this.genericTypes = extractGenericTypes(method, fieldName);
         this.transformedOrDefaultFieldName = transformedFieldName == null ? fieldName : transformedFieldName;
+
+        this.valueTranslator = valueTranslator;
     }
 }

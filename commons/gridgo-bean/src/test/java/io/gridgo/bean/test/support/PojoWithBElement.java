@@ -9,7 +9,6 @@ import io.gridgo.bean.BObject;
 import io.gridgo.bean.BReference;
 import io.gridgo.bean.BValue;
 import io.gridgo.utils.annotations.Transient;
-import io.gridgo.utils.pojo.translator.OnSetTranslate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,25 +20,19 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor(access = PRIVATE)
 public class PojoWithBElement {
 
-    @OnSetTranslate("toBValue")
     private BValue bValue;
 
-    @OnSetTranslate("toBObject")
     private BObject bObject;
 
-    @OnSetTranslate("toBArray")
     private BArray bArray;
 
-    @OnSetTranslate("toBReference")
     private BReference bReference;
 
-    @OnSetTranslate("toBContainer")
     private BContainer bContainer;
 
     @Transient
     private transient BElement myBElement;
 
-    @OnSetTranslate("toBElement")
     public void setBElement(BElement belement) {
         this.myBElement = belement;
     }
