@@ -62,7 +62,7 @@ public class ValueTranslators implements ClasspathScanner {
     }
 
     private void acceptAnnotatedMethod(Method method, RegisterValueTranslator annotation) {
-        register(annotation.value(), new MethodValueTranslator(method));
+        register(annotation.value(), new ReflectiveMethodValueTranslator(method));
     }
 
     private void acceptAnnotatedClass(Class<?> clz, RegisterValueTranslator annotation) {

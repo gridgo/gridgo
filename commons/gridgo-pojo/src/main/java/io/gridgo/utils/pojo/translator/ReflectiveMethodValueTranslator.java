@@ -6,12 +6,12 @@ import io.gridgo.utils.helper.BiFunctionAccessor;
 import io.gridgo.utils.helper.MethodAccessors;
 import io.gridgo.utils.pojo.PojoMethodSignature;
 
-public class MethodValueTranslator implements ValueTranslator<Object, Object> {
+public class ReflectiveMethodValueTranslator implements ValueTranslator<Object, Object> {
 
     private final BiFunctionAccessor accessor;
     private final Class<?> acceptedType;
 
-    MethodValueTranslator(Method method) {
+    ReflectiveMethodValueTranslator(Method method) {
         this.accessor = MethodAccessors.forStaticTwoParamsFunction(method);
         try {
         } catch (Exception e) {

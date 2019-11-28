@@ -54,7 +54,7 @@ public class TestValueTranslator {
     @SuppressWarnings("unchecked")
     public void testRegisterValueTranslatorByMethod() {
         var translator = ValueTranslators.getInstance().lookupMandatory("dateToTimeStamp");
-        assertTrue(translator instanceof MethodValueTranslator);
+        assertTrue(translator instanceof ReflectiveMethodValueTranslator);
 
         assertFalse(translator.translatable(new Object()));
 
