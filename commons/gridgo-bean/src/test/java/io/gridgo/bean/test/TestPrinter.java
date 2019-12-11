@@ -1,7 +1,5 @@
 package io.gridgo.bean.test;
 
-import static org.junit.Assert.assertEquals;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
@@ -16,8 +14,9 @@ import io.gridgo.bean.BReference;
 import io.gridgo.bean.BValue;
 import io.gridgo.bean.serialization.text.BPrinter;
 import io.gridgo.bean.test.support.Bar;
-import io.gridgo.bean.test.support.PojoWithBElement;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class TestPrinter {
 
     private BValue raw;
@@ -46,6 +45,11 @@ public class TestPrinter {
                 .set("obj", BObject.ofEmpty().setAny("int", 2)) //
         ;
         this.arr = BArray.ofSequence(obj, 1, true, new byte[] { 4, 5, 6, 7 }, bar);
+    }
+
+    @Test
+    public void testPrint() {
+        log.debug("{}", obj);
     }
 
     @Test
@@ -81,18 +85,5 @@ public class TestPrinter {
     @Test(expected = UnsupportedOperationException.class)
     public void testUnsupported() {
         BElement.ofBytes(raw.toBytes("print"), "print");
-    }
-
-    @Test
-    public void testToBelement() {
-        var pojo = PojoWithBElement.builder() //
-                .bValue(BValue.of("this is test text")) //
-                .bObject(BObject.ofSequence("key1", "value", "key2", 1, "key3", true)) //
-                .bArray(BArray.ofSequence("text", false, 1, 'z')) //
-                .build();
-        pojo.setBElement(BReference.of(TestPojoWithBElement.class));
-        var serialized = BObject.ofPojo(pojo);
-        var deserialized = serialized.asObject().toPojo(PojoWithBElement.class);
-        assertEquals(pojo, deserialized);
     }
 }
