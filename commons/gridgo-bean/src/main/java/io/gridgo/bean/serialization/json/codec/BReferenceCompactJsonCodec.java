@@ -33,7 +33,7 @@ public class BReferenceCompactJsonCodec extends BReferenceJsonCodec {
         var keyRef = new AtomicReference<String>(null);
         var waitingForComma = new AtomicBoolean(false);
 
-        PojoGetter.of(reference).shallowly(true).walker((indicator, val) -> {
+        PojoGetter.of(reference, value.getterProxy()).shallowly(true).walker((indicator, val, p) -> {
             switch (indicator) {
             case START_MAP:
             case START_ARRAY:
@@ -64,7 +64,11 @@ public class BReferenceCompactJsonCodec extends BReferenceJsonCodec {
             case VALUE:
                 tryWriteComma(writer, waitingForComma);
                 tryWriteWaitingKey(writer, keyRef);
-                writer.serializeObject(BElement.wrapAny(val));
+                var ele = BElement.wrapAny(val);
+                if (ele.isReference())
+                    ele.asReference().getterProxy(p);
+                
+                writer.serializeObject(ele);
                 indexStack.peek().incrementAndGet();
                 waitingForComma.set(true);
                 break;

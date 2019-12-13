@@ -183,7 +183,7 @@ public class MsgpackSerializer extends AbstractBSerializer {
     }
 
     private void packPojo(Object target, MessagePacker packer) throws IOException {
-        PojoGetter.of(target).shallowly(true).walker((indicator, value) -> {
+        PojoGetter.of(target).shallowly(true).walker((indicator, value, p) -> {
             try {
                 switch (indicator) {
                 case KEY_NULL:

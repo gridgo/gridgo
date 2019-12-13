@@ -4,5 +4,5 @@ import io.gridgo.utils.pojo.PojoFlattenIndicator;
 
 public interface PojoFlattenAcceptor {
 
-    void accept(PojoFlattenIndicator indicator, Object value);
+    void accept(PojoFlattenIndicator indicator, Object value, PojoGetterProxy proxy);
 }

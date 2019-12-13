@@ -13,6 +13,10 @@ import java.util.function.Consumer;
 import io.gridgo.bean.exceptions.BeanSerializationException;
 import io.gridgo.bean.factory.BFactory;
 import io.gridgo.utils.annotations.Transient;
+import io.gridgo.utils.pojo.getter.PojoGetterProxy;
+import io.gridgo.utils.pojo.getter.PojoGetterRegistry;
+import io.gridgo.utils.pojo.setter.PojoSetterProxy;
+import io.gridgo.utils.pojo.setter.PojoSetterRegistry;
 import io.gridgo.utils.wrapper.ByteBufferInputStream;
 import lombok.NonNull;
 
@@ -145,4 +149,20 @@ public interface BReference extends BElement {
     default <T> T getInnerValue() {
         return getReference();
     }
+
+    default PojoGetterProxy getterProxy() {
+        if (this.getReference() == null)
+            return null;
+        return PojoGetterRegistry.DEFAULT.getGetterProxy(getReferenceClass());
+    }
+
+    default PojoSetterProxy setterProxy() {
+        if (this.getReference() == null)
+            return null;
+        return PojoSetterRegistry.DEFAULT.getSetterProxy(getReferenceClass());
+    }
+
+    void getterProxy(PojoGetterProxy getterProxy);
+
+    void setterProxy(PojoSetterProxy setterProxy);
 }
