@@ -12,6 +12,7 @@ import io.gridgo.utils.pojo.PojoFlattenIndicator;
 import io.gridgo.utils.pojo.PojoUtils;
 import io.gridgo.utils.pojo.getter.GetterMethodSignatureExtractor;
 import io.gridgo.utils.pojo.getter.PojoGetter;
+import io.gridgo.utils.pojo.getter.PojoGetterProxy;
 import io.gridgo.utils.pojo.setter.SetterMethodSignatureExtractor;
 import io.gridgo.utils.pojo.test.support.Bar;
 import io.gridgo.utils.pojo.test.support.Foo;
@@ -43,7 +44,7 @@ public class TestPojoUtils {
                 .build();
     }
 
-    private void walk(PojoFlattenIndicator indicator, Object value) {
+    private void walk(PojoFlattenIndicator indicator, Object value, PojoGetterProxy proxy) {
         var sb = new StringBuilder();
         switch (indicator) {
         case START_MAP:

@@ -63,8 +63,7 @@ public class TestDslJsonSerialzier {
     }
 
     private String toJson(String serializerName, Object obj) {
-        var json = new String(BReference.of(obj).toBytes(serializerName));
-        return json;
+        return new String(BReference.of(obj).toBytes(serializerName));
     }
 
 }

@@ -65,10 +65,10 @@ public class BReferenceJsonCodec implements JsonWriter.WriteObject<BReference> {
 
                 break;
             case VALUE:
-                writer.serializeObject(BElement.wrapAny(val).isReferenceThen(ref -> {
-                    ref.getterProxy(p);
-                    return ref;
-                }));
+                var ele = BElement.wrapAny(val);
+                if (ele.isReference())
+                    ele.asReference().getterProxy(p);
+                writer.serializeObject(ele);
                 tryWriteCommaAfterValue(writer, lengthStack, indexStack);
                 break;
             }
