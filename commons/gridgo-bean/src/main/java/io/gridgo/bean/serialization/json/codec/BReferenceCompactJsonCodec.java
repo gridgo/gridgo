@@ -64,11 +64,12 @@ public class BReferenceCompactJsonCodec extends BReferenceJsonCodec {
             case VALUE:
                 tryWriteComma(writer, waitingForComma);
                 tryWriteWaitingKey(writer, keyRef);
-                var ele = BElement.wrapAny(val);
-                if (ele.isReference())
-                    ele.asReference().getterProxy(p);
+
+                writer.serializeObject(BElement.wrapAny(val).isReferenceThen(ref -> {
+                    ref.getterProxy(p);
+                    return ref;
+                }));
                 
-                writer.serializeObject(ele);
                 indexStack.peek().incrementAndGet();
                 waitingForComma.set(true);
                 break;
