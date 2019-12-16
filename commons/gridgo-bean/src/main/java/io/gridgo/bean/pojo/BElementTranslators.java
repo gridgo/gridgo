@@ -110,9 +110,4 @@ public abstract class BElementTranslators {
 
         return BElement.wrapAny(ele.getInnerValue());
     }
-    
-    @RegisterValueTranslator(value="keepBElement", defaultFor = PojoMethodType.GETTER, defaultType = BElement.class)
-    public static BElement asBElement(BElement ele, PojoMethodSignature signature) {
-        return ele;
-    }
 }
