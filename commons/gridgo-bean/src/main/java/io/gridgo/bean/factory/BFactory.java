@@ -59,7 +59,7 @@ public interface BFactory extends BSerializerRegistryAware {
 
     @SuppressWarnings("rawtypes")
     default <T extends BElement> T wrap(Object data) {
-        if (data instanceof BElement)
+        if (BElement.class.isInstance(data))
             return (T) data;
 
         Class<?> clazz;
