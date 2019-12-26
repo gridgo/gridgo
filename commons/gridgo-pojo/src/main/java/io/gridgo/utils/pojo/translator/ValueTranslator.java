@@ -1,7 +1,12 @@
 package io.gridgo.utils.pojo.translator;
 
-@FunctionalInterface
-public interface ValueTranslator {
+import io.gridgo.utils.pojo.PojoMethodSignature;
 
-    Object translate(Object obj);
+public interface ValueTranslator<From, To> {
+
+    To translate(From obj, PojoMethodSignature signature);
+
+    default boolean translatable(Object obj) {
+        return true;
+    }
 }

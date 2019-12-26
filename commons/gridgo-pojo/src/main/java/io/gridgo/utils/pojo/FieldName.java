@@ -11,5 +11,5 @@ import java.lang.annotation.Target;
 @Target({ FIELD, METHOD })
 public @interface FieldName {
 
-    String value() default "";
+    String value();
 }

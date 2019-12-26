@@ -1,7 +1,6 @@
 package io.gridgo.utils.pojo;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static io.gridgo.utils.PrimitiveUtils.isPrimitive;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -14,28 +13,15 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import static io.gridgo.utils.ArrayUtils.foreachArray;
-import static io.gridgo.utils.PrimitiveUtils.isPrimitive;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.END_ARRAY;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.END_MAP;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.KEY;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.KEY_NULL;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.START_ARRAY;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.START_MAP;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.VALUE;
-
-import io.gridgo.utils.ArrayUtils;
-import io.gridgo.utils.pojo.exception.RuntimeReflectiveOperationException;
-import io.gridgo.utils.pojo.getter.PojoFlattenWalker;
 import io.gridgo.utils.pojo.getter.PojoGetterProxy;
 import io.gridgo.utils.pojo.getter.PojoGetterRegistry;
 import io.gridgo.utils.pojo.setter.PojoSetterProxy;
 import io.gridgo.utils.pojo.setter.PojoSetterRegistry;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class PojoUtils {
-
-    private static final Logger log = LoggerFactory.getLogger(PojoUtils.class);
 
     private static final PojoGetterRegistry GETTER_REGISTRY = PojoGetterRegistry.DEFAULT;
     private static final PojoSetterRegistry SETTER_REGISTRY = PojoSetterRegistry.DEFAULT;
@@ -95,82 +81,10 @@ public class PojoUtils {
         return SETTER_REGISTRY.getSetterProxy(type);
     }
 
-    public static final void walkThroughGetter(Object target, PojoFlattenWalker walker) {
-        walkThroughGetter(target, null, walker);
-    }
-
-    @SuppressWarnings({ "rawtypes" })
-    public static final void walkThroughGetter(Object target, PojoGetterProxy proxy, PojoFlattenWalker walker) {
-        final Class<?> type;
-
-        if (target == null //
-                || isPrimitive(type = target.getClass()) //
-                || type == Date.class //
-                || type == java.sql.Date.class) {
-
-            walker.accept(VALUE, target);
-            return;
-        }
-
-        if (type.isArray()) {
-            int length = ArrayUtils.length(target);
-            walker.accept(START_ARRAY, length);
-            foreachArray(target, ele -> walkThroughGetter(ele, proxy, walker));
-            walker.accept(END_ARRAY, length);
-            return;
-        }
-
-        if (Collection.class.isInstance(target)) {
-            int length = ((Collection) target).size();
-            walker.accept(START_ARRAY, length);
-            var it = ((Collection) target).iterator();
-            while (it.hasNext())
-                walkThroughGetter(it.next(), proxy, walker);
-            walker.accept(END_ARRAY, length);
-            return;
-        }
-
-        if (Map.class.isInstance(target)) {
-            var map = (Map<?, ?>) target;
-            int size = map.size();
-            walker.accept(START_MAP, size);
-            var it = map.entrySet().iterator();
-            while (it.hasNext()) {
-                var entry = it.next();
-                var key = entry.getKey();
-                var value = entry.getValue();
-                if (value == null) {
-                    walker.accept(KEY_NULL, key);
-                } else {
-                    walker.accept(KEY, key);
-                    walkThroughGetter(value, proxy, walker);
-                }
-            }
-            walker.accept(END_MAP, size);
-            return;
-        }
-
-        var _proxy = proxy != null ? proxy : getGetterProxy(type);
-        int length = _proxy.getFields().length;
-        walker.accept(START_MAP, length);
-        _proxy.walkThrough(target, (signature, value) -> {
-            var key = signature.getTransformedOrDefaultFieldName();
-            if (value == null) {
-                walker.accept(KEY_NULL, key);
-            } else {
-                walker.accept(KEY, key);
-                walkThroughGetter(value, signature.getElementGetterProxy(), walker);
-            }
-        });
-        walker.accept(END_MAP, length);
-    }
-
     /**
      * when field have generic type declaration
      *
      * @return list of generic types belong to corresponding field
-     * @throws RuntimeReflectiveOperationException if the corresponding field not
-     *                                             found
      */
     public static final Class<?>[] extractGenericTypes(Method method, String fieldName) {
 
@@ -190,7 +104,7 @@ public class PojoUtils {
             } catch (NoSuchFieldException e) {
                 return null;
             } catch (Exception e) {
-                throw new RuntimeReflectiveOperationException(
+                throw new RuntimeException(
                         "Error while get declared field name `" + fieldName + "` in type: " + clazz.getName(), e);
             }
 

@@ -22,7 +22,7 @@ public class BTypeTest {
     }
 
     @Test
-    public void forName_SholdReturnNull_WhenNotExist() {
+    public void forName_ShouldReturnNull_WhenNotExist() {
         assertNull(BType.forName("NEW_FLOAT"));
     }
 

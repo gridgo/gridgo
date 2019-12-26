@@ -15,14 +15,14 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class InetAddressUtils {
 
-    public static final Pattern IPV4_PATTERN = Pattern.compile(
-            "^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
+    public static final Pattern IPV4_PATTERN = Pattern
+            .compile("^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
                     + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])$");
 
     public static final Pattern IPV6_STD_PATTERN = Pattern.compile("^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$");
 
-    public static final Pattern IPV6_HEX_PATTERN = Pattern.compile(
-            "^((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)::((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)$");
+    public static final Pattern IPV6_HEX_PATTERN = Pattern
+            .compile("^((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)::((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)$");
 
     /**
      * Validate ipv4 address with regular expression
@@ -55,7 +55,7 @@ public class InetAddressUtils {
             String address = Inet4Address.getByName(domain).getHostAddress();
             return isIPv4(address) ? address : null;
         } catch (UnknownHostException e) {
-            log.debug("cannot resolve IPv4 address, return null", e);
+            // log.debug("cannot resolve IPv4 address, return null", e);
         }
         return null;
     }
@@ -70,7 +70,7 @@ public class InetAddressUtils {
             String address = Inet6Address.getByName(domain).getHostAddress();
             return isIPv6(address) ? address : null;
         } catch (UnknownHostException e) {
-            log.debug("cannot resolve IPv6 address, return null", e);
+            // log.debug("cannot resolve IPv6 address, return null", e);
         }
         return null;
     }

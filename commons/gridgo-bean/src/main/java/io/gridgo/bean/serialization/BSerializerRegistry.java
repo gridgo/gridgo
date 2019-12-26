@@ -1,12 +1,12 @@
 package io.gridgo.bean.serialization;
 
-import org.cliffc.high_scale_lib.NonBlockingHashMap;
+import static io.gridgo.utils.ClasspathUtils.scanForAnnotatedTypes;
 
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static io.gridgo.utils.ClasspathUtils.scanForAnnotatedTypes;
+import org.cliffc.high_scale_lib.NonBlockingHashMap;
 
 import io.gridgo.bean.exceptions.SerializationPluginException;
 import io.gridgo.bean.factory.BFactory;

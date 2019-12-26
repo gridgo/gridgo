@@ -12,6 +12,11 @@ import java.util.function.Consumer;
 
 import io.gridgo.bean.exceptions.BeanSerializationException;
 import io.gridgo.bean.factory.BFactory;
+import io.gridgo.utils.annotations.Transient;
+import io.gridgo.utils.pojo.getter.PojoGetterProxy;
+import io.gridgo.utils.pojo.getter.PojoGetterRegistry;
+import io.gridgo.utils.pojo.setter.PojoSetterProxy;
+import io.gridgo.utils.pojo.setter.PojoSetterRegistry;
 import io.gridgo.utils.wrapper.ByteBufferInputStream;
 import lombok.NonNull;
 
@@ -26,9 +31,10 @@ public interface BReference extends BElement {
     }
 
     /**
-     * return an instanceof BReference which deserialized from input stream. if stream deserialized to key-value,
-     * it use BObject.toPojo() method. if stream deserialized to breference which contains an instanceof
-     * targetType, return itself.
+     * return an instanceof BReference which deserialized from input stream. if
+     * stream deserialized to key-value, it use BObject.toPojo() method. if stream
+     * deserialized to breference which contains an instanceof targetType, return
+     * itself.
      *
      * @param inputStream    input stream
      * @param serializerName serialzier name, null mean default (msgpack)
@@ -45,7 +51,8 @@ public interface BReference extends BElement {
         if (element.isObject())
             return BFactory.DEFAULT.newReference(element.asObject().toPojo(targetType));
 
-        throw new BeanSerializationException("Cannot convert input bytes as BReference of '" + targetType + "', deserialized: " + element);
+        throw new BeanSerializationException(
+                "Cannot convert input bytes as BReference of '" + targetType + "', deserialized: " + element);
     }
 
     static BReference ofBytes(byte[] bytes, String serializerName, Class<?> targetType) {
@@ -57,26 +64,7 @@ public interface BReference extends BElement {
     }
 
     @Override
-    default boolean isContainer() {
-        return false;
-    }
-
-    @Override
-    default boolean isArray() {
-        return false;
-    }
-
-    @Override
-    default boolean isValue() {
-        return false;
-    }
-
-    @Override
-    default boolean isObject() {
-        return false;
-    }
-
-    @Override
+    @Transient
     default boolean isReference() {
         return true;
     }
@@ -121,7 +109,8 @@ public interface BReference extends BElement {
     }
 
     /**
-     * Support for I/O operator when reference object is ByteBuffer or InputStream or File
+     * Support for I/O operator when reference object is ByteBuffer or InputStream
+     * or File
      *
      * @param output where data will be write to
      * @return success or not
@@ -160,4 +149,20 @@ public interface BReference extends BElement {
     default <T> T getInnerValue() {
         return getReference();
     }
+
+    default PojoGetterProxy getterProxy() {
+        if (this.getReference() == null)
+            return null;
+        return PojoGetterRegistry.DEFAULT.getGetterProxy(getReferenceClass());
+    }
+
+    default PojoSetterProxy setterProxy() {
+        if (this.getReference() == null)
+            return null;
+        return PojoSetterRegistry.DEFAULT.getSetterProxy(getReferenceClass());
+    }
+
+    void getterProxy(PojoGetterProxy getterProxy);
+
+    void setterProxy(PojoSetterProxy setterProxy);
 }

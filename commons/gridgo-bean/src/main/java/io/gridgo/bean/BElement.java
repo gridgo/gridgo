@@ -6,9 +6,10 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import io.gridgo.bean.factory.BFactory;
+import io.gridgo.bean.serialization.BSerializerRegistryAware;
 import lombok.NonNull;
 
-public interface BElement extends BJsonSupport, BXmlSupport, BBytesSupport {
+public interface BElement extends BSerializerRegistryAware, BJsonSupport, BBytesSupport {
 
     static <T extends BElement> T wrapAny(Object data) {
         return BFactory.DEFAULT.wrap(data);
@@ -52,13 +53,17 @@ public interface BElement extends BJsonSupport, BXmlSupport, BBytesSupport {
         return ofBytes(bytes, null);
     }
 
-    boolean isContainer();
+    default boolean isContainer() {
+        return false;
+    }
 
     default boolean isNullValue() {
         return this.isValue() && this.asValue().isNull();
     }
 
-    boolean isArray();
+    default boolean isArray() {
+        return false;
+    }
 
     default <T> T isArrayThen(Function<BArray, T> handler) {
         if (this.isArray()) {
@@ -73,7 +78,9 @@ public interface BElement extends BJsonSupport, BXmlSupport, BBytesSupport {
         }
     }
 
-    boolean isObject();
+    default boolean isObject() {
+        return false;
+    }
 
     default <T> T isObjectThen(Function<BObject, T> handler) {
         if (this.isObject()) {
@@ -88,7 +95,9 @@ public interface BElement extends BJsonSupport, BXmlSupport, BBytesSupport {
         }
     }
 
-    boolean isValue();
+    default boolean isValue() {
+        return false;
+    }
 
     default <T> T isValueThen(Function<BValue, T> handler) {
         if (this.isValue()) {
@@ -103,7 +112,9 @@ public interface BElement extends BJsonSupport, BXmlSupport, BBytesSupport {
         }
     }
 
-    boolean isReference();
+    default boolean isReference() {
+        return false;
+    }
 
     default <T> T isReferenceThen(Function<BReference, T> handler) {
         if (this.isReference()) {

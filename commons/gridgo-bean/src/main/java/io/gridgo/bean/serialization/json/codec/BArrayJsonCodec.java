@@ -49,10 +49,10 @@ public class BArrayJsonCodec implements JsonCodec<BArray> {
         if (nextToken == ']')
             return res;
 
-        res.add(compositeCodec.read(reader));
+        res.add(compositeCodec.read(reader, false));
         while ((nextToken = reader.getNextToken()) == ',') {
             reader.getNextToken();
-            res.add(compositeCodec.read(reader));
+            res.add(compositeCodec.read(reader, false));
         }
 
         if (nextToken != ']')

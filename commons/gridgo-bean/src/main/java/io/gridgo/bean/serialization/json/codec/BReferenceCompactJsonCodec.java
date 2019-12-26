@@ -1,14 +1,9 @@
 package io.gridgo.bean.serialization.json.codec;
 
-import static com.dslplatform.json.JsonWriter.ARRAY_END;
-import static com.dslplatform.json.JsonWriter.ARRAY_START;
 import static com.dslplatform.json.JsonWriter.COMMA;
-import static com.dslplatform.json.JsonWriter.OBJECT_END;
-import static com.dslplatform.json.JsonWriter.OBJECT_START;
 import static com.dslplatform.json.JsonWriter.SEMI;
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.END_ARRAY;
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.START_ARRAY;
-import static io.gridgo.utils.pojo.PojoUtils.walkThroughGetter;
 
 import java.util.Stack;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -17,7 +12,9 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import com.dslplatform.json.JsonWriter;
 
+import io.gridgo.bean.BElement;
 import io.gridgo.bean.BReference;
+import io.gridgo.utils.pojo.getter.PojoGetter;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
@@ -36,47 +33,56 @@ public class BReferenceCompactJsonCodec extends BReferenceJsonCodec {
         var keyRef = new AtomicReference<String>(null);
         var waitingForComma = new AtomicBoolean(false);
 
-        walkThroughGetter(reference, (indicator, val) -> {
-            switch (indicator) {
-            case START_MAP:
-            case START_ARRAY:
-                tryWriteComma(writer, waitingForComma);
-                tryWriteWaitingKey(writer, keyRef);
-                writer.writeByte(indicator == START_ARRAY ? ARRAY_START : OBJECT_START);
+        PojoGetter.of(reference, value.getterProxy()) //
+                .shallowly(true) //
+                .walker((indicator, val, signature, proxy) -> {
+                    switch (indicator) {
+                    case START_MAP:
+                    case START_ARRAY:
+                        tryWriteComma(writer, waitingForComma);
+                        tryWriteWaitingKey(writer, keyRef);
+                        writer.writeByte(indicator == START_ARRAY ? JsonWriter.ARRAY_START : JsonWriter.OBJECT_START);
 
-                waitingForComma.set(false);
-                lengthStack.push((int) val);
-                indexStack.push(new AtomicInteger(0));
+                        waitingForComma.set(false);
+                        lengthStack.push((int) val);
+                        indexStack.push(new AtomicInteger(0));
 
-                if (indexStack.size() > 0)
-                    indexStack.peek().incrementAndGet();
-                break;
-            case END_MAP:
-            case END_ARRAY:
-                indexStack.pop();
-                lengthStack.pop();
-                writer.writeByte(indicator == END_ARRAY ? ARRAY_END : OBJECT_END);
-                waitingForComma.set(true);
-                break;
-            case KEY:
-                keyRef.set((String) val);
-                break;
-            case KEY_NULL:
-                indexStack.peek().incrementAndGet();
-                break;
-            case VALUE:
-                tryWriteComma(writer, waitingForComma);
-                tryWriteWaitingKey(writer, keyRef);
-                writer.serializeObject(val);
-                indexStack.peek().incrementAndGet();
-                waitingForComma.set(true);
-                break;
-            }
-        });
+                        if (indexStack.size() > 0)
+                            indexStack.peek().incrementAndGet();
+                        break;
+                    case END_MAP:
+                    case END_ARRAY:
+                        indexStack.pop();
+                        lengthStack.pop();
+                        writer.writeByte(indicator == END_ARRAY ? JsonWriter.ARRAY_END : JsonWriter.OBJECT_END);
+                        waitingForComma.set(true);
+                        break;
+                    case KEY:
+                        keyRef.set((String) val);
+                        break;
+                    case KEY_NULL:
+                        indexStack.peek().incrementAndGet();
+                        break;
+                    case VALUE:
+                        tryWriteComma(writer, waitingForComma);
+                        tryWriteWaitingKey(writer, keyRef);
+
+                        var ele = BElement.wrapAny(val);
+                        if (ele.isReference())
+                            ele.asReference().getterProxy(proxy);
+
+                        writer.serializeObject(ele);
+
+                        indexStack.peek().incrementAndGet();
+                        waitingForComma.set(true);
+                        break;
+                    }
+                }) //
+                .walk();
     }
 
-    private void tryWriteComma(JsonWriter writer, AtomicBoolean alreadyWriteValue) {
-        if (alreadyWriteValue.get())
+    private void tryWriteComma(JsonWriter writer, AtomicBoolean waitingForComma) {
+        if (waitingForComma.get())
             writer.writeByte(COMMA);
     }
 

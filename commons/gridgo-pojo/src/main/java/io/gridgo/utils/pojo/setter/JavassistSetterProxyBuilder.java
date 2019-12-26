@@ -26,7 +26,8 @@ class JavassistSetterProxyBuilder extends AbstractProxyBuilder implements PojoSe
             cc.defrost();
             cc.addInterface(pool.get(PojoSetterProxy.class.getName()));
 
-            List<PojoMethodSignature> methodSignatures = SetterMethodSignatureExtractor.getInstance().extractMethodSignatures(target);
+            List<PojoMethodSignature> methodSignatures = SetterMethodSignatureExtractor.getInstance()
+                    .extractMethodSignatures(target);
 
             StringBuilder allFieldsBuilder = new StringBuilder();
             for (PojoMethodSignature methodSignature : methodSignatures) {
@@ -41,21 +42,24 @@ class JavassistSetterProxyBuilder extends AbstractProxyBuilder implements PojoSe
 
             buildGetSignaturesMethod(cc);
             buildGetFieldsMethod(cc, allFields);
-            buildSignatureMethod(cc, methodSignatures);
+            buildSetSignatureMethod(cc, methodSignatures);
             buildApplyValueMethod(cc, methodSignatures, targetType);
             buildWalkthroughAllMethod(cc, methodSignatures, targetType);
             buildWalkthroughMethod(cc, methodSignatures, targetType, allFields);
 
-            Class<?> resultClass = cc.toClass();
-            var result = (PojoSetterProxy) resultClass.getConstructor().newInstance();
-            var signatureSetter = resultClass.getMethod("setMethodSignature", String.class, PojoMethodSignature.class);
-            for (PojoMethodSignature methodSignature : methodSignatures) {
-                signatureSetter.invoke(result, methodSignature.getFieldName(), methodSignature);
-            }
-            return result;
+            return makeProxy(methodSignatures, cc.toClass());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private PojoSetterProxy makeProxy(List<PojoMethodSignature> methodSignatures, Class<?> resultClass)
+            throws Exception {
+        var result = (PojoSetterProxy) resultClass.getConstructor().newInstance();
+        var signatureSetter = resultClass.getMethod("setMethodSignature", String.class, PojoMethodSignature.class);
+        for (PojoMethodSignature methodSignature : methodSignatures)
+            signatureSetter.invoke(result, methodSignature.getFieldName(), methodSignature);
+        return result;
     }
 
     private void buildApplyValueMethod(CtClass cc, List<PojoMethodSignature> methodSignatures, String targetType)
@@ -84,8 +88,8 @@ class JavassistSetterProxyBuilder extends AbstractProxyBuilder implements PojoSe
                     invokeSetter += "(((" + numberType + ") value)." + fieldType.getTypeName() + "Value())";
                 } else { // receive wrapper type
                     var primitiveTypeName = methodSignature.getPrimitiveTypeFromWrapperType().getName();
-                    invokeSetter += "(value == null ? (" + wrapperTypeName + ") null : " + wrapperTypeName + ".valueOf(((" + numberType
-                            + ") value)." + primitiveTypeName + "Value()))";
+                    invokeSetter += "(value == null ? (" + wrapperTypeName + ") null : " + wrapperTypeName
+                            + ".valueOf(((" + numberType + ") value)." + primitiveTypeName + "Value()))";
                 }
             } else if (fieldType.isPrimitive()) {
                 invokeSetter += "(((" + wrapperTypeName + ") value)." + fieldType.getName() + "Value())";
@@ -101,8 +105,8 @@ class JavassistSetterProxyBuilder extends AbstractProxyBuilder implements PojoSe
         return invokeSetter;
     }
 
-    private void buildWalkthroughMethod(CtClass cc, List<PojoMethodSignature> methodSignatures, String targetType, String allFields)
-            throws CannotCompileException {
+    private void buildWalkthroughMethod(CtClass cc, List<PojoMethodSignature> methodSignatures, String targetType,
+            String allFields) throws CannotCompileException {
 
         String signatureFieldSubfix = "Signature";
         String holderType = ValueHolder.class.getName();
@@ -158,7 +162,7 @@ class JavassistSetterProxyBuilder extends AbstractProxyBuilder implements PojoSe
 
             String signatureFieldName = fieldName + signatureFieldSubfix;
             method += "    value = consumer.apply(this." + signatureFieldName + ");\n";
-            method += "    if (!(value instanceof " + holderType + ")) {\n"; // start if 2
+            method += "    if (!(" + holderType + ".class.isInstance(value))) {\n"; // start if 2
             method += "        " + invokeSetter + ";\n";
             method += "    } else { \n"; // else if 2
             method += "        " + holderType + " holder = (" + holderType + ") value; \n";
@@ -169,7 +173,6 @@ class JavassistSetterProxyBuilder extends AbstractProxyBuilder implements PojoSe
             method += "    }\n"; // end if 2
         }
 
-        method += "    }\n"; // end of for
         method += "}"; // end of method
 
         cc.addMethod(CtMethod.make(method, cc));

@@ -44,7 +44,7 @@ public class TestImmutable {
         Map<String, Integer> map = new HashMap<>();
         map.put("0", 0);
         map.put("1", 1);
-        Bar bar = Bar.builder().b(true).map(map).build();
+        Bar bar = Bar.builder().bool(true).map(map).build();
         Foo foo = Foo.builder().intValue(0) //
                 .intArrayValue(new int[] { 1, 2, 3 }) //
                 .doubleValue(22.02).stringValue("this is test text") //

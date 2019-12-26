@@ -24,7 +24,7 @@
 				<configuration>
 					<annotationProcessors>
 						<annotationProcessor>lombok.launch.AnnotationProcessorHider$AnnotationProcessor</annotationProcessor>
-						<annotationProcessor>com.dslplatform.json.processor.CompiledJsonAnnotationProcessor</annotationProcessor>
+						<annotationProcessor>com.dslplatform.json.CompiledJsonProcessor</annotationProcessor>
 					</annotationProcessors>
 				</configuration>
 			</plugin>
@@ -41,6 +41,11 @@
 			<groupId>${project.groupId}</groupId>
 			<artifactId>gridgo-pojo</artifactId>
 			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.dslplatform</groupId>
+			<artifactId>dsl-json-processor</artifactId>
+			<version>${dsl.json.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.dslplatform</groupId>

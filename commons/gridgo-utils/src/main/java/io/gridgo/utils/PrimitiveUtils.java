@@ -94,9 +94,9 @@ public class PrimitiveUtils {
             return true;
         }
         return resultType == String.class //
-                || isNumberClass(resultType) //
+                || resultType == Boolean.class //
                 || resultType == Character.class //
-                || resultType == Boolean.class;
+                || isNumberClass(resultType);
     }
 
     @SuppressWarnings("unchecked")

@@ -30,10 +30,10 @@ public enum BType {
     }
 
     @Getter
-    private Class<?> innerClass;
+    private final Class<?> innerClass;
 
     private BType() {
-
+        this(null);
     }
 
     private BType(Class<?> innerClass) {
