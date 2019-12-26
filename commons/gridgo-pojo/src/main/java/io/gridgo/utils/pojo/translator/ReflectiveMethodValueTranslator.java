@@ -2,9 +2,9 @@ package io.gridgo.utils.pojo.translator;
 
 import java.lang.reflect.Method;
 
-import io.gridgo.utils.helper.BiFunctionAccessor;
-import io.gridgo.utils.helper.MethodAccessors;
 import io.gridgo.utils.pojo.PojoMethodSignature;
+import io.gridgo.utils.pojo.helper.BiFunctionAccessor;
+import io.gridgo.utils.pojo.helper.MethodAccessors;
 
 public class ReflectiveMethodValueTranslator implements ValueTranslator<Object, Object> {
 
