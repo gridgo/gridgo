@@ -1,4 +1,4 @@
-package io.gridgo.utils.helper;
+package io.gridgo.utils.pojo.helper;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;

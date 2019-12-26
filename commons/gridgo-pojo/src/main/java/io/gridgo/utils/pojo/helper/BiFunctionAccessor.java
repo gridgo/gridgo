@@ -1,4 +1,4 @@
-package io.gridgo.utils.helper;
+package io.gridgo.utils.pojo.helper;
 
 public interface BiFunctionAccessor {
 
