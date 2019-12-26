@@ -1,8 +1,12 @@
 package io.gridgo.connector.test.support;
 
+import org.joo.promise4j.Promise;
+import org.joo.promise4j.impl.AsyncDeferredObject;
+
 import io.gridgo.bean.BObject;
 import io.gridgo.connector.impl.AbstractConsumer;
 import io.gridgo.connector.support.config.ConnectorContext;
+import io.gridgo.framework.support.Message;
 
 public class TestConsumer extends AbstractConsumer {
 
@@ -25,7 +29,9 @@ public class TestConsumer extends AbstractConsumer {
 
     }
 
-    public void testPublish() {
-        publish(createMessage(BObject.ofEmpty().setAny("test-header", 1), null), null);
+    public Promise<Message, Exception> testPublish() {
+        var deferred = new AsyncDeferredObject<Message, Exception>();
+        publish(createMessage(BObject.ofEmpty().setAny("test-header", 1), null), deferred);
+        return deferred.promise();
     }
 }
