@@ -62,7 +62,7 @@ public class TestBooleanVO {
         vo.setIsBooleanValue2(true);
 
         var key = new AtomicReference<String>(null);
-        PojoGetter.of(vo).shallowly(true).walker((indicator, value, signature) -> {
+        PojoGetter.of(vo).shallowly(true).walker((indicator, value, signature, proxy) -> {
             switch (indicator) {
             case KEY:
                 key.set((String) value);

@@ -33,51 +33,52 @@ public class BReferenceJsonCodec implements JsonWriter.WriteObject<BReference> {
 
         var lengthStack = new Stack<Integer>();
         var indexStack = new Stack<AtomicInteger>();
-        var proxy = value.getterProxy();
 
-        PojoGetter.of(reference, proxy).shallowly(true).walker((indicator, val, signature) -> {
-            switch (indicator) {
-            case START_MAP:
-            case START_ARRAY:
-                tryIncreaseTopIndexerOnNewContainer(indexStack);
-                writer.writeByte(indicator == START_ARRAY ? ARRAY_START : OBJECT_START);
+        PojoGetter.of(reference, value.getterProxy()) //
+                .shallowly(true) //
+                .walker((indicator, val, signature, proxy) -> {
+                    switch (indicator) {
+                    case START_MAP:
+                    case START_ARRAY:
+                        tryIncreaseTopIndexerOnNewContainer(indexStack);
+                        writer.writeByte(indicator == START_ARRAY ? ARRAY_START : OBJECT_START);
 
-                lengthStack.push((int) val);
-                indexStack.push(new AtomicInteger(0));
-                break;
-            case END_MAP:
-            case END_ARRAY:
-                indexStack.pop();
-                lengthStack.pop();
+                        lengthStack.push((int) val);
+                        indexStack.push(new AtomicInteger(0));
+                        break;
+                    case END_MAP:
+                    case END_ARRAY:
+                        indexStack.pop();
+                        lengthStack.pop();
 
-                writer.writeByte(indicator == END_ARRAY ? ARRAY_END : OBJECT_END);
-                tryWriteCommaAfterContainerEnd(writer, lengthStack, indexStack);
-                break;
-            case KEY_NULL:
-                if (signature.isIgnoreNull()) {
-                    indexStack.peek().incrementAndGet();
-                    break;
-                }
-            case KEY:
-                writer.writeString((String) val);
-                writer.writeByte(SEMI);
+                        writer.writeByte(indicator == END_ARRAY ? ARRAY_END : OBJECT_END);
+                        tryWriteCommaAfterContainerEnd(writer, lengthStack, indexStack);
+                        break;
+                    case KEY_NULL:
+                        if (signature != null && signature.isIgnoreNull()) {
+                            indexStack.peek().incrementAndGet();
+                            break;
+                        }
+                    case KEY:
+                        writer.writeString((String) val);
+                        writer.writeByte(SEMI);
 
-                if (indicator == KEY_NULL) {
-                    writer.writeNull();
-                    tryWriteCommaAfterValue(writer, lengthStack, indexStack);
-                }
+                        if (indicator == KEY_NULL) {
+                            writer.writeNull();
+                            tryWriteCommaAfterValue(writer, lengthStack, indexStack);
+                        }
 
-                break;
-            case VALUE:
-                var ele = BElement.wrapAny(val);
-                if (val != ele && ele.isReference())
-                    ele.asReference().getterProxy(signature == null ? null : signature.getGetterProxy());
+                        break;
+                    case VALUE:
+                        var ele = BElement.wrapAny(val);
+                        if (val != ele && ele.isReference())
+                            ele.asReference().getterProxy(proxy);
 
-                writer.serializeObject(ele);
-                tryWriteCommaAfterValue(writer, lengthStack, indexStack);
-                break;
-            }
-        }).walk();
+                        writer.serializeObject(ele);
+                        tryWriteCommaAfterValue(writer, lengthStack, indexStack);
+                        break;
+                    }
+                }).walk();
     }
 
     private void tryIncreaseTopIndexerOnNewContainer(Stack<AtomicInteger> indexStack) {

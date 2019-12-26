@@ -64,45 +64,45 @@ public class PojoGetter {
                 || type == Date.class //
                 || type == java.sql.Date.class) {
 
-            walker.accept(VALUE, target, null);
+            walker.accept(VALUE, target, null, null);
             return;
         }
 
         if (type.isArray()) {
             int length = ArrayUtils.length(target);
-            walker.accept(START_ARRAY, length, null);
+            walker.accept(START_ARRAY, length, null, null);
             foreachArray(target, value -> {
                 if (shallowly)
-                    walker.accept(VALUE, value, null);
+                    walker.accept(VALUE, value, null, null);
                 else
                     PojoGetter.of(value, proxy).shallowly(shallowly).walker(walker).walk();
             });
-            walker.accept(END_ARRAY, length, null);
+            walker.accept(END_ARRAY, length, null, null);
             return;
         }
 
         if (Collection.class.isInstance(target)) {
             int length = ((Collection) target).size();
-            walker.accept(START_ARRAY, length, null);
+            walker.accept(START_ARRAY, length, null, null);
             var it = ((Collection) target).iterator();
             while (it.hasNext()) {
                 var value = it.next();
                 if (shallowly)
-                    walker.accept(VALUE, value, null);
+                    walker.accept(VALUE, value, null, null);
                 else
                     PojoGetter.of(value, proxy) //
                             .shallowly(shallowly) //
                             .walker(walker) //
                             .walk();
             }
-            walker.accept(END_ARRAY, length, null);
+            walker.accept(END_ARRAY, length, null, null);
             return;
         }
 
         if (Map.class.isInstance(target)) {
             var map = (Map<?, ?>) target;
             int size = map.size();
-            walker.accept(START_MAP, size, null);
+            walker.accept(START_MAP, size, null, null);
             var it = map.entrySet().iterator();
             while (it.hasNext()) {
                 var entry = it.next();
@@ -110,11 +110,11 @@ public class PojoGetter {
                 var value = entry.getValue();
 
                 if (value == null) {
-                    walker.accept(KEY_NULL, key, null);
+                    walker.accept(KEY_NULL, key, null, proxy);
                 } else {
-                    walker.accept(KEY, key, null);
+                    walker.accept(KEY, key, null, null);
                     if (shallowly)
-                        walker.accept(VALUE, value, null);
+                        walker.accept(VALUE, value, null, proxy);
                     else
                         PojoGetter.of(value, proxy) //
                                 .shallowly(shallowly) //
@@ -122,13 +122,13 @@ public class PojoGetter {
                                 .walk();
                 }
             }
-            walker.accept(END_MAP, size, null);
+            walker.accept(END_MAP, size, null, null);
             return;
         }
 
         var _proxy = proxy != null ? proxy : PojoGetterRegistry.DEFAULT.getGetterProxy(type);
         int length = _proxy.getFields().length;
-        walker.accept(START_MAP, length, null);
+        walker.accept(START_MAP, length, null, null);
         _proxy.walkThrough(target, (signature, value) -> {
             var key = signature.getTransformedOrDefaultFieldName();
 
@@ -137,11 +137,11 @@ public class PojoGetter {
                 value = valueTranslator.translate(value, signature);
 
             if (value == null) {
-                walker.accept(KEY_NULL, key, signature);
+                walker.accept(KEY_NULL, key, signature, null);
             } else {
-                walker.accept(KEY, key, null);
+                walker.accept(KEY, key, null, null);
                 if (shallowly)
-                    walker.accept(VALUE, value, signature);
+                    walker.accept(VALUE, value, signature, signature.getGetterProxy());
                 else
                     PojoGetter.of(value, signature.getGetterProxy()) //
                             .shallowly(shallowly) //
@@ -149,6 +149,6 @@ public class PojoGetter {
                             .walk();
             }
         });
-        walker.accept(END_MAP, length, null);
+        walker.accept(END_MAP, length, null, null);
     }
 }
