@@ -7,30 +7,24 @@ import java.util.function.Consumer;
 import io.gridgo.connector.ConnectorFactory;
 import io.gridgo.core.support.ContextAwareComponent;
 import io.gridgo.core.support.GatewayContainer;
-import io.gridgo.core.support.ProducerJoinMode;
 import io.gridgo.core.support.exceptions.InvalidGatewayException;
 import io.gridgo.core.support.subscription.GatewaySubscription;
-import io.gridgo.core.support.template.ProducerTemplate;
 import io.gridgo.framework.ComponentLifecycle;
 import io.gridgo.framework.support.Registry;
 
+/**
+ * Represents a context in which a Gridgo application runs.
+ */
 public interface GridgoContext extends GatewayContainer, ComponentLifecycle {
 
+    /**
+     * Attach a <link>io.gridgo.core.support.ContextAwareComponent</link> to this
+     * context.
+     *
+     * @param component the component to be attached
+     * @return this context
+     */
     public GridgoContext attachComponent(ContextAwareComponent component);
-
-    public default GatewaySubscription openGateway(String name) {
-        return openGateway(name, ProducerJoinMode.SINGLE);
-    }
-
-    public default GatewaySubscription openGateway(String name, ProducerJoinMode joinMode) {
-        return openGateway(name, ProducerTemplate.create(joinMode));
-    }
-
-    public GatewaySubscription openGateway(String name, ProducerTemplate producerTemplate);
-
-    public Optional<Gateway> closeGateway(String name);
-
-    public Optional<Gateway> findGateway(String name);
 
     public default Gateway findGatewayMandatory(String name) {
         return findGateway(name).orElseThrow(() -> new InvalidGatewayException(name));
