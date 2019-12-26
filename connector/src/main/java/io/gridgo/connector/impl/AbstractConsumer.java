@@ -47,7 +47,7 @@ public abstract class AbstractConsumer extends AbstractMessageComponent implemen
 
     private void notifyErrors(Deferred<Message, Exception> deferred, Exception ex) {
         try {
-            // getLogger().error("Exception caught while publishing message", ex);
+            getLogger().error("Exception caught while publishing message", ex);
             if (deferred != null)
                 deferred.reject(ex);
             getContext().getExceptionHandler().accept(ex);
@@ -72,7 +72,7 @@ public abstract class AbstractConsumer extends AbstractMessageComponent implemen
         for (var subscriber : this.subscribers) {
             try {
                 context.getCallbackInvokerStrategy() //
-                        .execute(() -> notifySubscriber(message, deferred, subscriber));
+                       .execute(() -> notifySubscriber(message, deferred, subscriber));
             } catch (Exception ex) {
                 notifyErrors(deferred, ex);
             }
