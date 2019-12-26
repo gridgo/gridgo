@@ -1,11 +1,10 @@
 package io.gridgo.utils.pojo.setter;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.util.Set;
-
 import static io.gridgo.utils.StringUtils.lowerCaseFirstLetter;
 import static java.lang.reflect.Modifier.isPublic;
+
+import java.lang.reflect.Method;
+import java.util.Set;
 
 import io.gridgo.utils.pojo.AbstractMethodSignatureExtractor;
 import io.gridgo.utils.pojo.IgnoreDefaultTranslator;
@@ -41,13 +40,13 @@ public class SetterMethodSignatureExtractor extends AbstractMethodSignatureExtra
     }
 
     @Override
-    protected PojoMethodSignature extract(Class<?> targetType, Method method, String fieldName, String transformRule,
+    protected PojoMethodSignature extract(Method method, String fieldName, String transformRule,
             Set<String> ignoredFields) {
-        Parameter param = method.getParameters()[0];
-        Class<?> signatureType = param.getType();
 
-        var transformedFieldName = transformFieldName(targetType, method, fieldName, transformRule, ignoredFields,
-                signatureType);
+        var param = method.getParameters()[0];
+        var signatureType = param.getType();
+
+        var transformedFieldName = transformFieldName(method, fieldName, transformRule, ignoredFields, signatureType);
 
         return PojoMethodSignature.builder() //
                 .method(method) //

@@ -88,7 +88,7 @@ public class PojoGetter {
             while (it.hasNext()) {
                 var value = it.next();
                 if (shallowly)
-                    walker.accept(VALUE, value, proxy);
+                    walker.accept(VALUE, value, null);
                 else
                     PojoGetter.of(value, proxy) //
                             .shallowly(shallowly) //
@@ -114,7 +114,7 @@ public class PojoGetter {
                 } else {
                     walker.accept(KEY, key, null);
                     if (shallowly)
-                        walker.accept(VALUE, value, proxy);
+                        walker.accept(VALUE, value, null);
                     else
                         PojoGetter.of(value, proxy) //
                                 .shallowly(shallowly) //
@@ -137,11 +137,11 @@ public class PojoGetter {
                 value = valueTranslator.translate(value, signature);
 
             if (value == null) {
-                walker.accept(KEY_NULL, key, null);
+                walker.accept(KEY_NULL, key, signature);
             } else {
                 walker.accept(KEY, key, null);
                 if (shallowly)
-                    walker.accept(VALUE, value, signature.getGetterProxy());
+                    walker.accept(VALUE, value, signature);
                 else
                     PojoGetter.of(value, signature.getGetterProxy()) //
                             .shallowly(shallowly) //

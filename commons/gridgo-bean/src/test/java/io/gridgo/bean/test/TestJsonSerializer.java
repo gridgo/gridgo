@@ -1,6 +1,7 @@
 package io.gridgo.bean.test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -19,6 +20,7 @@ import io.gridgo.bean.BReference;
 import io.gridgo.bean.BValue;
 import io.gridgo.bean.test.support.ArbitraryPrecisionNumerical;
 import io.gridgo.bean.test.support.Bar;
+import io.gridgo.bean.test.support.ChildFoo;
 import io.gridgo.bean.test.support.Foo;
 
 public class TestJsonSerializer {
@@ -96,7 +98,7 @@ public class TestJsonSerializer {
     }
 
     @Test
-    public void testSerializePojo() {
+    public void testPojoJsonCompact() {
         Foo foo = Foo.builder() //
                 .intArrayValue(new int[] { 1, 2, 3, 4 }) //
                 .doubleValue(0.123) //
@@ -112,6 +114,22 @@ public class TestJsonSerializer {
         Assert.assertArrayEquals(foo.getIntArrayValue(), after.getIntArrayValue());
         Assert.assertEquals(foo.getDoubleValue(), after.getDoubleValue(), 0);
         Assert.assertEquals(foo.getBarValue().isBool(), after.getBarValue().isBool());
+    }
+
+    @Test
+    public void testPojoJsonCompactAnnotation() {
+        ChildFoo foo = ChildFoo.builder() //
+                .stringValue(null) // should be serialized
+                .ignoreNullField(null) // should be ignored
+                .build();
+
+        var reference = BReference.of(foo);
+        var json = new String(reference.toBytes("json"));
+        System.out.println(json);
+        var after = BElement.ofJson(json).asObject();
+
+        assertFalse(after.containsKey("ignoreNullField"));
+        assertTrue(after.containsKey("stringValue"));
     }
 
     @Test

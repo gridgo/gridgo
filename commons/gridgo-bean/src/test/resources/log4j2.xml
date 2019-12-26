@@ -30,5 +30,6 @@
 		</Root>
 		<Logger name="org.reflections" level="off" />
 		<Logger name="io.gridgo.utils.pojo.AbstractMethodSignatureExtractor" level="off"/>
+		<Logger name="io.gridgo.bean.serialization.json.AbstractJsonSerializer" level="info"/>
 	</Loggers>
 </Configuration>

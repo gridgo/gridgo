@@ -1,15 +1,16 @@
 package io.gridgo.utils.pojo.getter;
 
+import static io.gridgo.utils.StringUtils.lowerCaseFirstLetter;
+import static java.lang.reflect.Modifier.isPublic;
+
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import static io.gridgo.utils.StringUtils.lowerCaseFirstLetter;
-import static java.lang.reflect.Modifier.isPublic;
-
 import io.gridgo.utils.pojo.AbstractMethodSignatureExtractor;
 import io.gridgo.utils.pojo.IgnoreDefaultTranslator;
+import io.gridgo.utils.pojo.IgnoreNull;
 import io.gridgo.utils.pojo.MethodSignatureExtractor;
 import io.gridgo.utils.pojo.PojoMethodSignature;
 import io.gridgo.utils.pojo.translator.OnGetTranslate;
@@ -34,20 +35,35 @@ public class GetterMethodSignatureExtractor extends AbstractMethodSignatureExtra
     }
 
     @Override
-    protected PojoMethodSignature extract(Class<?> targetType, Method method, String fieldName, String transformRule,
+    protected PojoMethodSignature extract(Method method, String fieldName, String transformRule,
             Set<String> ignoredFields) {
 
-        var signatureType = method.getReturnType();
-        var transformedFieldName = transformFieldName(targetType, method, fieldName, transformRule, ignoredFields,
-                signatureType);
+        var returnType = method.getReturnType();
+        var transformedFieldName = transformFieldName(method, fieldName, transformRule, ignoredFields, returnType);
+        var ignoreNull = checkIgnoreNull(method, fieldName);
 
         return PojoMethodSignature.builder() //
                 .method(method) //
-                .fieldType(signatureType) //
+                .fieldType(returnType) //
                 .fieldName(fieldName) //
                 .transformedFieldName(transformedFieldName) //
                 .valueTranslator(extractValueTranslator(method, fieldName)) //
+                .ignoreNull(ignoreNull) //
                 .build();
+    }
+
+    private boolean checkIgnoreNull(@NonNull Method method, String fieldName) {
+        if (method.getDeclaringClass().isAnnotationPresent(IgnoreNull.class))
+            return true;
+
+        if (method.isAnnotationPresent(IgnoreNull.class))
+            return true;
+
+        var field = getCorespondingField(method, fieldName);
+        if (field != null && field.isAnnotationPresent(IgnoreNull.class))
+            return true;
+
+        return false;
     }
 
     @Override

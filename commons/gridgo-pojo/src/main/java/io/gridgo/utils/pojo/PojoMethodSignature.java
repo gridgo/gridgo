@@ -64,13 +64,16 @@ public final class PojoMethodSignature {
     private final boolean isSetter;
     private final boolean isGetter;
 
+    private final boolean ignoreNull;
+
     @Builder
     private PojoMethodSignature(//
             Method method, //
             String fieldName, //
             Class<?> fieldType, //
             String transformedFieldName, //
-            ValueTranslator valueTranslator) {
+            ValueTranslator valueTranslator, //
+            boolean ignoreNull) {
 
         this.method = method;
         this.fieldName = fieldName;
@@ -105,5 +108,6 @@ public final class PojoMethodSignature {
         this.transformedOrDefaultFieldName = transformedFieldName == null ? fieldName : transformedFieldName;
 
         this.valueTranslator = valueTranslator;
+        this.ignoreNull = ignoreNull;
     }
 }
