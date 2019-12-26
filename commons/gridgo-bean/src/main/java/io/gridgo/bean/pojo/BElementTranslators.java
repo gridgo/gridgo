@@ -47,7 +47,8 @@ public abstract class BElementTranslators {
             if (bElement.isReference())
                 return bElement.asReference().toBObject();
 
-            throw new IllegalArgumentException("Expected for key-value or reference data, got: " + bElement.getType());
+            throw new IllegalArgumentException("Field '" + signature.getFieldName()
+                    + "' expected for key-value or reference data, got: " + bElement.getType());
         }
 
         return BObject.wrap(ele.asKeyValue().toMap());
@@ -100,7 +101,8 @@ public abstract class BElementTranslators {
         if (ele.isReference())
             return BObject.ofPojo(ele.asReference().getReference());
 
-        throw new IllegalArgumentException("Expect key-value or sequence or reference data, got " + ele);
+        throw new IllegalArgumentException(
+                "Field '" + signature.getFieldName() + "' expect key-value or sequence or reference data, got " + ele);
     }
 
     @RegisterValueTranslator(value = "toBElement", defaultFor = PojoMethodType.SETTER, defaultType = BElement.class)
