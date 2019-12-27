@@ -3,6 +3,7 @@ package io.gridgo.framework.test;
 import org.junit.Assert;
 import org.junit.Test;
 
+import io.gridgo.framework.impl.NonameComponentLifecycle;
 import io.gridgo.framework.test.support.TestComponent;
 
 public class ComponentLifecycleUnitTest {
@@ -25,5 +26,41 @@ public class ComponentLifecycleUnitTest {
         t3.join();
         t4.join();
         Assert.assertEquals(0, comp.getData());
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void testThrowOnStart() {
+        var comp = new NonameComponentLifecycle() {
+
+            @Override
+            protected void onStop() {
+
+            }
+
+            @Override
+            protected void onStart() {
+                throw new UnsupportedOperationException();
+            }
+        };
+        comp.start();
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void testThrowOnStop() {
+        var comp = new NonameComponentLifecycle() {
+
+            @Override
+            protected void onStop() {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            protected void onStart() {
+
+            }
+        };
+        comp.start();
+        Assert.assertTrue(comp.isStarted());
+        comp.stop();
     }
 }
