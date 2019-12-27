@@ -11,7 +11,7 @@ import javassist.CtMethod;
 
 public class MethodAccessors {
 
-    private static void checkValidMethod(Method method, int requireParamCount, boolean hasReturn) {
+    private static void checkValidMethod(Method method, int requireParamCount) {
         var modifiers = method.getModifiers();
         var methodInfo = method.getName() + ", " + method.getDeclaringClass();
         if (!Modifier.isStatic(modifiers))
@@ -26,10 +26,8 @@ public class MethodAccessors {
                     "method is required for " + requireParamCount + " params, got " + paramCount + ": " + methodInfo);
 
         var returnType = method.getReturnType();
-        if (hasReturn && (returnType == void.class))
+        if (returnType == void.class)
             throw new IllegalArgumentException("method is required to return value, got void: " + methodInfo);
-        if (!hasReturn && (returnType != void.class))
-            throw new IllegalArgumentException("method is required to return void, got non-void: " + methodInfo);
     }
 
     @SuppressWarnings("unchecked")
@@ -79,12 +77,12 @@ public class MethodAccessors {
     }
 
     public static FunctionAccessor forStaticSingleParamFunction(Method method) {
-        checkValidMethod(method, 1, true);
+        checkValidMethod(method, 1);
         return buildStaticMethodAccessor(method, FunctionAccessor.class, "apply", "Object");
     }
 
     public static BiFunctionAccessor forStaticTwoParamsFunction(Method method) {
-        checkValidMethod(method, 2, true);
+        checkValidMethod(method, 2);
         return buildStaticMethodAccessor(method, BiFunctionAccessor.class, "apply", "Object");
     }
 }
