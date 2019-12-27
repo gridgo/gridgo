@@ -3,7 +3,6 @@ package io.gridgo.utils.pojo.translator;
 import org.cliffc.high_scale_lib.NonBlockingHashMap;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Map;
 
@@ -46,21 +45,10 @@ public class ValueTranslators implements ClasspathScanner {
             }
         }
 
-        var list = new ArrayList<String>(packages);
-        list.sort((s1, s2) -> s1.length() - s2.length());
-
-        var processed = new ArrayList<String>();
         var contextClassLoader = Thread.currentThread().getContextClassLoader();
 
-        nextPackage: // for each package name, do...
-        for (var packageName : list) {
-            for (var processedPackage : processed) {
-                if (packageName.startsWith(processedPackage + "."))
-                    continue nextPackage;
-            }
-
+        for (var packageName : packages) {
             scan(packageName, contextClassLoader);
-            processed.add(packageName);
         }
     }
 
