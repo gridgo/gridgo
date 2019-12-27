@@ -20,9 +20,6 @@ public class MethodAccessors {
         if (!Modifier.isPublic(modifiers))
             throw new IllegalArgumentException("method must be public: " + methodInfo);
 
-        if (Modifier.isAbstract(modifiers))
-            throw new IllegalArgumentException("method cannot be abstract: " + methodInfo);
-
         var paramCount = method.getParameterCount();
         if (paramCount != requireParamCount)
             throw new IllegalArgumentException(
