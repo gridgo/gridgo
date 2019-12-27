@@ -1,34 +1,36 @@
 package io.gridgo.utils.pojo.translator;
 
-import static io.gridgo.utils.ClasspathUtils.scanForAnnotatedMethods;
-import static io.gridgo.utils.ClasspathUtils.scanForAnnotatedTypes;
-import static io.gridgo.utils.pojo.PojoMethodType.GETTER;
-import static io.gridgo.utils.pojo.PojoMethodType.NONE;
-import static io.gridgo.utils.pojo.PojoMethodType.SETTER;
+import org.cliffc.high_scale_lib.NonBlockingHashMap;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Map;
 
-import org.cliffc.high_scale_lib.NonBlockingHashMap;
+import static io.gridgo.utils.ClasspathUtils.scanForAnnotatedMethods;
+import static io.gridgo.utils.ClasspathUtils.scanForAnnotatedTypes;
+import static io.gridgo.utils.pojo.PojoMethodType.GETTER;
+import static io.gridgo.utils.pojo.PojoMethodType.NONE;
+import static io.gridgo.utils.pojo.PojoMethodType.SETTER;
 
 import io.gridgo.utils.ClasspathUtils;
 import io.gridgo.utils.helper.ClasspathScanner;
-import lombok.Getter;
 import lombok.NonNull;
 
 @SuppressWarnings("rawtypes")
 public class ValueTranslators implements ClasspathScanner {
 
-    @Getter
-    private static final ValueTranslators instance = new ValueTranslators();
+    private static final ValueTranslators INSTANCE = new ValueTranslators();
 
     private final Map<String, ValueTranslator> nameRegistry = new NonBlockingHashMap<>();
 
     private final Map<Class<?>, ValueTranslator> getterDefaultRegistry = new NonBlockingHashMap<>();
 
     private final Map<Class<?>, ValueTranslator> setterDefaultRegistry = new NonBlockingHashMap<>();
+
+    public static ValueTranslators getInstance() {
+        return INSTANCE;
+    }
 
     private ValueTranslators() {
         var packages = new HashSet<String>();
@@ -52,9 +54,10 @@ public class ValueTranslators implements ClasspathScanner {
 
         nextPackage: // for each package name, do...
         for (var packageName : list) {
-            for (var processedPackage : processed)
+            for (var processedPackage : processed) {
                 if (packageName.startsWith(processedPackage + "."))
                     continue nextPackage;
+            }
 
             scan(packageName, contextClassLoader);
             processed.add(packageName);
