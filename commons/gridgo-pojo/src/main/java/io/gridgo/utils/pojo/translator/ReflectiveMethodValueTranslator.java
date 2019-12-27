@@ -13,10 +13,6 @@ public class ReflectiveMethodValueTranslator implements ValueTranslator<Object, 
 
     ReflectiveMethodValueTranslator(Method method) {
         this.accessor = MethodAccessors.forStaticTwoParamsFunction(method);
-        try {
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
         this.acceptedType = method.getParameterTypes()[0];
     }
 
