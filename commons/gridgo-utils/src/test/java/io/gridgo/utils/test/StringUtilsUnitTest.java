@@ -48,6 +48,26 @@ public class StringUtilsUnitTest {
                 StringUtils.implodeWithGlue(" ", Arrays.asList("one", "string", "to", "bind", "them", "all")));
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testImplodeWithGlueStartAfterEnd() {
+        StringUtils.implodeWithGlue(" ", new String[] { "one", "string"}, 2, 1);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testImplodeWithGlueStartAfterLength() {
+        StringUtils.implodeWithGlue(" ", new String[] { "one", "string"}, 2, 3);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testImplodeWithGlueEndAfterLength() {
+        StringUtils.implodeWithGlue(" ", new String[] { "one", "string"}, 0, 3);
+    }
+
+    @Test(expected = ArrayIndexOutOfBoundsException.class)
+    public void testImplodeWithGlueNegativeStart() {
+        StringUtils.implodeWithGlue(" ", new String[] { "one", "string"}, -1, 2);
+    }
+
     @Test
     public void testImplodeWithGlueWithBound() {
         String text = "string to bind them";
