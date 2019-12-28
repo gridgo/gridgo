@@ -30,12 +30,7 @@ public class PojoSetter {
     }
 
     public static PojoSetter ofType(Class<?> targetType) {
-        try {
-            var target = targetType.getConstructor().newInstance();
-            return of(target, PojoSetterRegistry.DEFAULT.getSetterProxy(targetType));
-        } catch (Exception e) {
-            throw new PojoProxyException("Cannot create instance of class: " + targetType.getName(), e);
-        }
+        return ofType(targetType, PojoSetterRegistry.DEFAULT.getSetterProxy(targetType));
     }
 
     /********************************************************
