@@ -40,7 +40,7 @@ public class TestPojoSetter {
 
         private List<SimplePojo> pojoList2;
 
-        private List<List<String>> nestedList;
+        private List<String[]> nestedList;
 
         private Set<String> set;
 
@@ -80,7 +80,6 @@ public class TestPojoSetter {
         assertNull(obj.getNullPointer());
         assertEquals(1, obj.getIntValue());
         assertEquals(list, obj.getList());
-        assertEquals(nestedList, obj.getNestedList());
         assertEquals(set, obj.getSet());
         assertEquals(map, obj.getMap());
         assertArrayEquals(intArr, obj.getIntArr());
@@ -92,5 +91,9 @@ public class TestPojoSetter {
 
         assertEquals(1, obj.getPojoList2().size());
         assertEquals("test1", obj.getPojoList2().get(0).getName());
+
+        assertEquals(2, obj.getNestedList().size());
+        assertArrayEquals(new String[] {"s1", "s2"}, obj.getNestedList().get(0));
+        assertArrayEquals(new String[] {"s3"}, obj.getNestedList().get(1));
     }
 }
