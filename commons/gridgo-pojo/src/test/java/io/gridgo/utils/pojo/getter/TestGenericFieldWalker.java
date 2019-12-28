@@ -10,16 +10,16 @@ import java.util.Map;
 import java.util.Set;
 
 import io.gridgo.utils.pojo.PojoFlattenIndicator;
-import io.gridgo.utils.pojo.getter.fieldwalkers.CollectionFieldWalker;
+import io.gridgo.utils.pojo.getter.fieldwalkers.GenericFieldWalker;
 
-public class TestCollectionFieldWalker {
+public class TestGenericFieldWalker {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Test
     public void testWalkShallow() {
         var result = new HashMap<PojoFlattenIndicator, List>();
-        var list = List.of(1, Map.of("k2", 2));
-        var fieldWalker = CollectionFieldWalker.getInstance();
+        var list = new Object[] {1, Map.of("k2", 2), List.of(3, 4)};
+        var fieldWalker = GenericFieldWalker.getInstance();
         fieldWalker.walk(list, null, (indicator, value, signature, proxy) -> {
             result.computeIfAbsent(indicator, k -> new ArrayList<>())
                   .add(value);
@@ -27,8 +27,8 @@ public class TestCollectionFieldWalker {
         Assert.assertNull(result.get(PojoFlattenIndicator.START_MAP));
         Assert.assertNull(result.get(PojoFlattenIndicator.KEY));
         Assert.assertNull(result.get(PojoFlattenIndicator.END_MAP));
-        Assert.assertEquals(List.of(2), result.get(PojoFlattenIndicator.START_ARRAY));
-        Assert.assertEquals(List.of(2), result.get(PojoFlattenIndicator.END_ARRAY));
+        Assert.assertEquals(List.of(3), result.get(PojoFlattenIndicator.START_ARRAY));
+        Assert.assertEquals(List.of(3), result.get(PojoFlattenIndicator.END_ARRAY));
         var values = result.get(PojoFlattenIndicator.VALUE);
         Assert.assertEquals(Set.of(list), Set.copyOf(values));
     }
@@ -37,8 +37,8 @@ public class TestCollectionFieldWalker {
     @Test
     public void testWalkDeep() {
         var result = new HashMap<PojoFlattenIndicator, List>();
-        var list = List.of(1, Map.of("k2", 2));
-        var fieldWalker = CollectionFieldWalker.getInstance();
+        var list = new Object[] {1, Map.of("k2", 2), List.of(3, 4)};
+        var fieldWalker = GenericFieldWalker.getInstance();
         fieldWalker.walk(list, null, (indicator, value, signature, proxy) -> {
             result.computeIfAbsent(indicator, k -> new ArrayList<>())
                   .add(value);
@@ -46,9 +46,9 @@ public class TestCollectionFieldWalker {
         Assert.assertEquals(List.of(1), result.get(PojoFlattenIndicator.START_MAP));
         Assert.assertEquals(List.of("k2"), result.get(PojoFlattenIndicator.KEY));
         Assert.assertEquals(List.of(1), result.get(PojoFlattenIndicator.END_MAP));
-        Assert.assertEquals(List.of(2), result.get(PojoFlattenIndicator.START_ARRAY));
-        Assert.assertEquals(List.of(2), result.get(PojoFlattenIndicator.END_ARRAY));
+        Assert.assertEquals(Set.of(2, 3), Set.copyOf(result.get(PojoFlattenIndicator.START_ARRAY)));
+        Assert.assertEquals(Set.of(2, 3), Set.copyOf(result.get(PojoFlattenIndicator.END_ARRAY)));
         var values = result.get(PojoFlattenIndicator.VALUE);
-        Assert.assertEquals(Set.of(1, 2), Set.copyOf(values));
+        Assert.assertEquals(Set.of(1, 2, 3, 4), Set.copyOf(values));
     }
 }
