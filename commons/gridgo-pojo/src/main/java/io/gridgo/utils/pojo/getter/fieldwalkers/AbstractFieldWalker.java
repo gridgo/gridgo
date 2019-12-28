@@ -14,13 +14,12 @@ import io.gridgo.utils.pojo.getter.PojoGetterRegistry;
 public abstract class AbstractFieldWalker implements FieldWalker {
 
     protected void walkRecursive(Object target, PojoGetterProxy proxy, PojoFlattenAcceptor walker, boolean shallowly) {
-        Class<?> type;
+        Class<?> type = target == null ? null : target.getClass();
 
         if (target == null //
-                || isPrimitive(type = target.getClass()) //
+                || isPrimitive(type) //
                 || type == Date.class //
                 || type == java.sql.Date.class) {
-
             walker.accept(VALUE, target, null, null);
             return;
         }

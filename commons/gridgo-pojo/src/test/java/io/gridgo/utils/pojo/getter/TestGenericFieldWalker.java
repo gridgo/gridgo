@@ -4,6 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,5 +51,23 @@ public class TestGenericFieldWalker {
         Assert.assertEquals(Set.of(1, 2, 4), Set.copyOf(result.get(PojoFlattenIndicator.END_ARRAY)));
         var values = result.get(PojoFlattenIndicator.VALUE);
         Assert.assertEquals(Set.of(1, 2, 3, 4, 5), Set.copyOf(values));
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @Test
+    public void testWalkNull() {
+        var result = new HashMap<PojoFlattenIndicator, List>();
+        var fieldWalker = GenericFieldWalker.getInstance();
+        fieldWalker.walk(null, null, (indicator, value, signature, proxy) -> {
+            result.computeIfAbsent(indicator, k -> new ArrayList<>())
+                  .add(value);
+        }, false);
+        Assert.assertNull(result.get(PojoFlattenIndicator.START_MAP));
+        Assert.assertNull(result.get(PojoFlattenIndicator.KEY));
+        Assert.assertNull(result.get(PojoFlattenIndicator.END_MAP));
+        Assert.assertNull(result.get(PojoFlattenIndicator.START_ARRAY));
+        Assert.assertNull(result.get(PojoFlattenIndicator.END_ARRAY));
+        var values = result.get(PojoFlattenIndicator.VALUE);
+        Assert.assertEquals(Arrays.asList(new Object[] { null }), values);
     }
 }
