@@ -1,6 +1,7 @@
 package io.gridgo.bean.test;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Assert;
+import org.junit.Test;
 
 import java.sql.Date;
 import java.util.Collections;
@@ -8,8 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 import io.gridgo.bean.BArray;
 import io.gridgo.bean.BElement;
@@ -42,21 +42,14 @@ public class BObjectUnitTest {
         obj.setAny("bool", true);
         Assert.assertTrue(obj.getBoolean("bool", false));
 
-        var json = "{\"str\":\"hello\",\"arr\":[1,2,3],\"bool\":true,\"double\":1.11,\"byte\":1,\"obj\":{\"int\":2},\"char\":\"a\",\"int\":1,\"long\":1}";
-        var json2 = obj.toJson();
-        System.out.println(json2);
-        Assert.assertEquals(json, json2);
-        obj = BElement.ofJson(json);
-        assertObject(obj);
-
         var map = obj.toMap();
         Assert.assertEquals(1, ((Number) map.get("int")).intValue());
         Assert.assertEquals("hello", map.get("str"));
         Assert.assertEquals(1l, map.get("long"));
-        Assert.assertEquals("a", map.get("char"));
+        Assert.assertEquals('a', map.get("char"));
         Assert.assertEquals(1.11, ((Number) map.get("double")).doubleValue(), 0.001);
         var list = (List<?>) map.get("arr");
-        Assert.assertArrayEquals(new Long[] { 1l, 2l, 3l }, list.toArray());
+        Assert.assertArrayEquals(new Integer[] { 1, 2, 3 }, list.toArray());
 
         obj = BElement.ofBytes(obj.toBytes());
         assertObject(obj);
@@ -147,14 +140,6 @@ public class BObjectUnitTest {
         Assert.assertEquals(1, clone.asObject().getInteger("id").intValue());
         Assert.assertArrayEquals(new byte[] { 1, 2, 3, 4 }, clone.asObject().getRaw("byteArr"));
         Assert.assertEquals(obj, clone);
-    }
-
-    @Test
-    public void testJsonWithNullFields() {
-        var json = "{\"id\": null}";
-        var obj = BElement.ofJson(json);
-        Assert.assertTrue(obj.isObject());
-        Assert.assertNotNull(obj.asObject().get("id"));
     }
 
     @Test
