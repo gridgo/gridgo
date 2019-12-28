@@ -18,7 +18,7 @@ public class TestGenericFieldWalker {
     @Test
     public void testWalkShallow() {
         var result = new HashMap<PojoFlattenIndicator, List>();
-        var list = new Object[] {1, Map.of("k2", 2), List.of(3, 4)};
+        var list = new Object[] { 1, Map.of("k2", 2), List.of(3, 4), new int[] { 5 } };
         var fieldWalker = GenericFieldWalker.getInstance();
         fieldWalker.walk(list, null, (indicator, value, signature, proxy) -> {
             result.computeIfAbsent(indicator, k -> new ArrayList<>())
@@ -27,8 +27,8 @@ public class TestGenericFieldWalker {
         Assert.assertNull(result.get(PojoFlattenIndicator.START_MAP));
         Assert.assertNull(result.get(PojoFlattenIndicator.KEY));
         Assert.assertNull(result.get(PojoFlattenIndicator.END_MAP));
-        Assert.assertEquals(List.of(3), result.get(PojoFlattenIndicator.START_ARRAY));
-        Assert.assertEquals(List.of(3), result.get(PojoFlattenIndicator.END_ARRAY));
+        Assert.assertEquals(List.of(4), result.get(PojoFlattenIndicator.START_ARRAY));
+        Assert.assertEquals(List.of(4), result.get(PojoFlattenIndicator.END_ARRAY));
         var values = result.get(PojoFlattenIndicator.VALUE);
         Assert.assertEquals(Set.of(list), Set.copyOf(values));
     }
@@ -37,7 +37,7 @@ public class TestGenericFieldWalker {
     @Test
     public void testWalkDeep() {
         var result = new HashMap<PojoFlattenIndicator, List>();
-        var list = new Object[] {1, Map.of("k2", 2), List.of(3, 4)};
+        var list = new Object[] { 1, Map.of("k2", 2), List.of(3, 4), new int[] { 5 } };
         var fieldWalker = GenericFieldWalker.getInstance();
         fieldWalker.walk(list, null, (indicator, value, signature, proxy) -> {
             result.computeIfAbsent(indicator, k -> new ArrayList<>())
@@ -46,9 +46,9 @@ public class TestGenericFieldWalker {
         Assert.assertEquals(List.of(1), result.get(PojoFlattenIndicator.START_MAP));
         Assert.assertEquals(List.of("k2"), result.get(PojoFlattenIndicator.KEY));
         Assert.assertEquals(List.of(1), result.get(PojoFlattenIndicator.END_MAP));
-        Assert.assertEquals(Set.of(2, 3), Set.copyOf(result.get(PojoFlattenIndicator.START_ARRAY)));
-        Assert.assertEquals(Set.of(2, 3), Set.copyOf(result.get(PojoFlattenIndicator.END_ARRAY)));
+        Assert.assertEquals(Set.of(1, 2, 4), Set.copyOf(result.get(PojoFlattenIndicator.START_ARRAY)));
+        Assert.assertEquals(Set.of(1, 2, 4), Set.copyOf(result.get(PojoFlattenIndicator.END_ARRAY)));
         var values = result.get(PojoFlattenIndicator.VALUE);
-        Assert.assertEquals(Set.of(1, 2, 3, 4), Set.copyOf(values));
+        Assert.assertEquals(Set.of(1, 2, 3, 4, 5), Set.copyOf(values));
     }
 }
