@@ -12,6 +12,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 import io.gridgo.utils.exception.UnsupportedTypeException;
+import io.gridgo.utils.pojo.exception.PojoProxyException;
 import io.gridgo.utils.pojo.setter.data.SimpleKeyValueData;
 import io.gridgo.utils.pojo.support.PojoWithCollection;
 import io.gridgo.utils.pojo.support.SimplePojo;
@@ -114,10 +115,47 @@ public class TestPojoSetter {
         assertEquals("test1", obj.getPojoArr()[0].getName());
     }
 
+    @Test
+    public void testPojoFromMap() {
+        var pojo = Map.of("name", "test1");
+        var src = Map.of("pojo", pojo);
+        var obj = createPojo(src);
+        assertEquals("test1", obj.getPojo().getName());
+    }
+
+    @Test
+    public void testPojoFromRef() {
+        var pojo = SimplePojo.builder().name("test1").build();
+        var src = Map.of("pojo", pojo);
+        var obj = createPojo(src);
+        assertEquals(pojo, obj.getPojo());
+    }
+
     @Test(expected = UnsupportedTypeException.class)
     public void testArrayPojoFromRefWrongType() {
         var pojoArr = List.of(new Object());
         var src = Map.of("pojoArr", pojoArr);
+        createPojo(src);
+    }
+
+    @Test(expected = PojoProxyException.class)
+    public void testSequenceWrongType() {
+        var pojoArr = new Object();
+        var src = Map.of("list", pojoArr);
+        createPojo(src);
+    }
+
+    @Test(expected = PojoProxyException.class)
+    public void testPrimitiveWrongType() {
+        var pojoArr = new Object();
+        var src = Map.of("intValue", pojoArr);
+        createPojo(src);
+    }
+
+    @Test(expected = PojoProxyException.class)
+    public void testMapWrongType() {
+        var pojoArr = new Object();
+        var src = Map.of("map", pojoArr);
         createPojo(src);
     }
 

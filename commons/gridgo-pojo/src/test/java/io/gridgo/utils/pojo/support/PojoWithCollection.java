@@ -33,5 +33,7 @@ public class PojoWithCollection {
 
     private Object[] objArr;
 
+    private SimplePojo pojo;
+
     private SimplePojo[] pojoArr;
 }
