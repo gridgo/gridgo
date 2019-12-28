@@ -8,6 +8,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import io.gridgo.bean.BElement;
+import io.gridgo.bean.exceptions.SerializationPluginException;
 import io.gridgo.bean.factory.BFactory;
 
 public class TestMockSerializer {
@@ -41,5 +42,10 @@ public class TestMockSerializer {
             element.writeBytes(baos);
             Assert.assertArrayEquals("some_random_string".getBytes(), baos.toByteArray());
         }
+    }
+
+    @Test(expected = SerializationPluginException.class)
+    public void testDuplicateSerializer() {
+        BFactory.DEFAULT.getSerializerRegistry().scan("io.gridgo.bean.test.support.supported");
     }
 }
