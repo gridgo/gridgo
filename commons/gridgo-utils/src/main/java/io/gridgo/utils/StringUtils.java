@@ -56,9 +56,6 @@ public final class StringUtils {
         if (start >= end) {
             throw new IllegalArgumentException("Start must be less than end, got " + start + " >= " + end);
         }
-        if (array.length < start) {
-            throw new IllegalArgumentException("Array's length must >= " + start + ", got " + array.length);
-        }
         if (array.length < end) {
             throw new IllegalArgumentException("Array's length must >= " + end + ", got " + array.length);
         }

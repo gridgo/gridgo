@@ -54,11 +54,6 @@ public class StringUtilsUnitTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testImplodeWithGlueStartAfterLength() {
-        StringUtils.implodeWithGlue(" ", new String[] { "one", "string"}, 2, 3);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
     public void testImplodeWithGlueEndAfterLength() {
         StringUtils.implodeWithGlue(" ", new String[] { "one", "string"}, 0, 3);
     }
