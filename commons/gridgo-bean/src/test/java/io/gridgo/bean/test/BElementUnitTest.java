@@ -86,7 +86,7 @@ public class BElementUnitTest {
 
     @Test
     public void testMockJson() {
-        BFactory.DEFAULT.getSerializerRegistry().scan("io.gridgo.bean.test.support");
+        BFactory.DEFAULT.getSerializerRegistry().scan("io.gridgo.bean.test.support.supported");
         var element = BElement.ofJson("some_random_string");
         Assert.assertTrue(element != null && element.isValue());
         Assert.assertEquals("test", element.asValue().getString());

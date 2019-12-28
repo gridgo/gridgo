@@ -1,4 +1,4 @@
-package io.gridgo.bean.test.support;
+package io.gridgo.bean.test.support.supported;
 
 import java.io.IOException;
 import java.io.InputStream;
