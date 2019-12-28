@@ -13,14 +13,6 @@ import io.gridgo.utils.pojo.getter.PojoGetterRegistry;
 
 public abstract class AbstractFieldWalker implements FieldWalker {
 
-    private static final FieldWalker arrayFieldWalker = ArrayFieldWalker.getInstance();
-
-    private static final FieldWalker collectionFieldWalker = CollectionFieldWalker.getInstance();
-
-    private static final FieldWalker mapFieldWalker = MapFieldWalker.getInstance();
-
-    private static final FieldWalker pojoFieldWalker = PojoFieldWalker.getInstance();
-
     protected void walkRecursive(Object target, PojoGetterProxy proxy, PojoFlattenAcceptor walker, boolean shallowly) {
         Class<?> type;
 
@@ -34,21 +26,21 @@ public abstract class AbstractFieldWalker implements FieldWalker {
         }
 
         if (type.isArray()) {
-            arrayFieldWalker.walk(target, proxy, walker, shallowly);
+            ArrayFieldWalker.getInstance().walk(target, proxy, walker, shallowly);
             return;
         }
 
         if (Collection.class.isInstance(target)) {
-            collectionFieldWalker.walk(target, proxy, walker, shallowly);
+            CollectionFieldWalker.getInstance().walk(target, proxy, walker, shallowly);
             return;
         }
 
         if (Map.class.isInstance(target)) {
-            mapFieldWalker.walk(target, proxy, walker, shallowly);
+            MapFieldWalker.getInstance().walk(target, proxy, walker, shallowly);
             return;
         }
 
         var _proxy = proxy != null ? proxy : PojoGetterRegistry.DEFAULT.getGetterProxy(type);
-        pojoFieldWalker.walk(target, _proxy, walker, shallowly);
+        PojoFieldWalker.getInstance().walk(target, _proxy, walker, shallowly);
     }
 }

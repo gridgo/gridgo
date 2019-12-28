@@ -13,44 +13,10 @@ import static org.junit.Assert.assertNull;
 
 import io.gridgo.utils.exception.UnsupportedTypeException;
 import io.gridgo.utils.pojo.setter.data.SimpleKeyValueData;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import io.gridgo.utils.pojo.support.PojoWithCollection;
+import io.gridgo.utils.pojo.support.SimplePojo;
 
 public class TestPojoSetter {
-
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class SimplePojo {
-        private String name;
-    }
-
-    @Data
-    public static class PojoWithCollection {
-
-        private int intValue;
-
-        private Object nullPointer;
-
-        private List<String> list;
-
-        private List<SimplePojo> pojoList;
-
-        private List<String[]> nestedList;
-
-        private Set<String> set;
-
-        private Map<String, Object> map;
-
-        private int[] intArr;
-
-        private Object[] objArr;
-
-        private SimplePojo[] pojoArr;
-    }
 
     @Test
     public void testNullPointer() {
