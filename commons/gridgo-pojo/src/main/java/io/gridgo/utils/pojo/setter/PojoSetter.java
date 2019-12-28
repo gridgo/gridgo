@@ -1,7 +1,5 @@
 package io.gridgo.utils.pojo.setter;
 
-import java.lang.reflect.InvocationTargetException;
-
 import io.gridgo.utils.pojo.PojoMethodSignature;
 import io.gridgo.utils.pojo.exception.PojoProxyException;
 import io.gridgo.utils.pojo.setter.data.GenericData;
@@ -24,7 +22,7 @@ public class PojoSetter {
         try {
             var target = targetType.getConstructor().newInstance();
             return of(target, proxy);
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+        } catch (ReflectiveOperationException e) {
             throw new PojoProxyException("Cannot create instance of class: " + targetType.getName(), e);
         }
     }

@@ -1,5 +1,6 @@
 package io.gridgo.utils.pojo.setter;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import io.gridgo.utils.PrimitiveUtils;
@@ -10,6 +11,7 @@ import javassist.ClassClassPath;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
+import javassist.NotFoundException;
 
 class JavassistSetterProxyBuilder extends AbstractProxyBuilder implements PojoSetterProxyBuilder {
 
@@ -48,13 +50,13 @@ class JavassistSetterProxyBuilder extends AbstractProxyBuilder implements PojoSe
             buildWalkthroughMethod(cc, methodSignatures, targetType, allFields);
 
             return makeProxy(methodSignatures, cc.toClass());
-        } catch (Exception e) {
+        } catch (NotFoundException | CannotCompileException | ReflectiveOperationException e) {
             throw new RuntimeException(e);
         }
     }
 
     private PojoSetterProxy makeProxy(List<PojoMethodSignature> methodSignatures, Class<?> resultClass)
-            throws Exception {
+            throws InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
         var result = (PojoSetterProxy) resultClass.getConstructor().newInstance();
         var signatureSetter = resultClass.getMethod("setMethodSignature", String.class, PojoMethodSignature.class);
         for (PojoMethodSignature methodSignature : methodSignatures)

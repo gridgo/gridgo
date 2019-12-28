@@ -9,6 +9,7 @@ import javassist.ClassClassPath;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
+import javassist.NotFoundException;
 import lombok.NonNull;
 
 class JavassistGetterProxyBuilder extends AbstractProxyBuilder implements PojoGetterProxyBuilder {
@@ -52,7 +53,7 @@ class JavassistGetterProxyBuilder extends AbstractProxyBuilder implements PojoGe
             }
 
             return result;
-        } catch (Exception e) {
+        } catch (CannotCompileException | ReflectiveOperationException | NotFoundException e) {
             throw new RuntimeException("error while trying to build getter proxy: " + target, e);
         }
     }
