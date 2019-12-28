@@ -1,12 +1,12 @@
 package io.gridgo.bean.serialization;
 
-import static io.gridgo.utils.ClasspathUtils.scanForAnnotatedTypes;
+import org.cliffc.high_scale_lib.NonBlockingHashMap;
 
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.cliffc.high_scale_lib.NonBlockingHashMap;
+import static io.gridgo.utils.ClasspathUtils.scanForAnnotatedTypes;
 
 import io.gridgo.bean.exceptions.SerializationPluginException;
 import io.gridgo.bean.factory.BFactory;
@@ -130,7 +130,7 @@ public final class BSerializerRegistry implements ClasspathScanner {
                 for (String name : names) {
                     this.register(name, serializer);
                 }
-            } catch (Exception e) {
+            } catch (ReflectiveOperationException e) {
                 throw new SerializationPluginException(
                         "Cannot create instance for class " + clazz + ", require non-args constructor", e);
             }
