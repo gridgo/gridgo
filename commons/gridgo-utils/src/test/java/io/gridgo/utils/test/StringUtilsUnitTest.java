@@ -75,4 +75,15 @@ public class StringUtilsUnitTest {
             }
         });
     }
+
+    @Test
+    public void testTab() {
+        var sb = new StringBuilder();
+        StringUtils.tabs(1, sb);
+        Assert.assertEquals("\t", sb.toString());
+
+        sb = new StringBuilder();
+        StringUtils.tabs(2, sb);
+        Assert.assertEquals("\t\t", sb.toString());
+    }
 }
