@@ -71,17 +71,6 @@ public final class StringUtils {
         return sb.toString();
     }
 
-    private static final String[] REGEX_SPECIAL_CHARS = new String[] { "\\", ".", "*", "+", "-", "[", "]", "(", ")",
-            "$", "^", "|", "{", "}", "?" };
-
-    public static final String normalizeForRegex(String key) {
-        String result = key;
-        for (String c : REGEX_SPECIAL_CHARS) {
-            result = result.replaceAll("\\" + c, "\\\\\\" + c);
-        }
-        return result;
-    }
-
     public static void tabs(int num, Appendable sb) {
         try {
             for (int i = 0; i < num; i++) {
