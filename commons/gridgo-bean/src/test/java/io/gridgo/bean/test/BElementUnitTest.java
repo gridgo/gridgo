@@ -3,18 +3,14 @@ package io.gridgo.bean.test;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
 import io.gridgo.bean.BArray;
-import io.gridgo.bean.BElement;
 import io.gridgo.bean.BObject;
 import io.gridgo.bean.BReference;
 import io.gridgo.bean.BValue;
 import io.gridgo.bean.exceptions.BeanSerializationException;
-import io.gridgo.bean.factory.BFactory;
 
 public class BElementUnitTest {
 
@@ -84,19 +80,5 @@ public class BElementUnitTest {
     public void testSerializerNotFound() {
         var val = BValue.of(1);
         val.toBytes("test");
-    }
-
-    @Test
-    public void testMockJson() throws IOException {
-        BFactory.DEFAULT.getSerializerRegistry().scan("io.gridgo.bean.test.support.supported");
-        var element = BElement.ofJson("some_random_string");
-        Assert.assertTrue(element != null && element.isValue());
-        Assert.assertEquals("test", element.asValue().getString());
-        String json = element.toJson();
-        Assert.assertEquals("test", json);
-        try (var baos = new ByteArrayOutputStream()) {
-            element.writeJson(baos);
-            Assert.assertArrayEquals("test".getBytes(), baos.toByteArray());
-        }
     }
 }
