@@ -30,7 +30,7 @@ public class TestArrayFieldWalker {
         Assert.assertEquals(List.of(2), result.get(PojoFlattenIndicator.START_ARRAY));
         Assert.assertEquals(List.of(2), result.get(PojoFlattenIndicator.END_ARRAY));
         var values = result.get(PojoFlattenIndicator.VALUE);
-        Assert.assertEquals(Set.of(1, list[1]), Set.copyOf(values));
+        Assert.assertEquals(Set.of(list), Set.copyOf(values));
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
