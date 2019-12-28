@@ -12,6 +12,8 @@ public class ComponentLifecycleUnitTest {
     public void testComponent() throws InterruptedException {
         var comp = new TestComponent();
         Assert.assertEquals(0, comp.getData());
+        Assert.assertEquals("test", comp.getName());
+        Assert.assertEquals("test", comp.toString());
         var t1 = new Thread(comp::start);
         var t2 = new Thread(comp::start);
         t1.start();
