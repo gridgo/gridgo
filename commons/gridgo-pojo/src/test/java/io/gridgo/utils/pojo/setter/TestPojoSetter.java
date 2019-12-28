@@ -11,6 +11,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import io.gridgo.utils.exception.UnsupportedTypeException;
 import io.gridgo.utils.pojo.setter.data.SimpleKeyValueData;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -145,6 +146,13 @@ public class TestPojoSetter {
         var obj = createPojo(src);
         assertEquals(1, obj.getPojoArr().length);
         assertEquals("test1", obj.getPojoArr()[0].getName());
+    }
+
+    @Test(expected = UnsupportedTypeException.class)
+    public void testArrayPojoFromRefWrongType() {
+        var pojoArr = List.of(new Object());
+        var src = Map.of("pojoArr", pojoArr);
+        createPojo(src);
     }
 
     private PojoWithCollection createPojo(Map<String, ?> src) {
