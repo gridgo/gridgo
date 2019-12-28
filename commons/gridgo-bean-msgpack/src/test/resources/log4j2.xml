@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration monitorInterval="15">
+
+	<Properties>
+		<Property name="log-path">logs/</Property>
+		<Property name="blank-pattern">%msg%n</Property>
+		<Property name="only-thread-name-pattern">%t -> %msg%n</Property>
+		<Property name="default-pattern">%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n</Property>
+		<Property name="debug-pattern">%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} (%F:%L) - %msg%n</Property>
+	</Properties>
+
+	<Appenders>
+		<RollingRandomAccessFile name="fileOutputLog" immediateFlush="false" append="true" fileName="${log-path}/console.log"
+			filePattern="${log-path}/console-%d{yyyy-MM-dd}-%d{HH}-%i.log">
+			<PatternLayout pattern="${default-pattern}" />
+			<Policies>
+				<TimeBasedTriggeringPolicy interval="1" modulate="true" />
+				<SizeBasedTriggeringPolicy size="64MB" />
+			</Policies>
+		</RollingRandomAccessFile>
+		<Console name="console" target="SYSTEM_OUT">
+			<PatternLayout pattern="${debug-pattern}" />
+		</Console>
+	</Appenders>
+
+	<Loggers>
+		<Root level="debug" includeLocation="true">
+			<!-- <AppenderRef ref="fileOutputLog" /> -->
+			<AppenderRef ref="console" />
+		</Root>
+		<Logger name="org.reflections" level="off" />
+		<Logger name="io.gridgo.utils.pojo.AbstractMethodSignatureExtractor" level="off"/>
+		<Logger name="io.gridgo.bean.serialization.json.AbstractJsonSerializer" level="info"/>
+	</Loggers>
+</Configuration>

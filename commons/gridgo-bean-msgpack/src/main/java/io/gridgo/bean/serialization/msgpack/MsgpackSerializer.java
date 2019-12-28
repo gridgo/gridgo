@@ -1,15 +1,15 @@
 package io.gridgo.bean.serialization.msgpack;
 
+import org.msgpack.core.MessageFormat;
+import org.msgpack.core.MessagePacker;
+import org.msgpack.core.MessageUnpacker;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import org.msgpack.core.MessageFormat;
-import org.msgpack.core.MessagePacker;
-import org.msgpack.core.MessageUnpacker;
 
 import io.gridgo.bean.BArray;
 import io.gridgo.bean.BElement;
@@ -19,6 +19,7 @@ import io.gridgo.bean.exceptions.BeanSerializationException;
 import io.gridgo.bean.exceptions.InvalidTypeException;
 import io.gridgo.bean.serialization.AbstractBSerializer;
 import io.gridgo.bean.serialization.BSerializationPlugin;
+import io.gridgo.bean.serialization.BSerializerRegistry;
 import io.gridgo.utils.ArrayUtils;
 import io.gridgo.utils.PrimitiveUtils;
 import io.gridgo.utils.exception.RuntimeIOException;
@@ -27,7 +28,7 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@BSerializationPlugin({ "raw", MsgpackSerializer.NAME })
+@BSerializationPlugin({ BSerializerRegistry.DEFAULT_SERIALIZER_NAME, MsgpackSerializer.NAME })
 public class MsgpackSerializer extends AbstractBSerializer {
 
     private final boolean compact = false;

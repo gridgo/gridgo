@@ -11,7 +11,6 @@ import static io.gridgo.utils.ClasspathUtils.scanForAnnotatedTypes;
 import io.gridgo.bean.exceptions.SerializationPluginException;
 import io.gridgo.bean.factory.BFactory;
 import io.gridgo.bean.factory.BFactoryAware;
-import io.gridgo.bean.serialization.msgpack.MsgpackSerializer;
 import io.gridgo.utils.helper.ClasspathScanner;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -22,13 +21,15 @@ public final class BSerializerRegistry implements ClasspathScanner {
 
     private final BFactory factory;
 
+    public static final String DEFAULT_SERIALIZER_NAME = "raw";
+
     /**
      * take value from system property
      * <b>'gridgo.bean.serializer.binary.default'</b>, in case it's not defined, use
      * default raw
      */
     public static final String SYSTEM_DEFAULT_BINARY_SERIALIZER = System
-            .getProperty("gridgo.bean.serializer.binary.default", MsgpackSerializer.NAME);
+            .getProperty("gridgo.bean.serializer.binary.default", DEFAULT_SERIALIZER_NAME);
 
     private final AtomicReference<String> defaultSerializerName = new AtomicReference<>();
     private BSerializer cachedDefaultSerializer = null;
