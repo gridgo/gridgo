@@ -51,9 +51,6 @@ public class BObjectUnitTest {
         var list = (List<?>) map.get("arr");
         Assert.assertArrayEquals(new Integer[] { 1, 2, 3 }, list.toArray());
 
-        obj = BElement.ofBytes(obj.toBytes());
-        assertObject(obj);
-
         byte[] raw = obj.getRaw("str", new byte[0]);
         Assert.assertEquals("hello", new String(raw));
 
@@ -125,21 +122,6 @@ public class BObjectUnitTest {
                 .build();
         var obj = BObject.ofPojo(pojo);
         Assert.assertNotNull(obj.toString());
-    }
-
-    @Test
-    public void testBytes() {
-        var obj = BObject.of("id", 1) //
-                .setAny("abc", null) //
-                .setAny("_id", new int[] { 1, 2, 3 }) //
-                .setAny("byteArr", BValue.of(new byte[] { 1, 2, 3, 4 })) //
-        ;
-        var clone = BElement.ofBytes(obj.toBytes());
-        Assert.assertNotNull(clone);
-        Assert.assertTrue(clone.isObject());
-        Assert.assertEquals(1, clone.asObject().getInteger("id").intValue());
-        Assert.assertArrayEquals(new byte[] { 1, 2, 3, 4 }, clone.asObject().getRaw("byteArr"));
-        Assert.assertEquals(obj, clone);
     }
 
     @Test

@@ -5,7 +5,6 @@ import org.junit.Test;
 
 import java.math.BigInteger;
 
-import io.gridgo.bean.BElement;
 import io.gridgo.bean.BType;
 import io.gridgo.bean.BValue;
 import io.gridgo.bean.exceptions.InvalidTypeException;
@@ -66,13 +65,6 @@ public class BValueUnitTest {
         Assert.assertEquals("AQIECBAgQA==", val.getData());
         val.decodeBase64();
         Assert.assertArrayEquals(new byte[] { 1, 2, 4, 8, 16, 32, 64 }, (byte[]) val.getData());
-    }
-
-    @Test
-    public void testSerialization() {
-        var val = BValue.of(0);
-        var after = BElement.ofBytes(new String(val.toBytes()).getBytes());
-        Assert.assertEquals(0, (int) after.getInnerValue());
     }
 
     @Test
