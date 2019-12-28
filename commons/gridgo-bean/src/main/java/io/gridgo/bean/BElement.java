@@ -22,11 +22,11 @@ public interface BElement extends BSerializerRegistryAware, BJsonSupport, BBytes
 
     ////////////////// JSON Support//////////////////
     static <T extends BElement> T ofJson(String json) {
-        return ofBytes(json.getBytes(StandardCharsets.UTF_8), "json");
+        return ofBytes(json.getBytes(StandardCharsets.UTF_8), JSON_SERIALIZER_NAME);
     }
 
     static <T extends BElement> T ofJson(InputStream inputStream) {
-        return ofBytes(inputStream, "json");
+        return ofBytes(inputStream, JSON_SERIALIZER_NAME);
     }
 
     ///////////////// Bytes Support////////////////////

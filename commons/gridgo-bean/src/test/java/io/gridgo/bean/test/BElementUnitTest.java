@@ -3,6 +3,8 @@ package io.gridgo.bean.test;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
@@ -85,10 +87,16 @@ public class BElementUnitTest {
     }
 
     @Test
-    public void testMockJson() {
+    public void testMockJson() throws IOException {
         BFactory.DEFAULT.getSerializerRegistry().scan("io.gridgo.bean.test.support.supported");
         var element = BElement.ofJson("some_random_string");
         Assert.assertTrue(element != null && element.isValue());
         Assert.assertEquals("test", element.asValue().getString());
+        String json = element.toJson();
+        Assert.assertEquals("test", json);
+        try (var baos = new ByteArrayOutputStream()) {
+            element.writeJson(baos);
+            Assert.assertArrayEquals("test".getBytes(), baos.toByteArray());
+        }
     }
 }
