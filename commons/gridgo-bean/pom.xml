@@ -24,7 +24,6 @@
 				<configuration>
 					<annotationProcessors>
 						<annotationProcessor>lombok.launch.AnnotationProcessorHider$AnnotationProcessor</annotationProcessor>
-						<annotationProcessor>com.dslplatform.json.CompiledJsonProcessor</annotationProcessor>
 					</annotationProcessors>
 				</configuration>
 			</plugin>
