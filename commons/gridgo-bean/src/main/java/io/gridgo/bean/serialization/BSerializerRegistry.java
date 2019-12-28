@@ -108,7 +108,9 @@ public final class BSerializerRegistry implements ClasspathScanner {
     public void register(@NonNull String name, BSerializer serializer) {
         BSerializer old = this.registry.putIfAbsent(name, serializer);
         if (old != null) {
-            throw new SerializationPluginException("serialization plugin with name " + name + " is already registered");
+            throw new SerializationPluginException(
+                    "Cannot register serializer plugin " + serializer.getClass().getName() + "with name " + name +
+                    "since it is already registered with class: " + old.getClass().getName());
         }
         if (serializer instanceof BFactoryAware) {
             ((BFactoryAware) serializer).setFactory(factory);
