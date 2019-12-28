@@ -3,9 +3,11 @@ package io.gridgo.utils.test;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.Arrays;
 
 import io.gridgo.utils.StringUtils;
+import io.gridgo.utils.exception.RuntimeIOException;
 
 public class StringUtilsUnitTest {
 
@@ -51,5 +53,26 @@ public class StringUtilsUnitTest {
         String text = "string to bind them";
         String[] array = new String[] { "one", "string", "to", "bind", "them", "all" };
         Assert.assertEquals(text, StringUtils.implodeWithGlue(" ", array, 1, array.length - 1));
+    }
+
+    @Test(expected = RuntimeIOException.class)
+    public void testTabWithException() {
+        StringUtils.tabs(1, new Appendable() {
+
+            @Override
+            public Appendable append(CharSequence csq, int start, int end) throws IOException {
+                throw new IOException();
+            }
+
+            @Override
+            public Appendable append(char c) throws IOException {
+                throw new IOException();
+            }
+
+            @Override
+            public Appendable append(CharSequence csq) throws IOException {
+                throw new IOException();
+            }
+        });
     }
 }
