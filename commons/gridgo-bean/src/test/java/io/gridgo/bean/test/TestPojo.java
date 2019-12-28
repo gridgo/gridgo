@@ -1,17 +1,16 @@
 package io.gridgo.bean.test;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 import io.gridgo.bean.BElement;
 import io.gridgo.bean.BObject;
-import io.gridgo.bean.BReference;
 import io.gridgo.bean.test.support.Bar;
 import io.gridgo.bean.test.support.Foo;
 import io.gridgo.bean.test.support.NumberCollectionPojo;
@@ -130,9 +129,7 @@ public class TestPojo {
                         "3", (double) 3)) //
                 .build();
 
-        var json = BReference.of(pojo).toJson();
-        var bObj = BElement.ofJson(json).asObject();
-        System.out.println(bObj);
+        var bObj = BObject.ofPojo(pojo);
 
         var rebuiltPojo = bObj.toPojo(NumberCollectionPojo.class);
         assertEquals(pojo, rebuiltPojo);

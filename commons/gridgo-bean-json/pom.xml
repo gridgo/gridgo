@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>gridgo-bean</artifactId>
+	<artifactId>gridgo-bean-json</artifactId>
 
 	<parent>
 		<groupId>io.gridgo</groupId>
@@ -12,8 +12,6 @@
 
 	<properties>
 		<dsl.json.version>1.9.3</dsl.json.version>
-		<msgpack.version>0.8.18</msgpack.version>
-		<reflections.version>0.9.11</reflections.version>
 		<junit.version>4.12</junit.version>
 	</properties>
 
@@ -24,6 +22,7 @@
 				<configuration>
 					<annotationProcessors>
 						<annotationProcessor>lombok.launch.AnnotationProcessorHider$AnnotationProcessor</annotationProcessor>
+						<annotationProcessor>com.dslplatform.json.CompiledJsonProcessor</annotationProcessor>
 					</annotationProcessors>
 				</configuration>
 			</plugin>
@@ -32,14 +31,31 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>org.msgpack</groupId>
-			<artifactId>msgpack-core</artifactId>
-			<version>${msgpack.version}</version>
+			<groupId>io.gridgo</groupId>
+			<artifactId>gridgo-bean</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>gridgo-pojo</artifactId>
-			<version>${project.version}</version>
+			<groupId>com.dslplatform</groupId>
+			<artifactId>dsl-json-processor</artifactId>
+			<version>${dsl.json.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.dslplatform</groupId>
+			<artifactId>dsl-json-java8</artifactId>
+			<version>${dsl.json.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.carrotsearch</groupId>
+			<artifactId>junit-benchmarks</artifactId>
+			<version>0.7.2</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.carrotsearch</groupId>
+			<artifactId>junit-benchmarks</artifactId>
+			<version>0.7.2</version>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 </project>

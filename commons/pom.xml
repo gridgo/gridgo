@@ -14,6 +14,7 @@
 		<module>gridgo-utils</module>
 		<module>gridgo-pojo</module>
 		<module>gridgo-bean</module>
+		<module>gridgo-bean-json</module>
 		<module>gridgo-registry</module>
 		<module>gridgo-framework</module>
 	</modules>
