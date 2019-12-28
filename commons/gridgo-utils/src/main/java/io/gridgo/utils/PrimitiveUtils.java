@@ -198,7 +198,7 @@ public class PrimitiveUtils {
             return (Boolean) obj ? 1 : 0;
         if (obj instanceof byte[])
             return ByteArrayUtils.bytesToPrimitive(Integer.class, (byte[]) obj);
-        throw new RuntimeException("cannot convert null object");
+        throw new UnsupportedTypeException(UNSUPPORTED_TYPE_MSG + obj.getClass().getName());
     }
 
     public static final long getLongValueFrom(@NonNull Object obj) {
