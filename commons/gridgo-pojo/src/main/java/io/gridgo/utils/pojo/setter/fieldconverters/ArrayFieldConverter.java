@@ -32,7 +32,7 @@ public class ArrayFieldConverter implements GenericDataConverter, FieldConverter
             if (element.isPrimitive()) {
                 results.add(fromPrimitive(element.asPrimitive(), typeToCheck));
             } else if (element.isKeyValue()) {
-                results.add(fromKeyValue(element.asKeyValue(), signature));
+                results.add(fromKeyValue(element.asKeyValue(), componentType, signature.getElementSetterProxy()));
             } else if (element.isReference()) {
                 var ref = fromReference(element.asReference());
                 if (!typeToCheck.isInstance(ref)) {

@@ -25,7 +25,7 @@ public class KeyValueFieldConverter implements GenericDataConverter, FieldConver
         if (signature.isMapType())
             return keyValueToMap(data, signature);
         if (signature.isPojoType())
-            return fromKeyValue(data, signature);
+            return fromKeyValue(data, signature.getFieldType(), signature.getSetterProxy());
         throw new PojoProxyException(
                 "Cannot convert non key-value data to incompatible type: " + signature.getFieldType());
     }
@@ -50,7 +50,7 @@ public class KeyValueFieldConverter implements GenericDataConverter, FieldConver
             return data.asPrimitive().getDataAs(valueType);
 
         if (data.isKeyValue())
-            return fromKeyValue(data.asKeyValue(), signature);
+            return fromKeyValue(data.asKeyValue(), valueType, signature.getElementSetterProxy());
 
         throw new UnsupportedTypeException("Unknown entry value type: " + data.getClass());
     }

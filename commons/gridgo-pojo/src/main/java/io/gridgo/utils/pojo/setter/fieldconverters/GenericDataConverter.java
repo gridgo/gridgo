@@ -1,7 +1,7 @@
 package io.gridgo.utils.pojo.setter.fieldconverters;
 
-import io.gridgo.utils.pojo.PojoMethodSignature;
 import io.gridgo.utils.pojo.setter.PojoSetter;
+import io.gridgo.utils.pojo.setter.PojoSetterProxy;
 import io.gridgo.utils.pojo.setter.data.KeyValueData;
 import io.gridgo.utils.pojo.setter.data.PrimitiveData;
 import io.gridgo.utils.pojo.setter.data.ReferenceData;
@@ -16,7 +16,7 @@ public interface GenericDataConverter {
         return element.getReference();
     }
 
-    public default Object fromKeyValue(KeyValueData data, PojoMethodSignature signature) {
-        return PojoSetter.ofType(signature.getComponentType(), signature.getElementSetterProxy()).from(data).fill();
+    public default Object fromKeyValue(KeyValueData data, Class<?> type, PojoSetterProxy proxy) {
+        return PojoSetter.ofType(type, proxy).from(data).fill();
     }
 }

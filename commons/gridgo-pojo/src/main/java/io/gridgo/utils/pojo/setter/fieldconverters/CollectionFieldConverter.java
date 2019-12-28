@@ -61,7 +61,7 @@ public class CollectionFieldConverter implements GenericDataConverter, FieldConv
                             signature.getFieldName());
                 }
             } else if (element.isKeyValue()) {
-                coll.add(fromKeyValue(element.asKeyValue(), signature));
+                coll.add(fromKeyValue(element.asKeyValue(), resultElementType, signature.getElementSetterProxy()));
             } else if (element.isSequence()) {
                 coll.add(fromSequence(element.asSequence(), resultElementType));
             } else if (element.isPrimitive()) {
