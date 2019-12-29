@@ -57,6 +57,9 @@ public final class BElementTranslators {
         if (ele.isKeyValue())
             return BObject.wrap(ele.asKeyValue().toMap());
 
+        if (ele.isReference())
+            return BObject.ofPojo(ele.getInnerValue());
+
         throw new IllegalArgumentException("Expected for key-value data, got: " + ele.getClass());
     }
 

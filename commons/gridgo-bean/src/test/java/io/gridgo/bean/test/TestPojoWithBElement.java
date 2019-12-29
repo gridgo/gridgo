@@ -16,6 +16,7 @@ import io.gridgo.bean.BValue;
 import io.gridgo.bean.pojo.BElementTranslators;
 import io.gridgo.bean.pojo.BGenericData;
 import io.gridgo.bean.test.support.PojoWithBElement;
+import io.gridgo.bean.test.support.SimplePojo;
 import io.gridgo.utils.pojo.setter.data.SimpleKeyValueData;
 import io.gridgo.utils.pojo.setter.data.SimplePrimitiveData;
 import io.gridgo.utils.pojo.setter.data.SimpleReferenceData;
@@ -100,8 +101,16 @@ public class TestPojoWithBElement {
 
     @Test
     public void testToBObjectFromAny() {
+        var pojo = new SimplePojo("test");
+
         var arr = BElementTranslators.toBObject(new SimpleKeyValueData(Map.of("key", "value")), null);
         Assert.assertEquals(Map.of("key", "value"), arr.toMap());
+
+        arr = BElementTranslators.toBObject(new SimpleReferenceData(pojo), null);
+        Assert.assertEquals(Map.of("name", "test"), arr.toMap());
+
+        arr = BElementTranslators.toBObject(BGenericData.ofReference(BReference.of(pojo)), null);
+        Assert.assertEquals(Map.of("name", "test"), arr.toMap());
 
         arr = BElementTranslators.toBObject(BGenericData.ofObject(BObject.of("key", "value")), null);
         Assert.assertEquals(Map.of("key", "value"), arr.toMap());
