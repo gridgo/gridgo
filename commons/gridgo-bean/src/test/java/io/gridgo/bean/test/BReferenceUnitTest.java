@@ -73,4 +73,13 @@ public class BReferenceUnitTest {
             Assert.assertArrayEquals("test".getBytes(), baos.toByteArray());
         }
     }
+
+    @Test
+    public void testWriteWrongType() throws IOException {
+        var ref = BReference.of(new Object());
+        try (var baos = new ByteArrayOutputStream()) {
+            var success = ref.tryWriteNativeBytes(baos);
+            Assert.assertFalse(success);
+        }
+    }
 }
