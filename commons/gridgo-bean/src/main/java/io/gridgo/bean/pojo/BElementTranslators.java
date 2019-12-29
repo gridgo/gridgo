@@ -11,35 +11,39 @@ import io.gridgo.utils.pojo.PojoMethodType;
 import io.gridgo.utils.pojo.setter.data.GenericData;
 import io.gridgo.utils.pojo.translator.RegisterValueTranslator;
 
-public abstract class BElementTranslators {
+public final class BElementTranslators {
+
+    private BElementTranslators() {
+        // Nothing to do
+    }
 
     @RegisterValueTranslator(value = "toBArray", defaultFor = PojoMethodType.SETTER, defaultType = BArray.class)
     public static BArray toBArray(GenericData ele, PojoMethodSignature signature) {
-        if (ele == null)
+        if (ele == null || ele.isNull())
             return null;
 
         if (BGenericData.class.isInstance(ele)) {
             var bElement = ((BGenericData) ele).getBElement();
 
-            if (bElement.isNullValue())
-                return null;
+            if (bElement.isArray())
+                return bElement.asArray();
 
-            return bElement.asArray();
+            throw new IllegalArgumentException("Expected for sequence data, got: " + bElement.getType());
         }
 
-        return BArray.of(ele.asSequence().toList());
+        if (ele.isSequence())
+            return BArray.of(ele.asSequence().toList());
+
+        throw new IllegalArgumentException("Expected for sequence data, got: " + ele.getClass());
     }
 
     @RegisterValueTranslator(value = "toBObject", defaultFor = PojoMethodType.SETTER, defaultType = BObject.class)
     public static BObject toBObject(GenericData ele, PojoMethodSignature signature) {
-        if (ele == null)
+        if (ele == null || ele.isNull())
             return null;
 
         if (BGenericData.class.isInstance(ele)) {
             var bElement = ((BGenericData) ele).getBElement();
-
-            if (bElement.isNullValue())
-                return null;
 
             if (bElement.isObject())
                 return bElement.asObject();
@@ -50,40 +54,53 @@ public abstract class BElementTranslators {
             throw new IllegalArgumentException("Expected for key-value or reference data, got: " + bElement.getType());
         }
 
-        return BObject.wrap(ele.asKeyValue().toMap());
+        if (ele.isKeyValue())
+            return BObject.wrap(ele.asKeyValue().toMap());
+
+        if (ele.isReference())
+            return BObject.ofPojo(ele.getInnerValue());
+
+        throw new IllegalArgumentException("Expected for key-value data, got: " + ele.getClass());
     }
 
     @RegisterValueTranslator(value = "toBValue", defaultFor = PojoMethodType.SETTER, defaultType = BValue.class)
     public static BValue toBValue(GenericData ele, PojoMethodSignature signature) {
-        if (ele == null)
+        if (ele == null || ele.isNull())
             return null;
+
         if (BGenericData.class.isInstance(ele)) {
             var bElement = ((BGenericData) ele).getBElement();
 
-            if (bElement.isNullValue())
-                return null;
+            if (bElement.isValue())
+                return bElement.asValue();
 
-            return bElement.asValue();
+            throw new IllegalArgumentException("Expected for primitive data, got: " + bElement.getType());
         }
 
-        return BValue.of(ele.asPrimitive().getData());
+        if (ele.isPrimitive())
+            return BValue.of(ele.asPrimitive().getData());
+
+        throw new IllegalArgumentException("Expected for primitive data, got: " + ele.getClass());
     }
 
     @RegisterValueTranslator(value = "toBReference", defaultFor = PojoMethodType.SETTER, defaultType = BReference.class)
     public static BReference toBReference(GenericData ele, PojoMethodSignature signature) {
-        if (ele == null)
+        if (ele == null || ele.isNull())
             return null;
 
         if (BGenericData.class.isInstance(ele)) {
             var bElement = ((BGenericData) ele).getBElement();
 
-            if (bElement.isNullValue())
-                return null;
+            if (bElement.isReference())
+                return bElement.asReference();
 
-            return bElement.asReference();
+            throw new IllegalArgumentException("Expected for reference data, got: " + bElement.getType());
         }
 
-        return BReference.of(ele.asReference().getReference());
+        if (ele.isReference())
+            return BReference.of(ele.asReference().getReference());
+
+        throw new IllegalArgumentException("Expected for reference data, got: " + ele.getClass());
     }
 
     @RegisterValueTranslator(value = "toBContainer", defaultFor = PojoMethodType.SETTER, defaultType = BContainer.class)
@@ -105,6 +122,9 @@ public abstract class BElementTranslators {
 
     @RegisterValueTranslator(value = "toBElement", defaultFor = PojoMethodType.SETTER, defaultType = BElement.class)
     public static BElement toBElement(GenericData ele, PojoMethodSignature signature) {
+        if (ele == null || ele.isNull())
+            return null;
+
         if (BGenericData.class.isInstance(ele))
             return ((BGenericData) ele).getBElement();
 
