@@ -2,6 +2,7 @@ package io.gridgo.bean;
 
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -21,11 +22,11 @@ public interface BElement extends BSerializerRegistryAware, BJsonSupport, BBytes
 
     ////////////////// JSON Support//////////////////
     static <T extends BElement> T ofJson(String json) {
-        return BFactory.DEFAULT.fromJson(json);
+        return ofBytes(json.getBytes(StandardCharsets.UTF_8), JSON_SERIALIZER_NAME);
     }
 
     static <T extends BElement> T ofJson(InputStream inputStream) {
-        return BFactory.DEFAULT.fromJson(inputStream);
+        return ofBytes(inputStream, JSON_SERIALIZER_NAME);
     }
 
     ///////////////// Bytes Support////////////////////

@@ -17,7 +17,7 @@ public class BPrimitiveData extends BGenericData implements PrimitiveData {
     public Object getData() {
         return value.getData();
     }
-    
+
     @Override
     public BElement getBElement() {
         return this.value;

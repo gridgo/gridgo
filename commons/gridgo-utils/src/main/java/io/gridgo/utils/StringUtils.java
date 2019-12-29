@@ -56,9 +56,6 @@ public final class StringUtils {
         if (start >= end) {
             throw new IllegalArgumentException("Start must be less than end, got " + start + " >= " + end);
         }
-        if (array.length < start) {
-            throw new IllegalArgumentException("Array's length must >= " + start + ", got " + array.length);
-        }
         if (array.length < end) {
             throw new IllegalArgumentException("Array's length must >= " + end + ", got " + array.length);
         }
@@ -69,17 +66,6 @@ public final class StringUtils {
             sb.append(glue).append(array[i]);
         }
         return sb.toString();
-    }
-
-    private static final String[] REGEX_SPECIAL_CHARS = new String[] { "\\", ".", "*", "+", "-", "[", "]", "(", ")",
-            "$", "^", "|", "{", "}", "?" };
-
-    public static final String normalizeForRegex(String key) {
-        String result = key;
-        for (String c : REGEX_SPECIAL_CHARS) {
-            result = result.replaceAll("\\" + c, "\\\\\\" + c);
-        }
-        return result;
     }
 
     public static void tabs(int num, Appendable sb) {

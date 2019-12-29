@@ -1,9 +1,7 @@
 package io.gridgo.bean.factory;
 
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -200,18 +198,6 @@ public interface BFactory extends BSerializerRegistryAware {
             return (T) newObject(obj);
         }
         return (T) newReference(obj);
-    }
-
-    default <T extends BElement> T fromJson(InputStream inputStream) {
-        if (inputStream == null)
-            return null;
-        return this.fromAny(this.lookupSerializer("json").deserialize(inputStream));
-    }
-
-    default <T extends BElement> T fromJson(String json) {
-        if (json == null)
-            return null;
-        return fromJson(new ByteArrayInputStream(json.getBytes(Charset.forName("UTF-8"))));
     }
 
     default <T extends BElement> T fromBytes(@NonNull InputStream in, String serializerName) {

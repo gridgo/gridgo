@@ -1,34 +1,35 @@
 package io.gridgo.utils.pojo.translator;
 
+import org.cliffc.high_scale_lib.NonBlockingHashMap;
+
+import java.lang.reflect.Method;
+import java.util.HashSet;
+import java.util.Map;
+
 import static io.gridgo.utils.ClasspathUtils.scanForAnnotatedMethods;
 import static io.gridgo.utils.ClasspathUtils.scanForAnnotatedTypes;
 import static io.gridgo.utils.pojo.PojoMethodType.GETTER;
 import static io.gridgo.utils.pojo.PojoMethodType.NONE;
 import static io.gridgo.utils.pojo.PojoMethodType.SETTER;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Map;
-
-import org.cliffc.high_scale_lib.NonBlockingHashMap;
-
 import io.gridgo.utils.ClasspathUtils;
 import io.gridgo.utils.helper.ClasspathScanner;
-import lombok.Getter;
 import lombok.NonNull;
 
 @SuppressWarnings("rawtypes")
 public class ValueTranslators implements ClasspathScanner {
 
-    @Getter
-    private static final ValueTranslators instance = new ValueTranslators();
+    private static final ValueTranslators INSTANCE = new ValueTranslators();
 
     private final Map<String, ValueTranslator> nameRegistry = new NonBlockingHashMap<>();
 
     private final Map<Class<?>, ValueTranslator> getterDefaultRegistry = new NonBlockingHashMap<>();
 
     private final Map<Class<?>, ValueTranslator> setterDefaultRegistry = new NonBlockingHashMap<>();
+
+    public static ValueTranslators getInstance() {
+        return INSTANCE;
+    }
 
     private ValueTranslators() {
         var packages = new HashSet<String>();
@@ -44,20 +45,10 @@ public class ValueTranslators implements ClasspathScanner {
             }
         }
 
-        var list = new ArrayList<String>(packages);
-        list.sort((s1, s2) -> s1.length() - s2.length());
-
-        var processed = new ArrayList<String>();
         var contextClassLoader = Thread.currentThread().getContextClassLoader();
 
-        nextPackage: // for each package name, do...
-        for (var packageName : list) {
-            for (var processedPackage : processed)
-                if (packageName.startsWith(processedPackage + "."))
-                    continue nextPackage;
-
+        for (var packageName : packages) {
             scan(packageName, contextClassLoader);
-            processed.add(packageName);
         }
     }
 
