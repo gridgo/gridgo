@@ -3,6 +3,12 @@ package io.gridgo.bean.test;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -30,5 +36,41 @@ public class BReferenceUnitTest {
             counter.addAndGet((int) Arrays.stream(arr).sum());
         });
         Assert.assertEquals(6, counter.get());
+    }
+
+    @Test
+    public void testWriteByteBuffer() throws IOException {
+        var ref = BReference.of(ByteBuffer.wrap("test".getBytes()));
+        testTryWrite(ref);
+    }
+
+    @Test
+    public void testWriteInputStream() throws IOException {
+        try (var is = new ByteArrayInputStream("test".getBytes())) {
+            var ref = BReference.of(is);
+            testTryWrite(ref);
+        }
+    }
+
+    @Test
+    public void testWriteFile() throws IOException {
+        File tempFile = File.createTempFile("gridgo_test", ".txt");
+        tempFile.deleteOnExit();
+
+        try (var fos = new FileOutputStream(tempFile)) {
+            fos.write("test".getBytes());
+            fos.flush();
+        }
+
+        var ref = BReference.of(tempFile);
+        testTryWrite(ref);
+    }
+
+    private void testTryWrite(BReference ref) throws IOException {
+        try (var baos = new ByteArrayOutputStream()) {
+            var success = ref.tryWriteNativeBytes(baos);
+            Assert.assertTrue(success);
+            Assert.assertArrayEquals("test".getBytes(), baos.toByteArray());
+        }
     }
 }
