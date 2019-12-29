@@ -153,6 +153,12 @@ public class TestPojoWithBElement {
         arr = BElementTranslators.toBContainer(BGenericData.ofObject(BObject.of("key", "value")), null);
         Assert.assertEquals(Map.of("key", "value"), arr.asObject().toMap());
 
+        arr = BElementTranslators.toBContainer(new SimpleSequenceData(List.of(1, 2, 3)), null);
+        Assert.assertEquals(List.of(1, 2, 3), arr.asArray().toList());
+
+        arr = BElementTranslators.toBContainer(BGenericData.ofArray(BArray.ofSequence(1, 2, 3)), null);
+        Assert.assertEquals(List.of(1, 2, 3), arr.asArray().toList());
+
         arr = BElementTranslators.toBContainer(BGenericData.ofValue(BValue.ofEmpty()), null);
         Assert.assertNull(arr);
 
