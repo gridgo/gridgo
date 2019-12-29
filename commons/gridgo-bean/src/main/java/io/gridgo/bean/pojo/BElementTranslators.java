@@ -19,14 +19,11 @@ public final class BElementTranslators {
 
     @RegisterValueTranslator(value = "toBArray", defaultFor = PojoMethodType.SETTER, defaultType = BArray.class)
     public static BArray toBArray(GenericData ele, PojoMethodSignature signature) {
-        if (ele == null)
+        if (ele == null || ele.isNull())
             return null;
 
         if (BGenericData.class.isInstance(ele)) {
             var bElement = ((BGenericData) ele).getBElement();
-
-            if (bElement.isNullValue())
-                return null;
 
             if (bElement.isArray())
                 return bElement.asArray();
@@ -42,14 +39,11 @@ public final class BElementTranslators {
 
     @RegisterValueTranslator(value = "toBObject", defaultFor = PojoMethodType.SETTER, defaultType = BObject.class)
     public static BObject toBObject(GenericData ele, PojoMethodSignature signature) {
-        if (ele == null)
+        if (ele == null || ele.isNull())
             return null;
 
         if (BGenericData.class.isInstance(ele)) {
             var bElement = ((BGenericData) ele).getBElement();
-
-            if (bElement.isNullValue())
-                return null;
 
             if (bElement.isObject())
                 return bElement.asObject();
@@ -68,13 +62,11 @@ public final class BElementTranslators {
 
     @RegisterValueTranslator(value = "toBValue", defaultFor = PojoMethodType.SETTER, defaultType = BValue.class)
     public static BValue toBValue(GenericData ele, PojoMethodSignature signature) {
-        if (ele == null)
+        if (ele == null || ele.isNull())
             return null;
+
         if (BGenericData.class.isInstance(ele)) {
             var bElement = ((BGenericData) ele).getBElement();
-
-            if (bElement.isNullValue())
-                return null;
 
             if (bElement.isValue())
                 return bElement.asValue();
@@ -90,14 +82,11 @@ public final class BElementTranslators {
 
     @RegisterValueTranslator(value = "toBReference", defaultFor = PojoMethodType.SETTER, defaultType = BReference.class)
     public static BReference toBReference(GenericData ele, PojoMethodSignature signature) {
-        if (ele == null)
+        if (ele == null || ele.isNull())
             return null;
 
         if (BGenericData.class.isInstance(ele)) {
             var bElement = ((BGenericData) ele).getBElement();
-
-            if (bElement.isNullValue())
-                return null;
 
             return bElement.asReference();
         }
@@ -124,6 +113,9 @@ public final class BElementTranslators {
 
     @RegisterValueTranslator(value = "toBElement", defaultFor = PojoMethodType.SETTER, defaultType = BElement.class)
     public static BElement toBElement(GenericData ele, PojoMethodSignature signature) {
+        if (ele == null || ele.isNull())
+            return null;
+
         if (BGenericData.class.isInstance(ele))
             return ((BGenericData) ele).getBElement();
 
