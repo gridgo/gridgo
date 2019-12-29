@@ -11,7 +11,11 @@ import io.gridgo.utils.pojo.PojoMethodType;
 import io.gridgo.utils.pojo.setter.data.GenericData;
 import io.gridgo.utils.pojo.translator.RegisterValueTranslator;
 
-public abstract class BElementTranslators {
+public final class BElementTranslators {
+
+    private BElementTranslators() {
+        // Nothing to do
+    }
 
     @RegisterValueTranslator(value = "toBArray", defaultFor = PojoMethodType.SETTER, defaultType = BArray.class)
     public static BArray toBArray(GenericData ele, PojoMethodSignature signature) {
