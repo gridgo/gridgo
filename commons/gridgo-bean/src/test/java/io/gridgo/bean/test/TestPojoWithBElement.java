@@ -18,6 +18,7 @@ import io.gridgo.bean.pojo.BGenericData;
 import io.gridgo.bean.test.support.PojoWithBElement;
 import io.gridgo.utils.pojo.setter.data.SimpleKeyValueData;
 import io.gridgo.utils.pojo.setter.data.SimplePrimitiveData;
+import io.gridgo.utils.pojo.setter.data.SimpleReferenceData;
 import io.gridgo.utils.pojo.setter.data.SimpleSequenceData;
 
 public class TestPojoWithBElement {
@@ -73,10 +74,10 @@ public class TestPojoWithBElement {
     @Test
     public void testToBArrayFromAny() {
         var arr = BElementTranslators.toBArray(new SimpleSequenceData(List.of(1, 2, 3)), null);
-        Assert.assertEquals(List.of(1, 2, 3), arr.asArray().toList());
+        Assert.assertEquals(List.of(1, 2, 3), arr.toList());
 
         arr = BElementTranslators.toBArray(BGenericData.ofArray(BArray.ofSequence(1, 2, 3)), null);
-        Assert.assertEquals(List.of(1, 2, 3), arr.asArray().toList());
+        Assert.assertEquals(List.of(1, 2, 3), arr.toList());
 
         arr = BElementTranslators.toBArray(BGenericData.ofValue(BValue.ofEmpty()), null);
         Assert.assertNull(arr);
@@ -100,10 +101,10 @@ public class TestPojoWithBElement {
     @Test
     public void testToBObjectFromAny() {
         var arr = BElementTranslators.toBObject(new SimpleKeyValueData(Map.of("key", "value")), null);
-        Assert.assertEquals(Map.of("key", "value"), arr.asObject().toMap());
+        Assert.assertEquals(Map.of("key", "value"), arr.toMap());
 
         arr = BElementTranslators.toBObject(BGenericData.ofObject(BObject.of("key", "value")), null);
-        Assert.assertEquals(Map.of("key", "value"), arr.asObject().toMap());
+        Assert.assertEquals(Map.of("key", "value"), arr.toMap());
 
         arr = BElementTranslators.toBObject(BGenericData.ofValue(BValue.ofEmpty()), null);
         Assert.assertNull(arr);
@@ -127,10 +128,10 @@ public class TestPojoWithBElement {
     @Test
     public void testToBValueFromAny() {
         var arr = BElementTranslators.toBValue(new SimplePrimitiveData("text"), null);
-        Assert.assertEquals("text", arr.asValue().getData());
+        Assert.assertEquals("text", arr.getData());
 
         arr = BElementTranslators.toBValue(BGenericData.ofValue(BValue.of("text")), null);
-        Assert.assertEquals("text", arr.asValue().getData());
+        Assert.assertEquals("text", arr.getData());
 
         arr = BElementTranslators.toBValue(BGenericData.ofValue(BValue.ofEmpty()), null);
         Assert.assertNull(arr);
@@ -182,5 +183,34 @@ public class TestPojoWithBElement {
     @Test(expected = IllegalArgumentException.class)
     public void testToBContainerFromValue() {
         BElementTranslators.toBContainer(new SimplePrimitiveData("text"), null);
+    }
+
+    @Test
+    public void testToBReferenceFromAny() {
+        var obj = new Object();
+
+        var arr = BElementTranslators.toBReference(new SimpleReferenceData(obj), null);
+        Assert.assertEquals(obj, arr.getReference());
+
+        arr = BElementTranslators.toBReference(BGenericData.ofReference(BReference.of(obj)), null);
+        Assert.assertEquals(obj, arr.getReference());
+
+        arr = BElementTranslators.toBReference(BGenericData.ofValue(BValue.ofEmpty()), null);
+        Assert.assertNull(arr);
+
+        arr = BElementTranslators.toBReference(new SimplePrimitiveData(null), null);
+        Assert.assertNull(arr);
+
+        Assert.assertNull(BElementTranslators.toBReference(null, null));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testToBReferenceFromBArray() {
+        BElementTranslators.toBReference(BGenericData.ofArray(BArray.ofSequence(1, 2, 3)), null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testToBReferenceFromList() {
+        BElementTranslators.toBReference(new SimpleSequenceData(List.of(1, 2, 3)), null);
     }
 }

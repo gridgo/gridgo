@@ -88,10 +88,16 @@ public final class BElementTranslators {
         if (BGenericData.class.isInstance(ele)) {
             var bElement = ((BGenericData) ele).getBElement();
 
-            return bElement.asReference();
+            if (bElement.isReference())
+                return bElement.asReference();
+
+            throw new IllegalArgumentException("Expected for reference data, got: " + bElement.getType());
         }
 
-        return BReference.of(ele.asReference().getReference());
+        if (ele.isReference())
+            return BReference.of(ele.asReference().getReference());
+
+        throw new IllegalArgumentException("Expected for reference data, got: " + ele.getClass());
     }
 
     @RegisterValueTranslator(value = "toBContainer", defaultFor = PojoMethodType.SETTER, defaultType = BContainer.class)
