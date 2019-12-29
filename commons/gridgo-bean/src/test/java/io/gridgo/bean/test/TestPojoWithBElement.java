@@ -60,6 +60,12 @@ public class TestPojoWithBElement {
         Assert.assertTrue(obj.isObject());
         Assert.assertEquals(Map.of("key1", "value1", "key2", "value2"), obj.asObject().toMap());
 
+        element = BElementTranslators.toBArray(BGenericData.ofValue(BValue.ofEmpty()), null);
+        Assert.assertNull(element);
+
+        element = BElementTranslators.toBElement(null, null);
+        Assert.assertNull(element);
+
         element = BElementTranslators.toBElement(new SimplePrimitiveData(null), null);
         Assert.assertNull(element);
     }
