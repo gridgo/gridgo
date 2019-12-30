@@ -112,14 +112,6 @@ public class BObjectUnitTest {
     }
 
     @Test
-    public void testWriteString() {
-        var pojo = Foo.builder().doubleValue(1.0).intValue(1).intArrayValue(new int[] { 1, 2 }).stringValue("hello")
-                .build();
-        var obj = BObject.ofPojo(pojo);
-        Assert.assertNotNull(obj.toString());
-    }
-
-    @Test
     public void testBytes() {
         var obj = BObject.of("id", 1) //
                 .setAny("abc", null) //

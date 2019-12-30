@@ -1,13 +1,13 @@
 package io.gridgo.bean.test;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 import io.gridgo.bean.BElement;
 import io.gridgo.bean.BObject;
@@ -43,12 +43,9 @@ public class TestDslJsonSerialzier {
 
     @Test
     public void testJsonSerialization() {
-//        var original = Bar.builder().b(true).build();
         var serializerName = "json";
-        System.out.println("original: " + BReference.of(original));
         var json = toJson(serializerName, original);
         var rebuiltObj = BElement.ofJson(json).asObject();
-        System.out.println("rebuilt from json: " + rebuiltObj);
         var valueFromJson = rebuiltObj.toPojo(Foo.class);
         assertEquals(BObject.ofPojo(original), BObject.ofPojo(valueFromJson));
     }
