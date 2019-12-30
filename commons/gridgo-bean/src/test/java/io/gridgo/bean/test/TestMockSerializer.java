@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 import io.gridgo.bean.BElement;
 import io.gridgo.bean.exceptions.SerializationPluginException;
@@ -34,6 +35,12 @@ public class TestMockSerializer {
     @Test
     public void testMockRaw() throws IOException {
         var element = BElement.ofBytes("some_random_string".getBytes());
+        assertRawSerializer(element);
+        element = BElement.ofBytes(ByteBuffer.wrap("some_random_string".getBytes()));
+        assertRawSerializer(element);
+    }
+
+    private void assertRawSerializer(BElement element) throws IOException {
         Assert.assertTrue(element != null && element.isValue());
         Assert.assertEquals("some_random_string", element.asValue().getString());
         var bytes = element.toBytes();
