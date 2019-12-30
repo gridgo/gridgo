@@ -1,4 +1,4 @@
-package io.gridgo.bean.text.test;
+package io.gridgo.bean.test;
 
 import org.junit.Assert;
 import org.junit.Test;

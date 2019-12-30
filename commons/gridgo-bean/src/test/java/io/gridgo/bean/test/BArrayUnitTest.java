@@ -19,6 +19,12 @@ public class BArrayUnitTest {
     }
 
     @Test
+    public void testWriteString() {
+        var arr = BArray.ofSequence(1, 2, 3);
+        Assert.assertNotNull(arr.toString());
+    }
+
+    @Test
     public void testWrapAndHolder() {
         var list = Arrays.asList(1, 2, 3, 4);
         var arr = BArray.wrap(list);

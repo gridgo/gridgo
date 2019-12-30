@@ -1,11 +1,11 @@
-package io.gridgo.bean.text.test;
+package io.gridgo.bean.test;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 
 import io.gridgo.bean.BArray;
 import io.gridgo.bean.BElement;
@@ -13,8 +13,7 @@ import io.gridgo.bean.BObject;
 import io.gridgo.bean.BReference;
 import io.gridgo.bean.BValue;
 import io.gridgo.bean.serialization.text.BPrinter;
-import io.gridgo.bean.text.test.support.Bar;
-import io.gridgo.bean.text.test.support.Foo;
+import io.gridgo.bean.test.support.Bar;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -81,20 +80,6 @@ public class TestPrinter {
         Assert.assertEquals(ref.toString(), new String(ref.toBytes("print")));
         Assert.assertEquals(obj.toString(), new String(obj.toBytes("print")));
         Assert.assertEquals(arr.toString(), new String(arr.toBytes("print")));
-    }
-
-    @Test
-    public void testWriteObject() {
-        var pojo = Foo.builder().doubleValue(1.0).intValue(1).intArrayValue(new int[] { 1, 2 }).stringValue("hello")
-                .build();
-        var obj = BObject.ofPojo(pojo);
-        Assert.assertNotNull(obj.toString());
-    }
-
-    @Test
-    public void testWriteArray() {
-        var arr = BArray.ofSequence(1, 2, 3);
-        Assert.assertNotNull(arr.toString());
     }
 
     @Test(expected = UnsupportedOperationException.class)
