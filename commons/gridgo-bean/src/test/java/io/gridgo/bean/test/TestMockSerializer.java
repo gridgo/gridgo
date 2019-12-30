@@ -15,7 +15,7 @@ public class TestMockSerializer {
 
     @BeforeClass
     public static void initClass() {
-        BFactory.DEFAULT.getSerializerRegistry().scan("io.gridgo.bean.test.support.supported");
+        BFactory.DEFAULT.getSerializerRegistry().scan("io.gridgo.bean.test.support.supported.mock");
     }
 
     @Test
@@ -46,6 +46,6 @@ public class TestMockSerializer {
 
     @Test(expected = SerializationPluginException.class)
     public void testDuplicateSerializer() {
-        BFactory.DEFAULT.getSerializerRegistry().scan("io.gridgo.bean.test.support.supported");
+        BFactory.DEFAULT.getSerializerRegistry().scan("io.gridgo.bean.test.support.supported.mock");
     }
 }

@@ -199,6 +199,10 @@ public interface BFactory extends BSerializerRegistryAware {
         return (T) newReference(obj);
     }
 
+    default BReference fromBytes(@NonNull InputStream in, String serializerName, Class<?> targetType) {
+        return BReference.of(this.lookupOrDefaultSerializer(serializerName).deserializeToPojo(in, targetType));
+    }
+
     default <T extends BElement> T fromBytes(@NonNull InputStream in, String serializerName) {
         return (T) this.lookupOrDefaultSerializer(serializerName).deserialize(in);
     }

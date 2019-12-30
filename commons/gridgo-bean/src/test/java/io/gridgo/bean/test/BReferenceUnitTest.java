@@ -22,7 +22,7 @@ public class BReferenceUnitTest {
 
     @BeforeClass
     public static void init() {
-        BFactory.DEFAULT.getSerializerRegistry().scan("io.gridgo.bean.test.support.supported");
+        BFactory.DEFAULT.getSerializerRegistry().scan("io.gridgo.bean.test.support.supported.ref");
     }
 
     @Test
@@ -109,6 +109,6 @@ public class BReferenceUnitTest {
 
     @Test(expected = BeanSerializationException.class)
     public void testOfWrongType() throws IOException {
-        BReference.ofBytes("test".getBytes(), "raw", SimplePojo.class);
+        BReference.ofBytes("test".getBytes(), "refraw", SimplePojo.class);
     }
 }

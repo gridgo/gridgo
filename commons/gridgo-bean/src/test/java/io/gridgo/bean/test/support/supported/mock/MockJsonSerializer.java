@@ -1,4 +1,4 @@
-package io.gridgo.bean.test.support.supported;
+package io.gridgo.bean.test.support.supported.mock;
 
 import java.io.IOException;
 import java.io.InputStream;

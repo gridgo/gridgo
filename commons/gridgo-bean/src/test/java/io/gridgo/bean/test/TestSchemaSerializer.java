@@ -87,7 +87,7 @@ public class TestSchemaSerializer {
             multiSerializer.serialize(obj, out);
             out.flush();
             var result = out.toByteArray();
-            var after = multiSerializer.deserializeToPojo(result, CustomSchema2.class);
+            var after = multiSerializer.deserializeToPojo(new ByteArrayInputStream(result), CustomSchema2.class);
             Assert.assertEquals("helloworld", after.getContent());
         }
     }

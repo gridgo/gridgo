@@ -1,4 +1,4 @@
-package io.gridgo.bean.test.support.supported;
+package io.gridgo.bean.test.support.supported.ref;
 
 import org.mockito.internal.util.io.IOUtil;
 
@@ -11,7 +11,7 @@ import io.gridgo.bean.serialization.BSerializationPlugin;
 import io.gridgo.bean.serialization.BSerializer;
 import io.gridgo.utils.exception.RuntimeIOException;
 
-@BSerializationPlugin("raw")
+@BSerializationPlugin("refraw")
 public class MockRawSerializer implements BSerializer {
 
     @Override
