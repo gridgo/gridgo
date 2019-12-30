@@ -207,10 +207,6 @@ public interface BFactory extends BSerializerRegistryAware {
         return (T) this.lookupOrDefaultSerializer(serializerName).deserialize(in);
     }
 
-    default <T extends BElement> T fromBytes(@NonNull InputStream in) {
-        return (T) this.fromBytes(in, null);
-    }
-
     default BFactoryConfigurable asConfigurable() {
         throw new UnsupportedOperationException("Instance of " + this.getClass().getName() + " cannot be used as a "
                 + BFactoryConfigurable.class.getSimpleName());
