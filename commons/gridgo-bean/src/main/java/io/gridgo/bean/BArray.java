@@ -144,46 +144,6 @@ public interface BArray extends BContainer, List<BElement> {
         return this.remove(index).asArray();
     }
 
-    default Boolean removeBoolean(int index) {
-        return this.removeValue(index).getBoolean();
-    }
-
-    default Character removeChar(int index) {
-        return this.removeValue(index).getChar();
-    }
-
-    default Byte removeByte(int index) {
-        return this.removeValue(index).getByte();
-    }
-
-    default Short removeShort(int index) {
-        return this.removeValue(index).getShort();
-    }
-
-    default Integer removeInteger(int index) {
-        return this.removeValue(index).getInteger();
-    }
-
-    default Long removeLong(int index) {
-        return this.removeValue(index).getLong();
-    }
-
-    default Float removeFloat(int index) {
-        return this.removeValue(index).getFloat();
-    }
-
-    default Double removeDouble(int index) {
-        return this.removeValue(index).getDouble();
-    }
-
-    default String removeString(int index) {
-        return this.removeValue(index).getString();
-    }
-
-    default byte[] removeRaw(int index) {
-        return this.removeValue(index).getRaw();
-    }
-
     @Override
     @SuppressWarnings("unchecked")
     default <T extends BElement> T deepClone() {

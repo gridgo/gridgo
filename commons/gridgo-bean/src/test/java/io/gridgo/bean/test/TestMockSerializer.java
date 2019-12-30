@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 import io.gridgo.bean.BElement;
 import io.gridgo.bean.exceptions.SerializationPluginException;
@@ -15,7 +16,7 @@ public class TestMockSerializer {
 
     @BeforeClass
     public static void initClass() {
-        BFactory.DEFAULT.getSerializerRegistry().scan("io.gridgo.bean.test.support.supported");
+        BFactory.DEFAULT.getSerializerRegistry().scan("io.gridgo.bean.test.support.supported.mock");
     }
 
     @Test
@@ -34,6 +35,12 @@ public class TestMockSerializer {
     @Test
     public void testMockRaw() throws IOException {
         var element = BElement.ofBytes("some_random_string".getBytes());
+        assertRawSerializer(element);
+        element = BElement.ofBytes(ByteBuffer.wrap("some_random_string".getBytes()));
+        assertRawSerializer(element);
+    }
+
+    private void assertRawSerializer(BElement element) throws IOException {
         Assert.assertTrue(element != null && element.isValue());
         Assert.assertEquals("some_random_string", element.asValue().getString());
         var bytes = element.toBytes();
@@ -46,6 +53,6 @@ public class TestMockSerializer {
 
     @Test(expected = SerializationPluginException.class)
     public void testDuplicateSerializer() {
-        BFactory.DEFAULT.getSerializerRegistry().scan("io.gridgo.bean.test.support.supported");
+        BFactory.DEFAULT.getSerializerRegistry().scan("io.gridgo.bean.test.support.supported.mock");
     }
 }

@@ -1,7 +1,6 @@
 package io.gridgo.bean.factory;
 
 import java.io.InputStream;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -200,28 +199,12 @@ public interface BFactory extends BSerializerRegistryAware {
         return (T) newReference(obj);
     }
 
+    default BReference fromBytes(@NonNull InputStream in, String serializerName, Class<?> targetType) {
+        return BReference.of(this.lookupOrDefaultSerializer(serializerName).deserializeToPojo(in, targetType));
+    }
+
     default <T extends BElement> T fromBytes(@NonNull InputStream in, String serializerName) {
         return (T) this.lookupOrDefaultSerializer(serializerName).deserialize(in);
-    }
-
-    default <T extends BElement> T fromBytes(@NonNull ByteBuffer buffer, String serializerName) {
-        return (T) this.lookupOrDefaultSerializer(serializerName).deserialize(buffer);
-    }
-
-    default <T extends BElement> T fromBytes(@NonNull byte[] bytes, String serializerName) {
-        return (T) this.lookupOrDefaultSerializer(serializerName).deserialize(bytes);
-    }
-
-    default <T extends BElement> T fromBytes(@NonNull InputStream in) {
-        return (T) this.fromBytes(in, null);
-    }
-
-    default <T extends BElement> T fromBytes(@NonNull ByteBuffer buffer) {
-        return (T) this.fromBytes(buffer, null);
-    }
-
-    default <T extends BElement> T fromBytes(@NonNull byte[] bytes) {
-        return (T) this.fromBytes(bytes, null);
     }
 
     default BFactoryConfigurable asConfigurable() {
