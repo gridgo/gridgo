@@ -5,8 +5,10 @@ import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Map;
 
 import io.gridgo.utils.PrimitiveUtils;
+import io.gridgo.utils.exception.UnsupportedTypeException;
 
 public class PrimitiveUtilsUnitTest {
 
@@ -107,6 +109,7 @@ public class PrimitiveUtilsUnitTest {
 
     @Test
     public void testGetByte() {
+        Assert.assertEquals((byte) 0, PrimitiveUtils.getByteValueFrom(""));
         Assert.assertEquals(127, PrimitiveUtils.getByteValueFrom(127));
         Assert.assertEquals(-128, PrimitiveUtils.getByteValueFrom(-128));
         Assert.assertEquals(97, PrimitiveUtils.getByteValueFrom('a'));
@@ -116,8 +119,14 @@ public class PrimitiveUtilsUnitTest {
         Assert.assertEquals(127, PrimitiveUtils.getByteValueFrom(new byte[] { 127 }));
     }
 
+    @Test(expected = UnsupportedTypeException.class)
+    public void testGetByteUnsupported() {
+        PrimitiveUtils.getByteValueFrom(new Object());
+    }
+
     @Test
     public void testGetShort() {
+        Assert.assertEquals((short) 0, PrimitiveUtils.getShortValueFrom(""));
         Assert.assertEquals(127, PrimitiveUtils.getShortValueFrom(127));
         Assert.assertEquals(-128, PrimitiveUtils.getShortValueFrom(-128));
         Assert.assertEquals(97, PrimitiveUtils.getShortValueFrom('a'));
@@ -125,6 +134,11 @@ public class PrimitiveUtilsUnitTest {
         Assert.assertEquals(1, PrimitiveUtils.getShortValueFrom(true));
         Assert.assertEquals(0, PrimitiveUtils.getShortValueFrom(false));
         Assert.assertEquals(257, PrimitiveUtils.getShortValueFrom(new byte[] { 1, 1 }));
+    }
+
+    @Test(expected = UnsupportedTypeException.class)
+    public void testGetShortUnsupported() {
+        PrimitiveUtils.getShortValueFrom(new Object());
     }
 
     @Test
@@ -138,8 +152,14 @@ public class PrimitiveUtilsUnitTest {
         Assert.assertEquals('a', PrimitiveUtils.getCharValueFrom(new byte[] { 0, 97 }));
     }
 
+    @Test(expected = UnsupportedTypeException.class)
+    public void testGetCharUnsupported() {
+        PrimitiveUtils.getCharValueFrom(new Object());
+    }
+
     @Test
     public void testGetDouble() {
+        Assert.assertEquals(0.0, PrimitiveUtils.getDoubleValueFrom(""), 0);
         Assert.assertEquals(97.0, PrimitiveUtils.getDoubleValueFrom(97), 0);
         Assert.assertEquals(97.0, PrimitiveUtils.getDoubleValueFrom('a'), 0);
         Assert.assertEquals(97.0, PrimitiveUtils.getDoubleValueFrom("97.0"), 0);
@@ -148,8 +168,14 @@ public class PrimitiveUtilsUnitTest {
         Assert.assertEquals(97.0, PrimitiveUtils.getDoubleValueFrom(new byte[] { 64, 88, 64, 0, 0, 0, 0, 0 }), 0);
     }
 
+    @Test(expected = UnsupportedTypeException.class)
+    public void testGetDoubleUnsupported() {
+        PrimitiveUtils.getDoubleValueFrom(new Object());
+    }
+
     @Test
     public void testGetFloat() {
+        Assert.assertEquals(0.0f, PrimitiveUtils.getFloatValueFrom(""), 0);
         Assert.assertEquals(97.0, PrimitiveUtils.getFloatValueFrom(97), 0);
         Assert.assertEquals(97.0, PrimitiveUtils.getFloatValueFrom('a'), 0);
         Assert.assertEquals(97.0, PrimitiveUtils.getFloatValueFrom("97.0"), 0);
@@ -158,8 +184,14 @@ public class PrimitiveUtilsUnitTest {
         Assert.assertEquals(97.0, PrimitiveUtils.getFloatValueFrom(new byte[] { 66, -62, 0, 0, 0, 0, 0, 0 }), 0);
     }
 
+    @Test(expected = UnsupportedTypeException.class)
+    public void testGetFloatUnsupported() {
+        PrimitiveUtils.getFloatValueFrom(new Object());
+    }
+
     @Test
     public void testGetLong() {
+        Assert.assertEquals(0, PrimitiveUtils.getLongValueFrom(""));
         Assert.assertEquals(127, PrimitiveUtils.getLongValueFrom(127));
         Assert.assertEquals(-128, PrimitiveUtils.getLongValueFrom(-128));
         Assert.assertEquals(97, PrimitiveUtils.getLongValueFrom('a'));
@@ -169,8 +201,14 @@ public class PrimitiveUtilsUnitTest {
         Assert.assertEquals(127, PrimitiveUtils.getLongValueFrom(new byte[] { 0, 0, 0, 0, 0, 0, 0, 127 }));
     }
 
+    @Test(expected = UnsupportedTypeException.class)
+    public void testGetLongUnsupported() {
+        PrimitiveUtils.getLongValueFrom(new Object());
+    }
+
     @Test
     public void testGetInteger() {
+        Assert.assertEquals(0, PrimitiveUtils.getIntegerValueFrom(""));
         Assert.assertEquals(127, PrimitiveUtils.getIntegerValueFrom(127));
         Assert.assertEquals(-128, PrimitiveUtils.getIntegerValueFrom(-128));
         Assert.assertEquals(97, PrimitiveUtils.getIntegerValueFrom('a'));
@@ -178,6 +216,11 @@ public class PrimitiveUtilsUnitTest {
         Assert.assertEquals(1, PrimitiveUtils.getIntegerValueFrom(true));
         Assert.assertEquals(0, PrimitiveUtils.getIntegerValueFrom(false));
         Assert.assertEquals(127, PrimitiveUtils.getIntegerValueFrom(new byte[] { 0, 0, 0, 127 }));
+    }
+
+    @Test(expected = UnsupportedTypeException.class)
+    public void testGetIntegerUnsupported() {
+        PrimitiveUtils.getIntegerValueFrom(new Object());
     }
 
     @Test
@@ -224,5 +267,23 @@ public class PrimitiveUtilsUnitTest {
         Assert.assertEquals(float.class, PrimitiveUtils.getPrimitiveFromWrapperType(Float.class));
         Assert.assertEquals(double.class, PrimitiveUtils.getPrimitiveFromWrapperType(Double.class));
         Assert.assertNull(PrimitiveUtils.getPrimitiveFromWrapperType(String.class));
+    }
+
+    @Test(expected = UnsupportedTypeException.class)
+    public void testGetValueUnsupported() {
+        PrimitiveUtils.getValueFrom(Map.class, new Object());
+    }
+
+    @Test
+    public void testGetBigDecimalFrom() {
+        Assert.assertEquals(BigDecimal.valueOf(1.1), PrimitiveUtils.getBigDecimalFrom(BigDecimal.valueOf(1.1)));
+        Assert.assertEquals(BigDecimal.valueOf(1), PrimitiveUtils.getBigDecimalFrom(BigInteger.valueOf(1)));
+        Assert.assertEquals(BigDecimal.valueOf(1.1f), PrimitiveUtils.getBigDecimalFrom(1.1f));
+    }
+
+    @Test
+    public void testGetBigIntegerFrom() {
+        Assert.assertEquals(BigInteger.valueOf(1), PrimitiveUtils.getBigIntegerFrom(BigInteger.valueOf(1)));
+        Assert.assertEquals(BigInteger.valueOf(1), PrimitiveUtils.getBigIntegerFrom(BigDecimal.valueOf(1.1)));
     }
 }

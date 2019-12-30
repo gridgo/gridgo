@@ -101,11 +101,22 @@ public class StringFormatter {
                         value = transformer.transform(value instanceof Supplier ? ((Supplier<?>) value).get() : value);
                     }
                 }
-                result = result.replaceAll(StringUtils.normalizeForRegex(key),
+                result = result.replaceAll(normalizeForRegex(key),
                         PrimitiveUtils.getStringValueFrom(value));
             }
         }
 
+        return result;
+    }
+
+    private static final String[] REGEX_SPECIAL_CHARS = new String[] { "\\", ".", "*", "+", "-", "[", "]", "(", ")",
+            "$", "^", "|", "{", "}", "?" };
+
+    public static final String normalizeForRegex(String key) {
+        String result = key;
+        for (String c : REGEX_SPECIAL_CHARS) {
+            result = result.replaceAll("\\" + c, "\\\\\\" + c);
+        }
         return result;
     }
 }

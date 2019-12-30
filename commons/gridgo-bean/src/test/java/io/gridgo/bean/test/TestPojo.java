@@ -1,57 +1,17 @@
 package io.gridgo.bean.test;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
-import io.gridgo.bean.BElement;
 import io.gridgo.bean.BObject;
-import io.gridgo.bean.BReference;
-import io.gridgo.bean.test.support.Bar;
-import io.gridgo.bean.test.support.Foo;
 import io.gridgo.bean.test.support.NumberCollectionPojo;
 
 public class TestPojo {
-
-    private Foo original;
-
-    @Before
-    public void setup() {
-        original = Foo.builder() //
-                .intArrayValue(new int[] { 1, 2, 3, 4 }) //
-                .doubleValue(0.123) //
-                .barValue(Bar.builder() //
-                        .bool(true) //
-                        .build()) //
-                .intArrayList(Arrays.asList( //
-                        new int[] { 1, 2, 3 }, //
-                        new int[] { 5, 7, 6 })) //
-                .longArrayMap(Map.of( //
-                        "longarr1", new long[] { 4l, 5l }, //
-                        "longarr2", new long[] { 6l, 9l })) //
-                .barMap(Map.of( //
-                        "key", Bar.builder() //
-                                .bool(true) //
-                                .map(Map.of("key1", 10)) //
-                                .build())) //
-                .build();
-    }
-
-    @Test
-    public void testSerializePojo() {
-        BObject originalAsBObject = BObject.ofPojo(original);
-        byte[] bytes = originalAsBObject.toBytes();
-
-        Foo rebuilt = BElement.ofBytes(bytes).asObject().toPojo(Foo.class);
-
-        // convert pojo to bobject to execute equals field by field
-        assertEquals(originalAsBObject, BObject.ofPojo(rebuilt));
-    }
 
     @Test
     public void testNumberCollectionPojo() {
@@ -130,9 +90,7 @@ public class TestPojo {
                         "3", (double) 3)) //
                 .build();
 
-        var json = BReference.of(pojo).toJson();
-        var bObj = BElement.ofJson(json).asObject();
-        System.out.println(bObj);
+        var bObj = BObject.ofPojo(pojo);
 
         var rebuiltPojo = bObj.toPojo(NumberCollectionPojo.class);
         assertEquals(pojo, rebuiltPojo);
