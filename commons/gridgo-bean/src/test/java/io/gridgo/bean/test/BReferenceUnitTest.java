@@ -1,6 +1,7 @@
 package io.gridgo.bean.test;
 
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -13,8 +14,16 @@ import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import io.gridgo.bean.BReference;
+import io.gridgo.bean.exceptions.BeanSerializationException;
+import io.gridgo.bean.factory.BFactory;
+import io.gridgo.bean.test.support.SimplePojo;
 
 public class BReferenceUnitTest {
+
+    @BeforeClass
+    public static void init() {
+        BFactory.DEFAULT.getSerializerRegistry().scan("io.gridgo.bean.test.support.supported");
+    }
 
     @Test
     public void testIsReference() {
@@ -81,5 +90,25 @@ public class BReferenceUnitTest {
             var success = ref.tryWriteNativeBytes(baos);
             Assert.assertFalse(success);
         }
+    }
+
+    @Test
+    public void testOfBytes() throws IOException {
+        var ref = BReference.ofBytes("test".getBytes(), "simplepojo", SimplePojo.class);
+        assertRef(ref);
+
+        ref = BReference.ofBytes("test".getBytes(), "simplepojoobj", SimplePojo.class);
+        assertRef(ref);
+    }
+
+    private void assertRef(BReference ref) {
+        Assert.assertTrue(ref.getReference() instanceof SimplePojo);
+        SimplePojo pojo = ref.getReference();
+        Assert.assertEquals("test", pojo.getName());
+    }
+
+    @Test(expected = BeanSerializationException.class)
+    public void testOfWrongType() throws IOException {
+        BReference.ofBytes("test".getBytes(), "raw", SimplePojo.class);
     }
 }
