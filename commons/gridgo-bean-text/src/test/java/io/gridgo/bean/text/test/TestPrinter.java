@@ -1,11 +1,11 @@
 package io.gridgo.bean.text.test;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 import io.gridgo.bean.BArray;
 import io.gridgo.bean.BElement;
@@ -80,6 +80,12 @@ public class TestPrinter {
         Assert.assertEquals(ref.toString(), new String(ref.toBytes("print")));
         Assert.assertEquals(obj.toString(), new String(obj.toBytes("print")));
         Assert.assertEquals(arr.toString(), new String(arr.toBytes("print")));
+    }
+
+    @Test
+    public void testWriteString() {
+        var arr = BArray.ofSequence(1, 2, 3);
+        Assert.assertNotNull(arr.toString());
     }
 
     @Test(expected = UnsupportedOperationException.class)
