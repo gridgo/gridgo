@@ -117,14 +117,6 @@ public class BObjectUnitTest {
     }
 
     @Test
-    public void testWriteString() {
-        var pojo = Foo.builder().doubleValue(1.0).intValue(1).intArrayValue(new int[] { 1, 2 }).stringValue("hello")
-                .build();
-        var obj = BObject.ofPojo(pojo);
-        Assert.assertNotNull(obj.toString());
-    }
-
-    @Test
     public void testDate() {
         long time = 1555411032310L;
         var beanWithDate = new BeanWithDate();

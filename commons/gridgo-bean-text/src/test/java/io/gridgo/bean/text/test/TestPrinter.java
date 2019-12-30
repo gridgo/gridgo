@@ -14,6 +14,7 @@ import io.gridgo.bean.BReference;
 import io.gridgo.bean.BValue;
 import io.gridgo.bean.serialization.text.BPrinter;
 import io.gridgo.bean.text.test.support.Bar;
+import io.gridgo.bean.text.test.support.Foo;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -83,7 +84,15 @@ public class TestPrinter {
     }
 
     @Test
-    public void testWriteString() {
+    public void testWriteObject() {
+        var pojo = Foo.builder().doubleValue(1.0).intValue(1).intArrayValue(new int[] { 1, 2 }).stringValue("hello")
+                .build();
+        var obj = BObject.ofPojo(pojo);
+        Assert.assertNotNull(obj.toString());
+    }
+
+    @Test
+    public void testWriteArray() {
         var arr = BArray.ofSequence(1, 2, 3);
         Assert.assertNotNull(arr.toString());
     }
