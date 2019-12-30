@@ -8,26 +8,13 @@ import java.nio.ByteBuffer;
 import io.gridgo.bean.BElement;
 import io.gridgo.bean.exceptions.BeanSerializationException;
 import io.gridgo.utils.wrapper.ByteBufferInputStream;
-import io.gridgo.utils.wrapper.ByteBufferOutputStream;
 import lombok.NonNull;
 
 public interface BSerializer {
 
     void serialize(BElement element, OutputStream out);
 
-    default void serialize(BElement element, ByteBuffer out) {
-        this.serialize(element, new ByteBufferOutputStream(out));
-    }
-
     BElement deserialize(InputStream in);
-
-    default BElement deserialize(@NonNull ByteBuffer buffer) {
-        return this.deserialize(new ByteBufferInputStream(buffer));
-    }
-
-    default BElement deserialize(@NonNull byte[] bytes) {
-        return this.deserialize(new ByteArrayInputStream(bytes));
-    }
 
     default <T> T deserializeToPojo(InputStream in, @NonNull Class<T> targetType) {
         var ele = deserialize(in);

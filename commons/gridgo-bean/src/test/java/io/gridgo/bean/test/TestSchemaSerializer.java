@@ -1,15 +1,16 @@
 package io.gridgo.bean.test;
 
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
 
 import io.gridgo.bean.BReference;
 import io.gridgo.bean.exceptions.BeanSerializationException;
@@ -44,7 +45,7 @@ public class TestSchemaSerializer {
             singleSerializer.serialize(obj, out);
             out.flush();
             var result = out.toByteArray();
-            var after = singleSerializer.deserialize(result);
+            var after = singleSerializer.deserialize(new ByteArrayInputStream(result));
             Assert.assertTrue(after != null && after.isReference());
             Assert.assertTrue(after.asReference().getReference() instanceof CustomSchema1);
             CustomSchema1 deserialized = after.asReference().getReference();
@@ -59,7 +60,7 @@ public class TestSchemaSerializer {
             multiSerializer.serialize(obj, out);
             out.flush();
             var result = out.toByteArray();
-            var after = multiSerializer.deserialize(result);
+            var after = multiSerializer.deserialize(new ByteArrayInputStream(result));
             Assert.assertTrue(after != null && after.isReference());
             Assert.assertTrue(after.asReference().getReference() instanceof CustomSchema1);
             CustomSchema1 deserialized = after.asReference().getReference();
@@ -71,7 +72,7 @@ public class TestSchemaSerializer {
             multiSerializer.serialize(obj, out);
             out.flush();
             var result = out.toByteArray();
-            var after = multiSerializer.deserialize(result);
+            var after = multiSerializer.deserialize(new ByteArrayInputStream(result));
             Assert.assertTrue(after != null && after.isReference());
             Assert.assertTrue(after.asReference().getReference() instanceof CustomSchema2);
             CustomSchema2 deserialized = after.asReference().getReference();
