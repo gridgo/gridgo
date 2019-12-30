@@ -1,4 +1,4 @@
-package io.gridgo.bean.test;
+package io.gridgo.bean.text.test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -13,7 +13,7 @@ import io.gridgo.bean.BObject;
 import io.gridgo.bean.BReference;
 import io.gridgo.bean.BValue;
 import io.gridgo.bean.serialization.text.BPrinter;
-import io.gridgo.bean.test.support.Bar;
+import io.gridgo.bean.text.test.support.Bar;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
