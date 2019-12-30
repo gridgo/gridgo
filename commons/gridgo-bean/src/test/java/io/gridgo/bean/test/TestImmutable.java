@@ -1,12 +1,12 @@
 package io.gridgo.bean.test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import io.gridgo.bean.BArray;
 import io.gridgo.bean.BElement;
@@ -25,7 +25,6 @@ public class TestImmutable {
         map.put("list", new Object[] { "str", 1, true });
 
         BElement obj = BElement.wrapAny(map);
-        System.out.println(obj.toString());
 
         assertTrue(obj instanceof ImmutableBObject);
 
@@ -53,7 +52,6 @@ public class TestImmutable {
 
         Map<String, Object> fooMap = BObject.ofPojo(foo).toMap();
         BElement obj = BElement.wrapAny(fooMap);
-        System.out.println(obj.toString());
 
         assertTrue(obj instanceof ImmutableBObject);
         assertEquals(Integer.valueOf(foo.getIntValue()), obj.asObject().getInteger("intValue"));
