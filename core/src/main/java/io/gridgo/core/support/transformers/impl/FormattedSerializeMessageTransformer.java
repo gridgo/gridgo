@@ -1,6 +1,6 @@
-package io.gridgo.connector.support.impl;
+package io.gridgo.core.support.transformers.impl;
 
-import io.gridgo.connector.support.MessageTransformer;
+import io.gridgo.core.support.transformers.MessageTransformer;
 import io.gridgo.framework.support.Message;
 import lombok.AllArgsConstructor;
 

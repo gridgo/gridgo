@@ -1,16 +1,17 @@
 package io.gridgo.core.support.template.impl;
 
-import java.util.List;
-import java.util.function.Function;
-
 import org.joo.promise4j.DoneCallback;
 import org.joo.promise4j.FailCallback;
 import org.joo.promise4j.Promise;
 import org.joo.promise4j.impl.JoinedResults;
 import org.joo.promise4j.impl.SimpleFailurePromise;
 
+import java.util.List;
+import java.util.function.Function;
+
 import io.gridgo.connector.Connector;
 import io.gridgo.connector.Producer;
+import io.gridgo.core.support.subscription.ConnectorAttachment;
 import io.gridgo.core.support.template.ProducerTemplate;
 import io.gridgo.framework.support.Message;
 import io.gridgo.framework.support.impl.MultipartMessage;
@@ -18,19 +19,19 @@ import io.gridgo.framework.support.impl.MultipartMessage;
 public abstract class AbstractProducerTemplate implements ProducerTemplate {
 
     @Override
-    public void send(List<Connector> connectors, Message message) {
+    public void send(List<ConnectorAttachment> connectors, Message message) {
         for (var connector : connectors) {
-            if (match(connector, message))
-                send(connector, message);
+            if (match(connector.getConnector(), message))
+                send(connector.getConnector(), message);
         }
     }
 
     @Override
-    public void call(List<Connector> connectors, Message message, DoneCallback<Message> doneCallback,
+    public void call(List<ConnectorAttachment> connectors, Message message, DoneCallback<Message> doneCallback,
             FailCallback<Exception> failCallback) {
         for (var connector : connectors) {
-            if (match(connector, message))
-                call(connector, message).done(doneCallback).fail(failCallback);
+            if (match(connector.getConnector(), message))
+                call(connector.getConnector(), message).done(doneCallback).fail(failCallback);
         }
     }
 
@@ -54,10 +55,10 @@ public abstract class AbstractProducerTemplate implements ProducerTemplate {
         return true;
     }
 
-    protected int findConnectorWithCallSupport(List<Connector> connectors) {
+    protected int findConnectorWithCallSupport(List<ConnectorAttachment> connectors) {
         for (int i = 0; i < connectors.size(); i++) {
             var connector = connectors.get(i);
-            if (isCallSupported(connector)) {
+            if (isCallSupported(connector.getConnector())) {
                 return i;
             }
         }

@@ -4,7 +4,6 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import io.gridgo.connector.support.MessageTransformer;
 import io.gridgo.connector.support.config.ConnectorContext;
 import io.gridgo.framework.execution.ExecutionStrategy;
 import io.gridgo.framework.execution.impl.DefaultExecutionStrategy;
@@ -39,18 +38,13 @@ public class DefaultConnectorContext implements ConnectorContext {
 
     private Optional<ExecutionStrategy> producerExecutionStrategy = Optional.empty();
 
-    private MessageTransformer serializeTransformer;
-
-    private MessageTransformer deserializeTransformer;
-
     public DefaultConnectorContext() {
 
     }
 
     protected DefaultConnectorContext(IdGenerator idGenerator, Registry registry, Consumer<Throwable> exceptionHandler,
             Function<Throwable, Message> failureHandler, ExecutionStrategy callbackInvokerStrategy,
-            ExecutionStrategy consumerExecutionStrategy, ExecutionStrategy producerExecutionStrategy,
-            MessageTransformer serializeTransformer, MessageTransformer deserializeTransformer) {
+            ExecutionStrategy consumerExecutionStrategy, ExecutionStrategy producerExecutionStrategy) {
         if (idGenerator != null)
             this.idGenerator = idGenerator;
         if (registry != null)
@@ -62,7 +56,5 @@ public class DefaultConnectorContext implements ConnectorContext {
         this.consumerExecutionStrategy = Optional.ofNullable(consumerExecutionStrategy);
         this.failureHandler = Optional.ofNullable(failureHandler);
         this.producerExecutionStrategy = Optional.ofNullable(producerExecutionStrategy);
-        this.serializeTransformer = serializeTransformer;
-        this.deserializeTransformer = deserializeTransformer;
     }
 }

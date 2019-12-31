@@ -1,7 +1,6 @@
 package io.gridgo.connector.impl;
 
 import org.joo.promise4j.Deferred;
-import org.joo.promise4j.impl.CompletableDeferredObject;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -69,37 +68,15 @@ public abstract class AbstractConsumer extends AbstractMessageComponent implemen
     protected boolean publish(@NonNull Message message, Deferred<Message, Exception> deferred) {
         if (this.subscribers.isEmpty())
             return false;
-        var processedMessage = preprocessMessage(message);
-        var processedDeferred = preprocessDeferred(deferred);
         for (var subscriber : this.subscribers) {
             try {
                 context.getCallbackInvokerStrategy() //
-                       .execute(() -> notifySubscriber(processedMessage, processedDeferred, subscriber));
+                       .execute(() -> notifySubscriber(message, deferred, subscriber));
             } catch (Exception ex) {
                 notifyErrors(deferred, ex);
             }
         }
         return true;
-    }
-
-    private Message preprocessMessage(Message message) {
-        var processedMessage = message;
-
-        if (context.getDeserializeTransformer() != null) {
-            processedMessage = context.getDeserializeTransformer().transform(processedMessage);
-        }
-
-        processedMessage.attachSource(getName());
-        return processedMessage;
-    }
-
-    private Deferred<Message, Exception> preprocessDeferred(Deferred<Message, Exception> deferred) {
-        if (context.getSerializeTransformer() == null) {
-            return deferred;
-        }
-        var processedDeferred = new CompletableDeferredObject<Message, Exception>();
-        processedDeferred.map(context.getSerializeTransformer()::transform).forward(deferred);
-        return processedDeferred;
     }
 
     @Override

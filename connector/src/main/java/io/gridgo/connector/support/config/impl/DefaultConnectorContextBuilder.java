@@ -3,7 +3,6 @@ package io.gridgo.connector.support.config.impl;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import io.gridgo.connector.support.MessageTransformer;
 import io.gridgo.connector.support.config.ConnectorContext;
 import io.gridgo.connector.support.config.ConnectorContextBuilder;
 import io.gridgo.framework.execution.ExecutionStrategy;
@@ -28,15 +27,10 @@ public class DefaultConnectorContextBuilder implements ConnectorContextBuilder {
 
     private ExecutionStrategy producerExecutionStrategy;
 
-    private MessageTransformer serializeTransformer;
-
-    private MessageTransformer deserializeTransformer;
-
     @Override
     public ConnectorContext build() {
         return new DefaultConnectorContext(idGenerator, registry, exceptionHandler, failureHandler,
-                callbackInvokerStrategy, consumerExecutionStrategy, producerExecutionStrategy,
-                serializeTransformer, deserializeTransformer);
+                callbackInvokerStrategy, consumerExecutionStrategy, producerExecutionStrategy);
     }
 
     @Override
@@ -78,18 +72,6 @@ public class DefaultConnectorContextBuilder implements ConnectorContextBuilder {
     @Override
     public ConnectorContextBuilder setRegistry(final @NonNull Registry registry) {
         this.registry = registry;
-        return this;
-    }
-
-    @Override
-    public ConnectorContextBuilder setSerializeTransformer(final @NonNull MessageTransformer transformer) {
-        this.serializeTransformer = transformer;
-        return this;
-    }
-
-    @Override
-    public ConnectorContextBuilder setDeserializeTransformer(final @NonNull MessageTransformer transformer) {
-        this.deserializeTransformer = transformer;
         return this;
     }
 }

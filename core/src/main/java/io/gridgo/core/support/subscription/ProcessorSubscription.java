@@ -1,8 +1,8 @@
 package io.gridgo.core.support.subscription;
 
-import java.util.function.BooleanSupplier;
-
 import org.joo.libra.Predicate;
+
+import java.util.function.BooleanSupplier;
 
 import io.gridgo.core.support.subscription.impl.Condition;
 import io.gridgo.framework.execution.ExecutionStrategy;
@@ -12,14 +12,14 @@ import io.gridgo.framework.support.Message;
 /**
  * Represents a processor subscription. This class is used for a "fluent" API,
  * so that you can modify the condition, execution strategy of the processor
- * after subscribing to a gateay.
+ * after subscribing to a gateway.
  */
 public interface ProcessorSubscription {
 
     /**
      * Set the condition of the processor to run, using
      * <code>org.joo.libra.sql.SqlPredicate</code> syntax.
-     * 
+     *
      * @param condition the condition
      * @return the current object
      */
@@ -29,7 +29,7 @@ public interface ProcessorSubscription {
 
     /**
      * Set the condition of the processor to run, using Java Predicate.
-     * 
+     *
      * @param condition the condition
      * @return the current object
      */
@@ -40,7 +40,7 @@ public interface ProcessorSubscription {
     /**
      * Set the condition of the processor to run, using a custom
      * <code>org.joo.libra.Predicate</code>
-     * 
+     *
      * @param condition the condition
      * @return the current object
      */
@@ -48,7 +48,7 @@ public interface ProcessorSubscription {
 
     /**
      * Set the execution strategy of the processor to run.
-     * 
+     *
      * @param strategy the strategy
      * @return the current object
      */
@@ -56,7 +56,7 @@ public interface ProcessorSubscription {
 
     /**
      * Instrument the processor with an <code>ExecutionStrategyInstrumenter</code>
-     * 
+     *
      * @param instrumenter the instrumenter
      * @return the current object
      */
@@ -65,7 +65,7 @@ public interface ProcessorSubscription {
     /**
      * Instrument the processor with an <code>ExecutionStrategyInstrumenter</code>,
      * if the condition resolved to true.
-     * 
+     *
      * @param condition    the condition
      * @param instrumenter the instrumenter
      * @return the current object
@@ -80,7 +80,7 @@ public interface ProcessorSubscription {
     /**
      * Instrument the processor with an <code>ExecutionStrategyInstrumenter</code>,
      * if the condition resolved to true.
-     * 
+     *
      * @param condition    the condition
      * @param instrumenter the instrumenter
      * @return the current object
@@ -92,7 +92,7 @@ public interface ProcessorSubscription {
     /**
      * Instrument the processor with an <code>ExecutionStrategyInstrumenter</code>,
      * if the condition resolved to true.
-     * 
+     *
      * @param condition    the condition
      * @param instrumenter the instrumenter
      * @return the current object
@@ -105,7 +105,7 @@ public interface ProcessorSubscription {
     /**
      * Instrument the processor with an <code>ExecutionStrategyInstrumenter</code>,
      * if the condition resolved to true.
-     * 
+     *
      * @param condition    the condition
      * @param instrumenter the instrumenter
      * @return the current object
@@ -114,7 +114,7 @@ public interface ProcessorSubscription {
 
     /**
      * Copy another routing policy configuration.
-     * 
+     *
      * @param policy the routing policy
      * @return the GatewaySubscription which this processor is subscribed
      */
@@ -122,14 +122,14 @@ public interface ProcessorSubscription {
 
     /**
      * Finish subscribing this processor.
-     * 
+     *
      * @return the GatewaySubscription which this processor is subscribed
      */
     public GatewaySubscription finishSubscribing();
 
     /**
      * Get the routing policy of this processor
-     * 
+     *
      * @return the routing policy
      */
     public RoutingPolicy getPolicy();
