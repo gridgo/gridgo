@@ -12,7 +12,7 @@ public class FormattedSerializeMessageTransformer implements MessageTransformer 
     @Override
     public Message transform(Message msg) {
         if (msg == null || msg.body() == null)
-            return null;
+            return msg;
         return Message.ofAny(msg.headers(), msg.body().toBytes(format));
     }
 }

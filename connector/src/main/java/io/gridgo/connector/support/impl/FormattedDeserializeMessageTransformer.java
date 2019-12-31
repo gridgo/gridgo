@@ -13,7 +13,7 @@ public class FormattedDeserializeMessageTransformer implements MessageTransforme
     @Override
     public Message transform(Message msg) {
         if (msg == null || msg.body() == null)
-            return null;
+            return msg;
         if (!msg.body().isValue()) {
             throw new IllegalArgumentException("Message must be in byte[] format to be used with this transformer");
         }

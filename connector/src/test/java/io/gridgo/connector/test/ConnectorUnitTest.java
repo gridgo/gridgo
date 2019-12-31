@@ -37,7 +37,7 @@ public class ConnectorUnitTest {
     }
 
     @Test
-    public void testConsumerDeserializeTransformer() {
+    public void testConsumerDeserializeTransformer() throws PromiseException, InterruptedException {
         var connectorContext = new DefaultConnectorContextBuilder()
                 .setDeserializeTransformer(new FormattedDeserializeMessageTransformer("json"))
                 .build();
@@ -45,10 +45,18 @@ public class ConnectorUnitTest {
                 "test:pull:tcp://127.0.0.1:7781",
                 connectorContext);
         var consumer = (TestConsumer) connector.getConsumer().orElseThrow();
-        consumer.subscribe(msg -> {
-            Assert.assertEquals("test", msg.body().asObject().getString("name"));
+        var ref = new AtomicReference<>();
+        consumer.subscribe((msg, deferred) -> {
+            if (msg.body() == null)
+                ref.set(null);
+            else
+                ref.set(msg.body().asObject().getString("name"));
+            deferred.resolve(null);
         });
-        consumer.testPublish(Message.ofAny("{\"name\":\"test\"}"));
+        consumer.testPublish(Message.ofAny("{\"name\":\"test\"}")).get();
+        Assert.assertEquals("test", ref.get());
+        consumer.testPublish(Message.ofEmpty()).get();
+        Assert.assertNull(ref.get());
     }
 
     @Test
@@ -61,10 +69,12 @@ public class ConnectorUnitTest {
                 connectorContext);
         var consumer = (TestConsumer) connector.getConsumer().orElseThrow();
         consumer.subscribe((msg, deferred) -> {
-            deferred.resolve(Message.ofAny(BObject.of("name", "test")));
+            deferred.resolve(msg);
         });
-        var result = consumer.testPublish().get();
+        var result = consumer.testPublish(Message.ofAny(BObject.of("name", "test"))).get();
         Assert.assertEquals("{\"name\":\"test\"}", new String(result.body().asValue().getRaw()));
+        result = consumer.testPublish(Message.ofEmpty()).get();
+        Assert.assertNull(result.body());
     }
 
     @Test
