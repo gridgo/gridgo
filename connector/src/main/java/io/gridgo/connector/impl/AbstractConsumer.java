@@ -85,8 +85,8 @@ public abstract class AbstractConsumer extends AbstractMessageComponent implemen
     private Message preprocessMessage(Message message) {
         var processedMessage = message;
 
-        if (context.getFromConnectorTransformer() != null) {
-            processedMessage = context.getFromConnectorTransformer().transform(processedMessage);
+        if (context.getDeserializeTransformer() != null) {
+            processedMessage = context.getDeserializeTransformer().transform(processedMessage);
         }
 
         processedMessage.attachSource(getName());
@@ -94,11 +94,11 @@ public abstract class AbstractConsumer extends AbstractMessageComponent implemen
     }
 
     private Deferred<Message, Exception> preprocessDeferred(Deferred<Message, Exception> deferred) {
-        if (context.getToConnectorTransformer() == null) {
+        if (context.getSerializeTransformer() == null) {
             return deferred;
         }
         var processedDeferred = new CompletableDeferredObject<Message, Exception>();
-        processedDeferred.map(context.getToConnectorTransformer()::transform).forward(deferred);
+        processedDeferred.map(context.getSerializeTransformer()::transform).forward(deferred);
         return processedDeferred;
     }
 

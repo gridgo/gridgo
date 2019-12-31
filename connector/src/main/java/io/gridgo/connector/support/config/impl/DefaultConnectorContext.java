@@ -39,9 +39,9 @@ public class DefaultConnectorContext implements ConnectorContext {
 
     private Optional<ExecutionStrategy> producerExecutionStrategy = Optional.empty();
 
-    private MessageTransformer fromConnectorTransformer;
+    private MessageTransformer serializeTransformer;
 
-    private MessageTransformer toConnectorTransformer;
+    private MessageTransformer deserializeTransformer;
 
     public DefaultConnectorContext() {
 
@@ -50,7 +50,7 @@ public class DefaultConnectorContext implements ConnectorContext {
     protected DefaultConnectorContext(IdGenerator idGenerator, Registry registry, Consumer<Throwable> exceptionHandler,
             Function<Throwable, Message> failureHandler, ExecutionStrategy callbackInvokerStrategy,
             ExecutionStrategy consumerExecutionStrategy, ExecutionStrategy producerExecutionStrategy,
-            MessageTransformer fromConnectorTransformer, MessageTransformer toConnectorTransformer) {
+            MessageTransformer serializeTransformer, MessageTransformer deserializeTransformer) {
         if (idGenerator != null)
             this.idGenerator = idGenerator;
         if (registry != null)
@@ -62,7 +62,7 @@ public class DefaultConnectorContext implements ConnectorContext {
         this.consumerExecutionStrategy = Optional.ofNullable(consumerExecutionStrategy);
         this.failureHandler = Optional.ofNullable(failureHandler);
         this.producerExecutionStrategy = Optional.ofNullable(producerExecutionStrategy);
-        this.fromConnectorTransformer = fromConnectorTransformer;
-        this.toConnectorTransformer = toConnectorTransformer;
+        this.serializeTransformer = serializeTransformer;
+        this.deserializeTransformer = deserializeTransformer;
     }
 }

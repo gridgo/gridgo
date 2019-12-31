@@ -27,7 +27,7 @@ public interface ConnectorContext extends RegistryAware {
 
     public Registry getRegistry();
 
-    public MessageTransformer getFromConnectorTransformer();
+    public MessageTransformer getSerializeTransformer();
 
-    public MessageTransformer getToConnectorTransformer();
+    public MessageTransformer getDeserializeTransformer();
 }

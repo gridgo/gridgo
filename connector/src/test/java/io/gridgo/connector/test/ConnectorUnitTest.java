@@ -25,7 +25,7 @@ public class ConnectorUnitTest {
     @Test
     public void testConsumerFromTransformer() {
         var connectorContext = new DefaultConnectorContextBuilder()
-                .setFromConnectorTransformer(msg -> Message.ofAny(BElement.ofBytes(msg.body().asValue().getRaw())))
+                .setDeserializeTransformer(msg -> Message.ofAny(BElement.ofBytes(msg.body().asValue().getRaw())))
                 .build();
         var connector = (TestConnector) new DefaultConnectorFactory().createConnector(
                 "test:pull:tcp://127.0.0.1:7781",
@@ -38,9 +38,9 @@ public class ConnectorUnitTest {
     }
 
     @Test
-    public void testConsumerToTransformer() throws PromiseException, InterruptedException {
+    public void testConsumerSerializeTransformer() throws PromiseException, InterruptedException {
         var connectorContext = new DefaultConnectorContextBuilder()
-                .setToConnectorTransformer(msg -> Message.ofAny(msg.body().toJson()))
+                .setSerializeTransformer(msg -> Message.ofAny(msg.body().toJson()))
                 .build();
         var connector = (TestConnector) new DefaultConnectorFactory().createConnector(
                 "test:pull:tcp://127.0.0.1:7781",

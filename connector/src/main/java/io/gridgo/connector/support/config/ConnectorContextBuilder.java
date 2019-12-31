@@ -26,7 +26,7 @@ public interface ConnectorContextBuilder extends Builder<ConnectorContext> {
 
     public ConnectorContextBuilder setRegistry(Registry registry);
 
-    public ConnectorContextBuilder setFromConnectorTransformer(MessageTransformer transformer);
+    public ConnectorContextBuilder setSerializeTransformer(MessageTransformer transformer);
 
-    public ConnectorContextBuilder setToConnectorTransformer(MessageTransformer transformer);
+    public ConnectorContextBuilder setDeserializeTransformer(MessageTransformer transformer);
 }

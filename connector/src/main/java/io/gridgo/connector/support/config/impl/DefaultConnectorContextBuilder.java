@@ -28,15 +28,15 @@ public class DefaultConnectorContextBuilder implements ConnectorContextBuilder {
 
     private ExecutionStrategy producerExecutionStrategy;
 
-    private MessageTransformer fromConnectorTransformer;
+    private MessageTransformer serializeTransformer;
 
-    private MessageTransformer toConnectorTransformer;
+    private MessageTransformer deserializeTransformer;
 
     @Override
     public ConnectorContext build() {
         return new DefaultConnectorContext(idGenerator, registry, exceptionHandler, failureHandler,
                 callbackInvokerStrategy, consumerExecutionStrategy, producerExecutionStrategy,
-                fromConnectorTransformer, toConnectorTransformer);
+                serializeTransformer, deserializeTransformer);
     }
 
     @Override
@@ -82,14 +82,14 @@ public class DefaultConnectorContextBuilder implements ConnectorContextBuilder {
     }
 
     @Override
-    public ConnectorContextBuilder setFromConnectorTransformer(final @NonNull MessageTransformer transformer) {
-        this.fromConnectorTransformer = transformer;
+    public ConnectorContextBuilder setSerializeTransformer(final @NonNull MessageTransformer transformer) {
+        this.serializeTransformer = transformer;
         return this;
     }
 
     @Override
-    public ConnectorContextBuilder setToConnectorTransformer(final @NonNull MessageTransformer transformer) {
-        this.toConnectorTransformer = transformer;
+    public ConnectorContextBuilder setDeserializeTransformer(final @NonNull MessageTransformer transformer) {
+        this.deserializeTransformer = transformer;
         return this;
     }
 }
