@@ -4,6 +4,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import io.gridgo.connector.support.MessageTransformer;
 import io.gridgo.framework.execution.ExecutionStrategy;
 import io.gridgo.framework.support.Message;
 import io.gridgo.framework.support.Registry;
@@ -23,6 +24,10 @@ public interface ConnectorContext extends RegistryAware {
     public IdGenerator getIdGenerator();
 
     public Optional<ExecutionStrategy> getProducerExecutionStrategy();
-    
+
     public Registry getRegistry();
+
+    public MessageTransformer getSerializeTransformer();
+
+    public MessageTransformer getDeserializeTransformer();
 }

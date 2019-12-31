@@ -34,4 +34,10 @@ public class TestConsumer extends AbstractConsumer {
         publish(createMessage(BObject.ofEmpty().setAny("test-header", 1), null), deferred);
         return deferred.promise();
     }
+
+    public Promise<Message, Exception> testPublish(Message msg) {
+        var deferred = new AsyncDeferredObject<Message, Exception>();
+        publish(msg, deferred);
+        return deferred.promise();
+    }
 }

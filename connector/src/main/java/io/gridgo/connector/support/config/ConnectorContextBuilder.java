@@ -3,6 +3,7 @@ package io.gridgo.connector.support.config;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import io.gridgo.connector.support.MessageTransformer;
 import io.gridgo.framework.execution.ExecutionStrategy;
 import io.gridgo.framework.support.Builder;
 import io.gridgo.framework.support.Message;
@@ -24,4 +25,8 @@ public interface ConnectorContextBuilder extends Builder<ConnectorContext> {
     public ConnectorContextBuilder setProducerExecutionStrategy(ExecutionStrategy strategy);
 
     public ConnectorContextBuilder setRegistry(Registry registry);
+
+    public ConnectorContextBuilder setSerializeTransformer(MessageTransformer transformer);
+
+    public ConnectorContextBuilder setDeserializeTransformer(MessageTransformer transformer);
 }

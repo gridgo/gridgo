@@ -16,21 +16,23 @@ public interface BBytesSupport extends BSerializerRegistryAware {
     public static final int DEFAULT_OUTPUT_CAPACITY = 1024;
 
     default void writeBytes(@NonNull ByteBuffer buffer, String serializerName) {
-        if (this instanceof BElement)
+        if (this instanceof BElement) {
             try (var output = new ByteBufferOutputStream(buffer)) {
                 this.writeBytes(output);
             } catch (IOException e) {
                 throw new RuntimeIOException(e);
             }
-        else
+        } else {
             throw new InvalidTypeException("Cannot write bytes to output stream from not-a-BElement object");
+        }
     }
 
     default void writeBytes(@NonNull OutputStream out, String serializerName) {
-        if (this instanceof BElement)
+        if (this instanceof BElement) {
             lookupOrDefaultSerializer(serializerName).serialize((BElement) this, out);
-        else
+        } else {
             throw new InvalidTypeException("Cannot write bytes to output stream from not-a-BElement object");
+        }
     }
 
     default byte[] toBytes(int initCapacity, String serializerName) {
