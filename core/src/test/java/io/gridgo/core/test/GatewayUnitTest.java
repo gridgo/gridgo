@@ -1,15 +1,19 @@
 package io.gridgo.core.test;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import org.joo.libra.sql.SqlPredicate;
+import org.joo.promise4j.PromiseException;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+
+import io.gridgo.bean.BObject;
 import io.gridgo.bean.BValue;
 import io.gridgo.connector.Connector;
 import io.gridgo.connector.impl.resolvers.ClasspathConnectorResolver;
+import io.gridgo.connector.test.TestConsumer;
 import io.gridgo.core.GridgoContext;
 import io.gridgo.core.impl.DefaultGridgoContextBuilder;
 import io.gridgo.core.support.ProducerJoinMode;
@@ -17,6 +21,8 @@ import io.gridgo.core.support.impl.SwitchComponent;
 import io.gridgo.core.support.subscription.RoutingPolicy;
 import io.gridgo.core.support.subscription.impl.DefaultRoutingPolicy;
 import io.gridgo.core.support.template.impl.MatchingProducerTemplate;
+import io.gridgo.core.support.transformers.impl.FormattedDeserializeMessageTransformer;
+import io.gridgo.core.support.transformers.impl.FormattedSerializeMessageTransformer;
 import io.gridgo.framework.support.Message;
 import io.gridgo.framework.support.Payload;
 import io.gridgo.framework.support.impl.SimpleRegistry;
@@ -59,13 +65,13 @@ public class GatewayUnitTest {
         var context = new DefaultGridgoContextBuilder().setName("test").setRegistry(registry).build();
 
         context.openGateway("test") //
-               .attachConnector("test99:dummy") //
+               .attachConnector("test99:dummy").finishAttaching() //
                .subscribe((rc, gc) -> {
                    latch.countDown();
                });
 
         context.openGateway("test2") //
-               .attachConnector("test99:dummy") //
+               .attachConnector("test99:dummy").finishAttaching() //
                .subscribe((rc, gc) -> {
                    latch.countDown();
                });
@@ -92,8 +98,8 @@ public class GatewayUnitTest {
         RoutingPolicy policy1 = new DefaultRoutingPolicy(null).setCondition(new SqlPredicate("payload.body.data == 1"));
         RoutingPolicy policy2 = new DefaultRoutingPolicy(null).setCondition(new SqlPredicate("payload.body.data == 2"));
         context.openGateway("test2", new MatchingProducerTemplate((c, m) -> match(context, c, m))) //
-               .attachConnector("test99:dummy1", new ClasspathConnectorResolver("io.gridgo.connector.test")) //
-               .attachConnector("test99:dummy2", new ClasspathConnectorResolver("io.gridgo.connector.test")) //
+               .attachConnector("test99:dummy1", new ClasspathConnectorResolver("io.gridgo.connector.test")).finishAttaching() //
+               .attachConnector("test99:dummy2", new ClasspathConnectorResolver("io.gridgo.connector.test")).finishAttaching() //
                .subscribe((rc, gc) -> {
                    latch1.countDown();
                }).withPolicy(policy1) //
@@ -119,10 +125,10 @@ public class GatewayUnitTest {
         var context = new DefaultGridgoContextBuilder().setName("test").setRegistry(registry).build();
 
         context.openGateway("test", ProducerJoinMode.JOIN) //
-               .attachConnector("test99:dummy1") //
+               .attachConnector("test99:dummy1").finishAttaching() //
                .attachConnector("test99:dummy2");
         context.openGateway("test2", new MatchingProducerTemplate((c, m) -> match(context, c, m))) //
-               .attachConnector("test99:dummy1") //
+               .attachConnector("test99:dummy1").finishAttaching() //
                .attachConnector("test99:dummy2");
 
         context.start();
@@ -185,8 +191,8 @@ public class GatewayUnitTest {
             consumerLatch.countDown();
         }).setCondition(new SqlPredicate("payload.body.data == " + beanValue));
         context.openGateway("test") //
-               .attachConnector("test99:dummy") //
-               .attachConnector("test99:dummy1") //
+               .attachConnector("test99:dummy").finishAttaching() //
+               .attachConnector("test99:dummy1").finishAttaching() //
                .attachRoutingPolicy(policy);
         context.start();
 
@@ -293,5 +299,80 @@ public class GatewayUnitTest {
 
     private Message createType1Message() {
         return Message.of(Payload.of(BValue.of(1)));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConsumerDeserializeTransformerWrongType() throws InterruptedException, PromiseException {
+        var ref = new AtomicReference<>();
+        var context = new DefaultGridgoContextBuilder().setName("test").build();
+        context.openGateway("test") //
+               .attachConnector("testtransformer:")
+               .transformIncomingWith(new FormattedDeserializeMessageTransformer("json"))
+               .finishAttaching()
+               .subscribe((rc, gc) -> {
+                   var msg = rc.getMessage();
+                   var deferred = rc.getDeferred();
+                   if (msg.body() == null)
+                       ref.set(null);
+                   else
+                       ref.set(msg.body().asObject().getString("name"));
+                   deferred.resolve(null);
+               });
+        context.start();
+        var connector = context.findGatewayMandatory("test").getConnectorAttachments().get(0).getConnector();
+        var consumer = (TestConsumer) connector.getConsumer().orElseThrow();
+        consumer.subscribe(msg -> {});
+        try {
+            consumer.testPublish(Message.ofAny(BObject.of("name", "test"))).get();
+        } catch (PromiseException e) {
+            if (e.getCause() != null && e.getCause() instanceof RuntimeException)
+                throw (RuntimeException) e.getCause();
+            throw e;
+        }
+    }
+
+    @Test
+    public void testConsumerDeserializeTransformer() throws PromiseException, InterruptedException {
+        var ref = new AtomicReference<>();
+        var context = new DefaultGridgoContextBuilder().setName("test").build();
+        context.openGateway("test") //
+               .attachConnector("testtransformer:")
+               .transformIncomingWith(new FormattedDeserializeMessageTransformer("json"))
+               .finishAttaching()
+               .subscribe((rc, gc) -> {
+                   var msg = rc.getMessage();
+                   var deferred = rc.getDeferred();
+                   if (msg.body() == null)
+                       ref.set(null);
+                   else
+                       ref.set(msg.body().asObject().getString("name"));
+                   deferred.resolve(null);
+               });
+        context.start();
+        var connector = context.findGatewayMandatory("test").getConnectorAttachments().get(0).getConnector();
+        var consumer = (TestConsumer) connector.getConsumer().orElseThrow();
+        consumer.testPublish(Message.ofAny("{\"name\":\"test\"}")).get();
+        Assert.assertEquals("test", ref.get());
+        consumer.testPublish(Message.ofEmpty()).get();
+        Assert.assertNull(ref.get());
+    }
+
+    @Test
+    public void testConsumerSerializeTransformer() throws PromiseException, InterruptedException {
+        var context = new DefaultGridgoContextBuilder().setName("test").build();
+        context.openGateway("test") //
+               .attachConnector("testtransformer:")
+               .transformOutgoingWith(new FormattedSerializeMessageTransformer("json"))
+               .finishAttaching()
+               .subscribe((rc, gc) -> {
+                   rc.getDeferred().resolve(rc.getMessage());
+               });
+        context.start();
+        var connector = context.findGatewayMandatory("test").getConnectorAttachments().get(0).getConnector();
+        var consumer = (TestConsumer) connector.getConsumer().orElseThrow();
+        var result = consumer.testPublish(Message.ofAny(BObject.of("name", "test"))).get();
+        Assert.assertEquals("{\"name\":\"test\"}", new String(result.body().asValue().getRaw()));
+        result = consumer.testPublish(Message.ofEmpty()).get();
+        Assert.assertNull(result.body());
     }
 }

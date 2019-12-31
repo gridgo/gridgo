@@ -1,19 +1,15 @@
 package io.gridgo.connector.test;
 
 import org.joo.promise4j.DeferredStatus;
-import org.joo.promise4j.PromiseException;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 
-import io.gridgo.bean.BObject;
 import io.gridgo.bean.BValue;
 import io.gridgo.connector.impl.factories.DefaultConnectorFactory;
 import io.gridgo.connector.support.config.impl.DefaultConnectorContextBuilder;
-import io.gridgo.connector.support.impl.FormattedDeserializeMessageTransformer;
-import io.gridgo.connector.support.impl.FormattedSerializeMessageTransformer;
 import io.gridgo.connector.test.support.TestConnector;
 import io.gridgo.connector.test.support.TestConsumer;
 import io.gridgo.connector.test.support.TestProducer;
@@ -22,60 +18,6 @@ import io.gridgo.framework.support.Payload;
 import io.gridgo.framework.support.impl.SimpleRegistry;
 
 public class ConnectorUnitTest {
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testConsumerDeserializeTransformerWrongType() {
-        var connectorContext = new DefaultConnectorContextBuilder()
-                .setDeserializeTransformer(new FormattedDeserializeMessageTransformer("json"))
-                .build();
-        var connector = (TestConnector) new DefaultConnectorFactory().createConnector(
-                "test:pull:tcp://127.0.0.1:7781",
-                connectorContext);
-        var consumer = (TestConsumer) connector.getConsumer().orElseThrow();
-        consumer.subscribe(msg -> {});
-        consumer.testPublish(Message.ofAny(BObject.of("name", "test")));
-    }
-
-    @Test
-    public void testConsumerDeserializeTransformer() throws PromiseException, InterruptedException {
-        var connectorContext = new DefaultConnectorContextBuilder()
-                .setDeserializeTransformer(new FormattedDeserializeMessageTransformer("json"))
-                .build();
-        var connector = (TestConnector) new DefaultConnectorFactory().createConnector(
-                "test:pull:tcp://127.0.0.1:7781",
-                connectorContext);
-        var consumer = (TestConsumer) connector.getConsumer().orElseThrow();
-        var ref = new AtomicReference<>();
-        consumer.subscribe((msg, deferred) -> {
-            if (msg.body() == null)
-                ref.set(null);
-            else
-                ref.set(msg.body().asObject().getString("name"));
-            deferred.resolve(null);
-        });
-        consumer.testPublish(Message.ofAny("{\"name\":\"test\"}")).get();
-        Assert.assertEquals("test", ref.get());
-        consumer.testPublish(Message.ofEmpty()).get();
-        Assert.assertNull(ref.get());
-    }
-
-    @Test
-    public void testConsumerSerializeTransformer() throws PromiseException, InterruptedException {
-        var connectorContext = new DefaultConnectorContextBuilder()
-                .setSerializeTransformer(new FormattedSerializeMessageTransformer("json"))
-                .build();
-        var connector = (TestConnector) new DefaultConnectorFactory().createConnector(
-                "test:pull:tcp://127.0.0.1:7781",
-                connectorContext);
-        var consumer = (TestConsumer) connector.getConsumer().orElseThrow();
-        consumer.subscribe((msg, deferred) -> {
-            deferred.resolve(msg);
-        });
-        var result = consumer.testPublish(Message.ofAny(BObject.of("name", "test"))).get();
-        Assert.assertEquals("{\"name\":\"test\"}", new String(result.body().asValue().getRaw()));
-        result = consumer.testPublish(Message.ofEmpty()).get();
-        Assert.assertNull(result.body());
-    }
 
     @Test
     public void testConsumerFailure() {
