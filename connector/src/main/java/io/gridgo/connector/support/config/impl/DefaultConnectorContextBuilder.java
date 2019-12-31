@@ -3,6 +3,7 @@ package io.gridgo.connector.support.config.impl;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import io.gridgo.connector.support.MessageTransformer;
 import io.gridgo.connector.support.config.ConnectorContext;
 import io.gridgo.connector.support.config.ConnectorContextBuilder;
 import io.gridgo.framework.execution.ExecutionStrategy;
@@ -27,10 +28,15 @@ public class DefaultConnectorContextBuilder implements ConnectorContextBuilder {
 
     private ExecutionStrategy producerExecutionStrategy;
 
+    private MessageTransformer fromConnectorTransformer;
+
+    private MessageTransformer toConnectorTransformer;
+
     @Override
     public ConnectorContext build() {
-        return new DefaultConnectorContext(idGenerator, registry, exceptionHandler, failureHandler, callbackInvokerStrategy, consumerExecutionStrategy,
-                producerExecutionStrategy);
+        return new DefaultConnectorContext(idGenerator, registry, exceptionHandler, failureHandler,
+                callbackInvokerStrategy, consumerExecutionStrategy, producerExecutionStrategy,
+                fromConnectorTransformer, toConnectorTransformer);
     }
 
     @Override
@@ -72,6 +78,18 @@ public class DefaultConnectorContextBuilder implements ConnectorContextBuilder {
     @Override
     public ConnectorContextBuilder setRegistry(final @NonNull Registry registry) {
         this.registry = registry;
+        return this;
+    }
+
+    @Override
+    public ConnectorContextBuilder setFromConnectorTransformer(final @NonNull MessageTransformer transformer) {
+        this.fromConnectorTransformer = transformer;
+        return this;
+    }
+
+    @Override
+    public ConnectorContextBuilder setToConnectorTransformer(final @NonNull MessageTransformer transformer) {
+        this.toConnectorTransformer = transformer;
         return this;
     }
 }

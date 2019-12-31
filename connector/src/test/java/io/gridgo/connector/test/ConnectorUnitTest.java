@@ -1,12 +1,15 @@
 package io.gridgo.connector.test;
 
 import org.joo.promise4j.DeferredStatus;
+import org.joo.promise4j.PromiseException;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 
+import io.gridgo.bean.BElement;
+import io.gridgo.bean.BObject;
 import io.gridgo.bean.BValue;
 import io.gridgo.connector.impl.factories.DefaultConnectorFactory;
 import io.gridgo.connector.support.config.impl.DefaultConnectorContextBuilder;
@@ -18,6 +21,37 @@ import io.gridgo.framework.support.Payload;
 import io.gridgo.framework.support.impl.SimpleRegistry;
 
 public class ConnectorUnitTest {
+
+    @Test
+    public void testConsumerFromTransformer() {
+        var connectorContext = new DefaultConnectorContextBuilder()
+                .setFromConnectorTransformer(msg -> Message.ofAny(BElement.ofBytes(msg.body().asValue().getRaw())))
+                .build();
+        var connector = (TestConnector) new DefaultConnectorFactory().createConnector(
+                "test:pull:tcp://127.0.0.1:7781",
+                connectorContext);
+        var consumer = (TestConsumer) connector.getConsumer().orElseThrow();
+        consumer.subscribe(msg -> {
+            Assert.assertEquals("test", msg.body().asObject().getString("name"));
+        });
+        consumer.testPublish(Message.ofAny("{\"name\":\"test\"}"));
+    }
+
+    @Test
+    public void testConsumerToTransformer() throws PromiseException, InterruptedException {
+        var connectorContext = new DefaultConnectorContextBuilder()
+                .setToConnectorTransformer(msg -> Message.ofAny(msg.body().toJson()))
+                .build();
+        var connector = (TestConnector) new DefaultConnectorFactory().createConnector(
+                "test:pull:tcp://127.0.0.1:7781",
+                connectorContext);
+        var consumer = (TestConsumer) connector.getConsumer().orElseThrow();
+        consumer.subscribe((msg, deferred) -> {
+            deferred.resolve(Message.ofAny(BObject.of("name", "test")));
+        });
+        var result = consumer.testPublish().get();
+        Assert.assertEquals("{\"name\":\"test\"}", result.body().getInnerValue());
+    }
 
     @Test
     public void testConsumerFailure() {
