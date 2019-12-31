@@ -8,11 +8,12 @@ import org.junit.Test;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 
-import io.gridgo.bean.BElement;
 import io.gridgo.bean.BObject;
 import io.gridgo.bean.BValue;
 import io.gridgo.connector.impl.factories.DefaultConnectorFactory;
 import io.gridgo.connector.support.config.impl.DefaultConnectorContextBuilder;
+import io.gridgo.connector.support.impl.FormattedDeserializeMessageTransformer;
+import io.gridgo.connector.support.impl.FormattedSerializeMessageTransformer;
 import io.gridgo.connector.test.support.TestConnector;
 import io.gridgo.connector.test.support.TestConsumer;
 import io.gridgo.connector.test.support.TestProducer;
@@ -22,10 +23,23 @@ import io.gridgo.framework.support.impl.SimpleRegistry;
 
 public class ConnectorUnitTest {
 
-    @Test
-    public void testConsumerFromTransformer() {
+    @Test(expected = IllegalArgumentException.class)
+    public void testConsumerDeserializeTransformerWrongType() {
         var connectorContext = new DefaultConnectorContextBuilder()
-                .setDeserializeTransformer(msg -> Message.ofAny(BElement.ofBytes(msg.body().asValue().getRaw())))
+                .setDeserializeTransformer(new FormattedDeserializeMessageTransformer("json"))
+                .build();
+        var connector = (TestConnector) new DefaultConnectorFactory().createConnector(
+                "test:pull:tcp://127.0.0.1:7781",
+                connectorContext);
+        var consumer = (TestConsumer) connector.getConsumer().orElseThrow();
+        consumer.subscribe(msg -> {});
+        consumer.testPublish(Message.ofAny(BObject.of("name", "test")));
+    }
+
+    @Test
+    public void testConsumerDeserializeTransformer() {
+        var connectorContext = new DefaultConnectorContextBuilder()
+                .setDeserializeTransformer(new FormattedDeserializeMessageTransformer("json"))
                 .build();
         var connector = (TestConnector) new DefaultConnectorFactory().createConnector(
                 "test:pull:tcp://127.0.0.1:7781",
@@ -40,7 +54,7 @@ public class ConnectorUnitTest {
     @Test
     public void testConsumerSerializeTransformer() throws PromiseException, InterruptedException {
         var connectorContext = new DefaultConnectorContextBuilder()
-                .setSerializeTransformer(msg -> Message.ofAny(msg.body().toJson()))
+                .setSerializeTransformer(new FormattedSerializeMessageTransformer("json"))
                 .build();
         var connector = (TestConnector) new DefaultConnectorFactory().createConnector(
                 "test:pull:tcp://127.0.0.1:7781",
@@ -50,7 +64,7 @@ public class ConnectorUnitTest {
             deferred.resolve(Message.ofAny(BObject.of("name", "test")));
         });
         var result = consumer.testPublish().get();
-        Assert.assertEquals("{\"name\":\"test\"}", result.body().getInnerValue());
+        Assert.assertEquals("{\"name\":\"test\"}", new String(result.body().asValue().getRaw()));
     }
 
     @Test
