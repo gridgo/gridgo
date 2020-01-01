@@ -17,6 +17,7 @@ public interface GatewayContainer {
      * Open a new gateway.
      *
      * @param name the gateway name
+     * @return the gateway subscription
      */
     public default GatewaySubscription openGateway(String name) {
         return openGateway(name, ProducerJoinMode.SINGLE);
@@ -27,6 +28,7 @@ public interface GatewayContainer {
      *
      * @param name     the gateway name
      * @param joinMode the join mode
+     * @return the gateway subscription
      */
     public default GatewaySubscription openGateway(String name, ProducerJoinMode joinMode) {
         return openGateway(name, ProducerTemplate.create(joinMode));
@@ -37,6 +39,7 @@ public interface GatewayContainer {
      *
      * @param name             the gateway name
      * @param producerTemplate the producer template
+     * @return the gateway subscription
      */
     public GatewaySubscription openGateway(String name, ProducerTemplate producerTemplate);
 

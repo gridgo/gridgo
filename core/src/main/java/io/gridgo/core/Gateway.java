@@ -38,7 +38,7 @@ public interface Gateway extends ComponentLifecycle, Streamable<RoutingContext>,
      * attached to the gateway, only the first one is actually called, the rest are
      * usual <code>send()</code>.
      *
-     * @param message
+     * @param message the message
      */
     public void callAndPush(Message message);
 
