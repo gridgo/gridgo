@@ -32,16 +32,15 @@ public class MatchingProducerTemplate extends AbstractProducerTemplate {
     }
 
     @Override
-    protected boolean match(Connector connector, Message message) {
-        return predicate.test(connector, message);
+    protected boolean match(ConnectorAttachment connector, Message message) {
+        return predicate.test(connector.getConnector(), message);
     }
 
     private Promise<Message, Exception> executeProducerWithMapper(List<ConnectorAttachment> connectors, Message message,
-            Function<Connector, Promise<Message, Exception>> mapper) {
+            Function<ConnectorAttachment, Promise<Message, Exception>> mapper) {
         var promises = new ArrayList<Promise<Message, Exception>>();
         connectors.stream()
-                  .map(ConnectorAttachment::getConnector)
-                  .filter(c -> predicate.test(c, message))
+                  .filter(c -> match(c, message))
                   .map(mapper)
                   .forEach(promises::add);
         return JoinedPromise.from(promises).filterDone(this::convertJoinedResult);
