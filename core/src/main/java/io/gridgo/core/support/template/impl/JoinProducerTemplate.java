@@ -1,7 +1,6 @@
 package io.gridgo.core.support.template.impl;
 
 import org.joo.promise4j.Promise;
-import org.joo.promise4j.impl.JoinedPromise;
 import org.joo.promise4j.impl.SimpleDonePromise;
 
 import java.util.ArrayList;
@@ -9,7 +8,6 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import io.gridgo.connector.Connector;
 import io.gridgo.core.support.subscription.ConnectorAttachment;
 import io.gridgo.framework.support.Message;
 
@@ -26,15 +24,15 @@ public class JoinProducerTemplate extends AbstractProducerTemplate {
     }
 
     private Promise<Message, Exception> executeProducerWithMapper(List<ConnectorAttachment> connectors,
-            Predicate<Connector> predicate, Function<Connector, Promise<Message, Exception>> mapper) {
+            Predicate<ConnectorAttachment> predicate, Function<ConnectorAttachment, Promise<Message, Exception>> mapper) {
         var promises = new ArrayList<Promise<Message, Exception>>();
         connectors.stream()
-                  .map(ConnectorAttachment::getConnector)
                   .filter(predicate)
                   .map(mapper)
                   .forEach(promises::add);
         if (promises.isEmpty())
             return new SimpleDonePromise<>(null);
-        return JoinedPromise.from(promises).filterDone(this::convertJoinedResult);
+        return Promise.all(promises)
+                      .map(this::convertJoinedResult);
     }
 }

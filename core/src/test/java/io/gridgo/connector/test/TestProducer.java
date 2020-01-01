@@ -3,11 +3,11 @@ package io.gridgo.connector.test;
 import org.joo.promise4j.Promise;
 import org.joo.promise4j.impl.CompletableDeferredObject;
 
-import io.gridgo.bean.BValue;
+import io.gridgo.bean.BElement;
+import io.gridgo.bean.BObject;
 import io.gridgo.connector.impl.AbstractProducer;
 import io.gridgo.connector.support.config.ConnectorContext;
 import io.gridgo.framework.support.Message;
-import io.gridgo.framework.support.Payload;
 
 public class TestProducer extends AbstractProducer {
 
@@ -18,8 +18,9 @@ public class TestProducer extends AbstractProducer {
     @Override
     public Promise<Message, Exception> call(Message request) {
         var deferred = new CompletableDeferredObject<Message, Exception>();
-        int body = request.body().asValue().getInteger();
-        var message = Message.of(Payload.of(BValue.of(body + 1)));
+        var json = request.body().asValue().getString();
+        var obj = BElement.ofJson(json).asObject();
+        var message = Message.ofAny(BObject.of("reply", obj.get("name")));
         ack(deferred, message, null);
         return deferred.promise();
     }
@@ -46,13 +47,16 @@ public class TestProducer extends AbstractProducer {
 
     @Override
     public void send(Message message) {
-
+        if (!message.body().isValue())
+            throw new RuntimeException("Message body must be value");
+        var json = message.body().asValue().getString();
+        var obj = BElement.ofJson(json);
+        if (!obj.isObject())
+            throw new RuntimeException("Message body must be JSON object");
     }
 
     @Override
     public Promise<Message, Exception> sendWithAck(Message message) {
-        var deferred = new CompletableDeferredObject<Message, Exception>();
-        ack(deferred, null, new RuntimeException("test exception"));
-        return deferred.promise();
+        return call(message);
     }
 }

@@ -21,8 +21,8 @@ public abstract class AbstractProducerTemplate implements ProducerTemplate {
     @Override
     public void send(List<ConnectorAttachment> connectors, Message message) {
         for (var connector : connectors) {
-            if (match(connector.getConnector(), message))
-                send(connector.getConnector(), message);
+            if (match(connector, message))
+                send(connector, message);
         }
     }
 
@@ -30,47 +30,65 @@ public abstract class AbstractProducerTemplate implements ProducerTemplate {
     public void call(List<ConnectorAttachment> connectors, Message message, DoneCallback<Message> doneCallback,
             FailCallback<Exception> failCallback) {
         for (var connector : connectors) {
-            if (match(connector.getConnector(), message))
-                call(connector.getConnector(), message).done(doneCallback).fail(failCallback);
+            if (match(connector, message))
+                call(connector, message).done(doneCallback).fail(failCallback);
         }
     }
 
-    protected Promise<Message, Exception> call(Connector connector, Message message) {
-        return executeProducerWithMapper(connector, p -> p.call(message));
+    protected Promise<Message, Exception> call(ConnectorAttachment connectorAttachment, Message message) {
+        var processed = prepareMessage(connectorAttachment, message);
+        var promise = executeProducerWithMapper(connectorAttachment.getConnector(), p -> p.call(processed));
+        return preparePromise(connectorAttachment, promise);
     }
 
-    protected void send(Connector connector, Message message) {
-        connector.getProducer().ifPresent(p -> p.send(message));
+    private Promise<Message, Exception> preparePromise(ConnectorAttachment connectorAttachment,
+            Promise<Message, Exception> promise) {
+        if (connectorAttachment.getIncomingTransformer() == null)
+            return promise;
+        return promise.map(connectorAttachment.getIncomingTransformer()::transform);
     }
 
-    protected Promise<Message, Exception> sendWithAck(Connector connector, Message message) {
-        return executeProducerWithMapper(connector, p -> p.sendWithAck(message));
+    protected void send(ConnectorAttachment connectorAttachment, Message message) {
+        var processed = prepareMessage(connectorAttachment, message);
+        connectorAttachment.getConnector().getProducer().ifPresent(p -> p.send(processed));
+    }
+
+    private Message prepareMessage(ConnectorAttachment connectorAttachment, Message message) {
+        if (connectorAttachment.getOutgoingTransformer() == null)
+            return message;
+        return connectorAttachment.getOutgoingTransformer().transform(message);
+    }
+
+    protected Promise<Message, Exception> sendWithAck(ConnectorAttachment connectorAttachment, Message message) {
+        var processed = prepareMessage(connectorAttachment, message);
+        var promise = executeProducerWithMapper(connectorAttachment.getConnector(), p -> p.sendWithAck(processed));
+        return preparePromise(connectorAttachment, promise);
     }
 
     protected Message convertJoinedResult(JoinedResults<Message> results) {
         return new MultipartMessage(results);
     }
 
-    protected boolean match(Connector connector, Message message) {
+    protected boolean match(ConnectorAttachment connectorAttachment, Message message) {
         return true;
     }
 
     protected int findConnectorWithCallSupport(List<ConnectorAttachment> connectors) {
         for (int i = 0; i < connectors.size(); i++) {
             var connector = connectors.get(i);
-            if (isCallSupported(connector.getConnector())) {
+            if (isCallSupported(connector)) {
                 return i;
             }
         }
         return -1;
     }
 
-    protected boolean isCallSupported(Connector connector) {
-        return connector.getProducer().map(Producer::isCallSupported).orElse(false);
+    protected boolean isCallSupported(ConnectorAttachment connector) {
+        return connector.getConnector().getProducer().map(Producer::isCallSupported).orElse(false);
     }
 
-    protected boolean isSendWithAckSupported(Connector connector) {
-        return connector.getProducer().map(Producer::isSendWithAckSupported).orElse(false);
+    protected boolean isSendWithAckSupported(ConnectorAttachment connector) {
+        return connector.getConnector().getProducer().map(Producer::isSendWithAckSupported).orElse(false);
     }
 
     private Promise<Message, Exception> executeProducerWithMapper(Connector connector,

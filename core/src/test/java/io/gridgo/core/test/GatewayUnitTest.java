@@ -120,6 +120,52 @@ public class GatewayUnitTest {
     }
 
     @Test
+    public void testProducerSerializeTransformer() throws InterruptedException, PromiseException {
+        var context = new DefaultGridgoContextBuilder().setName("test").build();
+        context.openGateway("test", ProducerJoinMode.SINGLE) //
+               .attachConnector("testtransformer")
+               .transformOutgoingWith(new FormattedSerializeMessageTransformer("json"));
+        context.start();
+        var gateway = context.findGatewayMandatory("test");
+
+        var result = gateway.callAny(BObject.of("name", "test")).get();
+        Assert.assertTrue(result != null && result.body() != null && result.body().isObject());
+        Assert.assertEquals("test", result.body().asObject().getString("reply"));
+
+        result = gateway.sendAnyWithAck(BObject.of("name", "test")).get();
+        Assert.assertTrue(result != null && result.body() != null && result.body().isObject());
+        Assert.assertEquals("test", result.body().asObject().getString("reply"));
+
+        gateway.sendAny(BObject.of("name", "test"));
+    }
+
+    @Test
+    public void testProducerDeserializeq1Transformer() throws InterruptedException, PromiseException {
+        var context = new DefaultGridgoContextBuilder().setName("test").build();
+        context.openGateway("test", ProducerJoinMode.SINGLE) //
+               .attachConnector("testtransformer")
+               .transformIncomingWith(this::transformProducerDeserialize);
+        context.start();
+        var gateway = context.findGatewayMandatory("test");
+
+        var result = gateway.callAny(BObject.of("name", "test").toJson()).get();
+        Assert.assertTrue(result != null && result.body() != null && result.body().isObject());
+        Assert.assertEquals("test", result.body().asObject().getString("loop"));
+
+        result = gateway.sendAnyWithAck(BObject.of("name", "test").toJson()).get();
+        Assert.assertTrue(result != null && result.body() != null && result.body().isObject());
+        Assert.assertEquals("test", result.body().asObject().getString("loop"));
+
+        gateway.sendAny(BObject.of("name", "test").toJson());
+    }
+
+    private Message transformProducerDeserialize(Message msg) {
+        if (!msg.body().isObject())
+            throw new RuntimeException("Object expected");
+        return Message.ofAny(BObject.of("loop", msg.body().asObject().getString("reply")));
+    }
+
+    @Test
     public void testProducerTemplate() throws InterruptedException {
         var registry = new SimpleRegistry().register("dummy1", 1).register("dummy2", 2);
         var context = new DefaultGridgoContextBuilder().setName("test").setRegistry(registry).build();

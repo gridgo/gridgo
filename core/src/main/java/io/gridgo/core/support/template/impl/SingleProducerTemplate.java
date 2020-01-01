@@ -14,10 +14,10 @@ public class SingleProducerTemplate extends AbstractProducerTemplate {
     public Promise<Message, Exception> sendWithAck(List<ConnectorAttachment> connectors, Message message) {
         if (connectors.isEmpty())
             return new SimpleDonePromise<>(null);
-        var first = connectors.get(0).getConnector();
+        var first = connectors.get(0);
         var promise = sendWithAck(first, message);
         for (int i = 1; i < connectors.size(); i++) {
-            send(connectors.get(i).getConnector(), message);
+            send(connectors.get(i), message);
         }
         return promise;
     }
@@ -30,10 +30,10 @@ public class SingleProducerTemplate extends AbstractProducerTemplate {
         if (index == -1)
             return new SimpleDonePromise<>(null);
         var first = connectors.get(index);
-        var promise = call(first.getConnector(), message);
+        var promise = call(first, message);
         for (int i = 0; i < connectors.size(); i++) {
             if (i != index)
-                send(connectors.get(i).getConnector(), message);
+                send(connectors.get(i), message);
         }
         return promise;
     }
