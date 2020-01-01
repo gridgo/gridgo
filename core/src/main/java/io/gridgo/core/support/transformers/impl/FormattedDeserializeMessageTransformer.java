@@ -1,22 +1,16 @@
 package io.gridgo.core.support.transformers.impl;
 
 import io.gridgo.bean.BElement;
-import io.gridgo.core.support.transformers.MessageTransformer;
 import io.gridgo.framework.support.Message;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
-public class FormattedDeserializeMessageTransformer implements MessageTransformer {
+public class FormattedDeserializeMessageTransformer extends AbstractBytesMessageTransformer {
 
     private final String format;
 
     @Override
-    public Message transform(Message msg) {
-        if (msg == null || msg.body() == null)
-            return msg;
-        if (!msg.body().isValue()) {
-            throw new IllegalArgumentException("Message must be in byte[] format to be used with this transformer");
-        }
-        return Message.ofAny(msg.headers(), BElement.ofBytes(msg.body().asValue().getRaw(), format));
+    protected Message doTransform(Message msg, byte[] body) {
+        return transformBody(msg, BElement.ofBytes(body, format));
     }
 }
