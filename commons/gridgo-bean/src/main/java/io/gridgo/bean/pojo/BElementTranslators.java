@@ -28,13 +28,15 @@ public final class BElementTranslators {
             if (bElement.isArray())
                 return bElement.asArray();
 
-            throw new IllegalArgumentException("Expected for sequence data, got: " + bElement.getType());
+            throw new IllegalArgumentException("Field '" + signature.getFieldName()
+                    + "' expected for for sequence data, got: " + bElement.getType());
         }
 
         if (ele.isSequence())
             return BArray.of(ele.asSequence().toList());
 
-        throw new IllegalArgumentException("Expected for sequence data, got: " + ele.getClass());
+        throw new IllegalArgumentException(
+                "Field '" + signature.getFieldName() + "' expected for sequence data, got: " + ele.getClass());
     }
 
     @RegisterValueTranslator(value = "toBObject", defaultFor = PojoMethodType.SETTER, defaultType = BObject.class)
@@ -62,7 +64,8 @@ public final class BElementTranslators {
         if (ele.isReference())
             return BObject.ofPojo(ele.getInnerValue());
 
-        throw new IllegalArgumentException("Expected for key-value data, got: " + ele.getClass());
+        throw new IllegalArgumentException(
+                "Field '" + signature.getFieldName() + "' expected for key-value data, got: " + ele.getClass());
     }
 
     @RegisterValueTranslator(value = "toBValue", defaultFor = PojoMethodType.SETTER, defaultType = BValue.class)
@@ -76,13 +79,15 @@ public final class BElementTranslators {
             if (bElement.isValue())
                 return bElement.asValue();
 
-            throw new IllegalArgumentException("Expected for primitive data, got: " + bElement.getType());
+            throw new IllegalArgumentException("Field '" + signature.getFieldName()
+                    + "' expected for  primitive data, got: " + bElement.getType());
         }
 
         if (ele.isPrimitive())
             return BValue.of(ele.asPrimitive().getData());
 
-        throw new IllegalArgumentException("Expected for primitive data, got: " + ele.getClass());
+        throw new IllegalArgumentException(
+                "Field '" + signature.getFieldName() + "' expected for primitive data, got: " + ele.getClass());
     }
 
     @RegisterValueTranslator(value = "toBReference", defaultFor = PojoMethodType.SETTER, defaultType = BReference.class)
@@ -96,13 +101,15 @@ public final class BElementTranslators {
             if (bElement.isReference())
                 return bElement.asReference();
 
-            throw new IllegalArgumentException("Expected for reference data, got: " + bElement.getType());
+            throw new IllegalArgumentException(
+                    "Field '" + signature.getFieldName() + "' expected for reference data, got: " + bElement.getType());
         }
 
         if (ele.isReference())
             return BReference.of(ele.asReference().getReference());
 
-        throw new IllegalArgumentException("Expected for reference data, got: " + ele.getClass());
+        throw new IllegalArgumentException(
+                "Field '" + signature.getFieldName() + "' expected for reference data, got: " + ele.getClass());
     }
 
     @RegisterValueTranslator(value = "toBContainer", defaultFor = PojoMethodType.SETTER, defaultType = BContainer.class)
