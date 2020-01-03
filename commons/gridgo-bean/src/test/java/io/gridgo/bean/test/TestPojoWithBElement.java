@@ -1,13 +1,13 @@
 package io.gridgo.bean.test;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 import io.gridgo.bean.BArray;
 import io.gridgo.bean.BObject;
@@ -17,7 +17,6 @@ import io.gridgo.bean.pojo.BElementTranslators;
 import io.gridgo.bean.pojo.BGenericData;
 import io.gridgo.bean.test.support.PojoWithBElement;
 import io.gridgo.bean.test.support.SimplePojo;
-import io.gridgo.utils.pojo.PojoMethodSignature;
 import io.gridgo.utils.pojo.setter.data.SimpleKeyValueData;
 import io.gridgo.utils.pojo.setter.data.SimplePrimitiveData;
 import io.gridgo.utils.pojo.setter.data.SimpleReferenceData;
