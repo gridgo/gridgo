@@ -17,6 +17,7 @@ import io.gridgo.connector.test.TestConsumer;
 import io.gridgo.core.GridgoContext;
 import io.gridgo.core.impl.DefaultGridgoContextBuilder;
 import io.gridgo.core.support.ProducerJoinMode;
+import io.gridgo.core.support.exceptions.InvalidGatewayException;
 import io.gridgo.core.support.impl.SwitchComponent;
 import io.gridgo.core.support.subscription.RoutingPolicy;
 import io.gridgo.core.support.subscription.impl.DefaultRoutingPolicy;
@@ -420,5 +421,11 @@ public class GatewayUnitTest {
         Assert.assertEquals("{\"name\":\"test\"}", new String(result.body().asValue().getRaw()));
         result = consumer.testPublish(Message.ofEmpty()).get();
         Assert.assertNull(result.body());
+    }
+
+    @Test(expected = InvalidGatewayException.class)
+    public void testInvalidGateway() {
+        var context = new DefaultGridgoContextBuilder().setName("test").build();
+        context.findGatewayMandatory("test");
     }
 }
