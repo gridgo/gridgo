@@ -51,11 +51,9 @@ public final class BElementTranslators {
             if (bElement.isReference())
                 return bElement.asReference().toBObject();
 
-            if (signature != null)
-                throw new IllegalArgumentException("Field '" + signature.getFieldName()
-                        + "' expected for key-value or reference data, got: " + bElement.getType());
+            throw new IllegalArgumentException("Field '" + signature.getFieldName()
+                    + "' expected for key-value or reference data, got: " + bElement.getType());
 
-            throw new IllegalArgumentException("Expected for key-value or reference data, got: " + bElement.getType());
         }
 
         if (ele.isKeyValue())
@@ -120,9 +118,6 @@ public final class BElementTranslators {
 
         if (ele.isReference())
             return BObject.ofPojo(ele.asReference().getReference());
-
-        if (signature == null)
-            throw new IllegalArgumentException("Expect key-value or sequence or reference data, got " + ele);
 
         throw new IllegalArgumentException(
                 "Field '" + signature.getFieldName() + "' expect key-value or sequence or reference data, got " + ele);
