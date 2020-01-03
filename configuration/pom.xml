@@ -12,21 +12,8 @@
 	<dependencies>
 		<dependency>
 			<groupId>io.gridgo</groupId>
-			<artifactId>gridgo-framework</artifactId>
+			<artifactId>gridgo-core</artifactId>
 			<version>${project.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>io.gridgo</groupId>
-			<artifactId>gridgo-bean</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>io.gridgo</groupId>
-			<artifactId>gridgo-bean-json</artifactId>
-			<version>${project.version}</version>
-			<scope>test</scope>
 		</dependency>
 	</dependencies>
 </project>
