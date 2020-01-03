@@ -15,7 +15,7 @@ import lombok.AllArgsConstructor;
 @SuppressWarnings("rawtypes")
 class BValueJsonCodec implements JsonCodec<BValue> {
 
-    private static final boolean USE_STRICT = Boolean.valueOf(System.getProperty("gridgo.bean.json.strict", "true"));
+    private static final boolean USE_STRICT = Boolean.valueOf(System.getProperty("gridgo.bean.json.strict", "false"));
 
     @Override
     public void write(JsonWriter writer, BValue value) {
