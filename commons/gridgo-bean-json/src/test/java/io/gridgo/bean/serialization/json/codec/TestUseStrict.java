@@ -1,5 +1,6 @@
 package io.gridgo.bean.serialization.json.codec;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import io.gridgo.bean.BElement;
@@ -16,6 +17,7 @@ public class TestUseStrict {
     @Test
     public void testDontUseStrict() {
         BValueJsonCodec.USE_STRICT = false;
-        BElement.ofJson("this is test text");
+        var value = BElement.ofJson("this is test text");
+        Assert.assertEquals("this is test text", value.getInnerValue());
     }
 }

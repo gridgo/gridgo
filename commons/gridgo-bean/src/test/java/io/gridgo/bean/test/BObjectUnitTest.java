@@ -20,6 +20,7 @@ import io.gridgo.bean.exceptions.InvalidTypeException;
 import io.gridgo.bean.test.support.Bar;
 import io.gridgo.bean.test.support.BeanWithDate;
 import io.gridgo.bean.test.support.Foo;
+import io.gridgo.bean.test.support.SimplePojo;
 
 public class BObjectUnitTest {
 
@@ -235,6 +236,22 @@ public class BObjectUnitTest {
         Assert.assertTrue(optional.getReference("k5").isEmpty());
         Assert.assertTrue(optional.getObject("k5").isEmpty());
         Assert.assertTrue(optional.getArray("k5").isEmpty());
+    }
+
+    @Test
+    public void testPutAny() {
+        var pojo = new SimplePojo("test");
+        var obj = BObject.ofEmpty();
+        obj.putAnyPojo("testpojo", pojo);
+        Assert.assertEquals("test", obj.getObject("testpojo").getString("name"));
+        var result = obj.putAnyPojoIfAbsent("testpojo", new SimplePojo("test2"));
+        Assert.assertEquals("test", obj.getObject("testpojo").getString("name"));
+        Assert.assertEquals("test", result.asObject().getString("name"));
+        result = obj.putAnyPojoIfAbsent("testpojo2", new SimplePojo("test2"));
+        Assert.assertEquals("test2", obj.getObject("testpojo2").getString("name"));
+        Assert.assertEquals("test2", result.asObject().getString("name"));
+        obj.putAnyAllPojo(pojo);
+        Assert.assertEquals("test", obj.getString("name"));
     }
 
     class EmptyMap<K, V> extends HashMap<K, V> {
