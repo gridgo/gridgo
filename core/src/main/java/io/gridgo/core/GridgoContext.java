@@ -18,7 +18,7 @@ import io.gridgo.framework.support.Registry;
 public interface GridgoContext extends GatewayContainer, ComponentLifecycle {
 
     /**
-     * Attach a <link>io.gridgo.core.support.ContextAwareComponent</link> to this
+     * Attach a io.gridgo.core.support.ContextAwareComponent to this
      * context.
      *
      * @param component the component to be attached

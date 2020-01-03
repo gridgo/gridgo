@@ -7,4 +7,8 @@ public class SchemaInvalidException extends RuntimeException {
     public SchemaInvalidException(String message) {
         super(message);
     }
+
+    public SchemaInvalidException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

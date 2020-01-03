@@ -1,9 +1,9 @@
 package io.gridgo.core.impl;
 
-import java.util.Optional;
-
 import org.joo.promise4j.Promise;
 import org.joo.promise4j.impl.CompletableDeferredObject;
+
+import java.util.Optional;
 
 import io.gridgo.core.GridgoContext;
 import io.gridgo.core.support.ProducerJoinMode;
@@ -32,7 +32,7 @@ public class DefaultGateway extends AbstractGatewaySubscription {
 
     @Override
     public void send(Message message) {
-        this.producerTemplate.send(getConnectors(), message);
+        this.producerTemplate.send(getConnectorAttachments(), message);
     }
 
     @Override
@@ -43,7 +43,7 @@ public class DefaultGateway extends AbstractGatewaySubscription {
     }
 
     private Promise<Message, Exception> doSendWithAck(Message message) {
-        return producerTemplate.sendWithAck(getConnectors(), message);
+        return producerTemplate.sendWithAck(getConnectorAttachments(), message);
     }
 
     @Override
@@ -54,12 +54,12 @@ public class DefaultGateway extends AbstractGatewaySubscription {
     }
 
     private Promise<Message, Exception> doCall(Message message) {
-        return producerTemplate.call(getConnectors(), message);
+        return producerTemplate.call(getConnectorAttachments(), message);
     }
 
     @Override
     public void callAndPush(Message message) {
-        producerTemplate.call(getConnectors(), message, this::push, this::handleCallAndPushException);
+        producerTemplate.call(getConnectorAttachments(), message, this::push, this::handleCallAndPushException);
     }
 
     @Override
@@ -67,7 +67,7 @@ public class DefaultGateway extends AbstractGatewaySubscription {
         if (message.getSource() == null)
             throw new IllegalArgumentException("Source is required for push()");
         var deferred = new CompletableDeferredObject<Message, Exception>();
-        publish(message, deferred);
+        publish(null, message, deferred);
         return deferred.promise();
     }
 
@@ -83,6 +83,7 @@ public class DefaultGateway extends AbstractGatewaySubscription {
         return this;
     }
 
+    @Override
     public GatewaySubscription setAutoStart(boolean autoStart) {
         this.autoStart = autoStart;
         return this;

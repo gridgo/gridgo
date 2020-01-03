@@ -67,7 +67,6 @@
 		<module>core</module>
 		<module>commons</module>
 		<module>connector</module>
-		<module>configuration</module>
 	</modules>
 
 	<build>

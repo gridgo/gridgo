@@ -69,21 +69,21 @@ public class GenericFieldConverter implements GenericDataConverter, FieldConvert
             return value.asReference().getReference();
 
         if (!value.isKeyValue())
-            throw new PojoProxyException("Field '" + fieldName + "' expected key-value");
+            throw new PojoProxyException("Field '" + fieldName + "' expected key-value, got " + value.getClass());
 
         return keyValueFieldConverter.convert(value.asKeyValue(), signature);
     }
 
     private Object fromSequence(GenericData value, PojoMethodSignature signature, String fieldName) {
         if (!value.isSequence())
-            throw new PojoProxyException("Field '" + fieldName + "' expected sequence");
+            throw new PojoProxyException("Field '" + fieldName + "' expected sequence, got " + value.getClass());
 
         return sequenceFieldConverter.convert(value.asSequence(), signature);
     }
 
     private Object fromPrimitive(GenericData value, PojoMethodSignature signature, String fieldName) {
         if (!value.isPrimitive())
-            throw new PojoProxyException("field '" + fieldName + "' expected value data");
+            throw new PojoProxyException("Field '" + fieldName + "' expected value data, got " + value.getClass());
 
         return primitiveFieldConverter.convert(value.asPrimitive(), signature);
     }

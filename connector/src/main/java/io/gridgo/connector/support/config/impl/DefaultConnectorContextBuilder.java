@@ -29,8 +29,8 @@ public class DefaultConnectorContextBuilder implements ConnectorContextBuilder {
 
     @Override
     public ConnectorContext build() {
-        return new DefaultConnectorContext(idGenerator, registry, exceptionHandler, failureHandler, callbackInvokerStrategy, consumerExecutionStrategy,
-                producerExecutionStrategy);
+        return new DefaultConnectorContext(idGenerator, registry, exceptionHandler, failureHandler,
+                callbackInvokerStrategy, consumerExecutionStrategy, producerExecutionStrategy);
     }
 
     @Override
