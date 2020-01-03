@@ -43,8 +43,8 @@ public class DefaultConnectorContext implements ConnectorContext {
     }
 
     protected DefaultConnectorContext(IdGenerator idGenerator, Registry registry, Consumer<Throwable> exceptionHandler,
-            Function<Throwable, Message> failureHandler, ExecutionStrategy callbackInvokerStrategy, ExecutionStrategy consumerExecutionStrategy,
-            ExecutionStrategy producerExecutionStrategy) {
+            Function<Throwable, Message> failureHandler, ExecutionStrategy callbackInvokerStrategy,
+            ExecutionStrategy consumerExecutionStrategy, ExecutionStrategy producerExecutionStrategy) {
         if (idGenerator != null)
             this.idGenerator = idGenerator;
         if (registry != null)

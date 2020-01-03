@@ -20,11 +20,6 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>io.gridgo</groupId>
-			<artifactId>gridgo-config-core</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>org.dungba</groupId>
 			<artifactId>joo-libra</artifactId>
 			<version>${joo.libra.version}</version>

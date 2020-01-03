@@ -20,53 +20,53 @@ public interface GatewaySubscription extends ProducerTemplateAware<GatewaySubscr
 
     /**
      * Attach a connector to the gateway with an endpoint.
-     * 
+     *
      * @param endpoint the endpoint
-     * @return the GatewaySubscription itself
+     * @return the connector attachment
      */
-    public GatewaySubscription attachConnector(String endpoint);
+    public ConnectorAttachment attachConnector(String endpoint);
 
     /**
      * Attach a connector to the gateway with an endpoint using a custom resolver.
-     * 
+     *
      * @param endpoint the endpoint
      * @param resolver the resolver
-     * @return the GatewaySubscription itself
+     * @return the connector attachment
      */
-    public GatewaySubscription attachConnector(String endpoint, ConnectorResolver resolver);
+    public ConnectorAttachment attachConnector(String endpoint, ConnectorResolver resolver);
 
     /**
      * Attach a connector to the gateway with an endpoint and a context.
-     * 
+     *
      * @param endpoint         the endpoint
      * @param connectorContext the context
-     * @return the GatewaySubscription itself
+     * @return the connector attachment
      */
-    public GatewaySubscription attachConnector(String endpoint, ConnectorContext connectorContext);
+    public ConnectorAttachment attachConnector(String endpoint, ConnectorContext connectorContext);
 
     /**
      * Attach a connector to the gateway with an endpoint and a context using a
      * custom resolver.
-     * 
+     *
      * @param endpoint         the endpoint
      * @param resolver         the resolver
      * @param connectorContext the context
-     * @return the GatewaySubscription itself
+     * @return the connector attachment
      */
-    public GatewaySubscription attachConnector(String endpoint, ConnectorResolver resolver,
+    public ConnectorAttachment attachConnector(String endpoint, ConnectorResolver resolver,
             ConnectorContext connectorContext);
 
     /**
      * Attach a connector object to the gateway.
-     * 
+     *
      * @param connector the connector
-     * @return the GatewaySubscription itself
+     * @return the connector attachment
      */
-    public GatewaySubscription attachConnector(Connector connector);
+    public ConnectorAttachment attachConnector(Connector connector);
 
     /**
      * Attach a routing policy to the gateway.
-     * 
+     *
      * @param policy the policy
      * @return the GatewaySubscription itself
      */
@@ -75,7 +75,7 @@ public interface GatewaySubscription extends ProducerTemplateAware<GatewaySubscr
     /**
      * Subscribe a processor so that it can receive messages from the gateway's
      * attached connectors.
-     * 
+     *
      * @param processor the processor
      * @return the ProcessorSubscription
      */
@@ -83,7 +83,7 @@ public interface GatewaySubscription extends ProducerTemplateAware<GatewaySubscr
 
     /**
      * Set the gateway autoStart flag.
-     * 
+     *
      * @param autoStart the autoStart value
      * @return the GatewaySubscription itself
      */
@@ -93,14 +93,14 @@ public interface GatewaySubscription extends ProducerTemplateAware<GatewaySubscr
 
     /**
      * Get the list of subscriptions attached to this gateway
-     * 
+     *
      * @return the list of subscriptions
      */
     public List<ProcessorSubscription> getSubscriptions();
 
     /**
      * Get the Gateway associated with this subscription.
-     * 
+     *
      * @return the associated gateway
      */
     public Gateway get();

@@ -1,5 +1,6 @@
 package io.gridgo.bean;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -8,6 +9,7 @@ import java.util.function.Function;
 
 import io.gridgo.bean.factory.BFactory;
 import io.gridgo.bean.serialization.BSerializerRegistryAware;
+import io.gridgo.utils.wrapper.ByteBufferInputStream;
 import lombok.NonNull;
 
 public interface BElement extends BSerializerRegistryAware, BJsonSupport, BBytesSupport {
@@ -35,11 +37,11 @@ public interface BElement extends BSerializerRegistryAware, BJsonSupport, BBytes
     }
 
     static <T extends BElement> T ofBytes(@NonNull ByteBuffer buffer, String serializerName) {
-        return BFactory.DEFAULT.fromBytes(buffer, serializerName);
+        return ofBytes(new ByteBufferInputStream(buffer), serializerName);
     }
 
     static <T extends BElement> T ofBytes(@NonNull byte[] bytes, String serializerName) {
-        return BFactory.DEFAULT.fromBytes(bytes, serializerName);
+        return ofBytes(new ByteArrayInputStream(bytes), serializerName);
     }
 
     static <T extends BElement> T ofBytes(@NonNull InputStream in) {

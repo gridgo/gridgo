@@ -1,10 +1,11 @@
 package io.gridgo.core.impl;
 
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-
 import org.joo.libra.PredicateContext;
 import org.joo.promise4j.Deferred;
+import org.joo.promise4j.impl.CompletableDeferredObject;
+
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import io.gridgo.connector.Connector;
 import io.gridgo.connector.ConnectorResolver;
@@ -18,9 +19,11 @@ import io.gridgo.core.RoutingPolicyEnforcer;
 import io.gridgo.core.support.ContextAwareComponent;
 import io.gridgo.core.support.RoutingContext;
 import io.gridgo.core.support.impl.DefaultRoutingContext;
+import io.gridgo.core.support.subscription.ConnectorAttachment;
 import io.gridgo.core.support.subscription.GatewaySubscription;
 import io.gridgo.core.support.subscription.ProcessorSubscription;
 import io.gridgo.core.support.subscription.RoutingPolicy;
+import io.gridgo.core.support.subscription.impl.DefaultConnectorAttachment;
 import io.gridgo.core.support.subscription.impl.DefaultProcessorSubscription;
 import io.gridgo.framework.impl.AbstractComponentLifecycle;
 import io.gridgo.framework.support.Message;
@@ -37,7 +40,7 @@ public abstract class AbstractGatewaySubscription extends AbstractComponentLifec
 
     private GridgoContext context;
 
-    private List<Connector> connectors = new CopyOnWriteArrayList<>();
+    private List<ConnectorAttachment> connectorAttachments = new CopyOnWriteArrayList<>();
 
     private List<ProcessorSubscription> subscriptions = new CopyOnWriteArrayList<>();
 
@@ -51,43 +54,52 @@ public abstract class AbstractGatewaySubscription extends AbstractComponentLifec
     }
 
     @Override
-    public GatewaySubscription attachConnector(String endpoint) {
+    public ConnectorAttachment attachConnector(String endpoint) {
         var connector = context.getConnectorFactory().createConnector(endpoint);
         return attachConnector(connector);
     }
 
     @Override
-    public GatewaySubscription attachConnector(String endpoint, ConnectorResolver resolver) {
+    public ConnectorAttachment attachConnector(String endpoint, ConnectorResolver resolver) {
         var connector = context.getConnectorFactory().createConnector(endpoint, resolver);
         return attachConnector(connector);
     }
 
     @Override
-    public GatewaySubscription attachConnector(String endpoint, ConnectorContext connectorContext) {
+    public ConnectorAttachment attachConnector(String endpoint, ConnectorContext connectorContext) {
         var connector = context.getConnectorFactory().createConnector(endpoint, connectorContext);
         return attachConnector(connector);
     }
 
     @Override
-    public GatewaySubscription attachConnector(String endpoint, ConnectorResolver resolver,
+    public ConnectorAttachment attachConnector(String endpoint, ConnectorResolver resolver,
             ConnectorContext connectorContext) {
         var connector = context.getConnectorFactory().createConnector(endpoint, resolver, connectorContext);
         return attachConnector(connector);
     }
 
     @Override
-    public GatewaySubscription attachConnector(Connector connector) {
-        connectors.add(connector);
-        subscribeConnector(connector);
-        return this;
+    public ConnectorAttachment attachConnector(Connector connector) {
+        var connectorAttachment = new DefaultConnectorAttachment(this, connector);
+        connectorAttachments.add(connectorAttachment);
+        subscribeConnector(connectorAttachment);
+        return connectorAttachment;
     }
 
-    private void subscribeConnector(Connector connector) {
-        connector.getConsumer().ifPresent(this::subscribeConsumer);
+    private void subscribeConnector(ConnectorAttachment connectorAttachment) {
+        connectorAttachment.getConnector().getConsumer().ifPresent(consumer -> subscribeConsumer(connectorAttachment, consumer));
     }
 
-    private void subscribeConsumer(Consumer consumer) {
-        consumer.subscribe(this::publish);
+    private void subscribeConsumer(ConnectorAttachment connectorAttachment, Consumer consumer) {
+        consumer.subscribe((msg, deferred) -> publish(connectorAttachment, msg, deferred));
+    }
+
+    protected void publish(ConnectorAttachment connectorAttachment, Message msg, Deferred<Message, Exception> deferred) {
+        var processedMessage = preprocessMessage(connectorAttachment, msg);
+        var processedDeferred = preprocessDeferred(connectorAttachment, deferred);
+        var routingContext = new DefaultRoutingContext(this, processedMessage, processedDeferred);
+        handleMessages(routingContext);
+        subject.onNext(routingContext);
     }
 
     private void handleMessages(RoutingContext rc) {
@@ -101,10 +113,25 @@ public abstract class AbstractGatewaySubscription extends AbstractComponentLifec
         }
     }
 
-    protected void publish(Message msg, Deferred<Message, Exception> deferred) {
-        var routingContext = new DefaultRoutingContext(this, msg, deferred);
-        handleMessages(routingContext);
-        subject.onNext(routingContext);
+    private Message preprocessMessage(ConnectorAttachment connectorAttachment, Message message) {
+        if (connectorAttachment == null)
+            return message;
+        var transformer = connectorAttachment.getIncomingTransformer();
+        if (transformer == null)
+            return message;
+        return transformer.transform(message);
+    }
+
+    private Deferred<Message, Exception> preprocessDeferred(ConnectorAttachment connectorAttachment,
+            Deferred<Message, Exception> deferred) {
+        if (connectorAttachment == null)
+            return deferred;
+        var transformer = connectorAttachment.getOutgoingTransformer();
+        if (transformer == null)
+            return deferred;
+        var processedDeferred = new CompletableDeferredObject<Message, Exception>();
+        processedDeferred.map(transformer::transform).forward(deferred);
+        return processedDeferred;
     }
 
     @Override
@@ -140,14 +167,14 @@ public abstract class AbstractGatewaySubscription extends AbstractComponentLifec
                                             .map(DefaultRoutingPolicyEnforcer::new)
                                             .toArray(size -> new RoutingPolicyEnforcer[size]);
 
-        for (Connector connector : connectors)
-            connector.start();
+        for (ConnectorAttachment connectorAttachment : connectorAttachments)
+            connectorAttachment.getConnector().start();
     }
 
     @Override
     protected void onStop() {
-        for (Connector connector : connectors)
-            connector.stop();
+        for (ConnectorAttachment connectorAttachment : connectorAttachments)
+            connectorAttachment.getConnector().stop();
     }
 
     @Override

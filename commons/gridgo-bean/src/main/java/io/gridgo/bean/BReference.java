@@ -10,7 +10,6 @@ import java.nio.ByteBuffer;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import io.gridgo.bean.exceptions.BeanSerializationException;
 import io.gridgo.bean.factory.BFactory;
 import io.gridgo.utils.annotations.Transient;
 import io.gridgo.utils.pojo.getter.PojoGetterProxy;
@@ -43,16 +42,7 @@ public interface BReference extends BElement {
      *
      */
     static BReference ofBytes(InputStream inputStream, String serializerName, Class<?> targetType) {
-        var element = BFactory.DEFAULT.fromBytes(inputStream, serializerName);
-
-        if (element.isReference() && element.asReference().referenceInstanceOf(targetType))
-            return element.asReference();
-
-        if (element.isObject())
-            return BFactory.DEFAULT.newReference(element.asObject().toPojo(targetType));
-
-        throw new BeanSerializationException(
-                "Cannot convert input bytes as BReference of '" + targetType + "', deserialized: " + element);
+        return BFactory.DEFAULT.fromBytes(inputStream, serializerName, targetType);
     }
 
     static BReference ofBytes(byte[] bytes, String serializerName, Class<?> targetType) {
