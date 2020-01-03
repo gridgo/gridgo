@@ -1,13 +1,13 @@
 package io.gridgo.bean.test;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 import io.gridgo.bean.BArray;
 import io.gridgo.bean.BObject;
@@ -101,7 +101,7 @@ public class TestPojoWithBElement {
 
     @Test(expected = IllegalArgumentException.class)
     public void testToBArrayFromBObject() {
-        BElementTranslators.toBArray(BGenericData.ofObject(BObject.ofSequence(1, 2)), null);
+        BElementTranslators.toBArray(BGenericData.ofObject(BObject.ofSequence(1, 2)), signature);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -163,7 +163,7 @@ public class TestPojoWithBElement {
 
     @Test(expected = IllegalArgumentException.class)
     public void testToBValueFromBArray() {
-        BElementTranslators.toBValue(BGenericData.ofArray(BArray.ofSequence(1, 2, 3)), null);
+        BElementTranslators.toBValue(BGenericData.ofArray(BArray.ofSequence(1, 2, 3)), signature);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -237,7 +237,7 @@ public class TestPojoWithBElement {
 
     @Test(expected = IllegalArgumentException.class)
     public void testToBReferenceFromBArray() {
-        BElementTranslators.toBReference(BGenericData.ofArray(BArray.ofSequence(1, 2, 3)), null);
+        BElementTranslators.toBReference(BGenericData.ofArray(BArray.ofSequence(1, 2, 3)), signature);
     }
 
     @Test(expected = IllegalArgumentException.class)

@@ -28,7 +28,8 @@ public final class BElementTranslators {
             if (bElement.isArray())
                 return bElement.asArray();
 
-            throw new IllegalArgumentException("Expected for sequence data, got: " + bElement.getType());
+            throw new IllegalArgumentException("Field '" + signature.getFieldName()
+                    + "' expected for key-value or reference data, got: " + bElement.getType());
         }
 
         if (ele.isSequence())
@@ -76,7 +77,8 @@ public final class BElementTranslators {
             if (bElement.isValue())
                 return bElement.asValue();
 
-            throw new IllegalArgumentException("Expected for primitive data, got: " + bElement.getType());
+            throw new IllegalArgumentException("Field '" + signature.getFieldName()
+                    + "' expected for key-value or reference data, got: " + bElement.getType());
         }
 
         if (ele.isPrimitive())
@@ -96,7 +98,8 @@ public final class BElementTranslators {
             if (bElement.isReference())
                 return bElement.asReference();
 
-            throw new IllegalArgumentException("Expected for reference data, got: " + bElement.getType());
+            throw new IllegalArgumentException("Field '" + signature.getFieldName()
+                    + "' expected for key-value or reference data, got: " + bElement.getType());
         }
 
         if (ele.isReference())
