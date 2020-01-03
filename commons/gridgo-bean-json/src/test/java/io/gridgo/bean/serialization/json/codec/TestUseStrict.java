@@ -33,7 +33,7 @@ public class TestUseStrict {
     @Test
     public void testDontUseStrict() throws Exception {
         setUseStrict(false);
-        BElement.ofJson("this is test text");
+        var value = BElement.ofJson("this is test text");
         Assert.assertEquals("this is test text", value.getInnerValue());
         setUseStrict(true);
     }
