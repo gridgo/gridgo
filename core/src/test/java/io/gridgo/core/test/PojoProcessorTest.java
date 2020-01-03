@@ -12,10 +12,24 @@ import io.gridgo.bean.BArray;
 import io.gridgo.bean.BObject;
 import io.gridgo.core.GridgoContext;
 import io.gridgo.core.impl.AbstractPojoProcessor;
+import io.gridgo.core.support.exceptions.SerializationException;
 import io.gridgo.core.support.impl.DefaultRoutingContext;
 import io.gridgo.framework.support.Message;
 
 public class PojoProcessorTest {
+
+    @Test(expected = SerializationException.class)
+    public void testSerializationError() {
+        var processor = new AbstractPojoProcessor<Pojo>(Pojo.class) {
+
+            @Override
+            protected void processSingle(Pojo request, Message msg, Deferred<Message, Exception> deferred, GridgoContext gc) {
+
+            }
+        };
+        var rc = new DefaultRoutingContext(null, Message.ofAny(BObject.of("id", "test")), null);
+        processor.process(rc, null);
+    }
 
     @Test
     public void testPrimitive() throws PromiseException, InterruptedException {
