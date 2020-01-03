@@ -13,7 +13,7 @@ import lombok.NonNull;
 
 @AllArgsConstructor
 @SuppressWarnings("rawtypes")
-public class BArrayJsonCodec implements JsonCodec<BArray> {
+class BArrayJsonCodec implements JsonCodec<BArray> {
 
     @NonNull
     private final BElementJsonCodec compositeCodec;

@@ -17,7 +17,7 @@ import lombok.NonNull;
 
 @AllArgsConstructor
 @SuppressWarnings("rawtypes")
-public class BObjectJsonCodec implements JsonCodec<BObject> {
+class BObjectJsonCodec implements JsonCodec<BObject> {
 
     @NonNull
     private final BElementJsonCodec compositeCodec;

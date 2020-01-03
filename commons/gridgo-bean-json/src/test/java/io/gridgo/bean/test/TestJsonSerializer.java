@@ -153,12 +153,4 @@ public class TestJsonSerializer {
         var json = BReference.of(value).toJson();
         assertEquals(BReference.of(value).toBObject(), BElement.ofJson(json));
     }
-
-    @Test
-    public void testJsonFromString() {
-        var orginalText = "this is test text";
-        var value = BElement.ofJson(orginalText);
-        assertTrue(value.isValue());
-        assertEquals(orginalText, value.asValue().getString());
-    }
 }
