@@ -2,7 +2,7 @@ package io.gridgo.bean.serialization.json.codec;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-
+import org.junit.Assert;
 import org.junit.Test;
 
 import io.gridgo.bean.BElement;
@@ -34,6 +34,7 @@ public class TestUseStrict {
     public void testDontUseStrict() throws Exception {
         setUseStrict(false);
         BElement.ofJson("this is test text");
+        Assert.assertEquals("this is test text", value.getInnerValue());
         setUseStrict(true);
     }
 }

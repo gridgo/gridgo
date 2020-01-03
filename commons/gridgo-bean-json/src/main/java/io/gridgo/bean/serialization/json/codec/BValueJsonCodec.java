@@ -1,11 +1,11 @@
 package io.gridgo.bean.serialization.json.codec;
 
-import java.io.IOException;
-
 import com.dslplatform.json.JsonReader;
 import com.dslplatform.json.JsonWriter;
 import com.dslplatform.json.NumberConverter;
 import com.dslplatform.json.ParsingException;
+
+import java.io.IOException;
 
 import io.gridgo.bean.BValue;
 import io.gridgo.utils.ByteArrayUtils;

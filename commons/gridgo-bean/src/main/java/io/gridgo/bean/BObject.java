@@ -35,7 +35,7 @@ public interface BObject extends BContainer, Map<String, BElement> {
 
     /**
      * convert any pojo to mutable key-value BObject
-     * 
+     *
      * @param pojo object tobe converted
      * @return null if input pojo is null, result BObject otherwise
      */
@@ -266,7 +266,7 @@ public interface BObject extends BContainer, Map<String, BElement> {
     }
 
     default BElement putAnyIfAbsent(String field, Object data) {
-        return this.putIfAbsent(field, this.getFactory().fromAny(data));
+        return this.computeIfAbsent(field, k -> this.getFactory().fromAny(data));
     }
 
     default void putAnyAll(Map<?, ?> map) {
@@ -278,17 +278,17 @@ public interface BObject extends BContainer, Map<String, BElement> {
     }
 
     default BElement putAnyPojo(String name, Object pojo) {
-        return this.putAny(name, pojo == null ? null : BElementUtils.anyToBElement(pojo, null).asObject());
+        return this.putAny(name, pojo == null ? null : ofPojo(pojo));
     }
 
     default BElement putAnyPojoIfAbsent(String name, Object pojo) {
-        return this.putAnyIfAbsent(name, pojo == null ? null : BElementUtils.anyToBElement(pojo, null).asObject());
+        return this.computeIfAbsent(name, k -> pojo == null ? null : ofPojo(pojo));
     }
 
     default void putAnyAllPojo(Object pojo) {
         if (pojo == null)
             return;
-        putAnyAll(BElementUtils.anyToBElement(pojo, null).asObject());
+        putAnyAll(ofPojo(pojo));
     }
 
     default void putAnySequence(Object... elements) {
