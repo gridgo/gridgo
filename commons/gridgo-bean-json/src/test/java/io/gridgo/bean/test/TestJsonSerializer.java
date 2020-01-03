@@ -120,7 +120,8 @@ public class TestJsonSerializer {
     public void testPojoJsonCompactAnnotation() {
         ChildFoo foo = ChildFoo.builder() //
                 .stringValue(null) // should be serialized
-                .ignoreNullField(null) // should be ignored
+                .ignoredString(null) // should be ignored
+                .ignoredList(null) // should be ignored
                 .build();
 
         var reference = BReference.of(foo);
@@ -128,7 +129,8 @@ public class TestJsonSerializer {
         System.out.println(json);
         var after = BElement.ofJson(json).asObject();
 
-        assertFalse(after.containsKey("ignoreNullField"));
+        assertFalse(after.containsKey("ignoredString"));
+        assertFalse(after.containsKey("ignoredList"));
         assertTrue(after.containsKey("stringValue"));
     }
 
@@ -150,13 +152,5 @@ public class TestJsonSerializer {
 
         var json = BReference.of(value).toJson();
         assertEquals(BReference.of(value).toBObject(), BElement.ofJson(json));
-    }
-
-    @Test
-    public void testJsonFromString() {
-        var orginalText = "this is test text";
-        var value = BElement.ofJson(orginalText);
-        assertTrue(value.isValue());
-        assertEquals(orginalText, value.asValue().getString());
     }
 }

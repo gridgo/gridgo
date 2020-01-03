@@ -1,13 +1,13 @@
 package io.gridgo.bean.test;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 import io.gridgo.bean.BArray;
 import io.gridgo.bean.BObject;
@@ -17,6 +17,7 @@ import io.gridgo.bean.pojo.BElementTranslators;
 import io.gridgo.bean.pojo.BGenericData;
 import io.gridgo.bean.test.support.PojoWithBElement;
 import io.gridgo.bean.test.support.SimplePojo;
+import io.gridgo.utils.pojo.PojoMethodSignature;
 import io.gridgo.utils.pojo.setter.data.SimpleKeyValueData;
 import io.gridgo.utils.pojo.setter.data.SimplePrimitiveData;
 import io.gridgo.utils.pojo.setter.data.SimpleReferenceData;
@@ -28,8 +29,10 @@ public class TestPojoWithBElement {
 
     private Object obj;
 
+    private PojoMethodSignature signature;
+
     @Before
-    public void setup() {
+    public void setup() throws NoSuchMethodException, SecurityException {
         obj = new Object();
         pojo = PojoWithBElement.builder() //
                 .bValue(BValue.of("this is test text")) //
@@ -39,6 +42,12 @@ public class TestPojoWithBElement {
                 .bReference(BReference.of(obj)) //
                 .build();
         pojo.setBElement(BReference.of(TestPojoWithBElement.class));
+
+        signature = PojoMethodSignature.builder() //
+                .fieldName("test") //
+                .method(getClass().getDeclaredMethod("getAbc")) //
+                .fieldType(boolean.class) //
+                .build();
     }
 
     @Test
@@ -58,7 +67,8 @@ public class TestPojoWithBElement {
         Assert.assertTrue(arr.isArray());
         Assert.assertEquals(List.of(1, 2, 3), arr.asArray().toList());
 
-        var obj = BElementTranslators.toBElement(new SimpleKeyValueData(Map.of("key1", "value1", "key2", "value2")), null);
+        var obj = BElementTranslators.toBElement(new SimpleKeyValueData(Map.of("key1", "value1", "key2", "value2")),
+                null);
         Assert.assertTrue(obj.isObject());
         Assert.assertEquals(Map.of("key1", "value1", "key2", "value2"), obj.asObject().toMap());
 
@@ -126,7 +136,7 @@ public class TestPojoWithBElement {
 
     @Test(expected = IllegalArgumentException.class)
     public void testToBObjectFromBArray() {
-        BElementTranslators.toBObject(BGenericData.ofArray(BArray.ofSequence(1, 2, 3)), null);
+        BElementTranslators.toBObject(BGenericData.ofArray(BArray.ofSequence(1, 2, 3)), signature);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -192,14 +202,18 @@ public class TestPojoWithBElement {
         Assert.assertNull(BElementTranslators.toBContainer(null, null));
     }
 
+    public boolean getAbc() {
+        return false;
+    }
+
     @Test(expected = IllegalArgumentException.class)
-    public void testToBContainerFromBValue() {
-        BElementTranslators.toBContainer(BGenericData.ofValue(BValue.of("text")), null);
+    public void testToBContainerFromBValue() throws NoSuchMethodException, SecurityException {
+        BElementTranslators.toBContainer(BGenericData.ofValue(BValue.of("text")), signature);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testToBContainerFromValue() {
-        BElementTranslators.toBContainer(new SimplePrimitiveData("text"), null);
+        BElementTranslators.toBContainer(new SimplePrimitiveData("text"), signature);
     }
 
     @Test

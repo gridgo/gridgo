@@ -18,7 +18,7 @@ import io.gridgo.utils.pojo.getter.PojoGetter;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
-public class BReferenceCompactJsonCodec extends BReferenceJsonCodec {
+class BReferenceCompactJsonCodec extends BReferenceJsonCodec {
 
     @Override
     public void write(JsonWriter writer, BReference value) {

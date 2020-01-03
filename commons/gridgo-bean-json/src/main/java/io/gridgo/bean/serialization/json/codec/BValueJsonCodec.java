@@ -13,7 +13,9 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 @SuppressWarnings("rawtypes")
-public class BValueJsonCodec implements JsonCodec<BValue> {
+class BValueJsonCodec implements JsonCodec<BValue> {
+
+    static boolean USE_STRICT = Boolean.valueOf(System.getProperty("gridgo.bean.json.strict", "true"));
 
     @Override
     public void write(JsonWriter writer, BValue value) {
@@ -61,7 +63,7 @@ public class BValueJsonCodec implements JsonCodec<BValue> {
                 return BValue.of(NumberConverter.deserializeNumber(reader));
             }
         } catch (ParsingException e) {
-            if (isBeginning)
+            if (isBeginning && !USE_STRICT)
                 return BValue.of(reader.toString());
             throw e;
         }
