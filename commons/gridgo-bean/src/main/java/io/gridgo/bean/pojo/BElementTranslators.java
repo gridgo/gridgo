@@ -10,6 +10,7 @@ import io.gridgo.utils.pojo.PojoMethodSignature;
 import io.gridgo.utils.pojo.PojoMethodType;
 import io.gridgo.utils.pojo.setter.data.GenericData;
 import io.gridgo.utils.pojo.translator.RegisterValueTranslator;
+import lombok.NonNull;
 
 public final class BElementTranslators {
 
@@ -18,7 +19,7 @@ public final class BElementTranslators {
     }
 
     @RegisterValueTranslator(value = "toBArray", defaultFor = PojoMethodType.SETTER, defaultType = BArray.class)
-    public static BArray toBArray(GenericData ele, PojoMethodSignature signature) {
+    public static BArray toBArray(GenericData ele, @NonNull PojoMethodSignature signature) {
         if (ele == null || ele.isNull())
             return null;
 
@@ -40,7 +41,7 @@ public final class BElementTranslators {
     }
 
     @RegisterValueTranslator(value = "toBObject", defaultFor = PojoMethodType.SETTER, defaultType = BObject.class)
-    public static BObject toBObject(GenericData ele, PojoMethodSignature signature) {
+    public static BObject toBObject(GenericData ele, @NonNull PojoMethodSignature signature) {
         if (ele == null || ele.isNull())
             return null;
 
@@ -69,7 +70,7 @@ public final class BElementTranslators {
     }
 
     @RegisterValueTranslator(value = "toBValue", defaultFor = PojoMethodType.SETTER, defaultType = BValue.class)
-    public static BValue toBValue(GenericData ele, PojoMethodSignature signature) {
+    public static BValue toBValue(GenericData ele, @NonNull PojoMethodSignature signature) {
         if (ele == null || ele.isNull())
             return null;
 
@@ -91,7 +92,7 @@ public final class BElementTranslators {
     }
 
     @RegisterValueTranslator(value = "toBReference", defaultFor = PojoMethodType.SETTER, defaultType = BReference.class)
-    public static BReference toBReference(GenericData ele, PojoMethodSignature signature) {
+    public static BReference toBReference(GenericData ele, @NonNull PojoMethodSignature signature) {
         if (ele == null || ele.isNull())
             return null;
 
@@ -113,7 +114,7 @@ public final class BElementTranslators {
     }
 
     @RegisterValueTranslator(value = "toBContainer", defaultFor = PojoMethodType.SETTER, defaultType = BContainer.class)
-    public static BContainer toBContainer(GenericData ele, PojoMethodSignature signature) {
+    public static BContainer toBContainer(GenericData ele, @NonNull PojoMethodSignature signature) {
         if (ele == null || ele.isNull())
             return null;
 
@@ -131,7 +132,7 @@ public final class BElementTranslators {
     }
 
     @RegisterValueTranslator(value = "toBElement", defaultFor = PojoMethodType.SETTER, defaultType = BElement.class)
-    public static BElement toBElement(GenericData ele, PojoMethodSignature signature) {
+    public static BElement toBElement(GenericData ele, @NonNull PojoMethodSignature signature) {
         if (ele == null || ele.isNull())
             return null;
 
