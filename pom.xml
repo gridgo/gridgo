@@ -51,7 +51,7 @@
 
 		<log4j2.version>2.11.1</log4j2.version>
 		<slf4j.version>1.7.25</slf4j.version>
-		<lombok.version>1.18.2</lombok.version>
+		<lombok.version>1.18.10</lombok.version>
 
 		<!-- Sonar -->
 		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
