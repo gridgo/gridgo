@@ -4,7 +4,7 @@
 	<artifactId>gridgo-base</artifactId>
 	<packaging>pom</packaging>
 
-	<version>0.7.0</version>
+	<version>0.8.0</version>
 
 	<parent>
 		<groupId>org.sonatype.oss</groupId>
@@ -51,7 +51,7 @@
 
 		<log4j2.version>2.11.1</log4j2.version>
 		<slf4j.version>1.7.25</slf4j.version>
-		<lombok.version>1.18.2</lombok.version>
+		<lombok.version>1.18.10</lombok.version>
 
 		<!-- Sonar -->
 		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
@@ -67,7 +67,6 @@
 		<module>core</module>
 		<module>commons</module>
 		<module>connector</module>
-		<module>configuration</module>
 	</modules>
 
 	<build>
@@ -144,7 +143,7 @@
 			<plugin>
 				<groupId>org.projectlombok</groupId>
 				<artifactId>lombok-maven-plugin</artifactId>
-				<version>1.18.0.0</version>
+				<version>1.18.10.0</version>
 				<configuration>
 					<sourceDirectory>${project.basedir}/src/main/java</sourceDirectory>
 					<outputDirectory>${delombok.output}</outputDirectory>

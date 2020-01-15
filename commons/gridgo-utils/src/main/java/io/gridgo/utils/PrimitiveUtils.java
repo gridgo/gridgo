@@ -51,16 +51,25 @@ public class PrimitiveUtils {
     }
 
     public static Class<?> getPrimitiveFromWrapperType(Class<?> type) {
-        return type == Void.class ? Void.TYPE : // this case may never reached...
-                type == Boolean.class ? Boolean.TYPE : //
-                        type == Character.class ? Character.TYPE : //
-                                type == Byte.class ? Byte.TYPE : //
-                                        type == Short.class ? Short.TYPE : //
-                                                type == Integer.class ? Integer.TYPE : //
-                                                        type == Long.class ? Long.TYPE : //
-                                                                type == Float.class ? Float.TYPE : //
-                                                                        type == Double.class ? Double.TYPE : //
-                                                                                null;
+        if (type == Void.class)
+            return Void.TYPE;
+        if (type == Boolean.class)
+            return Boolean.TYPE;
+        if (type == Character.class)
+            return Character.TYPE;
+        if (type == Byte.class)
+            return Byte.TYPE;
+        if (type == Short.class)
+            return Short.TYPE;
+        if (type == Integer.class)
+            return Integer.TYPE;
+        if (type == Long.class)
+            return Long.TYPE;
+        if (type == Float.class)
+            return Float.TYPE;
+        if (type == Double.class)
+            return Double.TYPE;
+        return null;
     }
 
     public static boolean isNumberClass(@NonNull Class<?> clazz) {
@@ -84,11 +93,10 @@ public class PrimitiveUtils {
         if (resultType.isPrimitive()) {
             return true;
         }
-        return (resultType == String.class //
-                || isNumberClass(resultType) //
-                || resultType == Character.TYPE || resultType == Character.class //
-                || resultType == Boolean.TYPE || resultType == Boolean.class) //
-                && !resultType.isArray();
+        return resultType == String.class //
+                || resultType == Boolean.class //
+                || resultType == Character.class //
+                || isNumberClass(resultType);
     }
 
     @SuppressWarnings("unchecked")
@@ -122,23 +130,44 @@ public class PrimitiveUtils {
         throw new UnsupportedTypeException(UNSUPPORTED_TYPE_MSG + resultType.getName());
     }
 
-    private static BigDecimal getBigDecimalFrom(Object obj) {
-        if (obj instanceof BigDecimal)
+    public static BigDecimal getBigDecimalFrom(Object obj) {
+        if (BigDecimal.class.isInstance(obj))
             return (BigDecimal) obj;
-        if (obj instanceof Number)
-            return BigDecimal.valueOf(((Number) obj).doubleValue());
-        if (obj instanceof byte[])
+
+        if (BigInteger.class.isInstance(obj))
+            return new BigDecimal((BigInteger) obj);
+
+        if (byte[].class.isInstance(obj))
             return new BigDecimal(new BigInteger((byte[]) obj));
+
+        if (Double.class.isInstance(obj))
+            return BigDecimal.valueOf((double) obj);
+
+        if (Float.class.isInstance(obj))
+            return BigDecimal.valueOf((float) obj);
+
+        if (Long.class.isInstance(obj))
+            return BigDecimal.valueOf((long) obj);
+
+        if (Number.class.isInstance(obj))
+            return BigDecimal.valueOf(((Number) obj).intValue());
+
         return new BigDecimal(getStringValueFrom(obj));
     }
 
-    private static BigInteger getBigIntegerFrom(Object obj) {
-        if (obj instanceof BigInteger)
+    public static BigInteger getBigIntegerFrom(Object obj) {
+        if (BigInteger.class.isInstance(obj))
             return (BigInteger) obj;
-        if (obj instanceof Number)
-            return BigInteger.valueOf(((Number) obj).longValue());
-        if (obj instanceof byte[])
+
+        if (BigDecimal.class.isInstance(obj))
+            return ((BigDecimal) obj).toBigInteger();
+
+        if (byte[].class.isInstance(obj))
             return new BigInteger((byte[]) obj);
+
+        if (Number.class.isInstance(obj))
+            return BigInteger.valueOf(((Number) obj).longValue());
+
         return new BigInteger(getStringValueFrom(obj));
     }
 
@@ -169,14 +198,14 @@ public class PrimitiveUtils {
             return (Boolean) obj ? 1 : 0;
         if (obj instanceof byte[])
             return ByteArrayUtils.bytesToPrimitive(Integer.class, (byte[]) obj);
-        throw new RuntimeException("cannot convert null object");
+        throw new UnsupportedTypeException(UNSUPPORTED_TYPE_MSG + obj.getClass().getName());
     }
 
     public static final long getLongValueFrom(@NonNull Object obj) {
         if (obj instanceof Number)
             return ((Number) obj).longValue();
         if (obj instanceof Character)
-            return (long) ((Character) obj).charValue();
+            return ((Character) obj).charValue();
         if (obj instanceof String) {
             var str = (String) obj;
             if (str.isEmpty())
@@ -194,7 +223,7 @@ public class PrimitiveUtils {
         if (obj instanceof Number)
             return ((Number) obj).floatValue();
         if (obj instanceof Character)
-            return (float) ((Character) obj).charValue();
+            return ((Character) obj).charValue();
         if (obj instanceof String) {
             var str = (String) obj;
             if (str.isEmpty())
@@ -212,7 +241,7 @@ public class PrimitiveUtils {
         if (obj instanceof Number)
             return ((Number) obj).doubleValue();
         if (obj instanceof Character)
-            return (double) ((Character) obj).charValue();
+            return ((Character) obj).charValue();
         if (obj instanceof String) {
             var str = (String) obj;
             if (str.isEmpty())
@@ -266,7 +295,7 @@ public class PrimitiveUtils {
      * return char value for specific obj <br>
      * if obj is number, return char represent by obj as UTF-16 code<br>
      * else if obj is boolean, return '0' for false, '1' for true
-     * 
+     *
      * @param obj
      * @return char represented by input obj
      */
@@ -295,7 +324,7 @@ public class PrimitiveUtils {
      * else if obj is character, return false if obj == '\0' char (null value), true
      * for otherwise <br>
      * else return object != null
-     * 
+     *
      * @param obj
      * @return boolean value
      */

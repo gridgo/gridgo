@@ -1,14 +1,13 @@
 package io.gridgo.bean;
 
-import static io.gridgo.bean.support.BElementPojoHelper.anyToBElement;
-
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Supplier;
 
 import io.gridgo.bean.exceptions.InvalidTypeException;
 import io.gridgo.bean.factory.BFactory;
-import io.gridgo.bean.support.BElementPojoHelper;
+import io.gridgo.bean.pojo.BGenericData;
+import io.gridgo.utils.pojo.setter.PojoSetter;
 import io.gridgo.utils.pojo.setter.PojoSetterProxy;
 import lombok.NonNull;
 
@@ -23,7 +22,7 @@ public interface BObject extends BContainer, Map<String, BElement> {
     }
 
     static BObject ofEmpty() {
-        return BFactory.DEFAULT.newObject();
+        return BFactory.newDefaultObject();
     }
 
     static BObject of(String name, Object value) {
@@ -34,15 +33,16 @@ public interface BObject extends BContainer, Map<String, BElement> {
         return BFactory.DEFAULT.newObject(data);
     }
 
+    /**
+     * convert any pojo to mutable key-value BObject
+     *
+     * @param pojo object tobe converted
+     * @return null if input pojo is null, result BObject otherwise
+     */
     static BObject ofPojo(Object pojo) {
         if (pojo == null)
             return null;
-        return anyToBElement(pojo).asObject();
-    }
-
-    @Deprecated
-    static BObject ofPojoRecursive(Object pojo) {
-        return ofPojo(pojo);
+        return BElementUtils.anyToBElement(pojo, null).asObject();
     }
 
     static BObject ofSequence(Object... sequence) {
@@ -50,23 +50,8 @@ public interface BObject extends BContainer, Map<String, BElement> {
     }
 
     @Override
-    default boolean isArray() {
-        return false;
-    }
-
-    @Override
-    default boolean isValue() {
-        return false;
-    }
-
-    @Override
     default boolean isObject() {
         return true;
-    }
-
-    @Override
-    default boolean isReference() {
-        return false;
     }
 
     @Override
@@ -128,7 +113,9 @@ public interface BObject extends BContainer, Map<String, BElement> {
 
     default Integer getInteger(String field, Number defaultValue) {
         var value = this.getInteger(field);
-        return value == null ? (defaultValue == null ? null : defaultValue.intValue()) : value;
+        if (value != null)
+            return value;
+        return defaultValue == null ? null : defaultValue.intValue();
     }
 
     default Float getFloat(String field) {
@@ -138,7 +125,9 @@ public interface BObject extends BContainer, Map<String, BElement> {
 
     default Float getFloat(String field, Number defaultValue) {
         var value = this.getFloat(field);
-        return value == null ? (defaultValue == null ? null : defaultValue.floatValue()) : value;
+        if (value != null)
+            return value;
+        return defaultValue == null ? null : defaultValue.floatValue();
     }
 
     default Long getLong(String field) {
@@ -148,7 +137,9 @@ public interface BObject extends BContainer, Map<String, BElement> {
 
     default Long getLong(String field, Number defaultValue) {
         var value = this.getLong(field);
-        return value == null ? (defaultValue == null ? null : defaultValue.longValue()) : value;
+        if (value != null)
+            return value;
+        return defaultValue == null ? null : defaultValue.longValue();
     }
 
     default Double getDouble(String field) {
@@ -158,7 +149,9 @@ public interface BObject extends BContainer, Map<String, BElement> {
 
     default Double getDouble(String field, Number defaultValue) {
         var value = this.getDouble(field);
-        return value == null ? (defaultValue == null ? null : defaultValue.doubleValue()) : value;
+        if (value != null)
+            return value;
+        return defaultValue == null ? null : defaultValue.doubleValue();
     }
 
     default String getString(String field) {
@@ -183,14 +176,12 @@ public interface BObject extends BContainer, Map<String, BElement> {
 
     default BReference getReference(String field) {
         BElement element = this.get(field);
-        if (element != null) {
-            if (element.isReference())
-                return element.asReference();
-            if (!element.isNullValue())
-                throw new InvalidTypeException(
-                        "BObject contains element with type " + element.getType() + " which cannot get as BReference");
-        }
-        return null;
+        if (element == null || element.isNullValue())
+            return null;
+        if (element.isReference())
+            return element.asReference();
+        throw new InvalidTypeException(
+                "BObject contains element with type " + element.getType() + " which cannot get as BReference");
     }
 
     default BReference getReference(String field, BReference defaultValue) {
@@ -275,7 +266,7 @@ public interface BObject extends BContainer, Map<String, BElement> {
     }
 
     default BElement putAnyIfAbsent(String field, Object data) {
-        return this.putIfAbsent(field, this.getFactory().fromAny(data));
+        return this.computeIfAbsent(field, k -> this.getFactory().fromAny(data));
     }
 
     default void putAnyAll(Map<?, ?> map) {
@@ -287,49 +278,30 @@ public interface BObject extends BContainer, Map<String, BElement> {
     }
 
     default BElement putAnyPojo(String name, Object pojo) {
-        return this.putAny(name, pojo == null ? null : anyToBElement(pojo).asObject());
-    }
-
-    @Deprecated
-    default BElement putAnyPojoRecursive(String name, Object pojo) {
-        return this.putAnyPojo(name, pojo);
+        return this.putAny(name, pojo == null ? null : ofPojo(pojo));
     }
 
     default BElement putAnyPojoIfAbsent(String name, Object pojo) {
-        return this.putAnyIfAbsent(name, pojo == null ? null : anyToBElement(pojo).asObject());
-    }
-
-    @Deprecated
-    default BElement putAnyPojoRecursiveIfAbsent(String name, Object pojo) {
-        return putAnyPojoIfAbsent(name, pojo);
+        return this.computeIfAbsent(name, k -> pojo == null ? null : ofPojo(pojo));
     }
 
     default void putAnyAllPojo(Object pojo) {
-        if (pojo != null) {
-            this.putAnyAll(anyToBElement(pojo).asObject());
-        }
-    }
-
-    @Deprecated
-    default void putAnyAllPojoRecursive(Object pojo) {
-        this.putAnyAllPojo(pojo);
+        if (pojo == null)
+            return;
+        putAnyAll(ofPojo(pojo));
     }
 
     default void putAnySequence(Object... elements) {
-        if (elements != null) {
-            if (elements.length % 2 != 0) {
-                throw new IllegalArgumentException("Sequence's length must be even");
-            }
-            for (int i = 0; i < elements.length - 1; i += 2) {
-                this.putAny(elements[i].toString(), elements[i + 1]);
-            }
-        }
+        if (elements.length % 2 != 0)
+            throw new IllegalArgumentException("Sequence's length must be even");
+
+        for (int i = 0; i < elements.length - 1; i += 2)
+            this.putAny(elements[i].toString(), elements[i + 1]);
     }
 
     default BElement getOrDefault(String field, Supplier<BElement> supplierForNonPresent) {
-        if (this.containsKey(field)) {
+        if (this.containsKey(field))
             return this.get(field);
-        }
         return supplierForNonPresent.get();
     }
 
@@ -348,18 +320,8 @@ public interface BObject extends BContainer, Map<String, BElement> {
         return this;
     }
 
-    default BObject setAnyPojoRecursive(String name, Object pojo) {
-        this.putAnyPojoRecursive(name, pojo);
-        return this;
-    }
-
     default BObject setAnyPojoIfAbsent(String name, Object pojo) {
         this.putAnyPojoIfAbsent(name, pojo);
-        return this;
-    }
-
-    default BObject setAnyPojoRecursiveIfAbsent(String name, Object pojo) {
-        this.putAnyPojoRecursiveIfAbsent(name, pojo);
         return this;
     }
 
@@ -390,41 +352,26 @@ public interface BObject extends BContainer, Map<String, BElement> {
 
     default Map<String, Object> toMap() {
         Map<String, Object> result = new TreeMap<>();
-        for (Entry<String, BElement> entry : this.entrySet()) {
-            if (entry.getValue() instanceof BValue) {
-                result.put(entry.getKey(), ((BValue) entry.getValue()).getData());
-            } else if (entry.getValue() instanceof BArray) {
-                result.put(entry.getKey(), ((BArray) entry.getValue()).toList());
-            } else if (entry.getValue() instanceof BObject) {
-                result.put(entry.getKey(), ((BObject) entry.getValue()).toMap());
-            } else if (entry.getValue() instanceof BReference) {
-                result.put(entry.getKey(), ((BReference) entry.getValue()).getReference());
-            } else {
-                if (entry.getValue() == null)
-                    continue;
-                throw new InvalidTypeException(
-                        "Found unrecognized BElement implementation: " + entry.getValue().getClass());
-            }
+        for (var entry : this.entrySet()) {
+            if (entry.getValue() != null)
+                result.put(entry.getKey(), entry.getValue().getInnerValue());
         }
         return result;
     }
 
-    @Override
     @SuppressWarnings("unchecked")
-    default Map<String, Object> toJsonElement() {
-        Map<String, Object> map = new TreeMap<>();
-        for (Entry<String, BElement> entry : this.entrySet()) {
-            map.put(entry.getKey(), entry.getValue().toJsonElement());
-        }
-        return map;
+    default <T> T toPojo(Class<T> toType) {
+        return (T) PojoSetter.ofType(toType).from(BGenericData.ofObject(this)).fill();
     }
 
-    default <T> T toPojo(Class<T> clazz) {
-        return BElementPojoHelper.bObjectToPojo(this, clazz);
+    @SuppressWarnings("unchecked")
+    default <T> T toPojo(Class<T> toType, PojoSetterProxy setterProxy) {
+        return (T) PojoSetter.ofType(toType, setterProxy).from(BGenericData.ofObject(this)).fill();
     }
 
-    default <T> T toPojo(Class<T> clazz, PojoSetterProxy setterProxy) {
-        return BElementPojoHelper.bObjectToPojo(this, clazz, setterProxy);
+    @SuppressWarnings("unchecked")
+    @Override
+    default <T> T getInnerValue() {
+        return (T) toMap();
     }
-
 }

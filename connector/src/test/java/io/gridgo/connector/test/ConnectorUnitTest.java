@@ -1,12 +1,15 @@
 package io.gridgo.connector.test;
 
-import java.util.concurrent.CountDownLatch;
-
+import org.joo.promise4j.DeferredStatus;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicReference;
+
 import io.gridgo.bean.BValue;
 import io.gridgo.connector.impl.factories.DefaultConnectorFactory;
+import io.gridgo.connector.support.config.impl.DefaultConnectorContextBuilder;
 import io.gridgo.connector.test.support.TestConnector;
 import io.gridgo.connector.test.support.TestConsumer;
 import io.gridgo.connector.test.support.TestProducer;
@@ -15,6 +18,28 @@ import io.gridgo.framework.support.Payload;
 import io.gridgo.framework.support.impl.SimpleRegistry;
 
 public class ConnectorUnitTest {
+
+    @Test
+    public void testConsumerFailure() {
+        var exRef = new AtomicReference<Throwable>();
+        var connectorContext = new DefaultConnectorContextBuilder()
+                .setExceptionHandler(ex -> {
+                    exRef.set(ex);
+                })
+                .build();
+        var connector = (TestConnector) new DefaultConnectorFactory().createConnector(
+                "test:pull:tcp://127.0.0.1:7781?p1=v1&p2=v2",
+                connectorContext);
+        var consumer = (TestConsumer) connector.getConsumer().orElseThrow();
+        consumer.subscribe(msg -> {
+            throw new RuntimeException("test");
+        });
+        var promise = consumer.testPublish();
+        Assert.assertEquals(DeferredStatus.REJECTED, promise.getStatus());
+        Assert.assertNotNull(exRef.get());
+        Assert.assertTrue(exRef.get() instanceof RuntimeException);
+        Assert.assertEquals("test", exRef.get().getMessage());
+    }
 
     @Test
     public void testConsumer() {

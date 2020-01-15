@@ -6,7 +6,6 @@ import io.gridgo.bean.BElement;
 import lombok.NonNull;
 import lombok.experimental.Delegate;
 
-@SuppressWarnings("unchecked")
 public class MutableBArray extends AbstractBArray {
 
     @Delegate

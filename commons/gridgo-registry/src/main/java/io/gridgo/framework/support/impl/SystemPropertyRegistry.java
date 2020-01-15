@@ -1,6 +1,7 @@
 package io.gridgo.framework.support.impl;
 
 import io.gridgo.framework.support.Registry;
+import lombok.NonNull;
 
 public class SystemPropertyRegistry implements Registry {
 
@@ -10,8 +11,8 @@ public class SystemPropertyRegistry implements Registry {
     }
 
     @Override
-    public SystemPropertyRegistry register(String name, Object answer) {
-        System.setProperty(name, answer != null ? answer.toString() : null);
+    public SystemPropertyRegistry register(String name, @NonNull Object answer) {
+        System.setProperty(name, answer.toString());
         return this;
     }
 }

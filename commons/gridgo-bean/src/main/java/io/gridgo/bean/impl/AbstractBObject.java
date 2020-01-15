@@ -4,17 +4,8 @@ import java.util.Map;
 
 import io.gridgo.bean.BElement;
 import io.gridgo.bean.BObject;
-import io.gridgo.bean.serialization.text.BPrinter;
 
-@SuppressWarnings("unchecked")
 public abstract class AbstractBObject extends AbstractBContainer implements BObject {
-
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        BPrinter.print(sb, this);
-        return sb.toString();
-    }
 
     @Override
     public boolean equals(Object obj) {

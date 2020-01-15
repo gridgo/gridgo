@@ -1,8 +1,23 @@
 package io.gridgo.bean;
 
+import lombok.Getter;
+
 public enum BType {
 
-    NULL, BOOLEAN, CHAR, BYTE, SHORT, INTEGER, FLOAT, LONG, DOUBLE, STRING, RAW, OBJECT, ARRAY, REFERENCE,
+    NULL, //
+    BOOLEAN(Boolean.class), //
+    CHAR(Character.class), //
+    BYTE(Byte.class), //
+    SHORT(Short.class), //
+    INTEGER(Integer.class), //
+    FLOAT(Float.class), //
+    LONG(Long.class), //
+    DOUBLE(Double.class), //
+    STRING(String.class), //
+    RAW, //
+    OBJECT, //
+    ARRAY, //
+    REFERENCE, //
     GENERIC_NUMBER;
 
     public static BType forName(String name) {
@@ -12,6 +27,17 @@ public enum BType {
             }
         }
         return null;
+    }
+
+    @Getter
+    private final Class<?> innerClass;
+
+    private BType() {
+        this(null);
+    }
+
+    private BType(Class<?> innerClass) {
+        this.innerClass = innerClass;
     }
 
     public boolean isNumber() {

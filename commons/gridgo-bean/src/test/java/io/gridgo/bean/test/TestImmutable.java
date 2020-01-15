@@ -10,10 +10,10 @@ import org.junit.Test;
 
 import io.gridgo.bean.BArray;
 import io.gridgo.bean.BElement;
+import io.gridgo.bean.BObject;
 import io.gridgo.bean.ImmutableBObject;
 import io.gridgo.bean.test.support.Bar;
 import io.gridgo.bean.test.support.Foo;
-import io.gridgo.utils.ObjectUtils;
 
 public class TestImmutable {
 
@@ -39,15 +39,19 @@ public class TestImmutable {
     }
 
     @Test
-    @SuppressWarnings({ "unlikely-arg-type", "deprecation" })
+    @SuppressWarnings({ "unlikely-arg-type" })
     public void testImmutablePojo() {
         Map<String, Integer> map = new HashMap<>();
         map.put("0", 0);
         map.put("1", 1);
-        Bar bar = Bar.builder().b(true).map(map).build();
-        Foo foo = new Foo(0, new int[] { 1, 2, 3 }, 22.02, "this is test text", bar);
+        Bar bar = Bar.builder().bool(true).map(map).build();
+        Foo foo = Foo.builder().intValue(0) //
+                .intArrayValue(new int[] { 1, 2, 3 }) //
+                .doubleValue(22.02).stringValue("this is test text") //
+                .barValue(bar) //
+                .build();
 
-        Map<String, Object> fooMap = (Map<String, Object>) ObjectUtils.toMap(foo);
+        Map<String, Object> fooMap = BObject.ofPojo(foo).toMap();
         BElement obj = BElement.wrapAny(fooMap);
         System.out.println(obj.toString());
 
@@ -56,7 +60,7 @@ public class TestImmutable {
         assertTrue(obj.asObject().getArray("intArrayValue").equals(foo.getIntArrayValue()));
         assertEquals(Double.valueOf(foo.getDoubleValue()), obj.asObject().getDouble("doubleValue"));
         assertEquals(foo.getStringValue(), obj.asObject().getString("stringValue"));
-        assertEquals(foo.getBarValue(), obj.asObject().getReference("barValue").getReference());
+        assertEquals(foo.getBarValue(), obj.asObject().getObject("barValue").toPojo(Bar.class));
 
         assertTrue(obj.equals(fooMap));
     }

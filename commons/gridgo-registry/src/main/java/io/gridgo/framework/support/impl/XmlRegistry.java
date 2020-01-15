@@ -1,19 +1,20 @@
 package io.gridgo.framework.support.impl;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
 
 import io.gridgo.framework.support.Registry;
 import io.gridgo.framework.support.exceptions.RegistryException;
@@ -26,6 +27,7 @@ public class XmlRegistry implements Registry {
 
     public XmlRegistry(InputStream is) throws SAXException, IOException, ParserConfigurationException {
         var builderFactory = DocumentBuilderFactory.newInstance();
+        builderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
         var builder = builderFactory.newDocumentBuilder();
         this.document = builder.parse(is);
     }

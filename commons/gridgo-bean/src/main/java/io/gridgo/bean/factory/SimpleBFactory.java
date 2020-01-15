@@ -19,9 +19,10 @@ import io.gridgo.bean.impl.WrappedImmutableBArray;
 import io.gridgo.bean.impl.WrappedImmutableBObject;
 import io.gridgo.bean.serialization.BSerializerRegistry;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
-class SimpleBFactory implements BFactory, BFactoryConfigurable {
+public class SimpleBFactory implements BFactory, BFactoryConfigurable {
 
     private Supplier<BValue> valueSupplier = MutableBValue::new;
     private Supplier<BReference> referenceSupplier = MutableBReference::new;
@@ -32,6 +33,7 @@ class SimpleBFactory implements BFactory, BFactoryConfigurable {
     private Function<Map<String, BElement>, BObject> objectSupplier = MutableBObject::new;
     private Function<Map<?, ?>, BObject> wrappedObjectSupplier = WrappedImmutableBObject::new;
 
+    @Setter
     private BSerializerRegistry serializerRegistry = new BSerializerRegistry(this);
 
     @Override
@@ -58,6 +60,7 @@ class SimpleBFactory implements BFactory, BFactoryConfigurable {
         return this;
     }
 
+    @Override
     public BFactoryConfigurable setWrappedArraySupplier(Function<Collection<?>, BArray> wrappedArraySupplier) {
         this.wrappedArraySupplier = wrappedArraySupplier;
         return this;

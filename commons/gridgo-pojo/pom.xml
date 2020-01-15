@@ -4,11 +4,16 @@
 	<parent>
 		<groupId>io.gridgo</groupId>
 		<artifactId>gridgo-commons</artifactId>
-		<version>0.7.0</version>
+		<version>0.8.0</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<artifactId>gridgo-pojo</artifactId>
+
+	<properties>
+		<evalex.version>2.0</evalex.version>
+		<apache.common.text.version>1.4</apache.common.text.version>
+	</properties>
 
 	<dependencies>
 		<dependency>
@@ -17,9 +22,9 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>gridgo-formatting</artifactId>
-			<version>${project.version}</version>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-text</artifactId>
+			<version>${apache.common.text.version}</version>
 		</dependency>
 	</dependencies>
 </project>

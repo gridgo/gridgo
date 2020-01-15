@@ -1,15 +1,18 @@
 package io.gridgo.bean;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 import io.gridgo.bean.factory.BFactory;
 import io.gridgo.bean.serialization.BSerializerRegistryAware;
+import io.gridgo.utils.wrapper.ByteBufferInputStream;
 import lombok.NonNull;
 
-public interface BElement extends BSerializerRegistryAware, BJsonSupport, BXmlSupport, BBytesSupport {
+public interface BElement extends BSerializerRegistryAware, BJsonSupport, BBytesSupport {
 
     static <T extends BElement> T wrapAny(Object data) {
         return BFactory.DEFAULT.wrap(data);
@@ -21,20 +24,11 @@ public interface BElement extends BSerializerRegistryAware, BJsonSupport, BXmlSu
 
     ////////////////// JSON Support//////////////////
     static <T extends BElement> T ofJson(String json) {
-        return BFactory.DEFAULT.fromJson(json);
+        return ofBytes(json.getBytes(StandardCharsets.UTF_8), JSON_SERIALIZER_NAME);
     }
 
     static <T extends BElement> T ofJson(InputStream inputStream) {
-        return BFactory.DEFAULT.fromJson(inputStream);
-    }
-
-    ///////////////// XML Support////////////////////
-    static <T extends BElement> T ofXml(String xml) {
-        return BFactory.DEFAULT.fromXml(xml);
-    }
-
-    static <T extends BElement> T ofXml(InputStream in) {
-        return BFactory.DEFAULT.fromXml(in);
+        return ofBytes(inputStream, JSON_SERIALIZER_NAME);
     }
 
     ///////////////// Bytes Support////////////////////
@@ -43,11 +37,11 @@ public interface BElement extends BSerializerRegistryAware, BJsonSupport, BXmlSu
     }
 
     static <T extends BElement> T ofBytes(@NonNull ByteBuffer buffer, String serializerName) {
-        return BFactory.DEFAULT.fromBytes(buffer, serializerName);
+        return ofBytes(new ByteBufferInputStream(buffer), serializerName);
     }
 
     static <T extends BElement> T ofBytes(@NonNull byte[] bytes, String serializerName) {
-        return BFactory.DEFAULT.fromBytes(bytes, serializerName);
+        return ofBytes(new ByteArrayInputStream(bytes), serializerName);
     }
 
     static <T extends BElement> T ofBytes(@NonNull InputStream in) {
@@ -63,7 +57,7 @@ public interface BElement extends BSerializerRegistryAware, BJsonSupport, BXmlSu
     }
 
     default boolean isContainer() {
-        return this instanceof BContainer;
+        return false;
     }
 
     default boolean isNullValue() {
@@ -71,7 +65,7 @@ public interface BElement extends BSerializerRegistryAware, BJsonSupport, BXmlSu
     }
 
     default boolean isArray() {
-        return this instanceof BArray;
+        return false;
     }
 
     default <T> T isArrayThen(Function<BArray, T> handler) {
@@ -88,7 +82,7 @@ public interface BElement extends BSerializerRegistryAware, BJsonSupport, BXmlSu
     }
 
     default boolean isObject() {
-        return this instanceof BObject;
+        return false;
     }
 
     default <T> T isObjectThen(Function<BObject, T> handler) {
@@ -105,7 +99,7 @@ public interface BElement extends BSerializerRegistryAware, BJsonSupport, BXmlSu
     }
 
     default boolean isValue() {
-        return this instanceof BValue;
+        return false;
     }
 
     default <T> T isValueThen(Function<BValue, T> handler) {
@@ -122,7 +116,7 @@ public interface BElement extends BSerializerRegistryAware, BJsonSupport, BXmlSu
     }
 
     default boolean isReference() {
-        return this instanceof BReference;
+        return false;
     }
 
     default <T> T isReferenceThen(Function<BReference, T> handler) {
@@ -136,6 +130,10 @@ public interface BElement extends BSerializerRegistryAware, BJsonSupport, BXmlSu
         if (this.isReference()) {
             handler.accept(this.asReference());
         }
+    }
+
+    default BContainer asContainer() {
+        return (BContainer) this;
     }
 
     default BObject asObject() {
@@ -157,4 +155,6 @@ public interface BElement extends BSerializerRegistryAware, BJsonSupport, BXmlSu
     BType getType();
 
     <T extends BElement> T deepClone();
+
+    <T> T getInnerValue();
 }

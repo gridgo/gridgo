@@ -1,0 +1,41 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>gridgo-bean-msgpack</artifactId>
+
+	<parent>
+		<groupId>io.gridgo</groupId>
+		<artifactId>gridgo-commons</artifactId>
+		<version>0.8.0</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+
+	<properties>
+		<msgpack.version>0.8.18</msgpack.version>
+	</properties>
+
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<annotationProcessors>
+						<annotationProcessor>lombok.launch.AnnotationProcessorHider$AnnotationProcessor</annotationProcessor>
+					</annotationProcessors>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.msgpack</groupId>
+			<artifactId>msgpack-core</artifactId>
+			<version>${msgpack.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.gridgo</groupId>
+			<artifactId>gridgo-bean</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+	</dependencies>
+</project>

@@ -1,24 +1,25 @@
 package io.gridgo.utils.pojo.setter;
 
-import static io.gridgo.utils.pojo.PojoUtils.extractSetterMethodSignatures;
-
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import io.gridgo.utils.PrimitiveUtils;
+import io.gridgo.utils.pojo.AbstractProxyBuilder;
 import io.gridgo.utils.pojo.PojoMethodSignature;
 import javassist.CannotCompileException;
 import javassist.ClassClassPath;
 import javassist.ClassPool;
 import javassist.CtClass;
-import javassist.CtField;
 import javassist.CtMethod;
+import javassist.NotFoundException;
 
-class JavassistSetterProxyBuilder implements PojoSetterProxyBuilder {
+class JavassistSetterProxyBuilder extends AbstractProxyBuilder implements PojoSetterProxyBuilder {
 
     @Override
     public PojoSetterProxy buildSetterProxy(Class<?> target) {
         try {
             ClassPool pool = ClassPool.getDefault();
+            pool.insertClassPath(new ClassClassPath(PojoSetterProxy.class));
             pool.insertClassPath(new ClassClassPath(target));
 
             String className = target.getName().replaceAll("\\.", "_") + "_setter_proxy_" + System.nanoTime();
@@ -27,7 +28,8 @@ class JavassistSetterProxyBuilder implements PojoSetterProxyBuilder {
             cc.defrost();
             cc.addInterface(pool.get(PojoSetterProxy.class.getName()));
 
-            List<PojoMethodSignature> methodSignatures = extractSetterMethodSignatures(target);
+            List<PojoMethodSignature> methodSignatures = SetterMethodSignatureExtractor.getInstance()
+                    .extractMethodSignatures(target);
 
             StringBuilder allFieldsBuilder = new StringBuilder();
             for (PojoMethodSignature methodSignature : methodSignatures) {
@@ -47,58 +49,19 @@ class JavassistSetterProxyBuilder implements PojoSetterProxyBuilder {
             buildWalkthroughAllMethod(cc, methodSignatures, targetType);
             buildWalkthroughMethod(cc, methodSignatures, targetType, allFields);
 
-            Class<?> resultClass = cc.toClass();
-            var result = (PojoSetterProxy) resultClass.getConstructor().newInstance();
-            var signatureSetter = resultClass.getMethod("setMethodSignature", String.class, PojoMethodSignature.class);
-            for (PojoMethodSignature methodSignature : methodSignatures) {
-                signatureSetter.invoke(result, methodSignature.getFieldName(), methodSignature);
-            }
-            return result;
-        } catch (Exception e) {
+            return makeProxy(methodSignatures, cc.toClass());
+        } catch (NotFoundException | CannotCompileException | ReflectiveOperationException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private void buildSetSignatureMethod(CtClass cc, List<PojoMethodSignature> methodSignatures)
-            throws CannotCompileException {
-        String type = "io.gridgo.utils.pojo.PojoMethodSignature";
-        String subfix = "Signature";
-        for (PojoMethodSignature methodSignature : methodSignatures) {
-            String fieldName = methodSignature.getFieldName() + subfix;
-            cc.addField(CtField.make("private " + type + " " + fieldName + ";", cc));
-        }
-
-        String method = "public void setMethodSignature(String fieldName, " + type + " value) {\n";
-        method += "\tfor (int i=0; i<this.fields.length; i++) {"; // start for loop via all field
-        for (PojoMethodSignature methodSignature : methodSignatures) {
-            String fieldName = methodSignature.getFieldName();
-            String signFieldName = fieldName + subfix;
-            method += "\t\tif (\"" + fieldName + "\".equals(fieldName)) {\n";
-            method += "\t\t\t" + signFieldName + " = value;\n";
-            method += "\t\t\tthis.signatures.add(value); \n";
-            method += "\t\t}\n";
-        }
-        method += "\t}\n"; // end of for
-        method += "}"; // end of method
-
-        cc.addMethod(CtMethod.make(method, cc));
-    }
-
-    private void buildGetFieldsMethod(CtClass cc, String allFields) throws CannotCompileException {
-        String initValue = allFields.length() == 0 ? "new String[0];" : "new String[] {" + allFields + "};";
-        CtField field = CtField.make("private String[] fields = " + initValue, cc);
-        cc.addField(field);
-
-        String method = "public String[] getFields() { return this.fields; }";
-        cc.addMethod(CtMethod.make(method, cc));
-    }
-
-    private void buildGetSignaturesMethod(CtClass cc) throws CannotCompileException {
-        CtField field = CtField.make("private java.util.List signatures = new java.util.ArrayList();", cc);
-        cc.addField(field);
-
-        String method = "public java.util.List getSignatures() { return this.signatures; }";
-        cc.addMethod(CtMethod.make(method, cc));
+    private PojoSetterProxy makeProxy(List<PojoMethodSignature> methodSignatures, Class<?> resultClass)
+            throws InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+        var result = (PojoSetterProxy) resultClass.getConstructor().newInstance();
+        var signatureSetter = resultClass.getMethod("setMethodSignature", String.class, PojoMethodSignature.class);
+        for (PojoMethodSignature methodSignature : methodSignatures)
+            signatureSetter.invoke(result, methodSignature.getFieldName(), methodSignature);
+        return result;
     }
 
     private void buildApplyValueMethod(CtClass cc, List<PojoMethodSignature> methodSignatures, String targetType)
@@ -201,7 +164,7 @@ class JavassistSetterProxyBuilder implements PojoSetterProxyBuilder {
 
             String signatureFieldName = fieldName + signatureFieldSubfix;
             method += "    value = consumer.apply(this." + signatureFieldName + ");\n";
-            method += "    if (!(value instanceof " + holderType + ")) {\n"; // start if 2
+            method += "    if (!(" + holderType + ".class.isInstance(value))) {\n"; // start if 2
             method += "        " + invokeSetter + ";\n";
             method += "    } else { \n"; // else if 2
             method += "        " + holderType + " holder = (" + holderType + ") value; \n";
@@ -212,7 +175,6 @@ class JavassistSetterProxyBuilder implements PojoSetterProxyBuilder {
             method += "    }\n"; // end if 2
         }
 
-        method += "    }\n"; // end of for
         method += "}"; // end of method
 
         cc.addMethod(CtMethod.make(method, cc));

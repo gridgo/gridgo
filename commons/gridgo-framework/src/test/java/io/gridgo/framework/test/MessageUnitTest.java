@@ -1,10 +1,10 @@
 package io.gridgo.framework.test;
 
-import java.util.Arrays;
-import java.util.Collections;
-
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.Collections;
 
 import io.gridgo.bean.BArray;
 import io.gridgo.bean.BObject;
@@ -33,10 +33,20 @@ public class MessageUnitTest {
         Assert.assertEquals(Integer.valueOf(1), msg2.getRoutingId().get().getInteger());
         var msg3 = Message.of(BValue.of(1), Collections.singletonMap("test", 1), Payload.of(null));
         Assert.assertEquals(1, msg3.getMisc().get("test"));
-        var msg4 = Message.parse(BArray.ofEmpty().addAny(1).addAny(BObject.ofEmpty().setAny("test", 1)).addAny(1));
-        Assert.assertEquals(Integer.valueOf(1), msg4.getPayload().getId().get().getInteger());
-        Assert.assertEquals(Integer.valueOf(1), msg4.headers().getInteger("test"));
-        Assert.assertEquals(Integer.valueOf(1), msg4.body().asValue().getInteger());
+    }
+
+    @Test
+    public void testParse() {
+        var arr = BArray.ofEmpty().addAny(1).addAny(BObject.ofEmpty().setAny("test", 1)).addAny(1);
+        var bytes = arr.toBytes();
+        var msg1 = Message.parse(arr);
+        Assert.assertEquals(Integer.valueOf(1), msg1.getPayload().getId().get().getInteger());
+        Assert.assertEquals(Integer.valueOf(1), msg1.headers().getInteger("test"));
+        Assert.assertEquals(Integer.valueOf(1), msg1.body().asValue().getInteger());
+        var msg2 = Message.parse(bytes);
+        Assert.assertEquals(Integer.valueOf(1), msg2.getPayload().getId().get().getInteger());
+        Assert.assertEquals(Integer.valueOf(1), msg2.headers().getInteger("test"));
+        Assert.assertEquals(Integer.valueOf(1), msg2.body().asValue().getInteger());
     }
 
     @Test
@@ -54,10 +64,13 @@ public class MessageUnitTest {
         Assert.assertEquals(2, msg.headers().getInteger(MessageConstants.SIZE).intValue());
         Assert.assertTrue(msg.body().isArray());
         Assert.assertEquals(2, msg.body().asArray().size());
-        Assert.assertEquals(1,
-                msg.body().asArray().getArray(0).getObject(1).getInteger("key").intValue());
-        Assert.assertEquals(2,
-                msg.body().asArray().getArray(1).getObject(1).getInteger("key").intValue());
+        Assert.assertEquals(1, msg.body() //
+                .asArray() //
+                .getArray(0) //
+                .getObject(1) //
+                .getInteger("key") //
+                .intValue());
+        Assert.assertEquals(2, msg.body().asArray().getArray(1).getObject(1).getInteger("key").intValue());
         Assert.assertEquals(1, msg.body().asArray().getArray(0).getInteger(2).intValue());
         Assert.assertEquals(2, msg.body().asArray().getArray(1).getInteger(2).intValue());
     }

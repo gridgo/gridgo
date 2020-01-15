@@ -9,4 +9,9 @@ public interface BContainer extends BElement, BFactoryAware {
     boolean isEmpty();
 
     void clear();
+
+    @Override
+    default boolean isContainer() {
+        return true;
+    }
 }

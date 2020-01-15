@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>io.gridgo</groupId>
 		<artifactId>gridgo-commons</artifactId>
-		<version>0.7.0</version>
+		<version>0.8.0</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -25,6 +25,16 @@
 		<dependency>
 			<groupId>io.gridgo</groupId>
 			<artifactId>gridgo-bean</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.gridgo</groupId>
+			<artifactId>gridgo-bean-json</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.gridgo</groupId>
+			<artifactId>gridgo-bean-msgpack</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

@@ -1,28 +1,34 @@
 package io.gridgo.core.impl;
 
+import org.joo.promise4j.Deferred;
+
 import java.util.List;
 import java.util.stream.Collectors;
-
-import org.joo.promise4j.Deferred;
 
 import io.gridgo.bean.BElement;
 import io.gridgo.core.GridgoContext;
 import io.gridgo.core.support.RoutingContext;
 import io.gridgo.core.support.exceptions.SerializationException;
 import io.gridgo.framework.support.Message;
+import io.gridgo.utils.pojo.PojoUtils;
+import io.gridgo.utils.pojo.setter.PojoSetterProxy;
 
 public abstract class AbstractPojoProcessor<T> extends AbstractProcessor {
 
     private Class<? extends T> pojoType;
 
+    private PojoSetterProxy pojoSetterProxy;
+
     public AbstractPojoProcessor(Class<? extends T> pojoType) {
         this.pojoType = pojoType;
+        this.pojoSetterProxy = PojoUtils.getSetterProxy(pojoType);
     }
 
     @Override
     public void process(RoutingContext rc, GridgoContext gc) {
-        var body = rc.getMessage().body();
-        if (body.isArray()) {
+        var msg = rc.getMessage();
+        var body = msg != null ? msg.body() : null;
+        if (body != null && body.isArray()) {
             var request = convertBodyToList(body);
             processMulti(request, rc.getMessage(), rc.getDeferred(), gc);
         } else {
@@ -46,7 +52,7 @@ public abstract class AbstractPojoProcessor<T> extends AbstractProcessor {
         if (body.isValue())
             return (T) body.asValue().getData();
         try {
-            return body.asObject().toPojo(pojoType);
+            return body.asObject().toPojo(pojoType, pojoSetterProxy);
         } catch (Exception ex) {
             return handleDeserializationException(ex, body);
         }

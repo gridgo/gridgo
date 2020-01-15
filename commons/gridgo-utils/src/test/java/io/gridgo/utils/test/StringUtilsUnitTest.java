@@ -1,11 +1,13 @@
 package io.gridgo.utils.test;
 
-import java.util.Arrays;
-
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.IOException;
+import java.util.Arrays;
+
 import io.gridgo.utils.StringUtils;
+import io.gridgo.utils.exception.RuntimeIOException;
 
 public class StringUtilsUnitTest {
 
@@ -40,23 +42,25 @@ public class StringUtilsUnitTest {
     }
 
     @Test
-    public void testMatch() {
-        String text = "You shall not pass";
-        Assert.assertTrue(StringUtils.match(text, "You.*shall.*pass"));
-    }
-
-    @Test
-    public void testImplode() {
-        String text = "one string to rule them all";
-        Assert.assertEquals(text, StringUtils.implode("one ", "string ", "to ", "rule ", "them ", "all"));
-    }
-
-    @Test
     public void testImplodeWithGlue() {
         String text = "one string to bind them all";
-        Assert.assertEquals(text, StringUtils.implodeWithGlue(" ", "one", "string", "to", "bind", "them", "all"));
         Assert.assertEquals(text,
                 StringUtils.implodeWithGlue(" ", Arrays.asList("one", "string", "to", "bind", "them", "all")));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testImplodeWithGlueStartAfterEnd() {
+        StringUtils.implodeWithGlue(" ", new String[] { "one", "string"}, 2, 1);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testImplodeWithGlueEndAfterLength() {
+        StringUtils.implodeWithGlue(" ", new String[] { "one", "string"}, 0, 3);
+    }
+
+    @Test(expected = ArrayIndexOutOfBoundsException.class)
+    public void testImplodeWithGlueNegativeStart() {
+        StringUtils.implodeWithGlue(" ", new String[] { "one", "string"}, -1, 2);
     }
 
     @Test
@@ -66,22 +70,35 @@ public class StringUtilsUnitTest {
         Assert.assertEquals(text, StringUtils.implodeWithGlue(" ", array, 1, array.length - 1));
     }
 
-    @Test
-    public void testTab() {
-        Assert.assertEquals("\t\t\t\t", StringUtils.tabs(4));
+    @Test(expected = RuntimeIOException.class)
+    public void testTabWithException() {
+        StringUtils.tabs(1, new Appendable() {
+
+            @Override
+            public Appendable append(CharSequence csq, int start, int end) throws IOException {
+                throw new IOException();
+            }
+
+            @Override
+            public Appendable append(char c) throws IOException {
+                throw new IOException();
+            }
+
+            @Override
+            public Appendable append(CharSequence csq) throws IOException {
+                throw new IOException();
+            }
+        });
     }
 
     @Test
-    public void testIsNumber() {
-        Assert.assertTrue(StringUtils.isRepresentNumber("5"));
-        Assert.assertTrue(StringUtils.isRepresentNumber("5.0"));
-        Assert.assertTrue(StringUtils.isRepresentNumber("-5"));
-        Assert.assertTrue(StringUtils.isRepresentNumber("-5.0"));
-        Assert.assertFalse(StringUtils.isRepresentNumber("-5.0."));
-        Assert.assertFalse(StringUtils.isRepresentNumber("-5.."));
-        Assert.assertFalse(StringUtils.isRepresentNumber("-5.0.0"));
-        Assert.assertFalse(StringUtils.isRepresentNumber("5-0"));
-        Assert.assertFalse(StringUtils.isRepresentNumber("-5a"));
-        Assert.assertFalse(StringUtils.isRepresentNumber("a"));
+    public void testTab() {
+        var sb = new StringBuilder();
+        StringUtils.tabs(1, sb);
+        Assert.assertEquals("\t", sb.toString());
+
+        sb = new StringBuilder();
+        StringUtils.tabs(2, sb);
+        Assert.assertEquals("\t\t", sb.toString());
     }
 }

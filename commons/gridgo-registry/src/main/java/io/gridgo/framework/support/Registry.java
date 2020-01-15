@@ -16,7 +16,7 @@ public interface Registry {
 
     /**
      * Lookup an entry by name
-     * 
+     *
      * @param name the name of the entry
      * @return the value of the entry, or null if there is no such entry
      */
@@ -24,7 +24,7 @@ public interface Registry {
 
     /**
      * Lookup an entry by name and cast the return value to the specified type
-     * 
+     *
      * @param name the name of the entry
      * @param type the expected type of the entry
      * @return the value of the entry
@@ -54,7 +54,7 @@ public interface Registry {
 
     /**
      * Register new entry
-     * 
+     *
      * @param name   the entry name
      * @param answer the entry value
      * @return the current Registry object
@@ -63,7 +63,7 @@ public interface Registry {
 
     /**
      * Lookup an entry by name and throw exception if the entry is not available.
-     * 
+     *
      * @param name the name of the entry
      * @return the value of the entry
      * @throws BeanNotFoundException if the entry is not available
@@ -78,7 +78,7 @@ public interface Registry {
     /**
      * Lookup an entry by name and throw exception if the entry is not available.
      * Also cast the return value to the specified type
-     * 
+     *
      * @param name the name of the entry
      * @param type the expected type of the entry
      * @return the value of the entry
@@ -95,7 +95,7 @@ public interface Registry {
     /**
      * Substitute all placeholders in the specified text with the correct entry in
      * the registry.
-     * 
+     *
      * @param text the text to be substituted
      * @return the substituted text
      */
@@ -115,7 +115,7 @@ public interface Registry {
      * Substitute all placeholders in the specified text with the correct entry in
      * the registry. This operation is called in a loop until no more placeholders
      * can be found.
-     * 
+     *
      * @param text the text to be substituted
      * @return the substituted text
      */
@@ -131,9 +131,5 @@ public interface Registry {
                 return obj != null ? Matcher.quoteReplacement(toString(obj)) : "";
             });
         }
-    }
-
-    public default Object lookupByType(Class<?> type) {
-        return null;
     }
 }

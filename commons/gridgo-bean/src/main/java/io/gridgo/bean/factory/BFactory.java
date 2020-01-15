@@ -1,9 +1,6 @@
 package io.gridgo.bean.factory;
 
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -19,14 +16,13 @@ import io.gridgo.bean.BObject;
 import io.gridgo.bean.BReference;
 import io.gridgo.bean.BValue;
 import io.gridgo.bean.exceptions.InvalidTypeException;
-import io.gridgo.bean.serialization.BSerializer;
-import io.gridgo.bean.serialization.BSerializerRegistry;
+import io.gridgo.bean.serialization.BSerializerRegistryAware;
 import io.gridgo.utils.ArrayUtils;
 import io.gridgo.utils.PrimitiveUtils;
 import lombok.NonNull;
 
 @SuppressWarnings("unchecked")
-public interface BFactory {
+public interface BFactory extends BSerializerRegistryAware {
 
     static final BFactory DEFAULT = new SimpleBFactory();
 
@@ -46,8 +42,6 @@ public interface BFactory {
         return DEFAULT.newValue();
     }
 
-    BSerializerRegistry getSerializerRegistry();
-
     Supplier<BReference> getReferenceSupplier();
 
     Function<Map<String, BElement>, BObject> getObjectSupplier();
@@ -62,25 +56,30 @@ public interface BFactory {
 
     @SuppressWarnings("rawtypes")
     default <T extends BElement> T wrap(Object data) {
+        if (BElement.class.isInstance(data))
+            return (T) data;
+
         Class<?> clazz;
-
-        if (data == null || PrimitiveUtils.isPrimitive(clazz = data.getClass()))
-            return (T) newValue(data);
-
-        if (Collection.class.isAssignableFrom(clazz))
-            return (T) this.getWrappedArraySupplier().apply((Collection) data);
-
-        if (clazz.isArray()) {
+        T result;
+        if (data == null || PrimitiveUtils.isPrimitive(clazz = data.getClass())) {
+            result = (T) newValue(data);
+        } else if (Collection.class.isInstance(data)) {
+            result = (T) this.getWrappedArraySupplier().apply((Collection) data);
+        } else if (clazz.isArray()) {
             final List<Object> list = new ArrayList<>();
             ArrayUtils.foreach(data, entry -> list.add(entry));
-            return (T) this.getWrappedArraySupplier().apply(list);
+            result = (T) this.getWrappedArraySupplier().apply(list);
+        } else if (Map.class.isInstance(data)) {
+            result = (T) this.getWrappedObjectSupplier().apply((Map<?, ?>) data);
+        } else {
+            result = (T) newReference(data);
         }
 
-        if (Map.class.isAssignableFrom(clazz)) {
-            return (T) this.getWrappedObjectSupplier().apply((Map<?, ?>) data);
-        }
+        result.setSerializerRegistry(getSerializerRegistry());
+        if (result.isContainer())
+            result.asContainer().setFactory(this);
 
-        return (T) newReference(data);
+        return result;
     }
 
     default BReference newReference(Object reference) {
@@ -106,13 +105,6 @@ public interface BFactory {
         Map<?, ?> map;
         if (Map.class.isAssignableFrom(mapData.getClass())) {
             map = (Map<?, ?>) mapData;
-        } else if (mapData instanceof Properties) {
-            var map1 = new HashMap<>();
-            var props = (Properties) mapData;
-            for (var entry : props.entrySet()) {
-                map1.put(entry.getKey(), entry.getValue());
-            }
-            map = map1;
         } else {
             throw new InvalidTypeException("Cannot create new object from non-map data: " + mapData.getClass());
         }
@@ -194,76 +186,25 @@ public interface BFactory {
     }
 
     default <T extends BElement> T fromAny(Object obj) {
-        if (obj instanceof BElement) {
+        Class<?> type;
+        if (BElement.class.isInstance(obj)) {
             return (T) ((BElement) obj);
-        } else if (obj == null || (obj instanceof byte[]) || PrimitiveUtils.isPrimitive(obj.getClass())) {
+        } else if (obj == null || (obj instanceof byte[]) || PrimitiveUtils.isPrimitive(type = obj.getClass())) {
             return (T) newValue(obj);
-        } else if (ArrayUtils.isArrayOrCollection(obj.getClass())) {
+        } else if (ArrayUtils.isArrayOrCollection(type)) {
             return (T) newArray(obj);
-        } else if (obj instanceof Map<?, ?> || obj instanceof Properties) {
+        } else if (Map.class.isInstance(obj) || Properties.class.isInstance(obj)) {
             return (T) newObject(obj);
         }
         return (T) newReference(obj);
     }
 
-    default <T extends BElement> T fromJson(InputStream inputStream) {
-        if (inputStream == null)
-            return null;
-        return this.fromAny(this.lookupDeserializer("json").deserialize(inputStream));
-    }
-
-    default <T extends BElement> T fromJson(String json) {
-        if (json == null)
-            return null;
-        return fromJson(new ByteArrayInputStream(json.getBytes(Charset.forName("UTF-8"))));
-    }
-
-    default <T extends BElement> T fromXml(String xml) {
-        return this.fromXml(new ByteArrayInputStream(xml.getBytes(Charset.forName("UTF-8"))));
-    }
-
-    default <T extends BElement> T fromXml(InputStream input) {
-        return (T) this.getSerializerRegistry().lookup("xml").deserialize(input);
-    }
-
-    default BSerializer lookupDeserializer(String serializerName) {
-        var serializer = this.getSerializerRegistry().lookup(serializerName);
-        if (serializer == null) {
-            throw new NullPointerException("Cannot found serializer name " + serializerName);
-        }
-        return serializer;
-    }
-
-    default BSerializer lookupOrDefaultSerializer(String serializerName) {
-        var serializer = this.getSerializerRegistry().lookupOrDefault(serializerName);
-        if (serializer == null) {
-            throw new NullPointerException("Cannot found serializer name " + serializerName);
-        }
-        return serializer;
+    default BReference fromBytes(@NonNull InputStream in, String serializerName, Class<?> targetType) {
+        return BReference.of(this.lookupOrDefaultSerializer(serializerName).deserializeToPojo(in, targetType));
     }
 
     default <T extends BElement> T fromBytes(@NonNull InputStream in, String serializerName) {
         return (T) this.lookupOrDefaultSerializer(serializerName).deserialize(in);
-    }
-
-    default <T extends BElement> T fromBytes(@NonNull ByteBuffer buffer, String serializerName) {
-        return (T) this.lookupOrDefaultSerializer(serializerName).deserialize(buffer);
-    }
-
-    default <T extends BElement> T fromBytes(@NonNull byte[] bytes, String serializerName) {
-        return (T) this.lookupOrDefaultSerializer(serializerName).deserialize(bytes);
-    }
-
-    default <T extends BElement> T fromBytes(@NonNull InputStream in) {
-        return (T) this.fromBytes(in, null);
-    }
-
-    default <T extends BElement> T fromBytes(@NonNull ByteBuffer buffer) {
-        return (T) this.fromBytes(buffer, null);
-    }
-
-    default <T extends BElement> T fromBytes(@NonNull byte[] bytes) {
-        return (T) this.fromBytes(bytes, null);
     }
 
     default BFactoryConfigurable asConfigurable() {

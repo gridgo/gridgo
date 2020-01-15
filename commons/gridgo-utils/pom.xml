@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>io.gridgo</groupId>
 		<artifactId>gridgo-commons</artifactId>
-		<version>0.7.0</version>
+		<version>0.8.0</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -15,6 +15,7 @@
 		<junit.version>4.12</junit.version>
 		<reflections.version>0.9.11</reflections.version>
 		<java-uuid-generator.version>3.2.0</java-uuid-generator.version>
+		<javassist.version>3.26.0-GA</javassist.version>
 	</properties>
 
 	<dependencies>
@@ -29,20 +30,31 @@
 			<version>${lz4.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>org.javassist</groupId>
+			<artifactId>javassist</artifactId>
+			<version>${javassist.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>org.reflections</groupId>
 			<artifactId>reflections</artifactId>
 			<version>${reflections.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.javassist</groupId>
+					<artifactId>javassist</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.uuid</groupId>
 			<artifactId>java-uuid-generator</artifactId>
 			<version>${java-uuid-generator.version}</version>
 		</dependency>
-        <dependency>
-            <groupId>org.reflections</groupId>
-            <artifactId>reflections</artifactId>
-            <version>0.9.11</version>
-            <scope>compile</scope>
-        </dependency>
-    </dependencies>
+		<dependency>
+			<groupId>org.reflections</groupId>
+			<artifactId>reflections</artifactId>
+			<version>0.9.11</version>
+			<scope>compile</scope>
+		</dependency>
+	</dependencies>
 </project>

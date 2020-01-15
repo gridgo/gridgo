@@ -21,6 +21,7 @@ import lombok.Setter;
 
 @Getter
 @Setter(PACKAGE)
+@SuppressWarnings("rawtypes")
 public final class PojoMethodSignature {
 
     private final @NonNull Method method;
@@ -31,6 +32,7 @@ public final class PojoMethodSignature {
 
     private PojoGetterProxy getterProxy;
     private PojoSetterProxy setterProxy;
+
     private PojoGetterProxy elementGetterProxy;
     private PojoSetterProxy elementSetterProxy;
 
@@ -59,16 +61,26 @@ public final class PojoMethodSignature {
     private final Class<?>[] genericTypes;
 
     private final ValueTranslator valueTranslator;
+    private final boolean isSetter;
+    private final boolean isGetter;
+
+    private final boolean ignoreNull;
 
     @Builder
-    private PojoMethodSignature(Method method, String fieldName, Class<?> fieldType, String transformedFieldName,
-            ValueTranslator valueTranslator) {
+    private PojoMethodSignature(//
+            Method method, //
+            String fieldName, //
+            Class<?> fieldType, //
+            String transformedFieldName, //
+            ValueTranslator valueTranslator, //
+            boolean ignoreNull) {
 
         this.method = method;
         this.fieldName = fieldName;
         this.fieldType = fieldType;
         this.transformedFieldName = transformedFieldName;
-        this.valueTranslator = valueTranslator;
+        this.isSetter = method.getReturnType() == void.class;
+        this.isGetter = !isSetter;
 
         this.isPrimitiveType = fieldType.isPrimitive();
         this.isWrapperType = PrimitiveUtils.isWrapperType(fieldType);
@@ -94,5 +106,8 @@ public final class PojoMethodSignature {
         this.methodName = method.getName();
         this.genericTypes = extractGenericTypes(method, fieldName);
         this.transformedOrDefaultFieldName = transformedFieldName == null ? fieldName : transformedFieldName;
+
+        this.valueTranslator = valueTranslator;
+        this.ignoreNull = ignoreNull;
     }
 }

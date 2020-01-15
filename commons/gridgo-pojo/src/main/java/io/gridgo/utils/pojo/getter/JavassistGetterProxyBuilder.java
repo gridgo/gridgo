@@ -1,19 +1,18 @@
 package io.gridgo.utils.pojo.getter;
 
-import static io.gridgo.utils.pojo.PojoUtils.extractGetterMethodSignatures;
-
 import java.util.List;
 
+import io.gridgo.utils.pojo.AbstractProxyBuilder;
 import io.gridgo.utils.pojo.PojoMethodSignature;
 import javassist.CannotCompileException;
 import javassist.ClassClassPath;
 import javassist.ClassPool;
 import javassist.CtClass;
-import javassist.CtField;
 import javassist.CtMethod;
+import javassist.NotFoundException;
 import lombok.NonNull;
 
-class JavassistGetterProxyBuilder implements PojoGetterProxyBuilder {
+class JavassistGetterProxyBuilder extends AbstractProxyBuilder implements PojoGetterProxyBuilder {
 
     @Override
     public PojoGetterProxy buildGetterProxy(@NonNull Class<?> target) {
@@ -27,7 +26,7 @@ class JavassistGetterProxyBuilder implements PojoGetterProxyBuilder {
             cc.defrost();
             cc.addInterface(pool.get(PojoGetterProxy.class.getName()));
 
-            List<PojoMethodSignature> methodSignatures = extractGetterMethodSignatures(target);
+            var methodSignatures = GetterMethodSignatureExtractor.getInstance().extractMethodSignatures(target);
             StringBuilder allFieldsBuilder = new StringBuilder();
             for (PojoMethodSignature signature : methodSignatures) {
                 if (allFieldsBuilder.length() > 0) {
@@ -54,42 +53,9 @@ class JavassistGetterProxyBuilder implements PojoGetterProxyBuilder {
             }
 
             return result;
-        } catch (Exception e) {
+        } catch (CannotCompileException | ReflectiveOperationException | NotFoundException e) {
             throw new RuntimeException("error while trying to build getter proxy: " + target, e);
         }
-    }
-
-    private void buildGetSignaturesMethod(CtClass cc) throws CannotCompileException {
-        CtField field = CtField.make("private java.util.List signatures = new java.util.ArrayList();", cc);
-        cc.addField(field);
-
-        String method = "public java.util.List getSignatures() { return this.signatures; }";
-        cc.addMethod(CtMethod.make(method, cc));
-    }
-
-    private void buildSetSignatureMethod(CtClass cc, List<PojoMethodSignature> methodSignatures)
-            throws CannotCompileException {
-        String type = "io.gridgo.utils.pojo.PojoMethodSignature";
-        String subfix = "Signature";
-        for (PojoMethodSignature methodSignature : methodSignatures) {
-            String fieldName = methodSignature.getFieldName() + subfix;
-            cc.addField(CtField.make("private " + type + " " + fieldName + ";", cc));
-        }
-
-        String method = "public void setMethodSignature(String fieldName, " + type + " value) {\n";
-        method += "\tfor (int i=0; i<this.fields.length; i++) {"; // start for loop via all field
-        for (PojoMethodSignature methodSignature : methodSignatures) {
-            String fieldName = methodSignature.getFieldName();
-            String signFieldName = fieldName + subfix;
-            method += "\t\tif (\"" + fieldName + "\".equals(fieldName)) {\n";
-            method += "\t\t\t" + signFieldName + " = value;\n";
-            method += "\t\t\tthis.signatures.add(value); \n";
-            method += "\t\t}\n";
-        }
-        method += "\t}\n"; // end of for
-        method += "}"; // end of method
-
-        cc.addMethod(CtMethod.make(method, cc));
     }
 
     private void buildGetValueMethod(CtClass cc, String typeName, List<PojoMethodSignature> methodSignatures)
@@ -110,15 +76,6 @@ class JavassistGetterProxyBuilder implements PojoGetterProxyBuilder {
         method += "\treturn null;\n";
         method += "}";
 
-        cc.addMethod(CtMethod.make(method, cc));
-    }
-
-    private void buildGetFieldsMethod(CtClass cc, String allFields) throws CannotCompileException {
-        String initValue = allFields.length() == 0 ? "new String[0];" : "new String[] {" + allFields + "};";
-        CtField field = CtField.make("private String[] fields = " + initValue, cc);
-        cc.addField(field);
-
-        String method = "public String[] getFields() { return this.fields; }";
         cc.addMethod(CtMethod.make(method, cc));
     }
 

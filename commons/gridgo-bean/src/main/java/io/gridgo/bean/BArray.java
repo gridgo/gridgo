@@ -18,7 +18,7 @@ public interface BArray extends BContainer, List<BElement> {
     }
 
     static BArray ofEmpty() {
-        return BFactory.DEFAULT.newArray();
+        return BFactory.newDefaultArray();
     }
 
     static BArray of(Object data) {
@@ -32,21 +32,6 @@ public interface BArray extends BContainer, List<BElement> {
     @Override
     default boolean isArray() {
         return true;
-    }
-
-    @Override
-    default boolean isValue() {
-        return false;
-    }
-
-    @Override
-    default boolean isObject() {
-        return false;
-    }
-
-    @Override
-    default boolean isReference() {
-        return false;
     }
 
     @Override
@@ -159,46 +144,6 @@ public interface BArray extends BContainer, List<BElement> {
         return this.remove(index).asArray();
     }
 
-    default Boolean removeBoolean(int index) {
-        return this.removeValue(index).getBoolean();
-    }
-
-    default Character removeChar(int index) {
-        return this.removeValue(index).getChar();
-    }
-
-    default Byte removeByte(int index) {
-        return this.removeValue(index).getByte();
-    }
-
-    default Short removeShort(int index) {
-        return this.removeValue(index).getShort();
-    }
-
-    default Integer removeInteger(int index) {
-        return this.removeValue(index).getInteger();
-    }
-
-    default Long removeLong(int index) {
-        return this.removeValue(index).getLong();
-    }
-
-    default Float removeFloat(int index) {
-        return this.removeValue(index).getFloat();
-    }
-
-    default Double removeDouble(int index) {
-        return this.removeValue(index).getDouble();
-    }
-
-    default String removeString(int index) {
-        return this.removeValue(index).getString();
-    }
-
-    default byte[] removeRaw(int index) {
-        return this.removeValue(index).getRaw();
-    }
-
     @Override
     @SuppressWarnings("unchecked")
     default <T extends BElement> T deepClone() {
@@ -222,28 +167,14 @@ public interface BArray extends BContainer, List<BElement> {
     default List<Object> toList() {
         List<Object> list = new LinkedList<>();
         for (BElement entry : this) {
-            if (entry instanceof BValue) {
-                list.add(((BValue) entry).getData());
-            } else if (entry instanceof BObject) {
-                list.add(((BObject) entry).toMap());
-            } else if (entry instanceof BArray) {
-                list.add(((BArray) entry).toList());
-            } else if (entry instanceof BReference) {
-                list.add(((BReference) entry).getReference());
-            } else {
-                throw new InvalidTypeException("Found unexpected BElement implementation: " + entry.getClass());
-            }
+            list.add(entry.getInnerValue());
         }
         return list;
     }
 
-    @Override
     @SuppressWarnings("unchecked")
-    default List<?> toJsonElement() {
-        List<?> list = new LinkedList<>();
-        for (BElement element : this) {
-            list.add(element.toJsonElement());
-        }
-        return list;
+    @Override
+    default <T> T getInnerValue() {
+        return (T) toList();
     }
 }

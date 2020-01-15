@@ -3,8 +3,11 @@ package io.gridgo.utils.wrapper;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 
+import lombok.Getter;
+
 public class ByteBufferInputStream extends InputStream {
 
+    @Getter
     private ByteBuffer buffer;
 
     public ByteBufferInputStream(ByteBuffer buffer) {

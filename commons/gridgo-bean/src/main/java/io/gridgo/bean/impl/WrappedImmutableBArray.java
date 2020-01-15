@@ -9,7 +9,6 @@ import io.gridgo.bean.WrappedBArray;
 import lombok.Getter;
 import lombok.NonNull;
 
-@SuppressWarnings("unchecked")
 public class WrappedImmutableBArray extends AbstractBArray implements WrappedBArray, ImmutableBArray {
 
     @Getter

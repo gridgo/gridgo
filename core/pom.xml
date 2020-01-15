@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>io.gridgo</groupId>
 		<artifactId>gridgo-base</artifactId>
-		<version>0.7.0</version>
+		<version>0.8.0</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -17,11 +17,6 @@
 		<dependency>
 			<groupId>io.gridgo</groupId>
 			<artifactId>gridgo-connector-core</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>io.gridgo</groupId>
-			<artifactId>gridgo-config-core</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

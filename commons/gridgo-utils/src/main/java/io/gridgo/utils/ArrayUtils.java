@@ -32,11 +32,6 @@ public final class ArrayUtils {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    private static void foreachArrayPrimitive(@NonNull Object obj, @NonNull ForeachCallback callback) {
-        foreachArrayPrimitive(obj, (ele, index, end) -> callback.apply(ele));
-    }
-
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     private static void foreachArrayPrimitive(@NonNull Object obj, @NonNull ForeachCallback2 callback) {
         Class<? extends Object> type = obj.getClass();
 
@@ -137,19 +132,8 @@ public final class ArrayUtils {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public static <T> void foreachArray(@NonNull Object obj, @NonNull ForeachCallback<T> callback) {
-        Class<T> componentType = (Class<T>) obj.getClass().getComponentType();
-        if (componentType.isPrimitive()) {
-            foreachArrayPrimitive(obj, callback);
-            return;
-        }
-
-        T[] arr = (T[]) obj;
-        int length = arr.length;
-        for (int i = 0; i < length; i++) {
-            callback.apply(arr[i]);
-        }
+        ArrayUtils.<T>foreachArray(obj, (element, index, isEnd) -> callback.apply(element));
     }
 
     @SuppressWarnings("unchecked")
@@ -182,45 +166,8 @@ public final class ArrayUtils {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> T[] createArray(Class<T> clazz, int length) {
-        return (T[]) Array.newInstance(clazz, length);
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <T> T createPrimitiveArray(Class<?> type, int length) {
-        if (type.isPrimitive()) {
-            if (type == Boolean.TYPE) {
-                return (T) new boolean[length];
-            }
-            if (type == Character.TYPE) {
-                return (T) new char[length];
-            }
-            if (type == Byte.TYPE) {
-                return (T) new byte[length];
-            }
-            if (type == Short.TYPE) {
-                return (T) new short[length];
-            }
-            if (type == Integer.TYPE) {
-                return (T) new int[length];
-            }
-            if (type == Long.TYPE) {
-                return (T) new long[length];
-            }
-            if (type == Float.TYPE) {
-                return (T) new float[length];
-            }
-            if (type == Double.TYPE) {
-                return (T) new double[length];
-            }
-            throw new UnsupportedTypeException("cannot create primitive type for: " + type);
-        }
-        throw new IllegalArgumentException("Expected primitive type, got: " + type);
-    }
-
-    @SuppressWarnings("unchecked")
     public static <T> T[] toArray(Class<T> clazz, List<?> list) {
-        T[] result = createArray(clazz, list.size());
+        T[] result = (T[]) Array.newInstance(clazz, list.size());
         for (int i = 0; i < result.length; i++) {
             result[i] = (T) list.get(i);
         }
@@ -238,7 +185,7 @@ public final class ArrayUtils {
             int[] arr = new int[list.size()];
             int index = 0;
             for (Object obj : list) {
-                arr[index++] = obj == null ? 0 : (int) obj;
+                arr[index++] = obj == null ? 0 : ((Number) obj).intValue();
             }
             return arr;
         }
@@ -246,7 +193,7 @@ public final class ArrayUtils {
             long[] arr = new long[list.size()];
             int index = 0;
             for (Object obj : list) {
-                arr[index++] = obj == null ? 0 : (long) obj;
+                arr[index++] = obj == null ? 0 : ((Number) obj).longValue();
             }
             return arr;
         }
@@ -254,7 +201,7 @@ public final class ArrayUtils {
             double[] arr = new double[list.size()];
             int index = 0;
             for (Object obj : list) {
-                arr[index++] = obj == null ? 0 : (double) obj;
+                arr[index++] = obj == null ? 0 : ((Number) obj).doubleValue();
             }
             return arr;
         }
@@ -262,7 +209,7 @@ public final class ArrayUtils {
             float[] arr = new float[list.size()];
             int index = 0;
             for (Object obj : list) {
-                arr[index++] = obj == null ? 0 : (float) obj;
+                arr[index++] = obj == null ? 0 : ((Number) obj).floatValue();
             }
             return arr;
         }
@@ -270,7 +217,7 @@ public final class ArrayUtils {
             byte[] arr = new byte[list.size()];
             int index = 0;
             for (Object obj : list) {
-                arr[index++] = obj == null ? 0 : (byte) obj;
+                arr[index++] = obj == null ? 0 : ((Number) obj).byteValue();
             }
             return arr;
         }
@@ -278,7 +225,7 @@ public final class ArrayUtils {
             short[] arr = new short[list.size()];
             int index = 0;
             for (Object obj : list) {
-                arr[index++] = obj == null ? 0 : (short) obj;
+                arr[index++] = obj == null ? 0 : ((Number) obj).shortValue();
             }
             return arr;
         }

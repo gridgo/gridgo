@@ -8,7 +8,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @AllArgsConstructor
-@SuppressWarnings("unchecked")
 public class WrappedImmutableBObject extends AbstractBObject implements ImmutableBObject, WrappedBObject {
 
     @Getter
