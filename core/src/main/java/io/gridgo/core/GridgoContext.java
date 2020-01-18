@@ -7,15 +7,17 @@ import java.util.function.Consumer;
 import io.gridgo.connector.ConnectorFactory;
 import io.gridgo.core.support.ContextAwareComponent;
 import io.gridgo.core.support.GatewayContainer;
+import io.gridgo.core.support.LifecycleEvent;
 import io.gridgo.core.support.exceptions.InvalidGatewayException;
 import io.gridgo.core.support.subscription.GatewaySubscription;
 import io.gridgo.framework.ComponentLifecycle;
+import io.gridgo.framework.EventDispatcher;
 import io.gridgo.framework.support.Registry;
 
 /**
  * Represents a context in which a Gridgo application runs.
  */
-public interface GridgoContext extends GatewayContainer, ComponentLifecycle {
+public interface GridgoContext extends GatewayContainer, ComponentLifecycle, EventDispatcher<LifecycleEvent> {
 
     /**
      * Attach a io.gridgo.core.support.ContextAwareComponent to this
