@@ -17,15 +17,18 @@ import io.gridgo.connector.impl.factories.DefaultConnectorFactory;
 import io.gridgo.core.Gateway;
 import io.gridgo.core.GridgoContext;
 import io.gridgo.core.support.ContextAwareComponent;
+import io.gridgo.core.support.LifecycleEvent;
+import io.gridgo.core.support.LifecycleEventPublisher;
+import io.gridgo.core.support.LifecycleType;
 import io.gridgo.core.support.subscription.GatewaySubscription;
 import io.gridgo.core.support.template.ProducerTemplate;
-import io.gridgo.framework.ComponentLifecycle;
-import io.gridgo.framework.impl.AbstractComponentLifecycle;
+import io.gridgo.framework.impl.SubjectEventDispatcher;
 import io.gridgo.framework.support.Registry;
 import io.gridgo.framework.support.impl.SimpleRegistry;
+import io.reactivex.subjects.ReplaySubject;
 import lombok.Getter;
 
-public class DefaultGridgoContext extends AbstractComponentLifecycle implements GridgoContext {
+public class DefaultGridgoContext extends SubjectEventDispatcher<LifecycleEvent> implements GridgoContext, LifecycleEventPublisher {
 
     private static final Consumer<Throwable> DEFAULT_EXCEPTION_HANDLER = ex -> {
     };
@@ -52,23 +55,28 @@ public class DefaultGridgoContext extends AbstractComponentLifecycle implements 
 
     protected DefaultGridgoContext(String name, ConnectorFactory connectorFactory, Registry registry,
             Consumer<Throwable> exceptionHandler) {
+        super(ReplaySubject.create());
         this.name = name != null ? name : UUID.randomUUID().toString();
-        if (connectorFactory != null)
+        if (connectorFactory != null) {
             this.connectorFactory = connectorFactory;
+        }
         if (registry != null) {
             this.registry = registry;
             this.connectorFactory.setRegistry(registry);
         }
-        if (exceptionHandler != null)
+        if (exceptionHandler != null) {
             this.exceptionHandler = exceptionHandler;
+        }
     }
 
     @Override
     public GatewaySubscription openGateway(String name, ProducerTemplate producerTemplate) {
-        return gateways.computeIfAbsent(name, key -> {
+        var sub = gateways.computeIfAbsent(name, key -> {
             gatewayOrder.put(name, counter.incrementAndGet());
             return new DefaultGateway(this, key).setProducerTemplate(producerTemplate);
         });
+        publish(LifecycleType.GATEWAY_OPENED, sub.get());
+        return sub;
     }
 
     @Override
@@ -76,6 +84,7 @@ public class DefaultGridgoContext extends AbstractComponentLifecycle implements 
         var gateway = gateways.remove(name);
         if (gateway == null)
             return Optional.empty();
+        publish(LifecycleType.GATEWAY_CLOSED, gateway.get());
         return Optional.of(gateway.get());
     }
 
@@ -89,12 +98,13 @@ public class DefaultGridgoContext extends AbstractComponentLifecycle implements 
 
     @Override
     protected void onStart() {
-        components.stream().forEach(ComponentLifecycle::start);
+        components.stream().forEach(this::startComponent);
         gateways.entrySet().stream() //
                 .sorted(this::compareGateways) //
                 .map(entry -> entry.getValue().get()) //
                 .filter(Gateway::isAutoStart) //
                 .forEach(Gateway::start);
+        publish(LifecycleType.CONTEXT_STARTED, this);
     }
 
     private int compareGateways(Entry<String, GatewaySubscription> e1, Entry<String, GatewaySubscription> e2) {
@@ -104,7 +114,8 @@ public class DefaultGridgoContext extends AbstractComponentLifecycle implements 
     @Override
     protected void onStop() {
         gateways.values().stream().forEach(g -> g.get().stop());
-        components.stream().forEach(ComponentLifecycle::stop);
+        components.stream().forEach(this::stopComponent);
+        publish(LifecycleType.CONTEXT_STOPPED, this);
     }
 
     @Override
@@ -126,11 +137,27 @@ public class DefaultGridgoContext extends AbstractComponentLifecycle implements 
     public GridgoContext attachComponent(ContextAwareComponent component) {
         components.add(component);
         component.setContext(this);
+        publish(LifecycleType.COMPONENT_ATTACHED, component);
         return this;
+    }
+
+    private void startComponent(ContextAwareComponent component) {
+        component.start();
+        publish(LifecycleType.COMPONENT_STARTED, component);
+    }
+
+    private void stopComponent(ContextAwareComponent component) {
+        component.stop();
+        publish(LifecycleType.COMPONENT_STOPPED, component);
     }
 
     @Override
     protected String generateName() {
         return "context." + name;
+    }
+
+    @Override
+    public GridgoContext getContext() {
+        return this;
     }
 }

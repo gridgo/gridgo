@@ -17,6 +17,8 @@ import io.gridgo.core.GridgoContext;
 import io.gridgo.core.Processor;
 import io.gridgo.core.RoutingPolicyEnforcer;
 import io.gridgo.core.support.ContextAwareComponent;
+import io.gridgo.core.support.LifecycleEventPublisher;
+import io.gridgo.core.support.LifecycleType;
 import io.gridgo.core.support.RoutingContext;
 import io.gridgo.core.support.impl.DefaultRoutingContext;
 import io.gridgo.core.support.subscription.ConnectorAttachment;
@@ -34,7 +36,7 @@ import lombok.Getter;
 
 @Getter
 public abstract class AbstractGatewaySubscription extends AbstractComponentLifecycle
-        implements Gateway, GatewaySubscription {
+        implements Gateway, GatewaySubscription, LifecycleEventPublisher {
 
     private String name;
 
@@ -83,6 +85,7 @@ public abstract class AbstractGatewaySubscription extends AbstractComponentLifec
         var connectorAttachment = new DefaultConnectorAttachment(this, connector);
         connectorAttachments.add(connectorAttachment);
         subscribeConnector(connectorAttachment);
+        publish(LifecycleType.CONNECTOR_ATTACHED, connector);
         return connectorAttachment;
     }
 
@@ -167,14 +170,20 @@ public abstract class AbstractGatewaySubscription extends AbstractComponentLifec
                                             .map(DefaultRoutingPolicyEnforcer::new)
                                             .toArray(size -> new RoutingPolicyEnforcer[size]);
 
-        for (ConnectorAttachment connectorAttachment : connectorAttachments)
+        for (ConnectorAttachment connectorAttachment : connectorAttachments) {
             connectorAttachment.getConnector().start();
+            publish(LifecycleType.CONNECTOR_STARTED, connectorAttachment.getConnector());
+        }
+        publish(LifecycleType.GATEWAY_STARTED, this);
     }
 
     @Override
     protected void onStop() {
-        for (ConnectorAttachment connectorAttachment : connectorAttachments)
+        for (ConnectorAttachment connectorAttachment : connectorAttachments) {
             connectorAttachment.getConnector().stop();
+            publish(LifecycleType.CONNECTOR_STOPPED, connectorAttachment.getConnector());
+        }
+        publish(LifecycleType.GATEWAY_STOPPED, this);
     }
 
     @Override
