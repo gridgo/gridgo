@@ -330,6 +330,11 @@ public interface BObject extends BContainer, Map<String, BElement> {
         return this;
     }
 
+    default BObject setAnySequence(Object... params) {
+        this.putAnySequence(params);
+        return this;
+    }
+
     @Override
     @SuppressWarnings("unchecked")
     default <T extends BElement> T deepClone() {
