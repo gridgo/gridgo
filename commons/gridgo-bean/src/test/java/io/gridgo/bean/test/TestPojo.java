@@ -1,15 +1,16 @@
 package io.gridgo.bean.test;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
 import io.gridgo.bean.BObject;
 import io.gridgo.bean.test.support.NumberCollectionPojo;
+import io.gridgo.utils.pojo.PojoUtils;
 
 public class TestPojo {
 
@@ -93,6 +94,17 @@ public class TestPojo {
         var bObj = BObject.ofPojo(pojo);
 
         var rebuiltPojo = bObj.toPojo(NumberCollectionPojo.class);
+        assertEquals(pojo, rebuiltPojo);
+
+        rebuiltPojo = bObj.fillPojo(new NumberCollectionPojo());
+        assertEquals(pojo, rebuiltPojo);
+
+        var setterProxy = PojoUtils.getSetterProxy(NumberCollectionPojo.class);
+
+        rebuiltPojo = bObj.toPojo(NumberCollectionPojo.class, setterProxy);
+        assertEquals(pojo, rebuiltPojo);
+
+        rebuiltPojo = bObj.fillPojo(new NumberCollectionPojo(), setterProxy);
         assertEquals(pojo, rebuiltPojo);
     }
 }

@@ -374,6 +374,16 @@ public interface BObject extends BContainer, Map<String, BElement> {
         return (T) PojoSetter.ofType(toType, setterProxy).from(BGenericData.ofObject(this)).fill();
     }
 
+    default <T> T fillPojo(T target) {
+        PojoSetter.of(target).from(BGenericData.ofObject(this)).fill();
+        return target;
+    }
+
+    default <T> T fillPojo(T target, PojoSetterProxy setterProxy) {
+        PojoSetter.of(target, setterProxy).from(BGenericData.ofObject(this)).fill();
+        return target;
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     default <T> T getInnerValue() {
