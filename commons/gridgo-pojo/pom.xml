@@ -12,7 +12,7 @@
 	<artifactId>gridgo-pojo</artifactId>
 
 	<properties>
-		<evalex.version>2.0</evalex.version>
+		<janino.version>3.1.2</janino.version>
 		<apache.common.text.version>1.4</apache.common.text.version>
 	</properties>
 
@@ -26,6 +26,11 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-text</artifactId>
 			<version>${apache.common.text.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.janino</groupId>
+			<artifactId>janino</artifactId>
+			<version>${janino.version}</version>
 		</dependency>
 	</dependencies>
 </project>

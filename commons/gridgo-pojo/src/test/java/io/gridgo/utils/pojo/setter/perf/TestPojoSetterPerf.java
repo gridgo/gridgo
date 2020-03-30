@@ -1,8 +1,9 @@
 package io.gridgo.utils.pojo.setter.perf;
 
+import java.text.DecimalFormat;
+
 import org.junit.Test;
 
-import io.gridgo.utils.ObjectUtils;
 import io.gridgo.utils.pojo.PojoUtils;
 import io.gridgo.utils.pojo.support.AbstractTest;
 import io.gridgo.utils.pojo.support.PrimitiveVO;
@@ -15,26 +16,33 @@ public class TestPojoSetterPerf extends AbstractTest {
 
     @Test
     public void testSimpleBoolean() throws Exception {
+        System.out.println("Test pojo setter performance: ");
         String fieldName = "booleanValue";
         var value = true;
 
-        PojoUtils.setValue(target, fieldName, value);
-        ObjectUtils.setValue(target, fieldName, value);
-        target.setBooleanValue(value);
+        var proxy = PojoUtils.getSetterProxy(target.getClass());
+        var method = target.getClass().getDeclaredMethod("setBooleanValue", boolean.class);
+
+        // warm up
+        for (int i = 0; i < 10; i++) {
+            proxy.applyValue(target, fieldName, value);
+            method.invoke(target, value);
+            target.setBooleanValue(value);
+        }
 
         var started = System.nanoTime();
         for (int i = 0; i < TOTAL; i++) {
-            PojoUtils.setValue(target, fieldName, value);
+            proxy.applyValue(target, fieldName, value);
         }
         var elapsed = System.nanoTime() - started;
-        print("PojoUtils", elapsed);
+        print("SetterProxy", elapsed);
 
         started = System.nanoTime();
         for (int i = 0; i < TOTAL; i++) {
-            ObjectUtils.setValue(target, fieldName, value);
+            method.invoke(target, value);
         }
         elapsed = System.nanoTime() - started;
-        print("ObjectUtils", elapsed);
+        print("Reflection", elapsed);
 
         started = System.nanoTime();
         for (int i = 0; i < TOTAL; i++) {
@@ -45,8 +53,10 @@ public class TestPojoSetterPerf extends AbstractTest {
     }
 
     protected void print(String type, long elapsed) {
-        var throughput = (long) ((double) TOTAL / elapsed * 1e9);
-        System.out.println("[" + type + "] Elapsed: " + elapsed / 1e6 + "ms. Throughput: " + throughput);
+        var df = new DecimalFormat("###,###.##");
+        var throughput = (double) TOTAL / elapsed * 1e9;
+        System.out.println(
+                "[" + type + "] \tElapsed: " + df.format(elapsed / 1e6) + "ms. Throughput: " + df.format(throughput));
     }
-    
+
 }

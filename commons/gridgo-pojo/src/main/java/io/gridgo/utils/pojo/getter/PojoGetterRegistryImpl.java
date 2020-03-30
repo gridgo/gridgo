@@ -1,18 +1,18 @@
 package io.gridgo.utils.pojo.getter;
 
 import io.gridgo.utils.pojo.AbstractProxyRegistry;
-import io.gridgo.utils.pojo.PojoMethodSignature;
+import io.gridgo.utils.pojo.PojoFieldSignature;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 class PojoGetterRegistryImpl extends AbstractProxyRegistry<PojoGetterProxy> implements PojoGetterRegistry {
 
     @Getter
     private static final PojoGetterRegistry instance = new PojoGetterRegistryImpl();
 
-    private final PojoGetterProxyBuilder getterProxyBuilder = PojoGetterProxyBuilder.newJavassist();
-
-    private PojoGetterRegistryImpl() {
-    }
+    private final PojoGetterProxyBuilder getterProxyBuilder = PojoGetterProxyBuilder.newJanino();
 
     @Override
     public PojoGetterProxy getGetterProxy(Class<?> type) {
@@ -25,12 +25,12 @@ class PojoGetterRegistryImpl extends AbstractProxyRegistry<PojoGetterProxy> impl
     }
 
     @Override
-    protected void setFieldProxy(PojoMethodSignature signature, PojoGetterProxy proxy) {
+    protected void setFieldProxy(PojoFieldSignature signature, PojoGetterProxy proxy) {
         injectGetterProxy(signature, proxy);
     }
 
     @Override
-    protected void setFieldElementProxy(PojoMethodSignature signature, PojoGetterProxy proxy) {
+    protected void setFieldElementProxy(PojoFieldSignature signature, PojoGetterProxy proxy) {
         injectElementGetterProxy(signature, proxy);
     }
 }

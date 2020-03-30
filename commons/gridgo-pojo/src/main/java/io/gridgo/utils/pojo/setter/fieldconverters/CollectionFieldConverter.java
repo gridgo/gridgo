@@ -8,7 +8,7 @@ import static io.gridgo.utils.ArrayUtils.toArray;
 import static io.gridgo.utils.ArrayUtils.toPrimitiveArray;
 
 import io.gridgo.utils.exception.UnsupportedTypeException;
-import io.gridgo.utils.pojo.PojoMethodSignature;
+import io.gridgo.utils.pojo.PojoFieldSignature;
 import io.gridgo.utils.pojo.setter.data.SequenceData;
 import lombok.extern.slf4j.Slf4j;
 
@@ -27,7 +27,7 @@ public class CollectionFieldConverter implements GenericDataConverter, FieldConv
 
     @Override
     @SuppressWarnings("unchecked")
-    public Object convert(SequenceData array, PojoMethodSignature signature) {
+    public Object convert(SequenceData array, PojoFieldSignature signature) {
         var coll = createCollection(signature);
 
         var genericTypes = signature.getGenericTypes();
@@ -44,13 +44,13 @@ public class CollectionFieldConverter implements GenericDataConverter, FieldConv
         return coll;
     }
 
-    private Collection<Object> createCollection(PojoMethodSignature signature) {
+    private Collection<Object> createCollection(PojoFieldSignature signature) {
         if (signature.isSetType())
             return new HashSet<>();
         return new LinkedList<>();
     }
 
-    private void convertForSpecificType(SequenceData array, PojoMethodSignature signature, Collection<Object> coll,
+    private void convertForSpecificType(SequenceData array, PojoFieldSignature signature, Collection<Object> coll,
             Class<?> resultElementType) {
         for (var element : array) {
             if (element == null || element.isNull()) {

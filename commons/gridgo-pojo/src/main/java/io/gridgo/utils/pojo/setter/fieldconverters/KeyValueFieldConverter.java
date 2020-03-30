@@ -3,7 +3,7 @@ package io.gridgo.utils.pojo.setter.fieldconverters;
 import java.util.HashMap;
 
 import io.gridgo.utils.exception.UnsupportedTypeException;
-import io.gridgo.utils.pojo.PojoMethodSignature;
+import io.gridgo.utils.pojo.PojoFieldSignature;
 import io.gridgo.utils.pojo.exception.PojoProxyException;
 import io.gridgo.utils.pojo.setter.data.GenericData;
 import io.gridgo.utils.pojo.setter.data.KeyValueData;
@@ -21,7 +21,7 @@ public class KeyValueFieldConverter implements GenericDataConverter, FieldConver
     }
 
     @Override
-    public Object convert(KeyValueData data, PojoMethodSignature signature) {
+    public Object convert(KeyValueData data, PojoFieldSignature signature) {
         if (signature.isMapType())
             return keyValueToMap(data, signature);
         if (signature.isPojoType())
@@ -30,7 +30,7 @@ public class KeyValueFieldConverter implements GenericDataConverter, FieldConver
                 "Cannot convert non key-value data to incompatible type: " + signature.getFieldType());
     }
 
-    private Object keyValueToMap(KeyValueData data, PojoMethodSignature signature) {
+    private Object keyValueToMap(KeyValueData data, PojoFieldSignature signature) {
         var map = new HashMap<String, Object>();
         for (var entry : data) {
             var value = toMapValue(entry.getValue(), signature);
@@ -39,7 +39,7 @@ public class KeyValueFieldConverter implements GenericDataConverter, FieldConver
         return map;
     }
 
-    private Object toMapValue(GenericData data, PojoMethodSignature signature) {
+    private Object toMapValue(GenericData data, PojoFieldSignature signature) {
         var genericTypes = signature.getGenericTypes();
         var valueType = (genericTypes != null && genericTypes.length > 1) ? genericTypes[1] : Object.class;
 

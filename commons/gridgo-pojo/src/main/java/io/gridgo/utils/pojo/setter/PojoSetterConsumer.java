@@ -1,8 +1,8 @@
 package io.gridgo.utils.pojo.setter;
 
-import io.gridgo.utils.pojo.PojoMethodSignature;
+import io.gridgo.utils.pojo.PojoFieldSignature;
 
 public interface PojoSetterConsumer {
 
-    Object apply(PojoMethodSignature signature);
+    Object apply(PojoFieldSignature signature);
 }

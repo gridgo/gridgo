@@ -4,7 +4,7 @@ public interface PojoSetterProxyBuilder {
 
     PojoSetterProxy buildSetterProxy(Class<?> type);
 
-    static PojoSetterProxyBuilder newJavassist() {
-        return new JavassistSetterProxyBuilder();
+    static PojoSetterProxyBuilder newJanino() {
+        return new JaninoSetterProxyBuilder();
     }
 }

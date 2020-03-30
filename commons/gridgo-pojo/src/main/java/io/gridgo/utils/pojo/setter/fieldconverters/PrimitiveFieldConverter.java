@@ -1,7 +1,7 @@
 package io.gridgo.utils.pojo.setter.fieldconverters;
 
 import io.gridgo.utils.PrimitiveUtils;
-import io.gridgo.utils.pojo.PojoMethodSignature;
+import io.gridgo.utils.pojo.PojoFieldSignature;
 import io.gridgo.utils.pojo.exception.PojoProxyException;
 import io.gridgo.utils.pojo.setter.data.PrimitiveData;
 
@@ -18,7 +18,7 @@ public class PrimitiveFieldConverter implements GenericDataConverter, FieldConve
     }
 
     @Override
-    public Object convert(PrimitiveData data, PojoMethodSignature signature) {
+    public Object convert(PrimitiveData data, PojoFieldSignature signature) {
         var value = data.getData();
         if (value == null)
             return null;

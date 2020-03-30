@@ -4,8 +4,7 @@ import static io.gridgo.utils.pojo.PojoUtils.isSupported;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import org.cliffc.high_scale_lib.NonBlockingHashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import io.gridgo.utils.pojo.getter.PojoGetterProxy;
 import io.gridgo.utils.pojo.setter.PojoSetterProxy;
@@ -13,7 +12,7 @@ import lombok.NonNull;
 
 public abstract class AbstractProxyRegistry<T extends PojoProxy> {
 
-    private final Map<String, T> cache = new NonBlockingHashMap<>();
+    private final Map<String, T> cache = new ConcurrentHashMap<>();
 
     protected final T getProxy(@NonNull Class<?> type) {
         var name = type.getName();
@@ -36,7 +35,7 @@ public abstract class AbstractProxyRegistry<T extends PojoProxy> {
     private T buildProxy(Class<?> type, Map<String, T> tempCache) {
         T proxy = buildMandatory(type);
         tempCache.put(type.getName(), proxy);
-        for (PojoMethodSignature signature : proxy.getSignatures()) {
+        for (PojoFieldSignature signature : proxy.getSignatures()) {
             prepareSubProxy(signature, tempCache);
         }
         return proxy;
@@ -52,7 +51,7 @@ public abstract class AbstractProxyRegistry<T extends PojoProxy> {
         return result;
     }
 
-    private void prepareSubProxy(PojoMethodSignature signature, Map<String, T> tempCache) {
+    private void prepareSubProxy(PojoFieldSignature signature, Map<String, T> tempCache) {
         if (isSupported(signature.getFieldType())) {
             setFieldProxy(signature, lookupProxy(signature.getFieldType(), tempCache));
         } else {
@@ -66,23 +65,23 @@ public abstract class AbstractProxyRegistry<T extends PojoProxy> {
 
     protected abstract T buildMandatory(Class<?> type);
 
-    protected abstract void setFieldProxy(PojoMethodSignature signature, T proxy);
+    protected abstract void setFieldProxy(PojoFieldSignature signature, T proxy);
 
-    protected abstract void setFieldElementProxy(PojoMethodSignature signature, T proxy);
+    protected abstract void setFieldElementProxy(PojoFieldSignature signature, T proxy);
 
-    protected void injectGetterProxy(PojoMethodSignature methodSignature, PojoGetterProxy getterProxy) {
+    protected void injectGetterProxy(PojoFieldSignature methodSignature, PojoGetterProxy getterProxy) {
         methodSignature.setGetterProxy(getterProxy);
     }
 
-    protected void injectElementGetterProxy(PojoMethodSignature signature, PojoGetterProxy elementGetterProxy) {
+    protected void injectElementGetterProxy(PojoFieldSignature signature, PojoGetterProxy elementGetterProxy) {
         signature.setElementGetterProxy(elementGetterProxy);
     }
 
-    protected void injectSetterProxy(PojoMethodSignature signature, PojoSetterProxy setterProxy) {
+    protected void injectSetterProxy(PojoFieldSignature signature, PojoSetterProxy setterProxy) {
         signature.setSetterProxy(setterProxy);
     }
 
-    protected void injectElementSetterProxy(PojoMethodSignature signature, PojoSetterProxy elementSetterProxy) {
+    protected void injectElementSetterProxy(PojoFieldSignature signature, PojoSetterProxy elementSetterProxy) {
         signature.setElementSetterProxy(elementSetterProxy);
     }
 

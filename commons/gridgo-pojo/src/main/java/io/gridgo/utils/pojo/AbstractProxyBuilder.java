@@ -2,58 +2,79 @@ package io.gridgo.utils.pojo;
 
 import java.util.List;
 
-import javassist.CannotCompileException;
-import javassist.CtClass;
-import javassist.CtField;
-import javassist.CtMethod;
-import javassist.bytecode.DuplicateMemberException;
-import lombok.extern.slf4j.Slf4j;
-
-@Slf4j
 public class AbstractProxyBuilder {
 
-    protected void buildSetSignatureMethod(CtClass cc, List<PojoMethodSignature> methodSignatures)
-            throws CannotCompileException {
-        String type = "io.gridgo.utils.pojo.PojoMethodSignature";
-        String subfix = "Signature";
-        for (PojoMethodSignature methodSignature : methodSignatures) {
-            String fieldName = methodSignature.getFieldName() + subfix;
-            try {
-                cc.addField(CtField.make("private " + type + " " + fieldName + ";", cc));
-            } catch (DuplicateMemberException e) {
-                log.debug("duplicate field with name: {}, target: {}", methodSignature.getFieldName(), cc.getName());
+    protected String addTabToAllLine(int numTab, String origin) {
+        var tabs = "";
+        for (int i = 0; i < numTab; i++)
+            tabs += "    ";
+
+        var lines = origin.split("\n");
+        var sb = new StringBuilder();
+        for (var line : lines) {
+            sb.append(tabs).append(line).append("\n");
+        }
+        return sb.toString();
+    }
+
+    protected void doImport(StringBuilder classContent, Class<?>... types) {
+        for (var typeToImport : types)
+            classContent.append("import " + typeToImport.getName() + ";\n");
+    }
+
+    protected String createAllFields(List<PojoFieldSignature> methodSignatures) {
+        var allFieldsBuilder = new StringBuilder();
+        for (PojoFieldSignature signature : methodSignatures) {
+            if (allFieldsBuilder.length() > 0) {
+                allFieldsBuilder.append(",");
             }
+            allFieldsBuilder.append("\"").append(signature.getFieldName()).append("\"");
         }
 
-        String method = "public void setMethodSignature(String fieldName, " + type + " value) {\n";
-        for (PojoMethodSignature methodSignature : methodSignatures) {
-            String fieldName = methodSignature.getFieldName();
-            String signFieldName = fieldName + subfix;
+        return allFieldsBuilder.toString();
+    }
+
+    protected String buildSignatureFields(List<PojoFieldSignature> methodSignatures) {
+        var sb = new StringBuilder();
+
+        var subfix = "Signature";
+        var type = "PojoFieldSignature";
+
+        for (PojoFieldSignature methodSignature : methodSignatures) {
+            String fieldName = methodSignature.getFieldName() + subfix;
+            sb.append("private " + type + " " + fieldName + ";\n");
+        }
+        return sb.toString();
+    }
+
+    protected String buildSignaturesFieldAndMethod(List<PojoFieldSignature> methodSignatures) {
+        var field = "private List<PojoFieldSignature> signatures = new ArrayList<>(" + methodSignatures.size() + ");";
+        var method = "public List<PojoFieldSignature> getSignatures() { return this.signatures; }";
+        return field + "\n\n" + method;
+    }
+
+    protected String buildGetFieldsMethod(String allFields) {
+        var initValue = allFields.length() == 0 ? "new String[0];" : "new String[] {" + allFields + "};";
+        var field = "private String[] fields = " + initValue;
+        return field + "\n\npublic String[] getFields() { return this.fields; }";
+    }
+
+    protected String buildSetSignatureMethod(List<PojoFieldSignature> methodSignatures) {
+        var type = "PojoFieldSignature";
+        var subfix = "Signature";
+        var method = "public void setMethodSignature(String fieldName, " + type + " value) {\n";
+        for (PojoFieldSignature methodSignature : methodSignatures) {
+            var fieldName = methodSignature.getFieldName();
+            var signFieldName = fieldName + subfix;
             method += "\tif (\"" + fieldName + "\".equals(fieldName)) {\n";
             method += "\t\t" + signFieldName + " = value;\n";
-            method += "\t\tthis.signatures.add(value); \n";
+            method += "\t\tsignatures.add(value);\n";
             method += "\t\treturn;\n";
             method += "\t}\n";
         }
         method += "}"; // end of method
 
-        cc.addMethod(CtMethod.make(method, cc));
+        return method;
     }
 
-    protected void buildGetFieldsMethod(CtClass cc, String allFields) throws CannotCompileException {
-        String initValue = allFields.length() == 0 ? "new String[0];" : "new String[] {" + allFields + "};";
-        CtField field = CtField.make("private String[] fields = " + initValue, cc);
-        cc.addField(field);
-
-        String method = "public String[] getFields() { return this.fields; }";
-        cc.addMethod(CtMethod.make(method, cc));
-    }
-
-    protected void buildGetSignaturesMethod(CtClass cc) throws CannotCompileException {
-        CtField field = CtField.make("private java.util.List signatures = new java.util.ArrayList();", cc);
-        cc.addField(field);
-
-        String method = "public java.util.List getSignatures() { return this.signatures; }";
-        cc.addMethod(CtMethod.make(method, cc));
-    }
 }
