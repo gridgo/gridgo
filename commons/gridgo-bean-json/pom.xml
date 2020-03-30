@@ -11,7 +11,7 @@
 	</parent>
 
 	<properties>
-		<dsl.json.version>1.9.3</dsl.json.version>
+		<dsl.json.version>1.9.5</dsl.json.version>
 	</properties>
 
 	<build>
