@@ -3,7 +3,6 @@ package io.gridgo.pojo.otac;
 import java.util.Collections;
 import java.util.Set;
 
-import io.gridgo.utils.pojo.exception.PojoException;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
@@ -39,7 +38,7 @@ public class OtacGeneric implements OtacRequireImports {
             return name;
 
         if (type == null)
-            throw new PojoException("[OTAC] type cannot be null while operator = " + operator);
+            throw new OtacException("[OTAC] type cannot be null while operator = " + operator);
 
         return name + " " + operator.getKeywork() + (type == null ? "" : type.toString());
     }

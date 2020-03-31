@@ -5,11 +5,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import io.gridgo.utils.pojo.exception.PojoException;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Singular;
+import lombok.experimental.Delegate;
 import lombok.experimental.SuperBuilder;
 
 @Getter
@@ -78,33 +78,50 @@ public abstract class OtacValue implements OtacRequireImports {
 
     @Getter
     @SuperBuilder
-    public static class NewArray extends OtacValue {
+    public static class NewSizedArray extends OtacValue {
+
+        @Delegate(types = OtacRequireImports.class)
         private @NonNull OtacType type;
 
         @Builder.Default
         private int arraySize = -1;
+
+        @Override
+        public String toString() {
+            if (arraySize < 0)
+                throw new OtacException("array expected for size or values");
+
+            var sb = new StringBuilder();
+            sb.append("new ");
+            sb.append(getType().toString().trim());
+
+            sb.append("[").append(arraySize).append("]");
+            return sb.toString();
+        }
+    }
+
+    @Getter
+    @SuperBuilder
+    public static class NewArray extends OtacValue {
+        private @NonNull OtacType type;
 
         @Singular
         private List<OtacValue> initValues;
 
         @Override
         public String toString() {
+            if (initValues == null || initValues.isEmpty())
+                throw new OtacException("array expected for size or values");
+
             var sb = new StringBuilder();
             sb.append("new ");
             sb.append(getType().toString().trim());
-            if (arraySize >= 0) {
-                sb.append("[").append(arraySize).append("]");
-            } else {
-                sb.append("[] ").append("{ ");
-                if (initValues != null && !initValues.isEmpty()) {
-                    sb.append(initValues.get(0));
-                    for (int i = 1; i < initValues.size(); i++)
-                        sb.append(", ").append(initValues.get(i).toString().trim());
-                } else {
-                    throw new PojoException("array expected for size or values");
-                }
-                sb.append(" }");
-            }
+            sb.append("[] ").append("{ ");
+            sb.append(initValues.get(0));
+            for (int i = 1; i < initValues.size(); i++)
+                sb.append(", ").append(initValues.get(i).toString().trim());
+            sb.append(" }");
+            
             return sb.toString();
         }
 

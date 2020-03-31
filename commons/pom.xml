@@ -18,5 +18,6 @@
 		<module>gridgo-bean-msgpack</module>
 		<module>gridgo-registry</module>
 		<module>gridgo-framework</module>
+		<module>gridgo-otac</module>
 	</modules>
 </project>
