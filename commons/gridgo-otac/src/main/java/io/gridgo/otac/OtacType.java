@@ -17,7 +17,7 @@ public class OtacType extends OtacGenericDeclaration implements OtacRequireImpor
 
     private @NonNull Class<?> type;
 
-    public static OtacType of(Class<?> type) {
+    public static OtacType typeOf(Class<?> type) {
         return OtacType.builder().type(type).build();
     }
 

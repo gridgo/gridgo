@@ -1,6 +1,7 @@
 package io.gridgo.otac;
 
 import static io.gridgo.otac.OtacAccessLevel.PUBLIC;
+import static io.gridgo.otac.OtacParameter.parameterOf;
 import static io.gridgo.otac.OtacType.VOID;
 import static io.gridgo.otac.OtacValue.field;
 import static io.gridgo.otac.OtacValue.variable;
@@ -17,31 +18,43 @@ import lombok.Getter;
 import lombok.Singular;
 import lombok.experimental.SuperBuilder;
 
-@Getter
 @SuperBuilder
 public class OtacClass extends OtacModifiers implements OtacRequireImports {
 
+    @Getter
+    @Singular("annotatedBy")
+    private List<OtacAnnotation> annotations;
+
+    @Getter
     private String packageName;
 
+    @Getter
     private String simpleClassName;
 
+    @Getter
     private OtacType extendsFrom;
 
+    @Getter
     @Singular("implement")
     private final List<OtacType> interfaces;
 
+    @Getter
     @Singular
     private final List<OtacGeneric> generics;
 
+    @Getter
     @Singular
     private final List<OtacField> fields;
 
+    @Getter
     @Singular
     private final List<OtacConstructor> constructors;
 
+    @Getter
     @Singular
     private final List<OtacMethod> methods;
 
+    @Getter
     @Singular("require")
     private final Set<Class<?>> imports = new HashSet<>();
 
@@ -50,6 +63,9 @@ public class OtacClass extends OtacModifiers implements OtacRequireImports {
         var imports = new HashSet<Class<?>>();
         if (this.imports != null)
             imports.addAll(this.imports);
+        if (!getAnnotations().isEmpty())
+            for (var a : getAnnotations())
+                imports.addAll(a.requiredImports());
         if (interfaces != null)
             for (var i : interfaces)
                 imports.addAll(i.requiredImports());
@@ -61,6 +77,9 @@ public class OtacClass extends OtacModifiers implements OtacRequireImports {
         if (fields != null)
             for (var f : fields)
                 imports.addAll(f.requiredImports());
+        if (constructors != null)
+            for (var c : constructors)
+                imports.addAll(c.requiredImports());
         if (generics != null)
             for (var g : generics)
                 imports.addAll(g.requiredImports());
@@ -73,6 +92,7 @@ public class OtacClass extends OtacModifiers implements OtacRequireImports {
         makePackage(sb);
         sb.append("\n");
         makeImports(sb);
+        appendAnnotations(sb);
         makeClassName(sb);
         sb.append("{\n");
         appendFields(sb);
@@ -82,6 +102,11 @@ public class OtacClass extends OtacModifiers implements OtacRequireImports {
         return sb.toString();
     }
 
+    private void appendAnnotations(StringBuilder sb) {
+        for (var a : getAnnotations())
+            sb.append(a.toString()).append("\n");
+    }
+
     private void appendConstructor(StringBuilder sb) {
         for (var ctor : constructors) {
             ctor.setDeclaringClass(this);
@@ -89,6 +114,7 @@ public class OtacClass extends OtacModifiers implements OtacRequireImports {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void appendMethods(StringBuilder sb) {
         var methods = new HashSet<OtacMethod>();
         if (methods != null)
@@ -112,7 +138,7 @@ public class OtacClass extends OtacModifiers implements OtacRequireImports {
                     methods.add(OtacMethod.builder()//
                             .accessLevel(PUBLIC) //
                             .returnType(VOID) //
-                            .parameter(OtacParameter.of(fName, f.getType())) //
+                            .parameter(parameterOf(fName, f.getType())) //
                             .name(setterName) //
                             .addLine(assignField(fName, variable(fName)))//
                             .build());
@@ -131,10 +157,9 @@ public class OtacClass extends OtacModifiers implements OtacRequireImports {
         sb.append("\n");
         if (fields == null)
             return;
-        var tabs = tabs(1);
         for (var f : fields) {
             f.setDeclaringClass(this);
-            sb.append(tabs).append(f.toString());
+            sb.append(tabs(1, f.toString()));
         }
         sb.append("\n");
     }

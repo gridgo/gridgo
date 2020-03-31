@@ -14,8 +14,32 @@ public class OtacGeneric implements OtacRequireImports {
 
     public static final OtacGeneric ANY = OtacGeneric.builder().build();
 
-    public static OtacGeneric of(String name) {
+    public static OtacGeneric ofDeclared(String name) {
         return OtacGeneric.builder().name(name).build();
+    }
+
+    public static OtacGeneric of(String name, OtacInheritOperator operator, OtacType type) {
+        return OtacGeneric.builder() //
+                .name(name) //
+                .operator(operator) //
+                .type(type) //
+                .build();
+    }
+
+    public static OtacGeneric genericDeclared(String name) {
+        return ofDeclared(name);
+    }
+
+    public static OtacGeneric generic(String name, OtacInheritOperator operator, OtacType type) {
+        return of(name, operator, type);
+    }
+
+    public static OtacGeneric genericSuper(String name, OtacType type) {
+        return of(name, OtacInheritOperator.SUPER, type);
+    }
+
+    public static OtacGeneric genericExtends(String name, OtacType type) {
+        return of(name, OtacInheritOperator.EXTENDS, type);
     }
 
     @Builder.Default

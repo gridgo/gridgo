@@ -18,7 +18,7 @@ public class TestOtacGeneric {
         var g = OtacGeneric.builder() //
                 .name("T") //
                 .operator(OtacInheritOperator.SUPER) //
-                .type(OtacType.of(List.class)) //
+                .type(OtacType.typeOf(List.class)) //
                 .build();
 
         assertEquals("T super List", g.toString().trim());

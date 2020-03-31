@@ -39,7 +39,7 @@ public abstract class OtacValue implements OtacRequireImports {
     }
 
     public static New newOf(Class<?> type) {
-        return newOf(OtacType.of(type));
+        return newOf(OtacType.typeOf(type));
     }
 
     public static New newOf(OtacType type) {
@@ -54,16 +54,20 @@ public abstract class OtacValue implements OtacRequireImports {
         return ClosureVariable.builder().name(variableName).build();
     }
 
+    public static ClosureVariable parameter(String parameterName) {
+        return ClosureVariable.builder().name(parameterName).build();
+    }
+
     public static SizedArray newSizedArray(int size, Class<?> type) {
         return SizedArray.builder() //
-                .type(OtacType.of(type)) //
+                .type(OtacType.typeOf(type)) //
                 .arraySize(size) //
                 .build();
     }
 
     public static InitializedArray newInitializedRawArray(Class<?> type, Object... values) {
         var builder = InitializedArray.builder() //
-                .type(OtacType.of(type));
+                .type(OtacType.typeOf(type));
         for (var v : values)
             builder.initValue(OtacValue.raw(v));
         return builder.build();
@@ -71,7 +75,7 @@ public abstract class OtacValue implements OtacRequireImports {
 
     public static InitializedArray newInitializedArray(Class<?> type, OtacValue... values) {
         var builder = InitializedArray.builder() //
-                .type(OtacType.of(type));
+                .type(OtacType.typeOf(type));
         for (var v : values)
             builder.initValue(v);
         return builder.build();
@@ -111,7 +115,7 @@ public abstract class OtacValue implements OtacRequireImports {
         public OtacType inferredType() {
             if (value == null)
                 return super.inferredType();
-            return OtacType.of(value.getClass());
+            return OtacType.typeOf(value.getClass());
         }
 
         @Override

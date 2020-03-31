@@ -1,8 +1,15 @@
 package io.gridgo.pojo.otac;
 
 import static io.gridgo.otac.OtacAccessLevel.PRIVATE;
+import static io.gridgo.otac.OtacAccessLevel.PUBLIC;
+import static io.gridgo.otac.OtacAnnotation.annotation;
 import static io.gridgo.otac.OtacGeneric.ANY;
+import static io.gridgo.otac.OtacGeneric.genericDeclared;
 import static io.gridgo.otac.OtacInheritOperator.EXTENDS;
+import static io.gridgo.otac.OtacParameter.parameterOf;
+import static io.gridgo.otac.OtacType.typeOf;
+import static io.gridgo.otac.OtacValue.parameter;
+import static io.gridgo.otac.code.OtacCodeLine.assignField;
 
 import java.io.InputStream;
 import java.io.Serializable;
@@ -14,64 +21,65 @@ import org.codehaus.commons.compiler.CompileException;
 import org.codehaus.janino.SimpleCompiler;
 import org.junit.Test;
 
-import io.gridgo.otac.OtacAccessLevel;
 import io.gridgo.otac.OtacClass;
 import io.gridgo.otac.OtacConstructor;
 import io.gridgo.otac.OtacField;
 import io.gridgo.otac.OtacGeneric;
-import io.gridgo.otac.OtacParameter;
 import io.gridgo.otac.OtacType;
 import io.gridgo.otac.OtacValue;
-import io.gridgo.otac.code.OtacCodeLine;
+import io.gridgo.utils.annotations.ThreadSafe;
+import lombok.Builder;
+import lombok.NonNull;
+import lombok.Singular;
 
 public class TestOtacClass {
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testSimpleClass() throws CompileException {
-        var classGenericT = OtacGeneric.builder() //
-                .name("T") //
-                .operator(EXTENDS) //
-                .type(OtacType.builder() //
-                        .type(Map.class) //
-                        .genericType(ANY) //
-                        .genericType(ANY) //
-                        .build()) //
-                .build();
 
         var c = OtacClass.builder() //
-                .accessLevel(OtacAccessLevel.PUBLIC) //
+                .accessLevel(PUBLIC) //
                 .isAbstract(true) //
                 .packageName("io.gridgo.pojo.otac.test") //
                 .simpleClassName("TestOtacClassGenerate") //
-                .generic(classGenericT) //
-                .extendsFrom(OtacType.of(InputStream.class)) //
-                .implement(OtacType.of(Serializable.class)) //
+                .annotatedBy(annotation(Builder.class)) //
+                .generic(OtacGeneric.builder() //
+                        .name("T") //
+                        .operator(EXTENDS) //
+                        .type(OtacType.builder() //
+                                .type(Map.class) //
+                                .genericType(ANY) //
+                                .genericType(ANY) //
+                                .build()) //
+                        .build()) //
+                .extendsFrom(typeOf(InputStream.class)) //
+                .implement(typeOf(Serializable.class)) //
                 .implement(OtacType.builder() //
                         .type(Set.class) //
-                        .genericType(OtacGeneric.of("T")) //
+                        .genericType(genericDeclared("T")) //
                         .build()) //
                 .field(OtacField.builder() //
                         .accessLevel(PRIVATE) //
                         .name("stringField") //
-                        .type(OtacType.of(String.class)) //
+                        .type(typeOf(String.class)) //
+                        .annotatedBy(annotation(NonNull.class)) //
                         .generateGetter(true) //
                         .generateSetter(true) //
                         .build()) //
                 .field(OtacField.builder() //
                         .accessLevel(PRIVATE) //
                         .name("stringArrField") //
-                        .type(OtacType.of(String[].class)) //
+                        .isFinal(true) //
+                        .annotatedBy(annotation(Singular.class)) //
+                        .type(typeOf(String[].class)) //
                         .generateGetter(true) //
                         .generateSetter(true) //
-                        .initValue(OtacValue.InitializedArray.builder() //
-                                .initValue(OtacValue.raw("this is test text")) //
-                                .initValue(OtacValue.raw("text2")) //
-                                .build()) //
                         .build()) //
                 .field(OtacField.builder() //
                         .accessLevel(PRIVATE) //
                         .name("booleanField") //
-                        .type(OtacType.of(boolean.class)) //
+                        .type(typeOf(boolean.class)) //
                         .generateGetter(true) //
                         .generateSetter(true) //
                         .build()) //
@@ -79,25 +87,23 @@ public class TestOtacClass {
                         .accessLevel(PRIVATE) //
                         .isFinal(true) //
                         .name("intField") //
-                        .type(OtacType.of(int.class)) //
+                        .type(typeOf(int.class)) //
                         .generateGetter(true) //
                         .generateSetter(true) //
                         .build())
                 .field(OtacField.builder() //
                         .accessLevel(PRIVATE) //
                         .name("intArrField") //
-                        .type(OtacType.of(int[].class)) //
+                        .type(typeOf(int[].class)) //
                         .generateGetter(true) //
                         .generateSetter(true) //
                         .build()) //
                 .field(OtacField.builder() //
                         .accessLevel(PRIVATE) //
                         .name("innerSet") //
-                        .isFinal(true) //
                         .type(OtacType.builder() //
                                 .type(Set.class) //
-                                .generic(true) //
-                                .genericType(OtacGeneric.of(classGenericT.getName())) //
+                                .genericType(genericDeclared("T")) //
                                 .build()) //
                         .initValue(OtacValue.newOf(//
                                 OtacType.builder() //
@@ -108,9 +114,12 @@ public class TestOtacClass {
                         .generateSetter(true) //
                         .build()) //
                 .constructor(OtacConstructor.builder() //
-                        .accessLevel(OtacAccessLevel.PUBLIC) //
-                        .parameter(OtacParameter.of("intValue", OtacType.of(int.class))) //
-                        .addLine(OtacCodeLine.assignField("intField", OtacValue.variable("intValue"))) //
+                        .accessLevel(PUBLIC) //
+                        .annotatedBy(annotation(ThreadSafe.class)) //
+                        .parameter(parameterOf("intValue", typeOf(int.class))) //
+                        .parameter(parameterOf("stringArr", typeOf(String[].class), NonNull.class))
+                        .addLine(assignField("intField", parameter("intValue"))) //
+                        .addLine(assignField("stringArrField", parameter("stringArr"))) //
                         .build()) //
                 .build();
 

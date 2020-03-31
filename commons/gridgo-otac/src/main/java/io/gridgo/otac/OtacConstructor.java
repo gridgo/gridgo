@@ -12,7 +12,11 @@ import lombok.experimental.Delegate;
 import lombok.experimental.SuperBuilder;
 
 @SuperBuilder
-public class OtacConstructor extends OtacModifiers implements OtacRequireImports, OtacDeclaringClassAware {
+public class OtacConstructor extends OtacAccessControl implements OtacRequireImports, OtacDeclaringClassAware {
+
+    @Getter
+    @Singular("annotatedBy")
+    private List<OtacAnnotation> annotations;
 
     @Delegate(types = OtacDeclaringClassAware.class)
     private final OtacDeclaringClassAware declaringClassHolder = OtacDeclaringClassAware.newInstance();
@@ -31,6 +35,9 @@ public class OtacConstructor extends OtacModifiers implements OtacRequireImports
     @Override
     public Set<Class<?>> requiredImports() {
         var imports = new HashSet<Class<?>>();
+        if (!getAnnotations().isEmpty())
+            for (var a : getAnnotations())
+                imports.addAll(a.requiredImports());
         if (checkedExceptions != null)
             imports.addAll(checkedExceptions.requiredImports());
         if (parameters != null)
@@ -42,20 +49,21 @@ public class OtacConstructor extends OtacModifiers implements OtacRequireImports
     @Override
     public String toString() {
         var sb = new StringBuilder();
-        sb.append(super.toString()).append(getDeclaringClass().getSimpleClassName()).append("(");
+        if (!getAnnotations().isEmpty())
+            for (var a : getAnnotations())
+                sb.append(a.toString()).append("\n");
+
+        sb.append(super.toString()) //
+                .append(getDeclaringClass().getSimpleClassName()) //
+                .append("(");
 
         if (parameters != null && !parameters.isEmpty()) {
-            var it = parameters.iterator();
-            var entry = it.next();
-            sb.append(entry.getType().toString().trim()).append(' ').append(entry.getName().trim());
-            while (it.hasNext()) {
-                entry = it.next();
-                sb.append(", ") //
-                        .append(entry.getType().toString().trim()) //
-                        .append(' ') //
-                        .append(entry.getName().trim());
+            sb.append(parameters.get(0).toString().trim());
+            for (int i = 1; i < parameters.size(); i++) {
+                sb.append(", ").append(parameters.get(i).toString().trim());
             }
         }
+
         sb.append(") ");
         if (checkedExceptions != null)
             sb.append(checkedExceptions.toString());
