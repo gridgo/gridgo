@@ -1,4 +1,4 @@
-package io.gridgo.pojo.otac;
+package io.gridgo.otac;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

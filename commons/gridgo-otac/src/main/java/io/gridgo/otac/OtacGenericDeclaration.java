@@ -1,4 +1,4 @@
-package io.gridgo.pojo.otac;
+package io.gridgo.otac;
 
 import java.util.Collections;
 import java.util.HashSet;

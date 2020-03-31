@@ -1,14 +1,15 @@
-package io.gridgo.pojo.otac;
+package io.gridgo.otac;
 
-import static io.gridgo.pojo.otac.OtacAccessLevel.PUBLIC;
-import static io.gridgo.pojo.otac.OtacType.VOID;
-import static io.gridgo.pojo.otac.OtacUtils.tabs;
+import static io.gridgo.otac.OtacAccessLevel.PUBLIC;
+import static io.gridgo.otac.OtacType.VOID;
+import static io.gridgo.otac.OtacUtils.tabs;
 import static io.gridgo.utils.StringUtils.upperCaseFirstLetter;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import io.gridgo.otac.code.OtacCodeLine;
 import lombok.Getter;
 import lombok.Singular;
 import lombok.experimental.SuperBuilder;
@@ -89,7 +90,9 @@ public class OtacClass extends OtacModifiers implements OtacRequireImports {
                             .accessLevel(PUBLIC) //
                             .returnType(f.getType()) //
                             .name(getterName) //
-                            .body("return this." + fName + ";") //
+                            .addLine(OtacCodeLine.ReturnValue.builder() //
+                                    .value(OtacValue.forField(fName)) //
+                                    .build()) //
                             .build());
                 }
                 if (f.isGenerateSetter() && !f.isFinal()) {
@@ -99,7 +102,11 @@ public class OtacClass extends OtacModifiers implements OtacRequireImports {
                             .returnType(VOID) //
                             .parameter(OtacParameter.of(fName, f.getType())) //
                             .name(setterName) //
-                            .body("this." + fName + " = " + fName + ";") //
+                            .addLine(OtacCodeLine.AssignValue.builder() //
+                                    .isField(true) //
+                                    .name(fName) //
+                                    .value(OtacValue.forVariable(fName)) //
+                                    .build()) //
                             .build());
                 }
             }

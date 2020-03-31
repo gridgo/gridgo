@@ -7,6 +7,10 @@ import java.util.List;
 
 import org.junit.Test;
 
+import io.gridgo.otac.OtacGeneric;
+import io.gridgo.otac.OtacInheritOperator;
+import io.gridgo.otac.OtacType;
+
 public class TestOtacGeneric {
 
     @Test

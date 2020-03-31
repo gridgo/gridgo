@@ -1,8 +1,8 @@
 package io.gridgo.pojo.otac;
 
-import static io.gridgo.pojo.otac.OtacAccessLevel.PRIVATE;
-import static io.gridgo.pojo.otac.OtacGeneric.ANY;
-import static io.gridgo.pojo.otac.OtacInheritOperator.EXTENDS;
+import static io.gridgo.otac.OtacAccessLevel.PRIVATE;
+import static io.gridgo.otac.OtacGeneric.ANY;
+import static io.gridgo.otac.OtacInheritOperator.EXTENDS;
 
 import java.io.InputStream;
 import java.io.Serializable;
@@ -13,6 +13,13 @@ import java.util.Set;
 import org.codehaus.commons.compiler.CompileException;
 import org.codehaus.janino.SimpleCompiler;
 import org.junit.Test;
+
+import io.gridgo.otac.OtacAccessLevel;
+import io.gridgo.otac.OtacClass;
+import io.gridgo.otac.OtacField;
+import io.gridgo.otac.OtacGeneric;
+import io.gridgo.otac.OtacType;
+import io.gridgo.otac.OtacValue;
 
 public class TestOtacClass {
 
@@ -53,7 +60,7 @@ public class TestOtacClass {
                         .type(OtacType.of(String[].class)) //
                         .generateGetter(true) //
                         .generateSetter(true) //
-                        .initValue(OtacValue.NewInitializedArray.builder() //
+                        .initValue(OtacValue.InitializedArray.builder() //
                                 .initValue(OtacValue.Raw.of("this is test text")) //
                                 .initValue(OtacValue.Raw.of("text2")) //
                                 .build()) //
@@ -89,12 +96,11 @@ public class TestOtacClass {
                                 .generic(true) //
                                 .genericType(OtacGeneric.of(classGenericT.getName())) //
                                 .build()) //
-                        .initValue(OtacValue.New.builder() //
-                                .type(OtacType.builder() //
+                        .initValue(OtacValue.newSimple(//
+                                OtacType.builder() //
                                         .type(HashSet.class) //
                                         .generic(true) //
-                                        .build())
-                                .build()) //
+                                        .build())) //
                         .generateGetter(true) //
                         .generateSetter(true) //
                         .build()) //

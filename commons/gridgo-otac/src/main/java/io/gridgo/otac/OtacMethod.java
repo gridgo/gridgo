@@ -1,11 +1,10 @@
-package io.gridgo.pojo.otac;
-
-import static io.gridgo.pojo.otac.OtacUtils.tabs;
+package io.gridgo.otac;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import io.gridgo.otac.code.OtacCodeElement;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
@@ -27,8 +26,8 @@ public class OtacMethod extends OtacNamedElement implements OtacRequireImports {
 
     private final OtacExceptionThrows checkedExceptions;
 
-    @Builder.Default
-    private String body = "";
+    @Singular("addLine")
+    private List<OtacCodeElement> body;
 
     @Override
     public Set<Class<?>> requiredImports() {
@@ -77,7 +76,11 @@ public class OtacMethod extends OtacNamedElement implements OtacRequireImports {
         if (checkedExceptions != null)
             sb.append(checkedExceptions.toString());
         sb.append("{ \n");
-        sb.append(tabs(1, body));
+        if (body != null && !body.isEmpty()) {
+            var tab = OtacUtils.tabs(1);
+            for (var e : body)
+                sb.append(tab).append(e.toString()).append("\n");
+        }
         sb.append("}");
         return sb.toString();
     }

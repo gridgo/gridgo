@@ -1,8 +1,9 @@
-package io.gridgo.pojo.otac;
+package io.gridgo.otac;
 
 import java.util.Collections;
 import java.util.Set;
 
+import io.gridgo.otac.exception.OtacException;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
