@@ -1,5 +1,7 @@
 package io.gridgo.pojo.otac;
 
+import static io.gridgo.pojo.otac.OtacUtils.tabs;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -75,7 +77,7 @@ public class OtacMethod extends OtacNamedElement implements OtacRequireImports {
         if (checkedExceptions != null)
             sb.append(checkedExceptions.toString());
         sb.append("{ \n");
-        sb.append(OtacUtils.tabs(1, body));
+        sb.append(tabs(1, body));
         sb.append("}");
         return sb.toString();
     }
