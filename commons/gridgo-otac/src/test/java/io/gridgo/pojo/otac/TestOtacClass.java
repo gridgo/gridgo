@@ -21,6 +21,7 @@ import org.codehaus.commons.compiler.CompileException;
 import org.codehaus.janino.SimpleCompiler;
 import org.junit.Test;
 
+import io.gridgo.otac.OtacAnnotation;
 import io.gridgo.otac.OtacClass;
 import io.gridgo.otac.OtacConstructor;
 import io.gridgo.otac.OtacField;
@@ -34,7 +35,6 @@ import lombok.Singular;
 
 public class TestOtacClass {
 
-    @SuppressWarnings("unchecked")
     @Test
     public void testSimpleClass() throws CompileException {
 
@@ -71,7 +71,10 @@ public class TestOtacClass {
                         .accessLevel(PRIVATE) //
                         .name("stringArrField") //
                         .isFinal(true) //
-                        .annotatedBy(annotation(Singular.class)) //
+                        .annotatedBy(OtacAnnotation.builder() //
+                                .type(Singular.class) //
+                                .metadata("value", OtacValue.raw("stringEle")) //
+                                .build()) //
                         .type(typeOf(String[].class)) //
                         .generateGetter(true) //
                         .generateSetter(true) //
@@ -117,7 +120,7 @@ public class TestOtacClass {
                         .accessLevel(PUBLIC) //
                         .annotatedBy(annotation(ThreadSafe.class)) //
                         .parameter(parameterOf("intValue", typeOf(int.class))) //
-                        .parameter(parameterOf("stringArr", typeOf(String[].class), NonNull.class))
+                        .parameter(parameterOf("stringArr", typeOf(String[].class), annotation(NonNull.class)))
                         .addLine(assignField("intField", parameter("intValue"))) //
                         .addLine(assignField("stringArrField", parameter("stringArr"))) //
                         .build()) //

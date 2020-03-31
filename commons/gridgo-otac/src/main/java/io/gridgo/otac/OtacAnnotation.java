@@ -17,7 +17,7 @@ public class OtacAnnotation implements OtacRequireImports {
     private @NonNull Class<? extends Annotation> type;
 
     @Singular
-    private Map<String, OtacType> metadatas;
+    private Map<String, OtacValue> metadatas;
 
     public static OtacAnnotation annotation(Class<? extends Annotation> annotation) {
         return OtacAnnotation.builder().type(annotation).build();

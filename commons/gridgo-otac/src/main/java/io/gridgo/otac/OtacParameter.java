@@ -1,11 +1,9 @@
 package io.gridgo.otac;
 
-import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -30,16 +28,11 @@ public class OtacParameter implements OtacRequireImports {
     @Getter
     private @NonNull OtacType type;
 
-    @SuppressWarnings("unchecked")
-    public static OtacParameter parameterOf(String name, OtacType type, Class<? extends Annotation>... annotations) {
-        var otacAnnotations = Arrays.asList(annotations) //
-                .stream() //
-                .map(OtacAnnotation::annotation) //
-                .collect(Collectors.toList());
+    public static OtacParameter parameterOf(String name, OtacType type, OtacAnnotation... annotations) {
         return OtacParameter.builder() //
                 .name(name) //
                 .type(type) //
-                .annotations(otacAnnotations) //
+                .annotations(Arrays.asList(annotations)) //
                 .build();
     }
 
