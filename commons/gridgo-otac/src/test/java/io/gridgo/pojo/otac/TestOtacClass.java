@@ -61,8 +61,8 @@ public class TestOtacClass {
                         .generateGetter(true) //
                         .generateSetter(true) //
                         .initValue(OtacValue.InitializedArray.builder() //
-                                .initValue(OtacValue.Raw.of("this is test text")) //
-                                .initValue(OtacValue.Raw.of("text2")) //
+                                .initValue(OtacValue.raw("this is test text")) //
+                                .initValue(OtacValue.raw("text2")) //
                                 .build()) //
                         .build()) //
                 .field(OtacField.builder() //
@@ -96,7 +96,7 @@ public class TestOtacClass {
                                 .generic(true) //
                                 .genericType(OtacGeneric.of(classGenericT.getName())) //
                                 .build()) //
-                        .initValue(OtacValue.newSimple(//
+                        .initValue(OtacValue.newOf(//
                                 OtacType.builder() //
                                         .type(HashSet.class) //
                                         .generic(true) //

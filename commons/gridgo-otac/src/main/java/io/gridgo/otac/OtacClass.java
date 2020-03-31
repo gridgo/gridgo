@@ -91,7 +91,7 @@ public class OtacClass extends OtacModifiers implements OtacRequireImports {
                             .returnType(f.getType()) //
                             .name(getterName) //
                             .addLine(OtacCodeLine.ReturnValue.builder() //
-                                    .value(OtacValue.forField(fName)) //
+                                    .value(OtacValue.field(fName)) //
                                     .build()) //
                             .build());
                 }
@@ -105,7 +105,7 @@ public class OtacClass extends OtacModifiers implements OtacRequireImports {
                             .addLine(OtacCodeLine.AssignValue.builder() //
                                     .isField(true) //
                                     .name(fName) //
-                                    .value(OtacValue.forVariable(fName)) //
+                                    .value(OtacValue.variable(fName)) //
                                     .build()) //
                             .build());
                 }

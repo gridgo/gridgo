@@ -34,23 +34,23 @@ public abstract class OtacValue implements OtacRequireImports {
         return OtacType.OBJECT;
     }
 
-    public static Raw newRaw(Object value) {
+    public static Raw raw(Object value) {
         return Raw.of(value);
     }
 
-    public static New newSimple(Class<?> type) {
-        return newSimple(OtacType.of(type));
+    public static New newOf(Class<?> type) {
+        return newOf(OtacType.of(type));
     }
 
-    public static New newSimple(OtacType type) {
+    public static New newOf(OtacType type) {
         return New.of(type);
     }
 
-    public static Field forField(String fieldName) {
+    public static Field field(String fieldName) {
         return Field.builder().name(fieldName).build();
     }
 
-    public static ClosureVariable forVariable(String variableName) {
+    public static ClosureVariable variable(String variableName) {
         return ClosureVariable.builder().name(variableName).build();
     }
 
@@ -65,7 +65,7 @@ public abstract class OtacValue implements OtacRequireImports {
         var builder = InitializedArray.builder() //
                 .type(OtacType.of(type));
         for (var v : values)
-            builder.initValue(OtacValue.newRaw(v));
+            builder.initValue(OtacValue.raw(v));
         return builder.build();
     }
 
