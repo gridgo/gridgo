@@ -21,10 +21,25 @@ public abstract class OtacValue implements OtacRequireImports {
         return Collections.emptySet();
     }
 
+    public OtacType inferredType() {
+        return OtacType.OBJECT;
+    }
+
     @Getter
     @SuperBuilder
     public static class Raw extends OtacValue {
         private Object value;
+
+        public static Raw of(Object value) {
+            return Raw.builder().value(value).build();
+        }
+
+        @Override
+        public OtacType inferredType() {
+            if (value == null)
+                return super.inferredType();
+            return OtacType.of(value.getClass());
+        }
 
         @Override
         public String toString() {
@@ -49,6 +64,11 @@ public abstract class OtacValue implements OtacRequireImports {
 
         @Singular
         private List<OtacValue> parameters;
+
+        @Override
+        public OtacType inferredType() {
+            return type;
+        }
 
         @Override
         public String toString() {
@@ -87,6 +107,11 @@ public abstract class OtacValue implements OtacRequireImports {
         private int arraySize = -1;
 
         @Override
+        public OtacType inferredType() {
+            return type;
+        }
+
+        @Override
         public String toString() {
             if (arraySize < 0)
                 throw new OtacException("array expected for size or values");
@@ -102,33 +127,53 @@ public abstract class OtacValue implements OtacRequireImports {
 
     @Getter
     @SuperBuilder
-    public static class NewArray extends OtacValue {
-        private @NonNull OtacType type;
+    public static class NewInitializedArray extends OtacValue {
+        private OtacType type;
 
         @Singular
         private List<OtacValue> initValues;
+
+        @Override
+        public OtacType inferredType() {
+            var type = this.type;
+            if (type == null)
+                for (var v : initValues) {
+                    if (type == null) {
+                        type = v.inferredType();
+                    } else {
+                        if (!v.inferredType().equals(type)) {
+                            type = OtacType.OBJECT;
+                            break;
+                        }
+                    }
+                }
+            return type;
+        }
 
         @Override
         public String toString() {
             if (initValues == null || initValues.isEmpty())
                 throw new OtacException("array expected for size or values");
 
+            var type = inferredType();
+
             var sb = new StringBuilder();
             sb.append("new ");
-            sb.append(getType().toString().trim());
+            sb.append(type.toString().trim());
             sb.append("[] ").append("{ ");
             sb.append(initValues.get(0));
             for (int i = 1; i < initValues.size(); i++)
                 sb.append(", ").append(initValues.get(i).toString().trim());
             sb.append(" }");
-            
+
             return sb.toString();
         }
 
         @Override
         public Set<Class<?>> requiredImports() {
             var imports = new HashSet<Class<?>>();
-            imports.addAll(type.requiredImports());
+            if (type != null)
+                imports.addAll(type.requiredImports());
             if (initValues != null)
                 for (var p : initValues)
                     imports.addAll(p.requiredImports());

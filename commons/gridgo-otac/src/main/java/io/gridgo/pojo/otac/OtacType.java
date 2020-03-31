@@ -13,6 +13,8 @@ public class OtacType extends OtacGenericDeclaration implements OtacRequireImpor
 
     public static final OtacType VOID = OtacType.builder().type(void.class).build();
 
+    public static final OtacType OBJECT = OtacType.builder().type(Object.class).build();
+
     private @NonNull Class<?> type;
 
     public static OtacType of(Class<?> type) {
@@ -25,6 +27,13 @@ public class OtacType extends OtacGenericDeclaration implements OtacRequireImpor
 
     public boolean isArray() {
         return this.type.isArray();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof OtacType))
+            return false;
+        return this.type.equals(((OtacType) obj).type);
     }
 
     @Override

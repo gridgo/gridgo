@@ -53,6 +53,10 @@ public class TestOtacClass {
                         .type(OtacType.of(String[].class)) //
                         .generateGetter(true) //
                         .generateSetter(true) //
+                        .initValue(OtacValue.NewInitializedArray.builder() //
+                                .initValue(OtacValue.Raw.of("this is test text")) //
+                                .initValue(OtacValue.Raw.of("text2")) //
+                                .build()) //
                         .build()) //
                 .field(OtacField.builder() //
                         .accessLevel(PRIVATE) //
@@ -67,6 +71,7 @@ public class TestOtacClass {
                         .type(OtacType.of(int.class)) //
                         .generateGetter(true) //
                         .generateSetter(true) //
+                        .initValue(OtacValue.Raw.of(111)) //
                         .build())
                 .field(OtacField.builder() //
                         .accessLevel(PRIVATE) //
@@ -96,7 +101,11 @@ public class TestOtacClass {
                 .build();
 
         String classContent = c.toString();
-        System.out.println(classContent);
-        new SimpleCompiler().cook(classContent);
+        try {
+            new SimpleCompiler().cook(classContent);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        System.out.println(c.printWithLineNumber());
     }
 }

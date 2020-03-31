@@ -169,4 +169,13 @@ public class OtacClass extends OtacModifiers implements OtacRequireImports {
             sb.append("package " + packageName + ";\n");
     }
 
+    public String printWithLineNumber() {
+        var code = this.toString();
+        var lines = code.split("\n");
+        var sb = new StringBuilder();
+        var lineNumber = 1;
+        for (var line : lines)
+            sb.append(lineNumber++).append("\t").append(line).append("\n");
+        return sb.toString();
+    }
 }
