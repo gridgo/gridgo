@@ -114,7 +114,6 @@ public class OtacClass extends OtacModifiers implements OtacRequireImports {
         }
     }
 
-    @SuppressWarnings("unchecked")
     private void appendMethods(StringBuilder sb) {
         var methods = new HashSet<OtacMethod>();
         if (methods != null)
