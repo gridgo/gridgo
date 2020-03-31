@@ -9,7 +9,7 @@ import io.gridgo.utils.PrimitiveUtils;
 import io.gridgo.utils.pojo.AbstractProxyBuilder;
 import io.gridgo.utils.pojo.MethodSignatureExtractor;
 import io.gridgo.utils.pojo.PojoFieldSignature;
-import io.gridgo.utils.pojo.exception.PojoProxyException;
+import io.gridgo.utils.pojo.exception.PojoException;
 
 class JaninoSetterProxyBuilder extends AbstractProxyBuilder implements PojoSetterProxyBuilder {
 
@@ -51,7 +51,7 @@ class JaninoSetterProxyBuilder extends AbstractProxyBuilder implements PojoSette
             var className = packageName + "." + classSimpleName;
             return makeProxy(methodSignatures, compiler.getClassLoader().loadClass(className));
         } catch (Exception e) {
-            throw new PojoProxyException("Error while building setter proxy for class: " + target.getName(), e);
+            throw new PojoException("Error while building setter proxy for class: " + target.getName(), e);
         }
     }
 

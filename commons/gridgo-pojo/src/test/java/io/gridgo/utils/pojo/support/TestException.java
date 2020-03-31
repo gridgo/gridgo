@@ -7,7 +7,7 @@ import static org.junit.Assert.assertNotNull;
 import io.gridgo.utils.pojo.FieldName;
 import io.gridgo.utils.pojo.PojoUtils;
 import io.gridgo.utils.pojo.exception.InvalidFieldNameException;
-import io.gridgo.utils.pojo.exception.PojoProxyException;
+import io.gridgo.utils.pojo.exception.PojoException;
 import io.gridgo.utils.pojo.setter.PojoSetter;
 import lombok.Data;
 
@@ -36,7 +36,7 @@ public class TestException {
         assertNotNull(proxy);
     }
 
-    @Test(expected = PojoProxyException.class)
+    @Test(expected = PojoException.class)
     public void testCannotCreateInstance() {
         PojoSetter.ofType(MissingNoArgsConstructor.class);
     }

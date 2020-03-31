@@ -1,7 +1,7 @@
 package io.gridgo.utils.pojo.setter;
 
 import io.gridgo.utils.pojo.PojoFieldSignature;
-import io.gridgo.utils.pojo.exception.PojoProxyException;
+import io.gridgo.utils.pojo.exception.PojoException;
 import io.gridgo.utils.pojo.setter.data.GenericData;
 import io.gridgo.utils.pojo.setter.data.KeyValueData;
 import io.gridgo.utils.pojo.setter.fieldconverters.FieldConverter;
@@ -23,7 +23,7 @@ public class PojoSetter {
             var target = targetType.getConstructor().newInstance();
             return of(target, proxy);
         } catch (ReflectiveOperationException e) {
-            throw new PojoProxyException("Cannot create instance of class: " + targetType.getName(), e);
+            throw new PojoException("Cannot create instance of class: " + targetType.getName(), e);
         }
     }
 

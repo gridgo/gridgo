@@ -1,7 +1,7 @@
 package io.gridgo.utils.pojo.setter.fieldconverters;
 
 import io.gridgo.utils.pojo.PojoFieldSignature;
-import io.gridgo.utils.pojo.exception.PojoProxyException;
+import io.gridgo.utils.pojo.exception.PojoException;
 import io.gridgo.utils.pojo.setter.data.GenericData;
 import io.gridgo.utils.pojo.setter.data.KeyValueData;
 import io.gridgo.utils.pojo.setter.data.PrimitiveData;
@@ -60,21 +60,21 @@ public class GenericFieldConverter implements GenericDataConverter, FieldConvert
             return value.asReference().getReference();
 
         if (!value.isKeyValue())
-            throw new PojoProxyException("Field '" + fieldName + "' expected key-value, got " + value.getClass());
+            throw new PojoException("Field '" + fieldName + "' expected key-value, got " + value.getClass());
 
         return keyValueFieldConverter.convert(value.asKeyValue(), signature);
     }
 
     private Object fromSequence(GenericData value, PojoFieldSignature signature, String fieldName) {
         if (!value.isSequence())
-            throw new PojoProxyException("Field '" + fieldName + "' expected sequence, got " + value.getClass());
+            throw new PojoException("Field '" + fieldName + "' expected sequence, got " + value.getClass());
 
         return sequenceFieldConverter.convert(value.asSequence(), signature);
     }
 
     private Object fromPrimitive(GenericData value, PojoFieldSignature signature, String fieldName) {
         if (!value.isPrimitive())
-            throw new PojoProxyException("Field '" + fieldName + "' expected value data, got " + value.getClass());
+            throw new PojoException("Field '" + fieldName + "' expected value data, got " + value.getClass());
 
         return primitiveFieldConverter.convert(value.asPrimitive(), signature);
     }

@@ -2,7 +2,7 @@ package io.gridgo.utils.pojo.setter.fieldconverters;
 
 import io.gridgo.utils.PrimitiveUtils;
 import io.gridgo.utils.pojo.PojoFieldSignature;
-import io.gridgo.utils.pojo.exception.PojoProxyException;
+import io.gridgo.utils.pojo.exception.PojoException;
 import io.gridgo.utils.pojo.setter.data.PrimitiveData;
 
 public class PrimitiveFieldConverter implements GenericDataConverter, FieldConverter<PrimitiveData> {
@@ -31,7 +31,7 @@ public class PrimitiveFieldConverter implements GenericDataConverter, FieldConve
             return PrimitiveUtils.getValueFrom(fieldType, value);
         } catch (Exception e) {
             var fieldName = signature.getFieldName();
-            throw new PojoProxyException(
+            throw new PojoException(
                     "Invalid value for field '" + fieldName + "', expected type: " + fieldType + ", got: " + value,
                     e);
         }

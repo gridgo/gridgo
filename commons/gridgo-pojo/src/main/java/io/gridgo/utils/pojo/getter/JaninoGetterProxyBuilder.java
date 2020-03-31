@@ -8,7 +8,7 @@ import org.codehaus.janino.SimpleCompiler;
 import io.gridgo.utils.pojo.AbstractProxyBuilder;
 import io.gridgo.utils.pojo.MethodSignatureExtractor;
 import io.gridgo.utils.pojo.PojoFieldSignature;
-import io.gridgo.utils.pojo.exception.PojoProxyException;
+import io.gridgo.utils.pojo.exception.PojoException;
 import lombok.NonNull;
 
 class JaninoGetterProxyBuilder extends AbstractProxyBuilder implements PojoGetterProxyBuilder {
@@ -54,7 +54,7 @@ class JaninoGetterProxyBuilder extends AbstractProxyBuilder implements PojoGette
             var cls = simpleCompiler.getClassLoader().loadClass(className);
             return makeProxy(methodSignatures, cls);
         } catch (Exception e) {
-            throw new PojoProxyException("error while building getter proxy for class: " + target.getName(), e);
+            throw new PojoException("error while building getter proxy for class: " + target.getName(), e);
         }
     }
 

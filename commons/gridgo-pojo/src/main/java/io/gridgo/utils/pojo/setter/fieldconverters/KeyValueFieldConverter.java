@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 import io.gridgo.utils.exception.UnsupportedTypeException;
 import io.gridgo.utils.pojo.PojoFieldSignature;
-import io.gridgo.utils.pojo.exception.PojoProxyException;
+import io.gridgo.utils.pojo.exception.PojoException;
 import io.gridgo.utils.pojo.setter.data.GenericData;
 import io.gridgo.utils.pojo.setter.data.KeyValueData;
 
@@ -26,7 +26,7 @@ public class KeyValueFieldConverter implements GenericDataConverter, FieldConver
             return keyValueToMap(data, signature);
         if (signature.isPojoType())
             return fromKeyValue(data, signature.getFieldType(), signature.getSetterProxy());
-        throw new PojoProxyException(
+        throw new PojoException(
                 "Cannot convert non key-value data to incompatible type: " + signature.getFieldType());
     }
 

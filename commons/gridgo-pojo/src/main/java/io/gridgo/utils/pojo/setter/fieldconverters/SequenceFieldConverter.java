@@ -1,7 +1,7 @@
 package io.gridgo.utils.pojo.setter.fieldconverters;
 
 import io.gridgo.utils.pojo.PojoFieldSignature;
-import io.gridgo.utils.pojo.exception.PojoProxyException;
+import io.gridgo.utils.pojo.exception.PojoException;
 import io.gridgo.utils.pojo.setter.data.SequenceData;
 
 public class SequenceFieldConverter implements GenericDataConverter, FieldConverter<SequenceData> {
@@ -28,6 +28,6 @@ public class SequenceFieldConverter implements GenericDataConverter, FieldConver
         if (signature.isArrayType()) {
             return arrayFieldConverter.convert(data, signature);
         }
-        throw new PojoProxyException("Cannot convert sequence data to incompatible type: " + signature.getFieldType());
+        throw new PojoException("Cannot convert sequence data to incompatible type: " + signature.getFieldType());
     }
 }

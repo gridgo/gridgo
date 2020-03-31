@@ -12,7 +12,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 import io.gridgo.utils.exception.UnsupportedTypeException;
-import io.gridgo.utils.pojo.exception.PojoProxyException;
+import io.gridgo.utils.pojo.exception.PojoException;
 import io.gridgo.utils.pojo.setter.data.SimpleKeyValueData;
 import io.gridgo.utils.pojo.support.PojoWithCollection;
 import io.gridgo.utils.pojo.support.SimplePojo;
@@ -138,21 +138,21 @@ public class TestPojoSetter {
         createPojo(src);
     }
 
-    @Test(expected = PojoProxyException.class)
+    @Test(expected = PojoException.class)
     public void testSequenceWrongType() {
         var pojoArr = new Object();
         var src = Map.of("list", pojoArr);
         createPojo(src);
     }
 
-    @Test(expected = PojoProxyException.class)
+    @Test(expected = PojoException.class)
     public void testPrimitiveWrongType() {
         var pojoArr = new Object();
         var src = Map.of("intValue", pojoArr);
         createPojo(src);
     }
 
-    @Test(expected = PojoProxyException.class)
+    @Test(expected = PojoException.class)
     public void testMapWrongType() {
         var pojoArr = new Object();
         var src = Map.of("map", pojoArr);
