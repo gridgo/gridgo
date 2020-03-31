@@ -18,20 +18,22 @@ public class TestOtacClass {
 
     @Test
     public void testSimpleClass() throws CompileException {
+        var classGenericT = OtacGeneric.builder() //
+                .name("T") //
+                .operator(EXTENDS) //
+                .type(OtacType.builder() //
+                        .type(Map.class) //
+                        .genericType(ANY) //
+                        .genericType(ANY) //
+                        .build()) //
+                .build();
+
         var c = OtacClass.builder() //
                 .accessLevel(OtacAccessLevel.PUBLIC) //
                 .isAbstract(true) //
                 .packageName("io.gridgo.pojo.otac.test") //
                 .simpleClassName("TestOtacClassGenerate") //
-                .generic(OtacGeneric.builder() //
-                        .name("T") //
-                        .operator(EXTENDS) //
-                        .type(OtacType.builder() //
-                                .type(Map.class) //
-                                .genericType(ANY) //
-                                .genericType(ANY) //
-                                .build()) //
-                        .build()) //
+                .generic(classGenericT) //
                 .extendsFrom(OtacType.of(InputStream.class)) //
                 .implement(OtacType.of(Serializable.class)) //
                 .implement(OtacType.builder() //
@@ -80,7 +82,7 @@ public class TestOtacClass {
                         .type(OtacType.builder() //
                                 .type(Set.class) //
                                 .generic(true) //
-                                .genericType(OtacGeneric.of("T")) //
+                                .genericType(OtacGeneric.of(classGenericT.getName())) //
                                 .build()) //
                         .initValue(OtacValue.New.builder() //
                                 .type(OtacType.builder() //
