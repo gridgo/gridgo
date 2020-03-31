@@ -10,7 +10,7 @@ import lombok.experimental.SuperBuilder;
 
 @Getter
 @SuperBuilder
-public class OtacField extends OtaNamedElement implements OtacRequireImports {
+public class OtacField extends OtacNamedElement implements OtacRequireImports {
 
     @Builder.Default
     private boolean isVolatile = false;

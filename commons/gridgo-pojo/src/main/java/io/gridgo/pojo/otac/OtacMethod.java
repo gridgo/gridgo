@@ -2,7 +2,6 @@ package io.gridgo.pojo.otac;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import lombok.Builder;
@@ -13,7 +12,7 @@ import lombok.experimental.SuperBuilder;
 
 @Getter
 @SuperBuilder
-public class OtacMethod extends OtaNamedElement implements OtacRequireImports {
+public class OtacMethod extends OtacNamedElement implements OtacRequireImports {
 
     @Singular
     private final List<OtacGeneric> generics;
@@ -22,7 +21,7 @@ public class OtacMethod extends OtaNamedElement implements OtacRequireImports {
     private @NonNull OtacType returnType = OtacType.VOID;
 
     @Singular
-    private final Map<String, OtacType> parameters;
+    private final List<OtacParameter> parameters;
 
     private final OtacExceptionThrows checkedExceptions;
 
@@ -39,7 +38,7 @@ public class OtacMethod extends OtaNamedElement implements OtacRequireImports {
             for (var g : generics)
                 imports.addAll(g.requiredImports());
         if (parameters != null)
-            for (var p : parameters.values())
+            for (var p : parameters)
                 imports.addAll(p.requiredImports());
         return imports;
     }
@@ -61,12 +60,15 @@ public class OtacMethod extends OtaNamedElement implements OtacRequireImports {
                 .append('(');
 
         if (parameters != null && !parameters.isEmpty()) {
-            var it = parameters.entrySet().iterator();
+            var it = parameters.iterator();
             var entry = it.next();
-            sb.append(entry.getValue().toString().trim()).append(' ').append(entry.getKey().trim());
+            sb.append(entry.getType().toString().trim()).append(' ').append(entry.getName().trim());
             while (it.hasNext()) {
                 entry = it.next();
-                sb.append(", ").append(entry.getValue()).append(' ').append(entry.getKey());
+                sb.append(", ") //
+                        .append(entry.getType().toString().trim()) //
+                        .append(' ') //
+                        .append(entry.getName().trim());
             }
         }
         sb.append(") ");

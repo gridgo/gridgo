@@ -6,7 +6,7 @@ import lombok.experimental.SuperBuilder;
 
 @Getter
 @SuperBuilder
-public class OtaNamedElement extends OtacModifiers {
+public class OtacNamedElement extends OtacModifiers {
 
     private @NonNull String name;
 

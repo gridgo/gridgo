@@ -1,5 +1,7 @@
 package io.gridgo.pojo.otac;
 
+import static io.gridgo.pojo.otac.OtacAccessLevel.PUBLIC;
+import static io.gridgo.pojo.otac.OtacType.VOID;
 import static io.gridgo.pojo.otac.OtacUtils.tabs;
 import static io.gridgo.utils.StringUtils.upperCaseFirstLetter;
 
@@ -84,7 +86,7 @@ public class OtacClass extends OtacModifiers implements OtacRequireImports {
                     var prefix = f.getType().getType() == boolean.class ? "is" : "get";
                     var getterName = prefix + upperCaseFirstLetter(fName);
                     methods.add(OtacMethod.builder()//
-                            .accessLevel(OtacAccessLevel.PUBLIC) //
+                            .accessLevel(PUBLIC) //
                             .returnType(f.getType()) //
                             .name(getterName) //
                             .body("return this." + fName + ";") //
@@ -93,9 +95,9 @@ public class OtacClass extends OtacModifiers implements OtacRequireImports {
                 if (f.isGenerateSetter() && !f.isFinal()) {
                     var setterName = "set" + upperCaseFirstLetter(fName);
                     methods.add(OtacMethod.builder()//
-                            .accessLevel(OtacAccessLevel.PUBLIC) //
-                            .returnType(OtacType.VOID) //
-                            .parameter(fName, f.getType()) //
+                            .accessLevel(PUBLIC) //
+                            .returnType(VOID) //
+                            .parameter(OtacParameter.of(fName, f.getType())) //
                             .name(setterName) //
                             .body("this." + fName + " = " + fName + ";") //
                             .build());
