@@ -6,26 +6,16 @@ import java.util.Set;
 
 import io.gridgo.otac.code.OtacCodeElement;
 import io.gridgo.otac.utils.OtacUtils;
-import lombok.Builder;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.Singular;
 import lombok.experimental.Delegate;
 import lombok.experimental.SuperBuilder;
 
 @SuperBuilder
-public class OtacMethod extends OtacNamedElement implements OtacRequireImports, OtacDeclaringClassAware {
+public class OtacConstructor extends OtacModifiers implements OtacRequireImports, OtacDeclaringClassAware {
 
     @Delegate(types = OtacDeclaringClassAware.class)
     private final OtacDeclaringClassAware declaringClassHolder = OtacDeclaringClassAware.newInstance();
-
-    @Getter
-    @Singular
-    private final List<OtacGeneric> generics;
-
-    @Getter
-    @Builder.Default
-    private @NonNull OtacType returnType = OtacType.VOID;
 
     @Getter
     @Singular
@@ -41,12 +31,8 @@ public class OtacMethod extends OtacNamedElement implements OtacRequireImports, 
     @Override
     public Set<Class<?>> requiredImports() {
         var imports = new HashSet<Class<?>>();
-        imports.addAll(returnType.requiredImports());
         if (checkedExceptions != null)
             imports.addAll(checkedExceptions.requiredImports());
-        if (generics != null)
-            for (var g : generics)
-                imports.addAll(g.requiredImports());
         if (parameters != null)
             for (var p : parameters)
                 imports.addAll(p.requiredImports());
@@ -56,18 +42,7 @@ public class OtacMethod extends OtacNamedElement implements OtacRequireImports, 
     @Override
     public String toString() {
         var sb = new StringBuilder();
-        sb.append(super.toString());
-        if (generics != null && !generics.isEmpty()) {
-            sb.append('<').append(generics.get(0).toString().trim());
-            for (int i = 1; i < generics.size(); i++)
-                sb.append(", ").append(generics.get(i).toString().trim());
-            sb.append("> ");
-        }
-
-        sb.append(returnType.toString().trim()) //
-                .append(" ") //
-                .append(getName()) //
-                .append('(');
+        sb.append(super.toString()).append(getDeclaringClass().getSimpleClassName()).append("(");
 
         if (parameters != null && !parameters.isEmpty()) {
             var it = parameters.iterator();

@@ -16,10 +16,13 @@ import org.junit.Test;
 
 import io.gridgo.otac.OtacAccessLevel;
 import io.gridgo.otac.OtacClass;
+import io.gridgo.otac.OtacConstructor;
 import io.gridgo.otac.OtacField;
 import io.gridgo.otac.OtacGeneric;
+import io.gridgo.otac.OtacParameter;
 import io.gridgo.otac.OtacType;
 import io.gridgo.otac.OtacValue;
+import io.gridgo.otac.code.OtacCodeLine;
 
 public class TestOtacClass {
 
@@ -74,11 +77,11 @@ public class TestOtacClass {
                         .build()) //
                 .field(OtacField.builder() //
                         .accessLevel(PRIVATE) //
+                        .isFinal(true) //
                         .name("intField") //
                         .type(OtacType.of(int.class)) //
                         .generateGetter(true) //
                         .generateSetter(true) //
-                        .initValue(OtacValue.Raw.of(111)) //
                         .build())
                 .field(OtacField.builder() //
                         .accessLevel(PRIVATE) //
@@ -103,6 +106,11 @@ public class TestOtacClass {
                                         .build())) //
                         .generateGetter(true) //
                         .generateSetter(true) //
+                        .build()) //
+                .constructor(OtacConstructor.builder() //
+                        .accessLevel(OtacAccessLevel.PUBLIC) //
+                        .parameter(OtacParameter.of("intValue", OtacType.of(int.class))) //
+                        .addLine(OtacCodeLine.assignField("intField", OtacValue.variable("intValue"))) //
                         .build()) //
                 .build();
 

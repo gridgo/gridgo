@@ -18,6 +18,31 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public abstract class OtacCodeLine extends OtacCodeElement {
 
+    public static final AssignVariable assignVariable(String variableName, OtacValue value) {
+        return AssignVariable.builder() //
+                .name(variableName) //
+                .value(value) //
+                .build();
+    }
+
+    public static final AssignVariable assignField(String variableName, OtacValue value) {
+        return AssignVariable.builder() //
+                .isField(true) //
+                .name(variableName) //
+                .value(value) //
+                .build();
+    }
+
+    public static Return RETURN_VOID = Return.builder().build();
+
+    public static final Return returnVoid() {
+        return RETURN_VOID;
+    }
+
+    public static final ReturnValue returnValue(OtacValue value) {
+        return ReturnValue.builder().value(value).build();
+    }
+
     @Override
     public Set<Class<?>> requiredImports() {
         return Collections.emptySet();
@@ -38,8 +63,6 @@ public abstract class OtacCodeLine extends OtacCodeElement {
         }
     }
 
-    public static Return RETURN_VOID = Return.builder().build();
-
     @Getter
     @SuperBuilder
     public static final class ReturnValue extends Return {
@@ -57,7 +80,7 @@ public abstract class OtacCodeLine extends OtacCodeElement {
 
     @Getter
     @SuperBuilder
-    public static class AssignValue extends OtacCodeLine {
+    public static class AssignVariable extends OtacCodeLine {
         @Builder.Default
         private boolean isField = false;
 

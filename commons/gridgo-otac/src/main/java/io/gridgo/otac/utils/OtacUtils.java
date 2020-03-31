@@ -1,4 +1,4 @@
-package io.gridgo.otac;
+package io.gridgo.otac.utils;
 
 public class OtacUtils {
 

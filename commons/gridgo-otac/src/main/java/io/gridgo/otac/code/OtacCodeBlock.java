@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import io.gridgo.otac.OtacUtils;
+import io.gridgo.otac.utils.OtacUtils;
 import lombok.Getter;
 import lombok.Singular;
 import lombok.experimental.SuperBuilder;

@@ -2,14 +2,17 @@ package io.gridgo.otac;
 
 import static io.gridgo.otac.OtacAccessLevel.PUBLIC;
 import static io.gridgo.otac.OtacType.VOID;
-import static io.gridgo.otac.OtacUtils.tabs;
+import static io.gridgo.otac.OtacValue.field;
+import static io.gridgo.otac.OtacValue.variable;
+import static io.gridgo.otac.code.OtacCodeLine.assignField;
+import static io.gridgo.otac.code.OtacCodeLine.returnValue;
+import static io.gridgo.otac.utils.OtacUtils.tabs;
 import static io.gridgo.utils.StringUtils.upperCaseFirstLetter;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import io.gridgo.otac.code.OtacCodeLine;
 import lombok.Getter;
 import lombok.Singular;
 import lombok.experimental.SuperBuilder;
@@ -32,6 +35,9 @@ public class OtacClass extends OtacModifiers implements OtacRequireImports {
 
     @Singular
     private final List<OtacField> fields;
+
+    @Singular
+    private final List<OtacConstructor> constructors;
 
     @Singular
     private final List<OtacMethod> methods;
@@ -70,9 +76,17 @@ public class OtacClass extends OtacModifiers implements OtacRequireImports {
         makeClassName(sb);
         sb.append("{\n");
         appendFields(sb);
+        appendConstructor(sb);
         appendMethods(sb);
         sb.append("}");
         return sb.toString();
+    }
+
+    private void appendConstructor(StringBuilder sb) {
+        for (var ctor : constructors) {
+            ctor.setDeclaringClass(this);
+            sb.append(tabs(1, ctor.toString())).append("\n");
+        }
     }
 
     private void appendMethods(StringBuilder sb) {
@@ -90,9 +104,7 @@ public class OtacClass extends OtacModifiers implements OtacRequireImports {
                             .accessLevel(PUBLIC) //
                             .returnType(f.getType()) //
                             .name(getterName) //
-                            .addLine(OtacCodeLine.ReturnValue.builder() //
-                                    .value(OtacValue.field(fName)) //
-                                    .build()) //
+                            .addLine(returnValue(field(fName))) //
                             .build());
                 }
                 if (f.isGenerateSetter() && !f.isFinal()) {
@@ -102,18 +114,16 @@ public class OtacClass extends OtacModifiers implements OtacRequireImports {
                             .returnType(VOID) //
                             .parameter(OtacParameter.of(fName, f.getType())) //
                             .name(setterName) //
-                            .addLine(OtacCodeLine.AssignValue.builder() //
-                                    .isField(true) //
-                                    .name(fName) //
-                                    .value(OtacValue.variable(fName)) //
-                                    .build()) //
+                            .addLine(assignField(fName, variable(fName)))//
                             .build());
                 }
             }
         }
 
-        for (var m : methods)
+        for (var m : methods) {
+            m.setDeclaringClass(this);
             sb.append(tabs(1, m.toString())).append("\n");
+        }
 
     }
 
@@ -121,8 +131,11 @@ public class OtacClass extends OtacModifiers implements OtacRequireImports {
         sb.append("\n");
         if (fields == null)
             return;
-        for (var f : fields)
-            sb.append(tabs(1)).append(f.toString());
+        var tabs = tabs(1);
+        for (var f : fields) {
+            f.setDeclaringClass(this);
+            sb.append(tabs).append(f.toString());
+        }
         sb.append("\n");
     }
 

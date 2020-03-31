@@ -6,25 +6,34 @@ import java.util.Set;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.experimental.Delegate;
 import lombok.experimental.SuperBuilder;
 
-@Getter
 @SuperBuilder
-public class OtacField extends OtacNamedElement implements OtacRequireImports {
+public class OtacField extends OtacNamedElement implements OtacRequireImports, OtacDeclaringClassAware {
 
+    @Delegate(types = OtacDeclaringClassAware.class)
+    private final OtacDeclaringClassAware declaringClassHolder = OtacDeclaringClassAware.newInstance();
+
+    @Getter
     @Builder.Default
     private boolean isVolatile = false;
 
+    @Getter
     @Builder.Default
     private boolean isTransient = false;
 
+    @Getter
     private @NonNull OtacType type;
 
+    @Getter
     private OtacValue initValue;
 
+    @Getter
     @Builder.Default
     private boolean generateSetter = false;
 
+    @Getter
     @Builder.Default
     private boolean generateGetter = false;
 
