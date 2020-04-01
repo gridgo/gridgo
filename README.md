@@ -20,13 +20,13 @@ View [build status](https://github.com/gridgo/gridgo/wiki/build-status) for all 
 <dependency>
     <groupId>io.gridgo</groupId>
     <artifactId>gridgo-core</artifactId>
-    <version>0.6.1</version>
+    <version><!--see above--></version>
 </dependency>
 ```
 
 ## getting started
 
-Refer to the [getting started guide](https://github.com/gridgo/gridgo/wiki/getting-started) for instructions
+Refer to the [getting started guide](https://gridgo.readthedocs.io/en/latest/getting_started/install/index.html) for instructions
 
 ## documentation
 
