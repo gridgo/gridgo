@@ -33,17 +33,13 @@ public class BElementJsonCodec implements JsonCodec<BElement> {
     public void write(JsonWriter writer, BElement value) {
         if (value == null)
             writer.writeNull();
-
-        if (value.isObject())
+        else if (value.isObject())
             objectCodec.write(writer, value.asObject());
-
-        if (value.isArray())
+        else if (value.isArray())
             arrayCodec.write(writer, value.asArray());
-
-        if (value.isValue())
+        else if (value.isValue())
             valueCodec.write(writer, value.asValue());
-
-        if (value.isReference())
+        else if (value.isReference())
             referenceCodec.write(writer, value.asReference());
     }
 

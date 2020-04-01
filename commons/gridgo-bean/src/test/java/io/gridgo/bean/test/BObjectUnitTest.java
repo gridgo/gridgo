@@ -1,7 +1,6 @@
 package io.gridgo.bean.test;
 
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 import java.sql.Date;
 import java.util.Collections;
@@ -9,7 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Assert;
+import org.junit.Test;
 
 import io.gridgo.bean.BArray;
 import io.gridgo.bean.BElement;
@@ -34,7 +34,9 @@ public class BObjectUnitTest {
                 .setAny("double", 1.11) //
                 .setAny("byte", (byte) 1) //
                 .setAny("arr", new int[] { 1, 2, 3 }) //
-                .set("obj", BObject.ofEmpty().setAny("int", 2));
+                .set("obj", BObject.ofEmpty().setAny("int", 2)) //
+                .setAnySequence("s1", "s1", "s2", 2);
+
         assertObject(obj);
         assertObject(obj.deepClone());
         obj.setAnyIfAbsent("arr", 1);
@@ -42,6 +44,9 @@ public class BObjectUnitTest {
         Assert.assertTrue(obj.getBoolean("bool", true));
         obj.setAny("bool", true);
         Assert.assertTrue(obj.getBoolean("bool", false));
+
+        assertEquals("s1", obj.getString("s1"));
+        assertEquals(2, obj.getInteger("s2").intValue());
 
         var map = obj.toMap();
         Assert.assertEquals(1, ((Number) map.get("int")).intValue());
