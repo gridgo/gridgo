@@ -2,6 +2,7 @@ package io.gridgo.utils.support;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -25,7 +26,7 @@ public class CaseInsensitiveMap<V> implements Map<String, V> {
 
     @Override
     public boolean containsKey(Object key) {
-        return delegate.containsKey(key.toString().toLowerCase());
+        return delegate.containsKey(key.toString().toLowerCase(Locale.ENGLISH));
     }
 
     @Override
@@ -35,24 +36,24 @@ public class CaseInsensitiveMap<V> implements Map<String, V> {
 
     @Override
     public V get(Object key) {
-        return delegate.get(key.toString().toLowerCase());
+        return delegate.get(key.toString().toLowerCase(Locale.ENGLISH));
     }
 
     @Override
     public V put(String key, V value) {
-        return delegate.put(key.toLowerCase(), value);
+        return delegate.put(key.toLowerCase(Locale.ENGLISH), value);
     }
 
     @Override
     public V remove(Object key) {
-        return delegate.remove(key.toString().toLowerCase());
+        return delegate.remove(key.toString().toLowerCase(Locale.ENGLISH));
     }
 
     @Override
     public void putAll(Map<? extends String, ? extends V> m) {
         Map<String, V> map = new HashMap<>();
         for (var entry : m.entrySet()) {
-            map.put(entry.getKey().toLowerCase(), entry.getValue());
+            map.put(entry.getKey().toLowerCase(Locale.ENGLISH), entry.getValue());
         }
         delegate.putAll(map);
     }
