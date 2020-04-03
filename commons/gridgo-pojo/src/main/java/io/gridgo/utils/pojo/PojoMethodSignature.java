@@ -22,7 +22,7 @@ import lombok.Setter;
 @Getter
 @Setter(PACKAGE)
 @SuppressWarnings("rawtypes")
-public final class PojoFieldSignature {
+public final class PojoMethodSignature {
 
     private final @NonNull Method method;
     private final @NonNull String fieldName;
@@ -67,7 +67,7 @@ public final class PojoFieldSignature {
     private final boolean ignoreNull;
 
     @Builder
-    private PojoFieldSignature(//
+    private PojoMethodSignature(//
             Method method, //
             String fieldName, //
             Class<?> fieldType, //

@@ -1,6 +1,6 @@
 package io.gridgo.utils.pojo.setter.fieldconverters;
 
-import io.gridgo.utils.pojo.PojoFieldSignature;
+import io.gridgo.utils.pojo.PojoMethodSignature;
 import io.gridgo.utils.pojo.exception.PojoException;
 import io.gridgo.utils.pojo.setter.data.GenericData;
 import io.gridgo.utils.pojo.setter.data.KeyValueData;
@@ -27,7 +27,7 @@ public class GenericFieldConverter implements GenericDataConverter, FieldConvert
 
     @SuppressWarnings("unchecked")
     @Override
-    public Object convert(GenericData value, PojoFieldSignature signature) {
+    public Object convert(GenericData value, PojoMethodSignature signature) {
         var valueTranslator = signature.getValueTranslator();
         if (valueTranslator != null && valueTranslator.translatable(value))
             return valueTranslator.translate(value, signature);
@@ -55,7 +55,7 @@ public class GenericFieldConverter implements GenericDataConverter, FieldConvert
         return null;
     }
 
-    private Object fromKeyValue(GenericData value, PojoFieldSignature signature, String fieldName) {
+    private Object fromKeyValue(GenericData value, PojoMethodSignature signature, String fieldName) {
         if (value.isReference() && signature.isPojoType())
             return value.asReference().getReference();
 
@@ -65,14 +65,14 @@ public class GenericFieldConverter implements GenericDataConverter, FieldConvert
         return keyValueFieldConverter.convert(value.asKeyValue(), signature);
     }
 
-    private Object fromSequence(GenericData value, PojoFieldSignature signature, String fieldName) {
+    private Object fromSequence(GenericData value, PojoMethodSignature signature, String fieldName) {
         if (!value.isSequence())
             throw new PojoException("Field '" + fieldName + "' expected sequence, got " + value.getClass());
 
         return sequenceFieldConverter.convert(value.asSequence(), signature);
     }
 
-    private Object fromPrimitive(GenericData value, PojoFieldSignature signature, String fieldName) {
+    private Object fromPrimitive(GenericData value, PojoMethodSignature signature, String fieldName) {
         if (!value.isPrimitive())
             throw new PojoException("Field '" + fieldName + "' expected value data, got " + value.getClass());
 

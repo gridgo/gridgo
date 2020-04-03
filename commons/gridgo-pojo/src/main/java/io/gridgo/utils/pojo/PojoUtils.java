@@ -37,7 +37,7 @@ public class PojoUtils {
                 .toString().replaceAll("\\.", "/");
     }
 
-    public static Class<?> getElementTypeForGeneric(PojoFieldSignature signature) {
+    public static Class<?> getElementTypeForGeneric(PojoMethodSignature signature) {
         Class<?>[] genericTypes = signature.getGenericTypes();
         Class<?> elementType = null;
         if (genericTypes != null && genericTypes.length > 0) {

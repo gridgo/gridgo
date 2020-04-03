@@ -24,14 +24,14 @@ import lombok.extern.slf4j.Slf4j;
 public abstract class AbstractMethodSignatureExtractor implements MethodSignatureExtractor {
 
     @Override
-    public List<PojoFieldSignature> extractMethodSignatures(Class<?> targetType) {
+    public List<PojoMethodSignature> extractMethodSignatures(Class<?> targetType) {
         if (!isSupported(targetType)) {
             if (log.isWarnEnabled())
                 log.warn("Cannot extract method signature from {}", targetType.getName());
             return Collections.emptyList();
         }
 
-        var results = new LinkedList<PojoFieldSignature>();
+        var results = new LinkedList<PojoMethodSignature>();
         String transformRule = null;
         Set<String> ignoredFields = null;
 
@@ -152,6 +152,6 @@ public abstract class AbstractMethodSignatureExtractor implements MethodSignatur
 
     protected abstract String extractFieldName(String methodName);
 
-    protected abstract PojoFieldSignature extract(Method method, String fieldName, String transformRule,
+    protected abstract PojoMethodSignature extract(Method method, String fieldName, String transformRule,
             Set<String> ignoredFields);
 }

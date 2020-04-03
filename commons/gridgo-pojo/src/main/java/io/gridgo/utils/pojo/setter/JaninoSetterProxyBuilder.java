@@ -8,7 +8,7 @@ import org.codehaus.janino.SimpleCompiler;
 import io.gridgo.utils.PrimitiveUtils;
 import io.gridgo.utils.pojo.AbstractProxyBuilder;
 import io.gridgo.utils.pojo.MethodSignatureExtractor;
-import io.gridgo.utils.pojo.PojoFieldSignature;
+import io.gridgo.utils.pojo.PojoMethodSignature;
 import io.gridgo.utils.pojo.exception.PojoException;
 
 class JaninoSetterProxyBuilder extends AbstractProxyBuilder implements PojoSetterProxyBuilder {
@@ -37,7 +37,7 @@ class JaninoSetterProxyBuilder extends AbstractProxyBuilder implements PojoSette
         var classSimpleName = "_" + target.getSimpleName() + "SetterProxy";
         classContent.append("package " + packageName + ";\n\n");
 
-        doImport(classContent, PojoFieldSignature.class, PojoSetterProxy.class, PojoSetterConsumer.class, target,
+        doImport(classContent, PojoMethodSignature.class, PojoSetterProxy.class, PojoSetterConsumer.class, target,
                 List.class, ArrayList.class);
 
         classContent.append("public final class " + classSimpleName + " implements "
@@ -55,18 +55,18 @@ class JaninoSetterProxyBuilder extends AbstractProxyBuilder implements PojoSette
         }
     }
 
-    private PojoSetterProxy makeProxy(List<PojoFieldSignature> methodSignatures, Class<?> resultClass)
+    private PojoSetterProxy makeProxy(List<PojoMethodSignature> methodSignatures, Class<?> resultClass)
             throws Exception {
         var result = (PojoSetterProxy) resultClass.getConstructor().newInstance();
-        var signatureSetter = resultClass.getMethod("setMethodSignature", String.class, PojoFieldSignature.class);
-        for (PojoFieldSignature methodSignature : methodSignatures)
+        var signatureSetter = resultClass.getMethod("setMethodSignature", String.class, PojoMethodSignature.class);
+        for (PojoMethodSignature methodSignature : methodSignatures)
             signatureSetter.invoke(result, methodSignature.getFieldName(), methodSignature);
         return result;
     }
 
-    private String buildAllFields(List<PojoFieldSignature> methodSignatures) {
+    private String buildAllFields(List<PojoMethodSignature> methodSignatures) {
         var allFieldsBuilder = new StringBuilder();
-        for (PojoFieldSignature methodSignature : methodSignatures) {
+        for (PojoMethodSignature methodSignature : methodSignatures) {
             if (allFieldsBuilder.length() > 0) {
                 allFieldsBuilder.append(",");
             }
@@ -76,12 +76,12 @@ class JaninoSetterProxyBuilder extends AbstractProxyBuilder implements PojoSette
         return allFields;
     }
 
-    private String buildApplyValueMethod(List<PojoFieldSignature> methodSignatures, String targetType) {
+    private String buildApplyValueMethod(List<PojoMethodSignature> methodSignatures, String targetType) {
         String castedTarget = "(" + targetType + ") target";
         String method = "public void applyValue(Object target, String fieldName, Object value) { \n"; //
         method += "\t" + targetType + " castedTarget = " + castedTarget + ";\n";
         method += "\tswitch (fieldName) {\n"; // start switch
-        for (PojoFieldSignature methodSignature : methodSignatures) {
+        for (PojoMethodSignature methodSignature : methodSignatures) {
             String fieldName = methodSignature.getFieldName();
             String invokeSetter = buildInvokeSetter(methodSignature);
             method += "\tcase \"" + fieldName + "\": " + invokeSetter + "; break; \n"; //
@@ -92,7 +92,7 @@ class JaninoSetterProxyBuilder extends AbstractProxyBuilder implements PojoSette
         return method;
     }
 
-    private String buildInvokeSetter(PojoFieldSignature methodSignature) {
+    private String buildInvokeSetter(PojoMethodSignature methodSignature) {
         String invokeSetter = "castedTarget." + methodSignature.getMethodName();
         Class<?> fieldType = methodSignature.getFieldType();
         if (methodSignature.isPrimitiveOrWrapperType()) {
@@ -120,7 +120,7 @@ class JaninoSetterProxyBuilder extends AbstractProxyBuilder implements PojoSette
         return invokeSetter;
     }
 
-    private String buildWalkthroughMethod(List<PojoFieldSignature> signatures, String targetType, String allFields) {
+    private String buildWalkthroughMethod(List<PojoMethodSignature> signatures, String targetType, String allFields) {
 
         var signatureFieldSubfix = "Signature";
         var castedTarget = "(" + targetType + ") target";
@@ -150,7 +150,7 @@ class JaninoSetterProxyBuilder extends AbstractProxyBuilder implements PojoSette
         return method;
     }
 
-    private String buildWalkthroughAllMethod(List<PojoFieldSignature> methodSignatures, String targetType) {
+    private String buildWalkthroughAllMethod(List<PojoMethodSignature> methodSignatures, String targetType) {
 
         String signatureFieldSubfix = "Signature";
         String castedTarget = "(" + targetType + ") target";
@@ -159,7 +159,7 @@ class JaninoSetterProxyBuilder extends AbstractProxyBuilder implements PojoSette
         method += "    " + targetType + " castedTarget = " + castedTarget + ";\n";
         method += "    Object value = null;\n";
 
-        for (PojoFieldSignature methodSignature : methodSignatures) {
+        for (PojoMethodSignature methodSignature : methodSignatures) {
             String fieldName = methodSignature.getFieldName();
             String invokeSetter = buildInvokeSetter(methodSignature);
             String signatureFieldName = fieldName + signatureFieldSubfix;

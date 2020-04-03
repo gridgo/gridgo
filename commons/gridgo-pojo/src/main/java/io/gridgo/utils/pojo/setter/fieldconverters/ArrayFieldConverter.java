@@ -7,7 +7,7 @@ import static io.gridgo.utils.ArrayUtils.toPrimitiveArray;
 import static io.gridgo.utils.PrimitiveUtils.getWrapperType;
 
 import io.gridgo.utils.exception.UnsupportedTypeException;
-import io.gridgo.utils.pojo.PojoFieldSignature;
+import io.gridgo.utils.pojo.PojoMethodSignature;
 import io.gridgo.utils.pojo.setter.data.GenericData;
 import io.gridgo.utils.pojo.setter.data.SequenceData;
 
@@ -24,7 +24,7 @@ public class ArrayFieldConverter implements GenericDataConverter, FieldConverter
     }
 
     @Override
-    public Object convert(SequenceData array, PojoFieldSignature signature) {
+    public Object convert(SequenceData array, PojoMethodSignature signature) {
         var componentType = signature.getComponentType();
         var typeToCheck = componentType.isPrimitive() ? getWrapperType(componentType) : componentType;
         var results = new ArrayList<Object>();

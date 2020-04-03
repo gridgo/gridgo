@@ -12,7 +12,7 @@ import io.gridgo.utils.pojo.AbstractMethodSignatureExtractor;
 import io.gridgo.utils.pojo.IgnoreDefaultTranslator;
 import io.gridgo.utils.pojo.IgnoreNull;
 import io.gridgo.utils.pojo.MethodSignatureExtractor;
-import io.gridgo.utils.pojo.PojoFieldSignature;
+import io.gridgo.utils.pojo.PojoMethodSignature;
 import io.gridgo.utils.pojo.translator.OnGetTranslate;
 import io.gridgo.utils.pojo.translator.ValueTranslator;
 import io.gridgo.utils.pojo.translator.ValueTranslators;
@@ -35,14 +35,14 @@ public class GetterMethodSignatureExtractor extends AbstractMethodSignatureExtra
     }
 
     @Override
-    protected PojoFieldSignature extract(Method method, String fieldName, String transformRule,
+    protected PojoMethodSignature extract(Method method, String fieldName, String transformRule,
             Set<String> ignoredFields) {
 
         var returnType = method.getReturnType();
         var transformedFieldName = transformFieldName(method, fieldName, transformRule, ignoredFields, returnType);
         var ignoreNull = checkIgnoreNull(method, fieldName);
 
-        return PojoFieldSignature.builder() //
+        return PojoMethodSignature.builder() //
                 .method(method) //
                 .fieldType(returnType) //
                 .fieldName(fieldName) //
