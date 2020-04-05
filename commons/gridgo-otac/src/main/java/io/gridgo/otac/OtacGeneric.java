@@ -51,8 +51,7 @@ public class OtacGeneric implements OtacRequireImports {
         return of(name, OtacInheritOperator.EXTENDS, type);
     }
 
-    @Builder.Default
-    private final String name = "?";
+    private final String name;
 
     @Builder.Default
     private @NonNull OtacInheritOperator operator = OtacInheritOperator.NONE;

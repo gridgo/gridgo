@@ -10,7 +10,7 @@ import lombok.NonNull;
 
 public abstract class AbstractProxy implements PojoProxy {
 
-    protected static final String SIGNATURE_FIELD_SUBFIX = "Signature";
+    public static final String SIGNATURE_FIELD_SUBFIX = "Signature";
 
     @Getter
     private @NonNull final String[] fields;

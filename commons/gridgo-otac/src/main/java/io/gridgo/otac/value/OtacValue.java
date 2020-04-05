@@ -121,6 +121,14 @@ public abstract class OtacValue implements OtacRequireImports {
                 .build();
     }
 
+    public static OtacValue castVariable(String variableName, Class<?> castTo, boolean forceArray) {
+        return OtacCastedValue.builder() //
+                .target(variable(variableName)) //
+                .castTo(typeOf(castTo)) //
+                .forceArray(forceArray) //
+                .build();
+    }
+
     public static OtacValue methodReturn(OtacValue target, String methodName, OtacValue... params) {
         return OtacMethodReturn.builder() //
                 .invokeMethod(OtacInvokeMethod.builder() //

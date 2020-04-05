@@ -44,18 +44,16 @@ public class OtacParameter implements OtacRequireImports {
     public Set<Class<?>> requiredImports() {
         var imports = new HashSet<Class<?>>();
         imports.addAll(type.requiredImports());
-        if (!getAnnotations().isEmpty())
-            for (var a : getAnnotations())
-                imports.addAll(a.requiredImports());
+        for (var a : getAnnotations())
+            imports.addAll(a.requiredImports());
         return imports;
     }
 
     @Override
     public String toString() {
         var sb = new StringBuilder();
-        if (!getAnnotations().isEmpty())
-            for (var a : getAnnotations())
-                sb.append(a.toString()).append(" ");
+        for (var a : getAnnotations())
+            sb.append(a.toString()).append(" ");
         sb.append(isFinal() ? "final " : "") //
                 .append(type.toString()) //
                 .append(getName());

@@ -1,5 +1,6 @@
 package io.gridgo.otac.code.block;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import io.gridgo.otac.value.OtacValue;
@@ -15,7 +16,10 @@ public class OtacIf extends OtacBlock {
 
     @Override
     public Set<Class<?>> requiredImports() {
-        return condition.requiredImports();
+        var imports = new HashSet<Class<?>>();
+        imports.addAll(super.requiredImports());
+        imports.addAll(condition.requiredImports());
+        return imports;
     }
 
     @Override

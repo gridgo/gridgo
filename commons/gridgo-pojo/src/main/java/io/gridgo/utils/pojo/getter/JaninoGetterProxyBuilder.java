@@ -18,6 +18,7 @@ import static io.gridgo.otac.value.OtacValue.field;
 import static io.gridgo.otac.value.OtacValue.methodReturn;
 import static io.gridgo.otac.value.OtacValue.raw;
 import static io.gridgo.otac.value.OtacValue.variable;
+import static io.gridgo.utils.pojo.AbstractProxy.SIGNATURE_FIELD_SUBFIX;
 
 import java.util.List;
 

@@ -51,12 +51,14 @@ public class OtacMethod extends OtacNamedElement implements OtacRequireImports, 
                 imports.addAll(a.requiredImports());
         if (checkedExceptions != null)
             imports.addAll(checkedExceptions.requiredImports());
-        if (generics != null)
-            for (var g : generics)
-                imports.addAll(g.requiredImports());
-        if (parameters != null)
-            for (var p : parameters)
-                imports.addAll(p.requiredImports());
+        for (var g : generics)
+            imports.addAll(g.requiredImports());
+        for (var p : parameters)
+            imports.addAll(p.requiredImports());
+        for (var e : body)
+            imports.addAll(e.requiredImports());
+        for (var a : annotations)
+            imports.addAll(a.requiredImports());
         return imports;
     }
 

@@ -18,6 +18,7 @@ import static io.gridgo.otac.value.OtacValue.customValue;
 import static io.gridgo.otac.value.OtacValue.field;
 import static io.gridgo.otac.value.OtacValue.methodReturn;
 import static io.gridgo.otac.value.OtacValue.variable;
+import static io.gridgo.utils.pojo.AbstractProxy.SIGNATURE_FIELD_SUBFIX;
 
 import java.util.List;
 
@@ -31,6 +32,7 @@ import io.gridgo.otac.code.block.OtacCase;
 import io.gridgo.otac.code.block.OtacForeach;
 import io.gridgo.otac.code.block.OtacIf;
 import io.gridgo.otac.code.block.OtacSwitch;
+import io.gridgo.otac.code.line.OtacLine;
 import io.gridgo.otac.value.OtacValue;
 import io.gridgo.utils.PrimitiveUtils;
 import io.gridgo.utils.pojo.AbstractProxy;
@@ -85,10 +87,10 @@ class JaninoSetterProxyBuilder extends AbstractProxyBuilder implements PojoSette
         var switchBuilder = OtacSwitch.builder().key(variable("fieldName"));
         for (var sig : methodSignatures) {
             var fieldName = sig.getFieldName();
-            var invokeSetter = buildInvokeSetter(sig);
             switchBuilder.addCase(OtacCase.builder() //
                     .value(OtacValue.raw(fieldName)) //
-                    .addLine(customLine(invokeSetter)) //
+                    .curlyBracketsWrapped(false) //
+                    .addLine(buildInvokeSetter(sig)) //
                     .addLine(BREAK) //
                     .build());
         }
@@ -104,31 +106,26 @@ class JaninoSetterProxyBuilder extends AbstractProxyBuilder implements PojoSette
                 .build();
     }
 
-    private String buildInvokeSetter(PojoMethodSignature methodSignature) {
-        String invokeSetter = "castedTarget." + methodSignature.getMethodName();
-        Class<?> fieldType = methodSignature.getFieldType();
-        if (methodSignature.isPrimitiveOrWrapperType()) {
-            String wrapperTypeName = methodSignature.getWrapperType().getName();
-            if (PrimitiveUtils.isNumberClass(fieldType)) { // if method receive number
-                if (methodSignature.isPrimitiveType()) { // receive primitive number
-                    invokeSetter += "(((Number) value)." + fieldType.getTypeName() + "Value())";
-                } else { // receive wrapper type
-                    var primitiveTypeName = methodSignature.getPrimitiveTypeFromWrapperType().getName();
-                    invokeSetter += "(" + wrapperTypeName + ".valueOf(((Number) value)." + primitiveTypeName
-                            + "Value()))";
-                }
-            } else if (fieldType.isPrimitive()) {
-                invokeSetter += "(((" + wrapperTypeName + ") value)." + fieldType.getName() + "Value())";
-            } else {
-                invokeSetter += "((" + wrapperTypeName + ") value)";
-            }
+    private OtacLine buildInvokeSetter(PojoMethodSignature methodSignature) {
+        var fieldType = methodSignature.getFieldType();
+        OtacValue param;
+        if (PrimitiveUtils.isNumberClass(fieldType)) {
+            var primitiveTypeName = methodSignature.isPrimitiveType()//
+                    ? fieldType.getTypeName() //
+                    : methodSignature.getPrimitiveTypeFromWrapperType().getName();
+            param = methodReturn(castVariable("value", Number.class), primitiveTypeName + "Value");
+        } else if (methodSignature.isPrimitiveOrWrapperType()) {
+            param = castVariable("value", methodSignature.getWrapperType());
+            if (fieldType.isPrimitive())
+                param = methodReturn(param, fieldType.getName() + "Value");
         } else if (fieldType.isArray()) {
-            String componentType = methodSignature.getComponentType().getName() + "[]";
-            invokeSetter += "((" + componentType + ") value)";
+            var componentType = methodSignature.getComponentType();
+            param = castVariable("value", componentType, true);
         } else {
-            invokeSetter += "((" + fieldType.getName() + ") value)";
+            param = castVariable("value", fieldType);
         }
-        return invokeSetter;
+
+        return invokeMethod(variable("castedTarget"), methodSignature.getMethodName(), param);
     }
 
     private OtacMethod buildWalkThroughMethod(Class<?> type, List<PojoMethodSignature> signatures) {
@@ -139,6 +136,7 @@ class JaninoSetterProxyBuilder extends AbstractProxyBuilder implements PojoSette
             switchBuilder//
                     .addCase(OtacCase.builder() //
                             .value(OtacValue.raw(fieldName)) //
+                            .curlyBracketsWrapped(false) //
                             .addLine(assignVariable( //
                                     "value", //
                                     methodReturn( //
@@ -147,7 +145,7 @@ class JaninoSetterProxyBuilder extends AbstractProxyBuilder implements PojoSette
                                             field(signatureFieldName)))) //
                             .addLine(OtacIf.builder() //
                                     .condition(customValue("value != null")) //
-                                    .addLine(customLine(buildInvokeSetter(sig))) //
+                                    .addLine(buildInvokeSetter(sig)) //
                                     .build()) //
                             .addLine(BREAK) //
                             .build());
@@ -187,7 +185,6 @@ class JaninoSetterProxyBuilder extends AbstractProxyBuilder implements PojoSette
 
         for (var sig : methodSignatures) {
             var fieldName = sig.getFieldName();
-            var invokeSetter = buildInvokeSetter(sig);
             var signatureFieldName = fieldName + SIGNATURE_FIELD_SUBFIX;
 
             methodBuilder //
@@ -199,7 +196,7 @@ class JaninoSetterProxyBuilder extends AbstractProxyBuilder implements PojoSette
                                     field(signatureFieldName)))) //
                     .addLine(OtacIf.builder() //
                             .condition(customValue("value != null")) //
-                            .addLine(customLine(invokeSetter)) //
+                            .addLine(buildInvokeSetter(sig)) //
                             .build());
 
         }

@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import io.gridgo.otac.OtacType;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.experimental.SuperBuilder;
@@ -13,6 +14,9 @@ import lombok.experimental.SuperBuilder;
 public class OtacCastedValue extends OtacValue {
     private @NonNull OtacType castTo;
     private @NonNull OtacValue target;
+
+    @Builder.Default
+    private boolean forceArray = false;
 
     @Override
     public Set<Class<?>> requiredImports() {
@@ -27,6 +31,7 @@ public class OtacCastedValue extends OtacValue {
         return new StringBuilder() //
                 .append("(") //
                 .append(castTo.getType().getSimpleName()) //
+                .append(forceArray ? "[]" : "") //
                 .append(") ") //
                 .append(target.toString()) //
                 .toString();

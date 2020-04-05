@@ -64,9 +64,8 @@ public class OtacField extends OtacNamedElement implements OtacRequireImports, O
     public Set<Class<?>> requiredImports() {
         var imports = new HashSet<Class<?>>();
         imports.addAll(type.requiredImports());
-        if (!getAnnotations().isEmpty())
-            for (var a : getAnnotations())
-                imports.addAll(a.requiredImports());
+        for (var a : getAnnotations())
+            imports.addAll(a.requiredImports());
         if (initValue != null)
             imports.addAll(initValue.requiredImports());
         return imports;
