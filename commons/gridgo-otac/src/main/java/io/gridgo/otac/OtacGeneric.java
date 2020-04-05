@@ -6,6 +6,7 @@ import java.util.Set;
 import io.gridgo.otac.exception.OtacException;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.experimental.SuperBuilder;
 
 @Getter
@@ -16,6 +17,14 @@ public class OtacGeneric implements OtacRequireImports {
 
     public static OtacGeneric ofDeclared(String name) {
         return OtacGeneric.builder().name(name).build();
+    }
+
+    public static OtacGeneric generic(Class<?> type) {
+        return generic(OtacType.typeOf(type));
+    }
+
+    public static OtacGeneric generic(OtacType type) {
+        return builder().type(type).build();
     }
 
     public static OtacGeneric of(String name, OtacInheritOperator operator, OtacType type) {
@@ -46,7 +55,7 @@ public class OtacGeneric implements OtacRequireImports {
     private final String name = "?";
 
     @Builder.Default
-    private final OtacInheritOperator operator = OtacInheritOperator.NONE;
+    private @NonNull OtacInheritOperator operator = OtacInheritOperator.NONE;
 
     private final OtacType type;
 
@@ -59,13 +68,16 @@ public class OtacGeneric implements OtacRequireImports {
 
     @Override
     public String toString() {
-        if (operator == null || operator == OtacInheritOperator.NONE)
+        if (name == null)
+            return type == null ? "?" : type.toString();
+
+        if (operator == OtacInheritOperator.NONE)
             return name;
 
         if (type == null)
             throw new OtacException("[OTAC] type cannot be null while operator = " + operator);
 
-        return name + " " + operator.getKeywork() + (type == null ? "" : type.toString());
+        return name + " " + operator.getKeywork() + " " + type.toString();
     }
 
 }

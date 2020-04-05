@@ -1,11 +1,39 @@
 package io.gridgo.utils.pojo.setter;
 
-import java.util.ArrayList;
+import static io.gridgo.otac.OtacAccessLevel.PRIVATE;
+import static io.gridgo.otac.OtacAccessLevel.PUBLIC;
+import static io.gridgo.otac.OtacGeneric.generic;
+import static io.gridgo.otac.OtacParameter.parameter;
+import static io.gridgo.otac.OtacType.OBJECT;
+import static io.gridgo.otac.OtacType.typeOf;
+import static io.gridgo.otac.code.line.OtacLine.BREAK;
+import static io.gridgo.otac.code.line.OtacLine.RETURN;
+import static io.gridgo.otac.code.line.OtacLine.assignVariable;
+import static io.gridgo.otac.code.line.OtacLine.customLine;
+import static io.gridgo.otac.code.line.OtacLine.declare;
+import static io.gridgo.otac.code.line.OtacLine.invokeMethod;
+import static io.gridgo.otac.value.OtacValue.NULL;
+import static io.gridgo.otac.value.OtacValue.castVariable;
+import static io.gridgo.otac.value.OtacValue.customValue;
+import static io.gridgo.otac.value.OtacValue.field;
+import static io.gridgo.otac.value.OtacValue.methodReturn;
+import static io.gridgo.otac.value.OtacValue.variable;
+
 import java.util.List;
 
 import org.codehaus.janino.SimpleCompiler;
 
+import io.gridgo.otac.OtacClass;
+import io.gridgo.otac.OtacConstructor;
+import io.gridgo.otac.OtacMethod;
+import io.gridgo.otac.OtacType;
+import io.gridgo.otac.code.block.OtacCase;
+import io.gridgo.otac.code.block.OtacForeach;
+import io.gridgo.otac.code.block.OtacIf;
+import io.gridgo.otac.code.block.OtacSwitch;
+import io.gridgo.otac.value.OtacValue;
 import io.gridgo.utils.PrimitiveUtils;
+import io.gridgo.utils.pojo.AbstractProxy;
 import io.gridgo.utils.pojo.AbstractProxyBuilder;
 import io.gridgo.utils.pojo.MethodSignatureExtractor;
 import io.gridgo.utils.pojo.PojoMethodSignature;
@@ -17,79 +45,63 @@ class JaninoSetterProxyBuilder extends AbstractProxyBuilder implements PojoSette
 
     @Override
     public PojoSetterProxy buildSetterProxy(Class<?> target) {
-        var classContent = new StringBuilder();
 
-        var targetType = target.getSimpleName();
-        var methodSignatures = EXTRACTOR.extractMethodSignatures(target);
-        var allFields = buildAllFields(methodSignatures);
-
-        classContent.append(buildGetFieldsMethod(allFields)).append("\n\n");
-        classContent.append(buildSignaturesFieldAndMethod(methodSignatures)).append("\n\n");
-        classContent.append(buildSignatureFields(methodSignatures)).append("\n\n");
-        classContent.append(buildSetSignatureMethod(methodSignatures)).append("\n\n");
-        classContent.append(buildApplyValueMethod(methodSignatures, targetType)).append("\n\n");
-        classContent.append(buildWalkthroughAllMethod(methodSignatures, targetType)).append("\n\n");
-        classContent.append(buildWalkthroughMethod(methodSignatures, targetType, allFields));
-
-        var body = addTabToAllLine(1, classContent.toString());
-        classContent = new StringBuilder();
+        var signatures = EXTRACTOR.extractMethodSignatures(target);
         var packageName = target.getPackageName();
         var classSimpleName = "_" + target.getSimpleName() + "SetterProxy";
-        classContent.append("package " + packageName + ";\n\n");
 
-        doImport(classContent, PojoMethodSignature.class, PojoSetterProxy.class, PojoSetterConsumer.class, target,
-                List.class, ArrayList.class);
-
-        classContent.append("public final class " + classSimpleName + " implements "
-                + PojoSetterProxy.class.getSimpleName() + " { \n");
-        classContent.append(body);
-        classContent.append("}");
+        var clazz = OtacClass.builder() //
+                .accessLevel(PUBLIC) //
+                .packageName(packageName) //
+                .simpleClassName(classSimpleName) //
+                .extendsFrom(typeOf(AbstractProxy.class)) //
+                .implement(typeOf(PojoSetterProxy.class)) //
+                .fields(buildSignatureFields(signatures)) //
+                .constructor(OtacConstructor.builder() //
+                        .accessLevel(PUBLIC) //
+                        .parameter(parameter(OtacType.builder() //
+                                .type(List.class) //
+                                .genericType(generic(PojoMethodSignature.class)) //
+                                .build(), "signatures")) //
+                        .addLine(customLine("super(signatures)")) //
+                        .build()) //
+                .method(buildApplyValueMethod(target, signatures)) //
+                .method(buildWalkThroughAllMethod(target, signatures)) //
+                .method(buildWalkThroughMethod(target, signatures)) //
+                .build();
 
         try {
             var compiler = new SimpleCompiler();
-            compiler.cook(classContent.toString());
-            var className = packageName + "." + classSimpleName;
-            return makeProxy(methodSignatures, compiler.getClassLoader().loadClass(className));
+            compiler.cook(clazz.toString());
+            var cls = compiler.getClassLoader().loadClass(clazz.getName());
+            return (PojoSetterProxy) cls.getConstructor(List.class).newInstance(signatures);
         } catch (Exception e) {
-            throw new PojoException("Error while building setter proxy for class: " + target.getName(), e);
+            throw new PojoException("Error while building setter proxy for class: " + target.getName() + ", code: \n"
+                    + clazz.printWithLineNumber(), e);
         }
     }
 
-    private PojoSetterProxy makeProxy(List<PojoMethodSignature> methodSignatures, Class<?> resultClass)
-            throws Exception {
-        var result = (PojoSetterProxy) resultClass.getConstructor().newInstance();
-        var signatureSetter = resultClass.getMethod("setMethodSignature", String.class, PojoMethodSignature.class);
-        for (PojoMethodSignature methodSignature : methodSignatures)
-            signatureSetter.invoke(result, methodSignature.getFieldName(), methodSignature);
-        return result;
-    }
-
-    private String buildAllFields(List<PojoMethodSignature> methodSignatures) {
-        var allFieldsBuilder = new StringBuilder();
-        for (PojoMethodSignature methodSignature : methodSignatures) {
-            if (allFieldsBuilder.length() > 0) {
-                allFieldsBuilder.append(",");
-            }
-            allFieldsBuilder.append('"').append(methodSignature.getFieldName()).append('"');
+    private OtacMethod buildApplyValueMethod(Class<?> type, List<PojoMethodSignature> methodSignatures) {
+        var switchBuilder = OtacSwitch.builder().key(variable("fieldName"));
+        for (var sig : methodSignatures) {
+            var fieldName = sig.getFieldName();
+            var invokeSetter = buildInvokeSetter(sig);
+            switchBuilder.addCase(OtacCase.builder() //
+                    .value(OtacValue.raw(fieldName)) //
+                    .addLine(customLine(invokeSetter)) //
+                    .addLine(BREAK) //
+                    .build());
         }
-        var allFields = allFieldsBuilder.toString();
-        return allFields;
-    }
 
-    private String buildApplyValueMethod(List<PojoMethodSignature> methodSignatures, String targetType) {
-        String castedTarget = "(" + targetType + ") target";
-        String method = "public void applyValue(Object target, String fieldName, Object value) { \n"; //
-        method += "\t" + targetType + " castedTarget = " + castedTarget + ";\n";
-        method += "\tswitch (fieldName) {\n"; // start switch
-        for (PojoMethodSignature methodSignature : methodSignatures) {
-            String fieldName = methodSignature.getFieldName();
-            String invokeSetter = buildInvokeSetter(methodSignature);
-            method += "\tcase \"" + fieldName + "\": " + invokeSetter + "; break; \n"; //
-        }
-        method += "\t}\n";// end switch
-        method += "}";
-
-        return method;
+        return OtacMethod.builder() //
+                .accessLevel(PUBLIC) //
+                .name("applyValue") //
+                .parameter(parameter(OBJECT, "target")) //
+                .parameter(parameter(String.class, "fieldName")) //
+                .parameter(parameter(OBJECT, "value")) //
+                .addLine(declare(type, "castedTarget", castVariable("target", type))) //
+                .addLine(switchBuilder.build()) //
+                .build();
     }
 
     private String buildInvokeSetter(PojoMethodSignature methodSignature) {
@@ -98,13 +110,12 @@ class JaninoSetterProxyBuilder extends AbstractProxyBuilder implements PojoSette
         if (methodSignature.isPrimitiveOrWrapperType()) {
             String wrapperTypeName = methodSignature.getWrapperType().getName();
             if (PrimitiveUtils.isNumberClass(fieldType)) { // if method receive number
-                String numberType = Number.class.getName();
                 if (methodSignature.isPrimitiveType()) { // receive primitive number
-                    invokeSetter += "(((" + numberType + ") value)." + fieldType.getTypeName() + "Value())";
+                    invokeSetter += "(((Number) value)." + fieldType.getTypeName() + "Value())";
                 } else { // receive wrapper type
                     var primitiveTypeName = methodSignature.getPrimitiveTypeFromWrapperType().getName();
-                    invokeSetter += "(value == null ? (" + wrapperTypeName + ") null : " + wrapperTypeName
-                            + ".valueOf(((" + numberType + ") value)." + primitiveTypeName + "Value()))";
+                    invokeSetter += "(" + wrapperTypeName + ".valueOf(((Number) value)." + primitiveTypeName
+                            + "Value()))";
                 }
             } else if (fieldType.isPrimitive()) {
                 invokeSetter += "(((" + wrapperTypeName + ") value)." + fieldType.getName() + "Value())";
@@ -120,58 +131,80 @@ class JaninoSetterProxyBuilder extends AbstractProxyBuilder implements PojoSette
         return invokeSetter;
     }
 
-    private String buildWalkthroughMethod(List<PojoMethodSignature> signatures, String targetType, String allFields) {
-
-        var signatureFieldSubfix = "Signature";
-        var castedTarget = "(" + targetType + ") target";
-
-        String method = "public void walkThrough(Object target, PojoSetterConsumer consumer, String... fields) { \n"; //
-        method += "    if (fields == null || fields.length == 0) {this.walkThroughAll(target, consumer); return;}\n";
-        method += "    " + targetType + " castedTarget = " + castedTarget + ";\n";
-        method += "    Object value = null;\n";
-        method += "    for (int i=0; i < fields.length; i++) {\n"; // start for loop via fields
-        method += "        String fieldName = fields[i];\n"; // create temp variable `fieldName`
-        method += "        switch (fieldName) {\n";
-        for (var signature : signatures) {
-            var fieldName = signature.getFieldName();
-            var invokeSetter = buildInvokeSetter(signature);
-            var signatureFieldName = fieldName + signatureFieldSubfix;
-            method += "        case \"" + fieldName + "\": \n"; // start case
-            method += "            value = consumer.apply(this." + signatureFieldName + ");\n";
-            method += "            if (value != null) {\n"; // start if 2
-            method += "                " + invokeSetter + ";\n";
-            method += "            }\n"; // end if 2
-            method += "            break;\n"; // end case
+    private OtacMethod buildWalkThroughMethod(Class<?> type, List<PojoMethodSignature> signatures) {
+        var switchBuilder = OtacSwitch.builder().key(variable("fieldName"));
+        for (var sig : signatures) {
+            var fieldName = sig.getFieldName();
+            var signatureFieldName = fieldName + SIGNATURE_FIELD_SUBFIX;
+            switchBuilder//
+                    .addCase(OtacCase.builder() //
+                            .value(OtacValue.raw(fieldName)) //
+                            .addLine(assignVariable( //
+                                    "value", //
+                                    methodReturn( //
+                                            variable("consumer"), //
+                                            "apply", //
+                                            field(signatureFieldName)))) //
+                            .addLine(OtacIf.builder() //
+                                    .condition(customValue("value != null")) //
+                                    .addLine(customLine(buildInvokeSetter(sig))) //
+                                    .build()) //
+                            .addLine(BREAK) //
+                            .build());
         }
-        method += "        }\n"; // end switch
-        method += "    }"; // end of for
-        method += "\n}"; // end of method
 
-        return method;
+        return OtacMethod.builder() //
+                .accessLevel(PUBLIC) //
+                .name("walkThrough") //
+                .parameter(parameter(OBJECT, "target")) //
+                .parameter(parameter(PojoSetterConsumer.class, "consumer")) //
+                .parameter(parameter(String[].class, "fields")) //
+                .addLine(OtacIf.builder() //
+                        .condition(customValue("fields == null || fields.length == 0")) //
+                        .addLine(invokeMethod("walkThroughAll", variable("target"), variable("consumer"))) //
+                        .addLine(RETURN) //
+                        .build()) //
+                .addLine(declare(typeOf(type), "castedTarget", castVariable("target", type)))
+                .addLine(declare(OBJECT, "value", NULL)) //
+                .addLine(OtacForeach.builder() //
+                        .type(typeOf(String.class))//
+                        .variableName("fieldName") //
+                        .sequence(variable("fields")) //
+                        .addLine(switchBuilder.build()) //
+                        .build()) //
+                .build();
     }
 
-    private String buildWalkthroughAllMethod(List<PojoMethodSignature> methodSignatures, String targetType) {
+    private OtacMethod buildWalkThroughAllMethod(Class<?> type, List<PojoMethodSignature> methodSignatures) {
 
-        String signatureFieldSubfix = "Signature";
-        String castedTarget = "(" + targetType + ") target";
+        var methodBuilder = OtacMethod.builder() //
+                .accessLevel(PRIVATE) //
+                .name("walkThroughAll") //
+                .parameter(parameter(OBJECT, "target")) //
+                .parameter(parameter(PojoSetterConsumer.class, "consumer")) //
+                .addLine(declare(type, "castedTarget", castVariable("target", type))) //
+                .addLine(declare(OBJECT, "value", NULL));
 
-        String method = "private void walkThroughAll(Object target, PojoSetterConsumer consumer) { \n"; //
-        method += "    " + targetType + " castedTarget = " + castedTarget + ";\n";
-        method += "    Object value = null;\n";
+        for (var sig : methodSignatures) {
+            var fieldName = sig.getFieldName();
+            var invokeSetter = buildInvokeSetter(sig);
+            var signatureFieldName = fieldName + SIGNATURE_FIELD_SUBFIX;
 
-        for (PojoMethodSignature methodSignature : methodSignatures) {
-            String fieldName = methodSignature.getFieldName();
-            String invokeSetter = buildInvokeSetter(methodSignature);
-            String signatureFieldName = fieldName + signatureFieldSubfix;
-            method += "    value = consumer.apply(" + signatureFieldName + ");\n";
-            method += "    if (value != null) {\n";
-            method += "        " + invokeSetter + ";\n";
-            method += "    }\n"; //
+            methodBuilder //
+                    .addLine(assignVariable( //
+                            "value", //
+                            methodReturn(//
+                                    variable("consumer"), //
+                                    "apply", //
+                                    field(signatureFieldName)))) //
+                    .addLine(OtacIf.builder() //
+                            .condition(customValue("value != null")) //
+                            .addLine(customLine(invokeSetter)) //
+                            .build());
+
         }
 
-        method += "}"; // end of method
-
-        return method;
+        return methodBuilder.build();
     }
 
 }

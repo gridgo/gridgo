@@ -6,7 +6,7 @@ import static io.gridgo.otac.OtacAnnotation.annotation;
 import static io.gridgo.otac.OtacGeneric.ANY;
 import static io.gridgo.otac.OtacGeneric.genericDeclared;
 import static io.gridgo.otac.OtacInheritOperator.EXTENDS;
-import static io.gridgo.otac.OtacParameter.parameterOf;
+import static io.gridgo.otac.OtacParameter.parameter;
 import static io.gridgo.otac.OtacType.typeOf;
 import static io.gridgo.otac.code.line.OtacLine.assignField;
 import static io.gridgo.otac.value.OtacValue.parameter;
@@ -119,8 +119,8 @@ public class TestOtacClass {
                 .constructor(OtacConstructor.builder() //
                         .accessLevel(PUBLIC) //
                         .annotatedBy(annotation(ThreadSafe.class)) //
-                        .parameter(parameterOf(typeOf(int.class), "intValue")) //
-                        .parameter(parameterOf(typeOf(String[].class), "stringArr", annotation(NonNull.class)))
+                        .parameter(parameter(typeOf(int.class), "intValue")) //
+                        .parameter(parameter(typeOf(String[].class), "stringArr", annotation(NonNull.class)))
                         .addLine(assignField("intField", parameter("intValue"))) //
                         .addLine(assignField("stringArrField", parameter("stringArr"))) //
                         .build()) //

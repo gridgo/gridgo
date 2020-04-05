@@ -1,7 +1,7 @@
 package io.gridgo.otac;
 
 import static io.gridgo.otac.OtacAccessLevel.PUBLIC;
-import static io.gridgo.otac.OtacParameter.parameterOf;
+import static io.gridgo.otac.OtacParameter.parameter;
 import static io.gridgo.otac.OtacType.VOID;
 import static io.gridgo.otac.value.OtacValue.field;
 import static io.gridgo.otac.value.OtacValue.variable;
@@ -57,6 +57,10 @@ public class OtacClass extends OtacModifiers implements OtacRequireImports {
     @Getter
     @Singular("require")
     private final Set<Class<?>> imports = new HashSet<>();
+
+    public String getName() {
+        return (packageName == null || packageName.isBlank() ? "" : (packageName + ".")) + simpleClassName;
+    }
 
     @Override
     public Set<Class<?>> requiredImports() {
@@ -137,7 +141,7 @@ public class OtacClass extends OtacModifiers implements OtacRequireImports {
                     methods.add(OtacMethod.builder()//
                             .accessLevel(PUBLIC) //
                             .returnType(VOID) //
-                            .parameter(parameterOf(f.getType(), fName)) //
+                            .parameter(parameter(f.getType(), fName)) //
                             .name(setterName) //
                             .addLine(assignField(fName, variable(fName)))//
                             .build());

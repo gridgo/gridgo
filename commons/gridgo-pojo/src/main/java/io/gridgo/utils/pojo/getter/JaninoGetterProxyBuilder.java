@@ -2,7 +2,8 @@ package io.gridgo.utils.pojo.getter;
 
 import static io.gridgo.otac.OtacAccessLevel.PRIVATE;
 import static io.gridgo.otac.OtacAccessLevel.PUBLIC;
-import static io.gridgo.otac.OtacParameter.parameterOf;
+import static io.gridgo.otac.OtacGeneric.generic;
+import static io.gridgo.otac.OtacParameter.parameter;
 import static io.gridgo.otac.OtacType.OBJECT;
 import static io.gridgo.otac.OtacType.STRING;
 import static io.gridgo.otac.OtacType.typeOf;
@@ -18,17 +19,20 @@ import static io.gridgo.otac.value.OtacValue.methodReturn;
 import static io.gridgo.otac.value.OtacValue.raw;
 import static io.gridgo.otac.value.OtacValue.variable;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.codehaus.janino.SimpleCompiler;
 
+import io.gridgo.otac.OtacClass;
+import io.gridgo.otac.OtacConstructor;
 import io.gridgo.otac.OtacMethod;
+import io.gridgo.otac.OtacType;
 import io.gridgo.otac.code.block.OtacCase;
 import io.gridgo.otac.code.block.OtacFor;
 import io.gridgo.otac.code.block.OtacIf;
 import io.gridgo.otac.code.block.OtacSwitch;
 import io.gridgo.otac.code.line.OtacLine;
+import io.gridgo.utils.pojo.AbstractProxy;
 import io.gridgo.utils.pojo.AbstractProxyBuilder;
 import io.gridgo.utils.pojo.MethodSignatureExtractor;
 import io.gridgo.utils.pojo.PojoMethodSignature;
@@ -38,58 +42,43 @@ import lombok.NonNull;
 class JaninoGetterProxyBuilder extends AbstractProxyBuilder implements PojoGetterProxyBuilder {
 
     private static final MethodSignatureExtractor EXTRACTOR = GetterMethodSignatureExtractor.getInstance();
-    private static final String SIGNATURE_FIELD_SUBFIX = "Signature";
 
     @Override
     public PojoGetterProxy buildGetterProxy(@NonNull Class<?> target) {
 
-        var methodSignatures = EXTRACTOR.extractMethodSignatures(target);
-        var allFields = createAllFields(methodSignatures);
-
+        var signatures = EXTRACTOR.extractMethodSignatures(target);
         var packageName = target.getPackageName();
         var classSimpleName = "_" + target.getSimpleName() + "GetterProxy";
-        var classContent = new StringBuilder();
 
-        classContent.append(buildGetFieldsMethod(allFields)).append("\n\n");
-        classContent.append(buildSignaturesFieldAndMethod(methodSignatures)).append("\n\n");
-        classContent.append(buildSignatureFields(methodSignatures)).append("\n\n");
-        classContent.append(buildSetSignatureMethod(methodSignatures)).append("\n\n");
-        classContent.append(buildGetValueMethod(target, methodSignatures)).append("\n\n");
-        classContent.append(buildWalkThroughAllMethod(target, methodSignatures)).append("\n\n");
-        classContent.append(buildWalkThroughMethod(target, methodSignatures, allFields));
-
-        var body = addTabToAllLine(1, classContent.toString());
-
-        classContent = new StringBuilder();
-        classContent.append("package " + packageName + ";\n\n");
-        doImport(classContent, target, PojoGetterProxy.class, PojoMethodSignature.class, PojoGetterConsumer.class,
-                List.class, ArrayList.class);
-        classContent //
-                .append("\n") //
-                .append("public final class " + classSimpleName + " implements " + PojoGetterProxy.class.getSimpleName()
-                        + " {\n");
-        classContent.append(body);
-        classContent.append("}"); // end class
+        var clazz = OtacClass.builder() //
+                .accessLevel(PUBLIC) //
+                .packageName(packageName) //
+                .simpleClassName(classSimpleName) //
+                .extendsFrom(typeOf(AbstractProxy.class)) //
+                .implement(typeOf(PojoGetterProxy.class)) //
+                .fields(buildSignatureFields(signatures)) //
+                .constructor(OtacConstructor.builder() //
+                        .accessLevel(PUBLIC) //
+                        .parameter(parameter(OtacType.builder() //
+                                .type(List.class) //
+                                .genericType(generic(PojoMethodSignature.class)) //
+                                .build(), "signatures")) //
+                        .addLine(customLine("super(signatures)")) //
+                        .build()) //
+                .method(buildGetValueMethod(target, signatures)) //
+                .method(buildWalkThroughAllMethod(target, signatures)) //
+                .method(buildWalkThroughMethod(target, signatures)) //
+                .build();
 
         try {
             var simpleCompiler = new SimpleCompiler();
-            simpleCompiler.cook(classContent.toString());
-            var className = packageName + "." + classSimpleName;
-            var cls = simpleCompiler.getClassLoader().loadClass(className);
-            return makeProxy(methodSignatures, cls);
+            simpleCompiler.cook(clazz.toString());
+            var cls = simpleCompiler.getClassLoader().loadClass(clazz.getName());
+            return (PojoGetterProxy) cls.getConstructor(List.class).newInstance(signatures);
         } catch (Exception e) {
-            throw new PojoException(
-                    "error while building getter proxy for class: " + target.getName() + "\n" + classContent, e);
+            throw new PojoException("error while building getter proxy for class: " + target.getName() + "\n"
+                    + clazz.printWithLineNumber(), e);
         }
-    }
-
-    private PojoGetterProxy makeProxy(List<PojoMethodSignature> methodSignatures, Class<?> resultClass)
-            throws Exception {
-        var result = (PojoGetterProxy) resultClass.getConstructor().newInstance();
-        var signatureSetter = resultClass.getMethod("setMethodSignature", String.class, PojoMethodSignature.class);
-        for (PojoMethodSignature methodSignature : methodSignatures)
-            signatureSetter.invoke(result, methodSignature.getFieldName(), methodSignature);
-        return result;
     }
 
     private OtacMethod buildGetValueMethod(Class<?> type, List<PojoMethodSignature> methodSignatures) {
@@ -109,16 +98,15 @@ class JaninoGetterProxyBuilder extends AbstractProxyBuilder implements PojoGette
                 .accessLevel(PUBLIC) //
                 .name("getValue") //
                 .returnType(OBJECT) //
-                .parameter(parameterOf(OBJECT, "target")) //
-                .parameter(parameterOf(STRING, "fieldName")) //
+                .parameter(parameter(OBJECT, "target")) //
+                .parameter(parameter(STRING, "fieldName")) //
                 .addLine(declare(typeOf(type), "castedTarget", castVariable("target", type))) //
                 .addLine(switchBuilder.build()) //
                 .addLine(returnValue(NULL)) //
                 .build();
     }
 
-    private OtacMethod buildWalkThroughMethod(Class<?> type, List<PojoMethodSignature> methodSignatures,
-            String allFields) {
+    private OtacMethod buildWalkThroughMethod(Class<?> type, List<PojoMethodSignature> methodSignatures) {
 
         var switchBuilder = OtacSwitch.builder().key(variable("field"));
         for (var methodSignature : methodSignatures) {
@@ -136,9 +124,9 @@ class JaninoGetterProxyBuilder extends AbstractProxyBuilder implements PojoGette
         return OtacMethod.builder() //
                 .accessLevel(PUBLIC) //
                 .name("walkThrough") //
-                .parameter(parameterOf(OBJECT, "target")) //
-                .parameter(parameterOf(typeOf(PojoGetterConsumer.class), "consumer")) //
-                .parameter(parameterOf(typeOf(String[].class), "fields")) //
+                .parameter(parameter(OBJECT, "target")) //
+                .parameter(parameter(typeOf(PojoGetterConsumer.class), "consumer")) //
+                .parameter(parameter(typeOf(String[].class), "fields")) //
                 .addLine(OtacIf.builder() //
                         .condition(customValue("fields == null || fields.length == 0")) //
                         .addLine(invokeMethod("walkThroughAll", variable("target"), variable("consumer"))) //
@@ -160,8 +148,8 @@ class JaninoGetterProxyBuilder extends AbstractProxyBuilder implements PojoGette
         var builder = OtacMethod.builder() //
                 .accessLevel(PRIVATE)//
                 .name("walkThroughAll") //
-                .parameter(parameterOf(OBJECT, "target")) //
-                .parameter(parameterOf(typeOf(PojoGetterConsumer.class), "consumer")) //
+                .parameter(parameter(OBJECT, "target")) //
+                .parameter(parameter(typeOf(PojoGetterConsumer.class), "consumer")) //
                 .addLine(declare(typeOf(type), "castedTarget", castVariable("target", type)));
 
         for (var sig : methodSignatures) {

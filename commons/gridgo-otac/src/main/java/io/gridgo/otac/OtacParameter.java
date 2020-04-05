@@ -28,12 +28,16 @@ public class OtacParameter implements OtacRequireImports {
     @Getter
     private @NonNull OtacType type;
 
-    public static OtacParameter parameterOf(OtacType type, String name, OtacAnnotation... annotations) {
+    public static OtacParameter parameter(OtacType type, String name, OtacAnnotation... annotations) {
         return OtacParameter.builder() //
                 .name(name) //
                 .type(type) //
                 .annotations(Arrays.asList(annotations)) //
                 .build();
+    }
+
+    public static OtacParameter parameter(Class<?> type, String name, OtacAnnotation... annotations) {
+        return parameter(OtacType.typeOf(type), name, annotations);
     }
 
     @Override

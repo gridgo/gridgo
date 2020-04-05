@@ -1,8 +1,16 @@
 package io.gridgo.utils.pojo;
 
+import static io.gridgo.otac.OtacAccessLevel.PRIVATE;
+import static io.gridgo.otac.OtacType.typeOf;
+
 import java.util.List;
+import java.util.stream.Collectors;
+
+import io.gridgo.otac.OtacField;
 
 public class AbstractProxyBuilder {
+
+    protected static final String SIGNATURE_FIELD_SUBFIX = "Signature";
 
     protected String addTabToAllLine(int numTab, String origin) {
         var tabs = "";
@@ -34,17 +42,18 @@ public class AbstractProxyBuilder {
         return allFieldsBuilder.toString();
     }
 
-    protected String buildSignatureFields(List<PojoMethodSignature> methodSignatures) {
-        var sb = new StringBuilder();
+    protected OtacField signatureToField(PojoMethodSignature signature) {
+        return OtacField.builder() //
+                .accessLevel(PRIVATE) //
+                .type(typeOf(PojoMethodSignature.class)) //
+                .name(signature.getFieldName() + "Signature") //
+                .build();
+    }
 
-        var subfix = "Signature";
-        var type = "PojoMethodSignature";
-
-        for (PojoMethodSignature methodSignature : methodSignatures) {
-            String fieldName = methodSignature.getFieldName() + subfix;
-            sb.append("private " + type + " " + fieldName + ";\n");
-        }
-        return sb.toString();
+    protected List<OtacField> buildSignatureFields(List<PojoMethodSignature> methodSignatures) {
+        return methodSignatures.stream() //
+                .map(this::signatureToField) //
+                .collect(Collectors.toList());
     }
 
     protected String buildSignaturesFieldAndMethod(List<PojoMethodSignature> methodSignatures) {
