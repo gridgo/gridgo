@@ -38,7 +38,7 @@ public class AbstractProxyBuilder {
         var sb = new StringBuilder();
 
         var subfix = "Signature";
-        var type = "PojoFieldSignature";
+        var type = "PojoMethodSignature";
 
         for (PojoMethodSignature methodSignature : methodSignatures) {
             String fieldName = methodSignature.getFieldName() + subfix;
@@ -48,8 +48,8 @@ public class AbstractProxyBuilder {
     }
 
     protected String buildSignaturesFieldAndMethod(List<PojoMethodSignature> methodSignatures) {
-        var field = "private List<PojoFieldSignature> signatures = new ArrayList<>(" + methodSignatures.size() + ");";
-        var method = "public List<PojoFieldSignature> getSignatures() { return this.signatures; }";
+        var field = "private List<PojoMethodSignature> signatures = new ArrayList<>(" + methodSignatures.size() + ");";
+        var method = "public List<PojoMethodSignature> getSignatures() { return this.signatures; }";
         return field + "\n\n" + method;
     }
 
@@ -60,7 +60,7 @@ public class AbstractProxyBuilder {
     }
 
     protected String buildSetSignatureMethod(List<PojoMethodSignature> methodSignatures) {
-        var type = "PojoFieldSignature";
+        var type = "PojoMethodSignature";
         var subfix = "Signature";
         var method = "public void setMethodSignature(String fieldName, " + type + " value) {\n";
         for (PojoMethodSignature methodSignature : methodSignatures) {

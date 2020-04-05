@@ -28,7 +28,7 @@ public class OtacParameter implements OtacRequireImports {
     @Getter
     private @NonNull OtacType type;
 
-    public static OtacParameter parameterOf(String name, OtacType type, OtacAnnotation... annotations) {
+    public static OtacParameter parameterOf(OtacType type, String name, OtacAnnotation... annotations) {
         return OtacParameter.builder() //
                 .name(name) //
                 .type(type) //

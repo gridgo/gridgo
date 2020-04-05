@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Set;
 
 import io.gridgo.otac.code.OtacCodeElement;
-import io.gridgo.otac.utils.OtacUtils;
+import io.gridgo.otac.code.block.OtacBlock;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
@@ -88,13 +88,12 @@ public class OtacMethod extends OtacNamedElement implements OtacRequireImports, 
         sb.append(") ");
         if (checkedExceptions != null)
             sb.append(checkedExceptions.toString());
-        sb.append("{ \n");
-        if (body != null && !body.isEmpty()) {
-            var tab = OtacUtils.tabs(1);
-            for (var e : body)
-                sb.append(tab).append(e.toString()).append("\n");
-        }
-        sb.append("}");
+
+        if (body != null && !body.isEmpty())
+            OtacBlock.of(body).writeBodyTo(sb, 0, true);
+        else
+            sb.append("{}");
+
         return sb.toString();
     }
 }

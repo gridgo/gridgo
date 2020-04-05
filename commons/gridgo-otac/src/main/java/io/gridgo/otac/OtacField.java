@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import io.gridgo.otac.value.OtacValue;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
@@ -55,7 +56,7 @@ public class OtacField extends OtacNamedElement implements OtacRequireImports, O
                 .append(type.toString()) //
                 .append(getName()) //
                 .append(initValue != null ? (" = " + initValue.toString().trim()) : "") //
-                .append(";\n");
+                .append(";");
         return sb.toString();
     }
 

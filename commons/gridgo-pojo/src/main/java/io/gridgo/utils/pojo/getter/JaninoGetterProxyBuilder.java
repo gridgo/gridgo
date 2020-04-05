@@ -1,10 +1,34 @@
 package io.gridgo.utils.pojo.getter;
 
+import static io.gridgo.otac.OtacAccessLevel.PRIVATE;
+import static io.gridgo.otac.OtacAccessLevel.PUBLIC;
+import static io.gridgo.otac.OtacParameter.parameterOf;
+import static io.gridgo.otac.OtacType.OBJECT;
+import static io.gridgo.otac.OtacType.STRING;
+import static io.gridgo.otac.OtacType.typeOf;
+import static io.gridgo.otac.code.line.OtacLine.customLine;
+import static io.gridgo.otac.code.line.OtacLine.declare;
+import static io.gridgo.otac.code.line.OtacLine.invokeMethod;
+import static io.gridgo.otac.code.line.OtacLine.returnValue;
+import static io.gridgo.otac.value.OtacValue.NULL;
+import static io.gridgo.otac.value.OtacValue.castVariable;
+import static io.gridgo.otac.value.OtacValue.customValue;
+import static io.gridgo.otac.value.OtacValue.field;
+import static io.gridgo.otac.value.OtacValue.methodReturn;
+import static io.gridgo.otac.value.OtacValue.raw;
+import static io.gridgo.otac.value.OtacValue.variable;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import org.codehaus.janino.SimpleCompiler;
 
+import io.gridgo.otac.OtacMethod;
+import io.gridgo.otac.code.block.OtacCase;
+import io.gridgo.otac.code.block.OtacFor;
+import io.gridgo.otac.code.block.OtacIf;
+import io.gridgo.otac.code.block.OtacSwitch;
+import io.gridgo.otac.code.line.OtacLine;
 import io.gridgo.utils.pojo.AbstractProxyBuilder;
 import io.gridgo.utils.pojo.MethodSignatureExtractor;
 import io.gridgo.utils.pojo.PojoMethodSignature;
@@ -14,11 +38,11 @@ import lombok.NonNull;
 class JaninoGetterProxyBuilder extends AbstractProxyBuilder implements PojoGetterProxyBuilder {
 
     private static final MethodSignatureExtractor EXTRACTOR = GetterMethodSignatureExtractor.getInstance();
+    private static final String SIGNATURE_FIELD_SUBFIX = "Signature";
 
     @Override
     public PojoGetterProxy buildGetterProxy(@NonNull Class<?> target) {
 
-        var targetType = target.getSimpleName();
         var methodSignatures = EXTRACTOR.extractMethodSignatures(target);
         var allFields = createAllFields(methodSignatures);
 
@@ -30,9 +54,9 @@ class JaninoGetterProxyBuilder extends AbstractProxyBuilder implements PojoGette
         classContent.append(buildSignaturesFieldAndMethod(methodSignatures)).append("\n\n");
         classContent.append(buildSignatureFields(methodSignatures)).append("\n\n");
         classContent.append(buildSetSignatureMethod(methodSignatures)).append("\n\n");
-        classContent.append(buildGetValueMethod(targetType, methodSignatures)).append("\n\n");
-        classContent.append(buildWalkThroughAllMethod(targetType, methodSignatures)).append("\n\n");
-        classContent.append(buildWalkThroughMethod(targetType, methodSignatures, allFields));
+        classContent.append(buildGetValueMethod(target, methodSignatures)).append("\n\n");
+        classContent.append(buildWalkThroughAllMethod(target, methodSignatures)).append("\n\n");
+        classContent.append(buildWalkThroughMethod(target, methodSignatures, allFields));
 
         var body = addTabToAllLine(1, classContent.toString());
 
@@ -54,7 +78,8 @@ class JaninoGetterProxyBuilder extends AbstractProxyBuilder implements PojoGette
             var cls = simpleCompiler.getClassLoader().loadClass(className);
             return makeProxy(methodSignatures, cls);
         } catch (Exception e) {
-            throw new PojoException("error while building getter proxy for class: " + target.getName(), e);
+            throw new PojoException(
+                    "error while building getter proxy for class: " + target.getName() + "\n" + classContent, e);
         }
     }
 
@@ -67,74 +92,91 @@ class JaninoGetterProxyBuilder extends AbstractProxyBuilder implements PojoGette
         return result;
     }
 
-    private String buildGetValueMethod(String typeName, List<PojoMethodSignature> methodSignatures) {
-        String castedTarget = "(" + typeName + ") target";
-        String method = "public Object getValue(Object target, String fieldName) { \n" //
-                + "\t" + typeName + " castedTarget = " + castedTarget + ";\n"; //
-        method += "\tswitch (fieldName) {\n";
-        for (PojoMethodSignature methodSignature : methodSignatures) {
-            String fieldName = methodSignature.getFieldName();
-            String invoked = "castedTarget." + methodSignature.getMethodName() + "()";
-            if (methodSignature.getFieldType().isPrimitive()) {
-                invoked = methodSignature.getWrapperType().getName() + ".valueOf(" + invoked + ")";
-            }
-            method += "\tcase \"" + fieldName + "\":\n" //
-                    + "\t\treturn " + invoked + "; \n"; //
+    private OtacMethod buildGetValueMethod(Class<?> type, List<PojoMethodSignature> methodSignatures) {
+        var switchBuilder = OtacSwitch.builder().key(variable("fieldName"));
+        for (var sig : methodSignatures) {
+            switchBuilder.addCase(OtacCase.builder() //
+                    .value(raw(sig.getFieldName())) //
+                    .curlyBracketsWrapped(false) //
+                    .addLine(returnValue(//
+                            methodReturn( //
+                                    variable("castedTarget"), //
+                                    sig.getMethodName()))) //
+                    .build());
         }
-        method += "\t}\n"; // end switch
-        method += "\treturn null;\n";
-        method += "}";
 
-        return method;
+        return OtacMethod.builder() //
+                .accessLevel(PUBLIC) //
+                .name("getValue") //
+                .returnType(OBJECT) //
+                .parameter(parameterOf(OBJECT, "target")) //
+                .parameter(parameterOf(STRING, "fieldName")) //
+                .addLine(declare(typeOf(type), "castedTarget", castVariable("target", type))) //
+                .addLine(switchBuilder.build()) //
+                .addLine(returnValue(NULL)) //
+                .build();
     }
 
-    private String buildWalkThroughMethod(String typeName, List<PojoMethodSignature> methodSignatures,
+    private OtacMethod buildWalkThroughMethod(Class<?> type, List<PojoMethodSignature> methodSignatures,
             String allFields) {
 
-        String signatureFieldSubfix = "Signature";
-
-        String method = "public void walkThrough(Object target, PojoGetterConsumer consumer, String... fields) { \n";
-        method += "    if (fields == null || fields.length == 0) { this.walkThroughAll(target, consumer); return; }\n";
-        method += "    " + typeName + " castedTarget = (" + typeName + ") target;\n";
-        method += "    for (int i=0; i<fields.length; i++) { \n";
-        method += "        String field = fields[i];\n";
-        method += "        switch (field) {\n";
-        for (PojoMethodSignature methodSignature : methodSignatures) {
+        var switchBuilder = OtacSwitch.builder().key(variable("field"));
+        for (var methodSignature : methodSignatures) {
             String fieldName = methodSignature.getFieldName();
-            String invokeGetter = "castedTarget." + methodSignature.getMethodName() + "()";
-            if (methodSignature.getFieldType().isPrimitive()) {
-                invokeGetter = methodSignature.getWrapperType().getName() + ".valueOf(" + invokeGetter + ")";
-            }
-            String signatureField = fieldName + signatureFieldSubfix;
-            method += "        case \"" + fieldName + "\": \n";
-            method += "            consumer.accept(this." + signatureField + ", " + invokeGetter + "); \n"; //
-            method += "            break; \n";
+            String signatureField = fieldName + SIGNATURE_FIELD_SUBFIX;
+            switchBuilder.addCase(OtacCase.builder() //
+                    .value(raw(fieldName)) //
+                    .curlyBracketsWrapped(false) //
+                    .addLine(invokeMethod(variable("consumer"), "accept", field(signatureField),
+                            methodReturn(variable("castedTarget"), methodSignature.getMethodName())))
+                    .addLine(OtacLine.BREAK) //
+                    .build());
         }
-        method += "        }\n";// end switch
-        method += "    }\n"; // end for
-        method += "}";
 
-        return method;
+        return OtacMethod.builder() //
+                .accessLevel(PUBLIC) //
+                .name("walkThrough") //
+                .parameter(parameterOf(OBJECT, "target")) //
+                .parameter(parameterOf(typeOf(PojoGetterConsumer.class), "consumer")) //
+                .parameter(parameterOf(typeOf(String[].class), "fields")) //
+                .addLine(OtacIf.builder() //
+                        .condition(customValue("fields == null || fields.length == 0")) //
+                        .addLine(invokeMethod("walkThroughAll", variable("target"), variable("consumer"))) //
+                        .addLine(OtacLine.RETURN) //
+                        .build())
+                .addLine(declare(typeOf(type), "castedTarget", castVariable("target", type))) //
+                .addLine(OtacFor.builder() //
+                        .init(declare(int.class, "i", 0)) //
+                        .condition(customValue("i < fields.length")) //
+                        .afterLoop(customLine("i++")) //
+                        .addLine(declare(typeOf(String.class), "field", customValue("fields[i]"))) //
+                        .addLine(switchBuilder.build()) //
+                        .build())
+                .build();
     }
 
-    private String buildWalkThroughAllMethod(String typeName, List<PojoMethodSignature> methodSignatures) {
+    private OtacMethod buildWalkThroughAllMethod(Class<?> type, List<PojoMethodSignature> methodSignatures) {
 
-        String signatureFieldSubfix = "Signature";
+        var builder = OtacMethod.builder() //
+                .accessLevel(PRIVATE)//
+                .name("walkThroughAll") //
+                .parameter(parameterOf(OBJECT, "target")) //
+                .parameter(parameterOf(typeOf(PojoGetterConsumer.class), "consumer")) //
+                .addLine(declare(typeOf(type), "castedTarget", castVariable("target", type)));
 
-        String method = "private void walkThroughAll(Object target, PojoGetterConsumer consumer) { \n";
-        method += "    " + typeName + " castedTarget = (" + typeName + ") target;\n";
-
-        for (PojoMethodSignature methodSignature : methodSignatures) {
-            String fieldName = methodSignature.getFieldName();
-            String invoked = "castedTarget." + methodSignature.getMethodName() + "()";
-            if (methodSignature.getFieldType().isPrimitive()) {
-                invoked = methodSignature.getWrapperType().getName() + ".valueOf(" + invoked + ")";
-            }
-            String signatureField = fieldName + signatureFieldSubfix;
-            method += "    consumer.accept(this." + signatureField + ", " + invoked + "); \n"; //
+        for (var sig : methodSignatures) {
+            var fieldName = sig.getFieldName();
+            var signatureField = fieldName + SIGNATURE_FIELD_SUBFIX;
+            builder.addLine(//
+                    invokeMethod( //
+                            variable("consumer"), // target
+                            "accept", // method name
+                            field(signatureField), // param 1
+                            methodReturn( // param 2
+                                    variable("castedTarget"), //
+                                    sig.getMethodName())));
         }
-        method += "}";
 
-        return method;
+        return builder.build();
     }
 }

@@ -8,8 +8,8 @@ import static io.gridgo.otac.OtacGeneric.genericDeclared;
 import static io.gridgo.otac.OtacInheritOperator.EXTENDS;
 import static io.gridgo.otac.OtacParameter.parameterOf;
 import static io.gridgo.otac.OtacType.typeOf;
-import static io.gridgo.otac.OtacValue.parameter;
-import static io.gridgo.otac.code.OtacCodeLine.assignField;
+import static io.gridgo.otac.code.line.OtacLine.assignField;
+import static io.gridgo.otac.value.OtacValue.parameter;
 
 import java.io.InputStream;
 import java.io.Serializable;
@@ -27,7 +27,7 @@ import io.gridgo.otac.OtacConstructor;
 import io.gridgo.otac.OtacField;
 import io.gridgo.otac.OtacGeneric;
 import io.gridgo.otac.OtacType;
-import io.gridgo.otac.OtacValue;
+import io.gridgo.otac.value.OtacValue;
 import io.gridgo.utils.annotations.ThreadSafe;
 import lombok.Builder;
 import lombok.NonNull;
@@ -119,8 +119,8 @@ public class TestOtacClass {
                 .constructor(OtacConstructor.builder() //
                         .accessLevel(PUBLIC) //
                         .annotatedBy(annotation(ThreadSafe.class)) //
-                        .parameter(parameterOf("intValue", typeOf(int.class))) //
-                        .parameter(parameterOf("stringArr", typeOf(String[].class), annotation(NonNull.class)))
+                        .parameter(parameterOf(typeOf(int.class), "intValue")) //
+                        .parameter(parameterOf(typeOf(String[].class), "stringArr", annotation(NonNull.class)))
                         .addLine(assignField("intField", parameter("intValue"))) //
                         .addLine(assignField("stringArrField", parameter("stringArr"))) //
                         .build()) //

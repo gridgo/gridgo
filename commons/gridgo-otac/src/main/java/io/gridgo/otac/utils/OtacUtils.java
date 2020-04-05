@@ -14,8 +14,10 @@ public class OtacUtils {
 
         var lines = origin.split("\n");
         var sb = new StringBuilder();
-        for (var line : lines) {
-            sb.append(tabs).append(line).append("\n");
+        if (lines.length > 0) {
+            sb.append(tabs).append(lines[0]);
+            for (int i = 1; i < lines.length; i++)
+                sb.append("\n").append(tabs).append(lines[i]);
         }
         return sb.toString();
     }

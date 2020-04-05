@@ -3,10 +3,10 @@ package io.gridgo.otac;
 import static io.gridgo.otac.OtacAccessLevel.PUBLIC;
 import static io.gridgo.otac.OtacParameter.parameterOf;
 import static io.gridgo.otac.OtacType.VOID;
-import static io.gridgo.otac.OtacValue.field;
-import static io.gridgo.otac.OtacValue.variable;
-import static io.gridgo.otac.code.OtacCodeLine.assignField;
-import static io.gridgo.otac.code.OtacCodeLine.returnValue;
+import static io.gridgo.otac.value.OtacValue.field;
+import static io.gridgo.otac.value.OtacValue.variable;
+import static io.gridgo.otac.code.line.OtacLine.assignField;
+import static io.gridgo.otac.code.line.OtacLine.returnValue;
 import static io.gridgo.otac.utils.OtacUtils.tabs;
 import static io.gridgo.utils.StringUtils.upperCaseFirstLetter;
 
@@ -110,7 +110,7 @@ public class OtacClass extends OtacModifiers implements OtacRequireImports {
     private void appendConstructor(StringBuilder sb) {
         for (var ctor : constructors) {
             ctor.setDeclaringClass(this);
-            sb.append(tabs(1, ctor.toString())).append("\n");
+            sb.append(tabs(1, ctor.toString())).append("\n\n");
         }
     }
 
@@ -137,7 +137,7 @@ public class OtacClass extends OtacModifiers implements OtacRequireImports {
                     methods.add(OtacMethod.builder()//
                             .accessLevel(PUBLIC) //
                             .returnType(VOID) //
-                            .parameter(parameterOf(fName, f.getType())) //
+                            .parameter(parameterOf(f.getType(), fName)) //
                             .name(setterName) //
                             .addLine(assignField(fName, variable(fName)))//
                             .build());
@@ -147,7 +147,7 @@ public class OtacClass extends OtacModifiers implements OtacRequireImports {
 
         for (var m : methods) {
             m.setDeclaringClass(this);
-            sb.append(tabs(1, m.toString())).append("\n");
+            sb.append(tabs(1, m.toString())).append("\n\n");
         }
 
     }
@@ -156,11 +156,15 @@ public class OtacClass extends OtacModifiers implements OtacRequireImports {
         sb.append("\n");
         if (fields == null)
             return;
-        for (var f : fields) {
-            f.setDeclaringClass(this);
-            sb.append(tabs(1, f.toString()));
+        if (!fields.isEmpty()) {
+            for (var f : fields)
+                f.setDeclaringClass(this);
+
+            sb.append(tabs(1, fields.get(0).toString()));
+            for (int i = 1; i < fields.size(); i++)
+                sb.append("\n").append(tabs(1, fields.get(i).toString()));
         }
-        sb.append("\n");
+        sb.append("\n\n");
     }
 
     private void makeClassName(StringBuilder sb) {
