@@ -1,11 +1,11 @@
 package io.gridgo.utils.pojo.setter.fieldconverters;
 
+import static io.gridgo.utils.ArrayUtils.toArray;
+import static io.gridgo.utils.ArrayUtils.toPrimitiveArray;
+
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
-
-import static io.gridgo.utils.ArrayUtils.toArray;
-import static io.gridgo.utils.ArrayUtils.toPrimitiveArray;
 
 import io.gridgo.utils.exception.UnsupportedTypeException;
 import io.gridgo.utils.pojo.PojoMethodSignature;

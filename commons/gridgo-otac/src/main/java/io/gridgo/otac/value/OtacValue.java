@@ -83,6 +83,13 @@ public abstract class OtacValue implements OtacRequireImports {
         return OtacFieldValue.builder().name(fieldName).build();
     }
 
+    public static OtacValue field(OtacValue target, String fieldName) {
+        return OtacFieldValue.builder() //
+                .target(target) //
+                .name(fieldName) //
+                .build();
+    }
+
     public static OtacValue variable(String variableName) {
         return OtacVariableValue.builder().name(variableName).build();
     }

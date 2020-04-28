@@ -1,5 +1,6 @@
 package io.gridgo.pojo;
 
+import io.gridgo.pojo.field.PojoField;
 import io.gridgo.utils.pojo.exception.PojoException;
 
 public interface PojoSchema {

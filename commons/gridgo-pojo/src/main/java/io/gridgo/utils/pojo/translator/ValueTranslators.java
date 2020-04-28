@@ -1,16 +1,16 @@
 package io.gridgo.utils.pojo.translator;
 
-import org.cliffc.high_scale_lib.NonBlockingHashMap;
-
-import java.lang.reflect.Method;
-import java.util.HashSet;
-import java.util.Map;
-
 import static io.gridgo.utils.ClasspathUtils.scanForAnnotatedMethods;
 import static io.gridgo.utils.ClasspathUtils.scanForAnnotatedTypes;
 import static io.gridgo.utils.pojo.PojoMethodType.GETTER;
 import static io.gridgo.utils.pojo.PojoMethodType.NONE;
 import static io.gridgo.utils.pojo.PojoMethodType.SETTER;
+
+import java.lang.reflect.Method;
+import java.util.HashSet;
+import java.util.Map;
+
+import org.cliffc.high_scale_lib.NonBlockingHashMap;
 
 import io.gridgo.utils.ClasspathUtils;
 import io.gridgo.utils.helper.ClasspathScanner;

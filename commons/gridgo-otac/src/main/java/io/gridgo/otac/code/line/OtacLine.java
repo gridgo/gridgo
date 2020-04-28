@@ -40,8 +40,12 @@ public abstract class OtacLine extends OtacCodeElement {
     }
 
     public static final OtacLine assignField(String variableName, OtacValue value) {
+        return assignField(OtacValue.THIS, variableName, value);
+    }
+
+    public static final OtacLine assignField(OtacValue target, String variableName, OtacValue value) {
         return OtacAssignVariable.builder() //
-                .isField(true) //
+                .target(target) //
                 .name(variableName) //
                 .value(value) //
                 .build();

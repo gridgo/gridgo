@@ -1,10 +1,10 @@
 package io.gridgo.utils.pojo.getter.fieldwalkers;
 
-import java.util.Collection;
-
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.END_ARRAY;
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.START_ARRAY;
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.VALUE;
+
+import java.util.Collection;
 
 import io.gridgo.utils.pojo.getter.PojoFlattenAcceptor;
 import io.gridgo.utils.pojo.getter.PojoGetterProxy;

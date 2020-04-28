@@ -11,8 +11,9 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @SuperBuilder
 public class OtacAssignVariable extends OtacLine {
+
     @Builder.Default
-    private boolean isField = false;
+    private OtacValue target = null;
 
     private @NonNull String name;
 
@@ -22,8 +23,8 @@ public class OtacAssignVariable extends OtacLine {
     @Override
     public String toStringWithoutSemicolon() {
         var sb = new StringBuilder();
-        if (isField)
-            sb.append("this.");
+        if (target != null)
+            sb.append(target.toString() + ".");
         sb.append(name).append(" = ").append(value);
         return sb.toString();
     }

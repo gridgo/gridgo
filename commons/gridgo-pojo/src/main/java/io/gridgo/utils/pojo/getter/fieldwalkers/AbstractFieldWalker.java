@@ -1,11 +1,11 @@
 package io.gridgo.utils.pojo.getter.fieldwalkers;
 
+import static io.gridgo.utils.PrimitiveUtils.isPrimitive;
+import static io.gridgo.utils.pojo.PojoFlattenIndicator.VALUE;
+
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
-
-import static io.gridgo.utils.PrimitiveUtils.isPrimitive;
-import static io.gridgo.utils.pojo.PojoFlattenIndicator.VALUE;
 
 import io.gridgo.utils.pojo.getter.PojoFlattenAcceptor;
 import io.gridgo.utils.pojo.getter.PojoGetterProxy;

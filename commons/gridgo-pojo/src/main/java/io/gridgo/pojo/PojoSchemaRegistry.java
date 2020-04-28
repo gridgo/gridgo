@@ -59,13 +59,13 @@ class AutoBuildingPojoSchemaRegistry implements PojoSchemaRegistry {
 
     @Override
     public void register(PojoSchema schema) {
-        // TODO Auto-generated method stub
-
+        this.cache.put(schema.type().getName(), schema);
     }
 
     @Override
     public void unregister(Class<?> type) {
-        // TODO Auto-generated method stub
-
+        if (type == null)
+            return;
+        this.cache.remove(type.getName());
     }
 }

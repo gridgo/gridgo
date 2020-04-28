@@ -1,12 +1,12 @@
 package io.gridgo.utils.pojo.getter.fieldwalkers;
 
-import java.util.Map;
-
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.END_MAP;
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.KEY;
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.KEY_NULL;
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.START_MAP;
 import static io.gridgo.utils.pojo.PojoFlattenIndicator.VALUE;
+
+import java.util.Map;
 
 import io.gridgo.utils.pojo.getter.PojoFlattenAcceptor;
 import io.gridgo.utils.pojo.getter.PojoGetterProxy;

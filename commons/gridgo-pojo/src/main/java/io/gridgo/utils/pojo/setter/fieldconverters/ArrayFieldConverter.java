@@ -1,10 +1,10 @@
 package io.gridgo.utils.pojo.setter.fieldconverters;
 
-import java.util.ArrayList;
-
 import static io.gridgo.utils.ArrayUtils.toArray;
 import static io.gridgo.utils.ArrayUtils.toPrimitiveArray;
 import static io.gridgo.utils.PrimitiveUtils.getWrapperType;
+
+import java.util.ArrayList;
 
 import io.gridgo.utils.exception.UnsupportedTypeException;
 import io.gridgo.utils.pojo.PojoMethodSignature;
