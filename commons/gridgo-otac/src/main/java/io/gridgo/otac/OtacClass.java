@@ -149,6 +149,10 @@ public class OtacClass extends OtacModifiers implements OtacRequireImports {
             }
         }
 
+        if (methods.size() == 0)
+            return;
+        
+        sb.append("\n");
         for (var m : methods) {
             m.setDeclaringClass(this);
             sb.append(tabs(1, m.toString())).append("\n\n");
@@ -157,18 +161,16 @@ public class OtacClass extends OtacModifiers implements OtacRequireImports {
     }
 
     private void appendFields(StringBuilder sb) {
-        sb.append("\n");
-        if (fields == null)
+        if (fields == null || fields.isEmpty())
             return;
-        if (!fields.isEmpty()) {
-            for (var f : fields)
-                f.setDeclaringClass(this);
 
-            sb.append(tabs(1, fields.get(0).toString()));
-            for (int i = 1; i < fields.size(); i++)
-                sb.append("\n").append(tabs(1, fields.get(i).toString()));
-        }
-        sb.append("\n\n");
+        for (var f : fields)
+            f.setDeclaringClass(this);
+
+        for (int i = 0; i < fields.size(); i++)
+            sb.append("\n").append(tabs(1, fields.get(i).toString()));
+
+        sb.append("\n");
     }
 
     private void makeClassName(StringBuilder sb) {

@@ -20,7 +20,6 @@ public class TestPojoSchemaBuilder {
 
     @Test
     public void testPrimitive() {
-
         PojoSchemaBuilder builder = new ReflectivePojoSchemaBuilder();
         builder.build(PrimitivePojo.class);
     }
