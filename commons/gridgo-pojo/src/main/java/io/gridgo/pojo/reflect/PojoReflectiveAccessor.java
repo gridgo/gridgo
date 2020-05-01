@@ -1,19 +1,32 @@
 package io.gridgo.pojo.reflect;
 
+import static io.gridgo.utils.StringUtils.upperCaseFirstLetter;
+
+import java.lang.reflect.Field;
+
+import org.apache.commons.lang3.ArrayUtils;
+
+import io.gridgo.pojo.annotation.FieldRef;
+import io.gridgo.pojo.annotation.FieldTag;
 import io.gridgo.pojo.support.PojoAccessorType;
-import lombok.AccessLevel;
+import io.gridgo.utils.pojo.exception.PojoException;
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
 
 public interface PojoReflectiveAccessor {
 
-    String name();
+    String fieldName();
+
+    Class<?> fieldType();
+
+    Field refField();
 
     PojoReflectiveElement element();
 
     PojoAccessorType type();
+
+    FieldTag[] tags();
 
     default boolean isSetter() {
         return type() == PojoAccessorType.SET;
@@ -26,13 +39,85 @@ public interface PojoReflectiveAccessor {
 
 @Getter
 @Accessors(fluent = true)
-@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 abstract class AbstractPojoReflectiveAccessor implements PojoReflectiveAccessor {
 
     private final @NonNull PojoAccessorType type;
 
-    private final @NonNull String name;
+    private final @NonNull String fieldName;
 
     private final @NonNull PojoReflectiveElement element;
 
+    private final Field refField;
+
+    private final FieldTag[] tags;
+
+    protected AbstractPojoReflectiveAccessor(PojoAccessorType type, String fieldName, PojoReflectiveElement element) {
+        this.type = type;
+        this.fieldName = fieldName;
+        this.element = element;
+        this.refField = findRefField();
+        this.tags = extractTags();
+    }
+
+    private Field findRefField() {
+        var refField = findRefFieldViaAnnotation();
+
+        if (refField == null) {
+            var fieldName = fieldName();
+            var fieldType = fieldType();
+
+            // find field named like "somthing"
+            refField = getDeclaredFieldIfExist(fieldName);
+
+            if (refField == null && (fieldType == boolean.class || fieldType == Boolean.class)) {
+                // try to prepend "is" to find field name like "isSomething"
+                fieldName = "is" + upperCaseFirstLetter(fieldName);
+                refField = getDeclaredFieldIfExist(fieldName);
+            }
+
+            if (refField != null && refField.getType() != fieldType)
+                refField = null;
+        }
+
+        return refField;
+    }
+
+    private Field findRefFieldViaAnnotation() {
+        if (!element.isMethod())
+            return null;
+
+        var refFieldAnnotation = element.method().getAnnotation(FieldRef.class);
+        if (refFieldAnnotation == null)
+            return null;
+
+        var refFieldName = refFieldAnnotation.value();
+        try {
+            return element.declaringClass().getDeclaredField(refFieldName);
+        } catch (NoSuchFieldException | SecurityException e) {
+            throw new PojoException("Field not found for annotated @FieldRef value '" + refFieldName + "' on method "
+                    + element.name() + ", type " + element.declaringClass().getName());
+        }
+    }
+
+    private Field getDeclaredFieldIfExist(String fieldName) {
+        try {
+            return element.declaringClass().getDeclaredField(fieldName);
+        } catch (NoSuchFieldException | SecurityException e) {
+            // do nothing
+        }
+        return null;
+    }
+
+    private FieldTag[] extractTags() {
+        var element = element();
+
+        if (element.isField())
+            return element.field().getAnnotationsByType(FieldTag.class);
+
+        var tags = element.method().getAnnotationsByType(FieldTag.class);
+        if (refField != null)
+            return ArrayUtils.addAll(tags, refField.getAnnotationsByType(FieldTag.class));
+
+        return tags;
+    }
 }

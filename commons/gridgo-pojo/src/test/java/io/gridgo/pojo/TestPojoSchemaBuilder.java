@@ -19,7 +19,11 @@ public class TestPojoSchemaBuilder {
     }
 
     @Test
-    public void testPrimitive() {
+    public void testPrimitive() throws NoSuchMethodException, SecurityException {
+        var method = PrimitivePojo.class.getDeclaredMethod("getCharValue");
+        for (var a : method.getAnnotations()) {
+            System.out.println("" + a.getClass());
+        }
         PojoSchemaBuilder builder = new ReflectivePojoSchemaBuilder();
         builder.build(PrimitivePojo.class);
     }

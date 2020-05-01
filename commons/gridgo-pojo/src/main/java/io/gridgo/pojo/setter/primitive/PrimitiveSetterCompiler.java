@@ -78,7 +78,6 @@ public class PrimitiveSetterCompiler extends AbstractSetterCompiler {
             throw new IllegalArgumentException("Method must accept only 1 primitive argument: "
                     + method.getDeclaringClass() + "." + method.getName());
         var classSrc = buildImplClass(method, theInterface.getLeft(), theInterface.getRight());
-        System.out.println(classSrc.toString());
         return doCompile(classSrc.getName(), classSrc.toString());
     }
 

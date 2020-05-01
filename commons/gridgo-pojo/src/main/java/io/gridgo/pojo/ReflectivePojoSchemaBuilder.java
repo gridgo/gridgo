@@ -46,7 +46,7 @@ public class ReflectivePojoSchemaBuilder implements PojoSchemaBuilder {
 
         var defaultFieldAccess = type.getAnnotation(FieldAccess.class);
         var defaultFieldAccessLevel = defaultFieldAccess == null ? FieldAccessLevel.NONE : defaultFieldAccess.value();
-        var defaultFieldAccessMode = defaultFieldAccess == null ? FieldAccessMode.SET_GET : defaultFieldAccess.mode();
+        var defaultFieldAccessMode = defaultFieldAccess == null ? FieldAccessMode.FULL : defaultFieldAccess.mode();
 
         var fields = type.getDeclaredFields();
         for (var field : fields) {

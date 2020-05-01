@@ -3,7 +3,6 @@ package io.gridgo.pojo.reflect;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-import io.gridgo.pojo.annotation.FieldTag;
 import io.gridgo.pojo.support.PojoElementType;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -13,31 +12,31 @@ import lombok.experimental.Accessors;
 
 public interface PojoReflectiveElement {
 
-    PojoElementType elementType();
+    String name();
+
+    PojoElementType type();
 
     Class<?> effectiveClass();
 
     Class<?> declaringClass();
 
-    FieldTag[] tags();
-
     default boolean isField() {
-        return elementType() == PojoElementType.FIELD;
+        return type() == PojoElementType.FIELD;
     }
 
     default boolean isMethod() {
-        return elementType() == PojoElementType.METHOD;
+        return type() == PojoElementType.METHOD;
     }
 
     @SuppressWarnings("unchecked")
     default <T> T getElement() {
-        switch (elementType()) {
+        switch (type()) {
         case FIELD:
             return (T) field();
         case METHOD:
             return (T) method();
         }
-        throw new UnsupportedOperationException("Element type not supported: " + elementType());
+        throw new UnsupportedOperationException("Element type not supported: " + type());
     }
 
     default Field field() {
@@ -48,16 +47,8 @@ public interface PojoReflectiveElement {
         throw new UnsupportedOperationException("not supported in " + getClass().getName());
     }
 
-    static PojoReflectiveElement ofField(Field field) {
-        return new PojoReflectiveField(field);
-    }
-
     static PojoReflectiveElement ofField(Field field, Class<?> effectiveClass) {
         return new PojoReflectiveField(field, effectiveClass);
-    }
-
-    static PojoReflectiveElement ofMethod(Method method) {
-        return new PojoReflectiveMethod(method);
     }
 
     static PojoReflectiveElement ofMethod(Method method, Class<?> effectiveClass) {
@@ -69,13 +60,13 @@ public interface PojoReflectiveElement {
 @Accessors(fluent = true)
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 abstract class AbstractPojoReflectiveElement implements PojoReflectiveElement {
-    private final @NonNull PojoElementType elementType;
+    private final @NonNull PojoElementType type;
     private final @NonNull Class<?> effectiveClass;
 }
 
-@Getter
 class PojoReflectiveMethod extends AbstractPojoReflectiveElement {
 
+    @Getter
     private final @NonNull Method method;
 
     PojoReflectiveMethod(Method method, Class<?> effectiveClass) {
@@ -83,18 +74,14 @@ class PojoReflectiveMethod extends AbstractPojoReflectiveElement {
         this.method = method;
     }
 
-    PojoReflectiveMethod(Method method) {
-        this(method, method.getDeclaringClass());
+    @Override
+    public String name() {
+        return method.getName();
     }
 
     @Override
     public Class<?> declaringClass() {
         return method.getDeclaringClass();
-    }
-
-    @Override
-    public FieldTag[] tags() {
-        return method.getAnnotationsByType(FieldTag.class);
     }
 }
 
@@ -109,17 +96,13 @@ class PojoReflectiveField extends AbstractPojoReflectiveElement {
         this.field = field;
     }
 
-    PojoReflectiveField(Field field) {
-        this(field, field.getDeclaringClass());
+    @Override
+    public String name() {
+        return field.getName();
     }
 
     @Override
     public Class<?> declaringClass() {
         return field.getDeclaringClass();
-    }
-
-    @Override
-    public FieldTag[] tags() {
-        return field.getAnnotationsByType(FieldTag.class);
     }
 }

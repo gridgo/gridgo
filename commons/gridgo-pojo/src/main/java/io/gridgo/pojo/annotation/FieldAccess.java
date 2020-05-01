@@ -21,7 +21,7 @@ public @interface FieldAccess {
     @Getter
     @AllArgsConstructor
     public static enum FieldAccessMode {
-        SET(true, false), GET(false, true), SET_GET(true, true);
+        SET(true, false), GET(false, true), FULL(true, true);
 
         private final boolean setable;
         private final boolean getable;
@@ -29,5 +29,5 @@ public @interface FieldAccess {
 
     FieldAccessLevel value();
 
-    FieldAccessMode mode() default FieldAccessMode.SET_GET;
+    FieldAccessMode mode() default FieldAccessMode.FULL;
 }
