@@ -29,7 +29,7 @@ public interface PojoReflectiveElement {
     }
 
     @SuppressWarnings("unchecked")
-    default <T> T getElement() {
+    default <T> T element() {
         switch (type()) {
         case FIELD:
             return (T) field();
@@ -39,13 +39,9 @@ public interface PojoReflectiveElement {
         throw new UnsupportedOperationException("Element type not supported: " + type());
     }
 
-    default Field field() {
-        throw new UnsupportedOperationException("not supported in " + getClass().getName());
-    }
+    Field field();
 
-    default Method method() {
-        throw new UnsupportedOperationException("not supported in " + getClass().getName());
-    }
+    Method method();
 
     static PojoReflectiveElement ofField(Field field, Class<?> effectiveClass) {
         return new PojoReflectiveField(field, effectiveClass);
@@ -62,8 +58,20 @@ public interface PojoReflectiveElement {
 abstract class AbstractPojoReflectiveElement implements PojoReflectiveElement {
     private final @NonNull PojoElementType type;
     private final @NonNull Class<?> effectiveClass;
+
+    @Override
+    public Field field() {
+        throw new UnsupportedOperationException("not supported in " + getClass().getName());
+    }
+
+    @Override
+    public Method method() {
+        throw new UnsupportedOperationException("not supported in " + getClass().getName());
+    }
 }
 
+@Getter
+@Accessors(fluent = true)
 class PojoReflectiveMethod extends AbstractPojoReflectiveElement {
 
     @Getter
@@ -82,6 +90,11 @@ class PojoReflectiveMethod extends AbstractPojoReflectiveElement {
     @Override
     public Class<?> declaringClass() {
         return method.getDeclaringClass();
+    }
+
+    @Override
+    public String toString() {
+        return String.format("{METHOD: {name: %s, declaringClass: %s}}", name(), declaringClass());
     }
 }
 
@@ -104,5 +117,10 @@ class PojoReflectiveField extends AbstractPojoReflectiveElement {
     @Override
     public Class<?> declaringClass() {
         return field.getDeclaringClass();
+    }
+
+    @Override
+    public String toString() {
+        return String.format("{FIELD: {name: %s, declaringClass: %s}}", name(), declaringClass());
     }
 }

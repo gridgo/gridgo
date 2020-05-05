@@ -1,20 +1,19 @@
 package io.gridgo.pojo;
 
-import io.gridgo.pojo.field.PojoField;
-import io.gridgo.utils.pojo.exception.PojoException;
+import io.gridgo.pojo.input.PojoSchemaInput;
+import io.gridgo.pojo.output.PojoSchemaOutput;
 
-public interface PojoSchema {
+public interface PojoSchema<T> {
 
-    Class<?> type();
+    T newInstance();
 
-    PojoField[] fields();
+    void serialize(T target, PojoSchemaOutput output);
 
-    default Object newInstance() {
-        var cls = type();
-        try {
-            return cls.getConstructor().newInstance();
-        } catch (Exception e) {
-            throw new PojoException("Cannot construct new instance for type " + cls.getName(), e);
-        }
+    void deserialize(T target, PojoSchemaInput input);
+
+    default T deserialize(PojoSchemaInput input) {
+        var t = newInstance();
+        deserialize(t, input);
+        return t;
     }
 }

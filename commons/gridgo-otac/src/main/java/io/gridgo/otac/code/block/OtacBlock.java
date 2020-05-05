@@ -34,6 +34,10 @@ public class OtacBlock extends OtacCodeElement {
     }
 
     public void writeBodyTo(StringBuilder sb, int numTabs, boolean wrapped) {
+        this.writeBodyTo(lines, sb, numTabs, wrapped);
+    }
+
+    protected void writeBodyTo(List<OtacCodeElement> lines, StringBuilder sb, int numTabs, boolean wrapped) {
         if (wrapped)
             sb.append("{\n");
         if (!lines.isEmpty()) {

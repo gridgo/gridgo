@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import io.gridgo.otac.code.line.OtacLine;
-import io.gridgo.otac.value.OtacValue;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 
@@ -14,7 +13,7 @@ import lombok.experimental.SuperBuilder;
 public class OtacFor extends OtacLoop {
 
     private OtacLine init;
-    private OtacValue condition;
+    private OtacLine condition;
     private OtacLine afterLoop;
 
     @Override
@@ -36,7 +35,7 @@ public class OtacFor extends OtacLoop {
         var sb = new StringBuilder();
         sb.append("for (") //
                 .append(init == null ? "; " : init) //
-                .append(condition == null ? "" : condition).append("; ") //
+                .append(condition == null ? "" : condition.toStringWithoutSemicolon()).append(";") //
                 .append(afterLoop == null ? ";" : afterLoop.toStringWithoutSemicolon()) //
                 .append(") ");
         writeBodyTo(sb, 0, true);

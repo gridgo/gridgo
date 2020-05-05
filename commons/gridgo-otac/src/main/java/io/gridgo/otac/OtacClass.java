@@ -56,7 +56,7 @@ public class OtacClass extends OtacModifiers implements OtacRequireImports {
 
     @Getter
     @Singular("require")
-    private final Set<Class<?>> imports = new HashSet<>();
+    private Set<Class<?>> imports;
 
     public String getName() {
         return (packageName == null || packageName.isBlank() ? "" : (packageName + ".")) + simpleClassName;
@@ -98,7 +98,7 @@ public class OtacClass extends OtacModifiers implements OtacRequireImports {
         makeImports(sb);
         appendAnnotations(sb);
         makeClassName(sb);
-        sb.append("{\n");
+        sb.append("{\n\n");
         appendFields(sb);
         appendConstructor(sb);
         appendMethods(sb);
@@ -151,8 +151,7 @@ public class OtacClass extends OtacModifiers implements OtacRequireImports {
 
         if (methods.size() == 0)
             return;
-        
-        sb.append("\n");
+
         for (var m : methods) {
             m.setDeclaringClass(this);
             sb.append(tabs(1, m.toString())).append("\n\n");
@@ -167,10 +166,11 @@ public class OtacClass extends OtacModifiers implements OtacRequireImports {
         for (var f : fields)
             f.setDeclaringClass(this);
 
-        for (int i = 0; i < fields.size(); i++)
+        sb.append(tabs(1, fields.get(0).toString()));
+        for (int i = 1; i < fields.size(); i++)
             sb.append("\n").append(tabs(1, fields.get(i).toString()));
 
-        sb.append("\n");
+        sb.append("\n\n");
     }
 
     private void makeClassName(StringBuilder sb) {

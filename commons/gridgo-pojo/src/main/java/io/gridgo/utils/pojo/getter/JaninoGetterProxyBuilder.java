@@ -136,7 +136,7 @@ class JaninoGetterProxyBuilder extends AbstractProxyBuilder implements PojoGette
                 .addLine(declare(typeOf(type), "castedTarget", castVariable("target", type))) //
                 .addLine(OtacFor.builder() //
                         .init(declare(int.class, "i", 0)) //
-                        .condition(customValue("i < fields.length")) //
+                        .condition(customLine("i < fields.length")) //
                         .afterLoop(customLine("i++")) //
                         .addLine(declare(typeOf(String.class), "field", customValue("fields[i]"))) //
                         .addLine(switchBuilder.build()) //

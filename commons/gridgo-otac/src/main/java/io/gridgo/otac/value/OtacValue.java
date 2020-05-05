@@ -4,12 +4,14 @@ import static io.gridgo.otac.OtacType.typeOf;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 import io.gridgo.otac.OtacRequireImports;
 import io.gridgo.otac.OtacType;
 import io.gridgo.otac.code.OtacInvokeMethod;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.experimental.SuperBuilder;
 
 @Getter
@@ -44,6 +46,44 @@ public abstract class OtacValue implements OtacRequireImports {
         @Override
         public String toString() {
             return "null";
+        }
+    }
+
+    @Getter
+    @SuperBuilder
+    public static class OtacValueClass extends OtacValue {
+        private final @NonNull Class<?> type;
+
+        @Override
+        public Set<Class<?>> requiredImports() {
+            var imports = new HashSet<Class<?>>();
+            imports.addAll(super.requiredImports());
+            imports.add(type);
+            return imports;
+        }
+
+        @Override
+        public String toString() {
+            return type.getSimpleName() + ".class";
+        }
+    }
+
+    @Getter
+    @SuperBuilder
+    public static class OtacValueType extends OtacValue {
+        private final @NonNull Class<?> type;
+
+        @Override
+        public Set<Class<?>> requiredImports() {
+            var imports = new HashSet<Class<?>>();
+            imports.addAll(super.requiredImports());
+            imports.add(type);
+            return imports;
+        }
+
+        @Override
+        public String toString() {
+            return type.getSimpleName();
         }
     }
 
@@ -152,5 +192,13 @@ public abstract class OtacValue implements OtacRequireImports {
 
     public static OtacValue customValue(String content) {
         return OtacValueCustom.builder().content(content).build();
+    }
+
+    public static OtacValue ofClass(Class<?> type) {
+        return OtacValueClass.builder().type(type).build();
+    }
+
+    public static OtacValue ofType(Class<?> type) {
+        return OtacValueType.builder().type(type).build();
     }
 }

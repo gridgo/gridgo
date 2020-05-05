@@ -8,12 +8,16 @@ import io.gridgo.otac.OtacType;
 import io.gridgo.otac.code.OtacCodeElement;
 import io.gridgo.otac.code.OtacInvokeMethod;
 import io.gridgo.otac.value.OtacValue;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 
 @Getter
 @SuperBuilder
 public abstract class OtacLine extends OtacCodeElement {
+
+    @Builder.Default
+    private boolean addSemicolon = true;
 
     @Override
     public Set<Class<?>> requiredImports() {
@@ -23,7 +27,7 @@ public abstract class OtacLine extends OtacCodeElement {
     public abstract String toStringWithoutSemicolon();
 
     public String toString() {
-        return toStringWithoutSemicolon() + ";";
+        return toStringWithoutSemicolon() + (addSemicolon ? ";" : "");
     }
 
     public static OtacLine RETURN = OtacLineCustom.of("return");
@@ -100,4 +104,5 @@ public abstract class OtacLine extends OtacCodeElement {
     public static OtacLine customLine(String content) {
         return OtacLineCustom.builder().content(content).build();
     }
+
 }

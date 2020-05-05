@@ -44,7 +44,7 @@ public class OtacDeclareVariable extends OtacLine {
         sb.append(type == null ? "var" : type.getType().getSimpleName()).append(" ");
         sb.append(name);
         if (initValue != null)
-            sb.append(" = ").append(initValue);
+            sb.append(" = ").append(initValue.toString());
         return sb.toString();
     }
 }
