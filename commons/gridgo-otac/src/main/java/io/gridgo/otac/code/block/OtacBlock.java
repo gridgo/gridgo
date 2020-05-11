@@ -52,7 +52,7 @@ public class OtacBlock extends OtacCodeElement {
 
     @Override
     public String toString() {
-        if (lines == null || lines.isEmpty())
+        if (lines.isEmpty())
             return "{}";
         var sb = new StringBuilder();
         writeBodyTo(sb, 0, true);

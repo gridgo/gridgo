@@ -8,6 +8,8 @@ import org.apache.commons.lang3.ArrayUtils;
 
 import io.gridgo.pojo.annotation.FieldRef;
 import io.gridgo.pojo.annotation.FieldTag;
+import io.gridgo.pojo.reflect.type.PojoType;
+import io.gridgo.pojo.reflect.type.PojoTypes;
 import io.gridgo.pojo.support.PojoAccessorType;
 import io.gridgo.utils.pojo.exception.PojoException;
 import lombok.Getter;
@@ -18,7 +20,7 @@ public interface PojoReflectiveAccessor {
 
     String fieldName();
 
-    Class<?> fieldType();
+    PojoType fieldType();
 
     Field refField();
 
@@ -69,13 +71,15 @@ abstract class AbstractPojoReflectiveAccessor implements PojoReflectiveAccessor 
             // find field named like "somthing"
             refField = getDeclaredFieldIfExist(fieldName);
 
-            if (refField == null && (fieldType == boolean.class || fieldType == Boolean.class)) {
+            var fieldRawType = fieldType.rawType();
+            if (refField == null && (fieldRawType == boolean.class || fieldRawType == Boolean.class)) {
                 // try to prepend "is" to find field name like "isSomething"
                 fieldName = "is" + upperCaseFirstLetter(fieldName);
                 refField = getDeclaredFieldIfExist(fieldName);
             }
 
-            if (refField != null && refField.getType() != fieldType)
+            var refTypeInfo = PojoTypes.extractFieldTypeInfo(refField, element.effectiveClass());
+            if (refField != null && !fieldType.equals(refTypeInfo))
                 refField = null;
         }
 

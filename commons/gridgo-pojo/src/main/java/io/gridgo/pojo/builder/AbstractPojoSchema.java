@@ -1,7 +1,8 @@
-package io.gridgo.pojo;
+package io.gridgo.pojo.builder;
 
 import java.lang.reflect.InvocationTargetException;
 
+import io.gridgo.pojo.PojoSchema;
 import io.gridgo.pojo.input.PojoSchemaInput;
 import io.gridgo.pojo.output.PojoSchemaOutput;
 import io.gridgo.utils.pojo.exception.PojoException;

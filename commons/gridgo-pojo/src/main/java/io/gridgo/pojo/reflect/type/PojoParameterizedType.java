@@ -1,7 +1,8 @@
-package io.gridgo.pojo.generic;
+package io.gridgo.pojo.reflect.type;
 
 import java.util.List;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Singular;
 import lombok.ToString;
@@ -12,6 +13,7 @@ import lombok.experimental.SuperBuilder;
 @Accessors(fluent = true)
 @SuperBuilder
 @ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
 public class PojoParameterizedType extends PojoType {
 
     @Singular

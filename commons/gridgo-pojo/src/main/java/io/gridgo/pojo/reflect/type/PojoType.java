@@ -1,5 +1,6 @@
-package io.gridgo.pojo.generic;
+package io.gridgo.pojo.reflect.type;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.ToString;
@@ -10,6 +11,7 @@ import lombok.experimental.SuperBuilder;
 @Accessors(fluent = true)
 @ToString
 @SuperBuilder
+@EqualsAndHashCode
 public class PojoType {
 
     private @NonNull Class<?> rawType;

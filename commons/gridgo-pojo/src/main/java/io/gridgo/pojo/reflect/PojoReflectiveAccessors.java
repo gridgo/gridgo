@@ -16,9 +16,9 @@ import io.gridgo.pojo.annotation.FieldAccess.FieldAccessMode;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-class PojoReflectiveAccessors {
+public class PojoReflectiveAccessors {
 
-    static Pair<List<PojoReflectiveGetter>, List<PojoReflectiveSetter>> extract(Class<?> type) {
+    public static Pair<List<PojoReflectiveGetter>, List<PojoReflectiveSetter>> extract(Class<?> type) {
 
         var getters = new LinkedList<PojoReflectiveGetter>();
         var setters = new LinkedList<PojoReflectiveSetter>();

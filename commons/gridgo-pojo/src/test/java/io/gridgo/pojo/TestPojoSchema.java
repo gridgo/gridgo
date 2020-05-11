@@ -6,7 +6,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import io.gridgo.pojo.builder.PojoSchemaBuilder;
-import io.gridgo.pojo.test.support.Bar;
+import io.gridgo.pojo.test.support.CollectionPojo;
 import io.gridgo.pojo.test.support.CombinedPojo;
 import io.gridgo.pojo.test.support.Primitive;
 import io.gridgo.pojo.test.support.WrapperArray;
@@ -21,6 +21,10 @@ public class TestPojoSchema {
     @After
     public void tearDown() {
 
+    }
+
+    @Test
+    public void other() {
     }
 
     @Test
@@ -41,6 +45,7 @@ public class TestPojoSchema {
     }
 
     @Test
+    @Ignore
     public void testWrapperArray() {
         var config = PojoSchemaConfig.DEFAULT;
         new PojoSchemaBuilder<>(WrapperArray.class, config).build();
@@ -50,6 +55,6 @@ public class TestPojoSchema {
     @Ignore
     public void testCollection() {
         var config = PojoSchemaConfig.DEFAULT;
-        new PojoSchemaBuilder<>(Bar.class, config).build();
+        new PojoSchemaBuilder<>(CollectionPojo.class, config).build();
     }
 }

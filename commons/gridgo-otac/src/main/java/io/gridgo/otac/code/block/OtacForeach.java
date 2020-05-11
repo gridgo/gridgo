@@ -13,7 +13,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class OtacForeach extends OtacLoop {
 
-    private OtacType type;
+    private @NonNull OtacType type;
     private @NonNull String variableName;
     private @NonNull OtacValue sequence;
 
@@ -31,8 +31,9 @@ public class OtacForeach extends OtacLoop {
     public String toString() {
         var sb = new StringBuilder();
         sb.append("for (") //
-                .append(type == null ? "var" : type) //
-                .append(" ").append(variableName).append(" : ") //
+                .append(type) //
+                .append(variableName) //
+                .append(" : ") //
                 .append(sequence) //
                 .append(") ");
         writeBodyTo(sb, 0, true);

@@ -2,6 +2,8 @@ package io.gridgo.pojo.reflect;
 
 import java.lang.reflect.Type;
 
+import io.gridgo.pojo.reflect.type.PojoType;
+import io.gridgo.pojo.reflect.type.PojoTypes;
 import io.gridgo.pojo.support.PojoAccessorType;
 
 public class PojoReflectiveGetter extends AbstractPojoReflectiveAccessor {
@@ -11,11 +13,12 @@ public class PojoReflectiveGetter extends AbstractPojoReflectiveAccessor {
     }
 
     @Override
-    public Class<?> fieldType() {
+    public PojoType fieldType() {
         var element = element();
+        var effectiveClass = element.effectiveClass();
         if (element.isField())
-            return element.field().getType();
-        return element.method().getReturnType();
+            return PojoTypes.extractFieldTypeInfo(element.field(), effectiveClass);
+        return PojoTypes.extractReturnTypeInfo(element.method(), effectiveClass);
     }
 
     public Type genericFieldType() {

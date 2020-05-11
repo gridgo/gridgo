@@ -1,4 +1,4 @@
-package io.gridgo.pojo;
+package io.gridgo.pojo.builder;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
@@ -21,25 +21,36 @@ import io.gridgo.otac.OtacMethod;
 import io.gridgo.otac.OtacMethod.OtacMethodBuilder;
 import io.gridgo.otac.OtacParameter;
 import io.gridgo.otac.OtacType;
+import io.gridgo.otac.code.block.OtacBlock.OtacBlockBuilder;
 import io.gridgo.otac.code.block.OtacElse;
-import io.gridgo.otac.code.block.OtacFor;
+import io.gridgo.otac.code.block.OtacForeach;
+import io.gridgo.otac.code.block.OtacForeach.OtacForeachBuilder;
 import io.gridgo.otac.code.block.OtacIf;
 import io.gridgo.otac.code.block.OtacTry;
 import io.gridgo.otac.code.line.OtacLine;
 import io.gridgo.otac.value.OtacValue;
+import io.gridgo.pojo.PojoSchema;
+import io.gridgo.pojo.PojoSchemaConfig;
 import io.gridgo.pojo.annotation.FieldTag;
+import io.gridgo.pojo.builder.template.InitExternalSchemaTemplate;
+import io.gridgo.pojo.builder.template.WriteNullOrUnbox;
 import io.gridgo.pojo.output.PojoOutput;
 import io.gridgo.pojo.output.PojoSchemaOutput;
 import io.gridgo.pojo.output.PojoSequenceOutput;
 import io.gridgo.pojo.reflect.PojoReflectiveGetter;
 import io.gridgo.pojo.reflect.PojoReflectiveSetter;
 import io.gridgo.pojo.reflect.PojoReflectiveStruct;
+import io.gridgo.pojo.reflect.type.PojoParameterizedType;
+import io.gridgo.pojo.reflect.type.PojoType;
+import io.gridgo.pojo.reflect.type.PojoTypes;
 import io.gridgo.pojo.translator.PojoUnboxer;
 import io.gridgo.pojo.translator.PojoUnboxerRegistry;
 import io.gridgo.utils.StringUtils;
 import io.gridgo.utils.pojo.exception.PojoException;
+import lombok.Getter;
 import lombok.NonNull;
 
+@Getter
 public class PojoSchemaBuilder<T> {
 
     private static class Consts {
@@ -195,8 +206,8 @@ public class PojoSchemaBuilder<T> {
 
         for (var getter : getters.values()) {
             var fieldName = getter.fieldName();
-            var fieldType = getter.fieldType();
-            var fieldNameKey = "_" + fieldName + "_key";
+            var fieldType = getter.fieldType().rawType();
+            var fieldNameKey = PojoSchemaConvension.genFieldNameKey(fieldName);
 
             classBuilder.field(OtacField.builder() //
                     .accessLevel(OtacAccessLevel.PRIVATE) //
@@ -234,78 +245,136 @@ public class PojoSchemaBuilder<T> {
         var fieldName = getter.fieldName();
         var fieldType = getter.fieldType();
 
+        var loopBuilder = OtacForeach.builder() //
+                .variableName("entry") //
+                .sequence(OtacValue.variable(fieldName));
+
+        if (fieldType.rawType().isArray()) {
+            handleArray(fieldName, fieldType.rawType(), loopBuilder);
+        } else {
+            handleCollection(getter, loopBuilder);
+        }
+
         var outputVariable = OtacValue.variable("output");
         var castedTarget = OtacValue.variable(Consts.castedTargetVarname);
 
-        var loopBuilder = OtacFor.builder() //
-                .init(OtacLine.declare(int.class, "i", 0)) //
-                .condition(OtacLine.customLine("i<" + fieldName + ".length")) //
-                .afterLoop(OtacLine.customLine("i++"));
-
-        var loopEntryName = "entry";
-        var loopEntryVariable = OtacValue.variable(loopEntryName);
-
-        var sequenceOutputVariable = OtacValue.variable(Consts.sequenceOutputVarname);
-        if (fieldType.isArray()) {
-            var componentType = fieldType.getComponentType();
-            loopBuilder
-                    .addLine(OtacLine.declare(componentType, loopEntryName, OtacValue.customValue(fieldName + "[i]")));
-
-            var unboxer = PojoUnboxerRegistry.getInstance().lookup(componentType);
-            if (unboxer != null) {
-                classBuilder.require(unboxer.declaringClass());
-
-                var unboxerReturnType = unboxer.returnType();
-                var typeName = unboxerReturnType.isArray() ? unboxerReturnType.getComponentType().getSimpleName()
-                        : unboxerReturnType.getSimpleName();
-                var outputInvokedMethodName = "write" + StringUtils.upperCaseFirstLetter(typeName);
-                if (unboxerReturnType.isArray())
-                    outputInvokedMethodName += "Array";
-
-                loopBuilder.addLine( //
-                        OtacIf.builder() //
-                                .condition(OtacValue.customValue(loopEntryName + " == null")) //
-                                .addLine(OtacLine
-                                        .invokeMethod(sequenceOutputVariable, "writeNull", OtacValue.variable("i")))
-                                .orElse(OtacElse.builder() //
-                                        .addLine(OtacLine.invokeMethod( //
-                                                sequenceOutputVariable, //
-                                                outputInvokedMethodName, //
-                                                OtacValue.variable("i"), //
-                                                OtacValue.methodReturn( //
-                                                        OtacValue.ofType(unboxer.declaringClass()), //
-                                                        unboxer.methodName(), //
-                                                        loopEntryVariable))) //
-                                        .build())
-                                .build());
-            }
-        }
-
-        var elseBlockBuilder = OtacElse.builder() //
-                .addLine(OtacLine.assignVariable(Consts.sequenceOutputVarname,
-                        OtacValue.methodReturn(outputVariable, "openSequence", OtacValue.field(fieldNameKey)))) //
-                .addLine(OtacTry.builder() //
-                        .addLine(loopBuilder.build()) //
-                        .finallyDo(OtacLine.invokeMethod(sequenceOutputVariable, "close")) //
-                        .build());
-
         serializeMethodBuilder //
                 .addLine(OtacLine.declare( //
-                        OtacType.typeOf(fieldType), //
+                        OtacType.typeOf(fieldType.rawType()), //
                         fieldName, //
                         OtacValue.methodReturn(castedTarget, getter.element().name()))) //
                 .addLine(OtacIf.builder() //
-                        .condition(OtacValue.customValue(fieldName + " == null")) //
+                        .condition(OtacLine.customLine(fieldName + " == null")) //
                         .addLine(OtacLine.invokeMethod(outputVariable, "writeNull", OtacValue.variable(fieldNameKey)))
-                        .orElse(elseBlockBuilder.build()) //
+                        .orElse(OtacElse.builder() //
+                                .addLine(OtacLine.assignVariable(Consts.sequenceOutputVarname,
+                                        OtacValue.methodReturn(outputVariable, "openSequence",
+                                                OtacValue.field(fieldNameKey)))) //
+                                .addLine(OtacTry.builder() //
+                                        .addLine(OtacLine.declare(int.class, "i", 0)) // declare index var
+                                        .addLine(loopBuilder //
+                                                .addLine(OtacLine.customLine("i++")) // increase index var
+                                                .build()) //
+                                        .finallyDo(OtacLine.invokeMethod(
+                                                OtacValue.variable(Consts.sequenceOutputVarname), "close")) //
+                                        .build()) //
+                                .build()) //
                         .build());
+    }
+
+    private void handleCollection(PojoReflectiveGetter getter, OtacForeachBuilder<?, ?> loopBuilder) {
+        var element = getter.element();
+        var typeInfo = PojoTypes.extractTypeInfo(element.method().getGenericReturnType(), element.effectiveClass());
+        if (!Collection.class.isAssignableFrom(typeInfo.rawType()))
+            throw new PojoException("illegal setter return type: " + getter.fieldType());
+
+        var elementType = ((PojoParameterizedType) typeInfo).actualTypeArguments().get(0);
+        loopBuilder.type(OtacType.typeOf(elementType.rawType()));
+        buildLoopForGeneric(getter.fieldName(), elementType, loopBuilder);
+    }
+
+    private void buildLoopForGeneric(String fieldName, PojoType type, OtacBlockBuilder<?, ?> loopBuilder) {
+        if (type instanceof PojoParameterizedType) {
+
+        } else {
+            System.out.println("process non-parameterized type: " + type);
+            var unboxer = PojoUnboxerRegistry.getInstance().lookup(type.rawType());
+            if (unboxer != null) {
+                
+            } else {
+                var schemaFieldName = InitExternalSchemaTemplate.builder() //
+                        .builder(this) //
+                        .fieldName(fieldName) //
+                        .fieldType(type.rawType()) //
+                        .build() //
+                        .apply();
+
+                loopBuilder.addLine(OtacIf.builder() //
+                        .condition(OtacLine.customLine("entry == null")) //
+                        .addLine(OtacLine.invokeMethod( //
+                                OtacValue.variable(Consts.sequenceOutputVarname), //
+                                "writeNull", //
+                                OtacValue.variable("i")))
+                        .build());
+            }
+        }
+    }
+
+    private void handleArray(@NonNull String fieldName, Class<?> fieldType, OtacForeachBuilder<?, ?> loopBuilder) {
+        var loopEntryName = "entry";
+        var sequenceOutputVariable = OtacValue.variable(Consts.sequenceOutputVarname);
+
+        var componentType = fieldType.getComponentType();
+        loopBuilder.type(OtacType.typeOf(componentType));
+
+        var unboxer = PojoUnboxerRegistry.getInstance().lookup(componentType);
+        if (unboxer != null) {
+            loopBuilder.addLine(WriteNullOrUnbox.builder() //
+                    .output(Consts.sequenceOutputVarname) //
+                    .outputKey("i") //
+                    .unboxer(unboxer) //
+                    .ifIsNull(loopEntryName) //
+                    .unboxedVarname(loopEntryName) //
+                    .build() //
+                    .apply());
+        } else {
+            var schemaFieldName = InitExternalSchemaTemplate.builder() //
+                    .builder(this) //
+                    .fieldName(fieldName) //
+                    .fieldType(componentType) //
+                    .build().apply();
+
+            var elseBuilder = OtacElse.builder() //
+                    .addLine(OtacLine.assignVariable(Consts.schemaOutputVarname, //
+                            OtacValue.methodReturn( //
+                                    OtacValue.variable(Consts.sequenceOutputVarname), //
+                                    "openSchema", //
+                                    OtacValue.variable("i")))) //
+                    .addLine(OtacTry.builder() //
+                            .addLine(OtacLine.invokeMethod( //
+                                    OtacValue.field(schemaFieldName), //
+                                    "serialize", //
+                                    OtacValue.variable("entry"), //
+                                    OtacValue.variable(Consts.schemaOutputVarname))) //
+                            .finallyDo(OtacLine.invokeMethod( //
+                                    OtacValue.variable(Consts.schemaOutputVarname), //
+                                    "close")) //
+                            .build());
+
+            loopBuilder.addLine(OtacIf.builder() //
+                    .condition(OtacLine.customLine(loopEntryName + " == null")) //
+                    .addLine(OtacLine.invokeMethod(sequenceOutputVariable, "writeNull", OtacValue.variable("i")))
+                    .orElse(elseBuilder.build()) //
+                    .build());
+        }
+
     }
 
     private void handlePrimitiveField(PojoReflectiveGetter getter, String fieldNameKey) {
         var fieldType = getter.fieldType();
-        var typeName = fieldType.isArray() ? fieldType.getComponentType().getSimpleName() : fieldType.getSimpleName();
+        var typeName = fieldType.rawType().isArray() ? fieldType.rawType().getComponentType().getSimpleName() : fieldType.rawType().getSimpleName();
         var outputInvokedMethodName = "write" + StringUtils.upperCaseFirstLetter(typeName);
-        if (fieldType.isArray())
+        if (fieldType.rawType().isArray())
             outputInvokedMethodName += "Array";
 
         var outputVariable = OtacValue.variable("output");
@@ -331,12 +400,12 @@ public class PojoSchemaBuilder<T> {
         var castedTarget = OtacValue.variable(Consts.castedTargetVarname);
 
         var fieldName = getter.fieldName();
-        var fieldType = getter.fieldType();
+        var fieldType = getter.fieldType().rawType();
         serializeMethodBuilder //
                 .addLine(OtacLine.declare(OtacType.typeOf(fieldType), fieldName,
                         OtacValue.methodReturn(castedTarget, getter.element().name()))) //
                 .addLine(OtacIf.builder() //
-                        .condition(OtacValue.customValue(fieldName + " == null")) //
+                        .condition(OtacLine.customLine(fieldName + " == null")) //
                         .addLine(OtacLine.invokeMethod(outputVariable, "writeNull", OtacValue.field(fieldNameKey)))
                         .orElse(OtacElse.builder() //
                                 .addLine(OtacLine.invokeMethod( //
@@ -349,7 +418,6 @@ public class PojoSchemaBuilder<T> {
                                                 OtacValue.variable(fieldName)))) //
                                 .build())
                         .build()) //
-
         ;
 
     }
@@ -359,47 +427,37 @@ public class PojoSchemaBuilder<T> {
         var fieldType = getter.fieldType();
         var outputVariable = OtacValue.variable("output");
         var castedTarget = OtacValue.variable(Consts.castedTargetVarname);
-        var schemaFieldName = "_" + StringUtils.lowerCaseFirstLetter(fieldName) + "_schema";
-
-        classBuilder.field(OtacField.builder() //
-                .name(schemaFieldName) //
-                .accessLevel(OtacAccessLevel.PRIVATE) //
-                .type(OtacType.typeOf(PojoSchema.class)) //
-                .build());
-
-        classBuilder //
-                .require(PojoSchemaBuilder.class) //
-                .require(fieldType) //
-                .require(PojoSchemaConfig.class);
-
-        initMethodBuilder.addLine(OtacLine.assignField(schemaFieldName,
-                OtacValue.customValue("new " + PojoSchemaBuilder.class.getSimpleName() + "(" + fieldType.getSimpleName()
-                        + ".class, " + PojoSchemaConfig.class.getSimpleName() + ".DEFAULT).build()")));
+        var schemaFieldName = InitExternalSchemaTemplate.builder() //
+                .builder(this) //
+                .fieldName(fieldName) //
+                .fieldType(fieldType.rawType()) //
+                .build().apply();
 
         serializeMethodBuilder //
-                .addLine(OtacLine.declare( //
-                        OtacType.typeOf(fieldType), //
+                .addLine(OtacLine.declare( // declare a local variable with the same fieldName
+                        OtacType.typeOf(fieldType.rawType()), //
                         fieldName, //
                         OtacValue.methodReturn(castedTarget, getter.element().name()))) //
-                .addLine(OtacIf.builder() //
-                        .condition(OtacValue.customValue(fieldName + " == null")) //
+                .addLine(OtacIf.builder() // if the value is null, write null
+                        .condition(OtacLine.customLine(fieldName + " == null")) //
                         .addLine(OtacLine
                                 .invokeMethod(outputVariable, "writeNull", OtacValue.field(fieldNameKey)))
-                        .orElse(OtacElse.builder() //
+                        .orElse(OtacElse.builder() // or else, try to open new schema output
                                 .addLine(OtacLine.assignVariable( //
                                         Consts.schemaOutputVarname, //
                                         OtacValue.methodReturn( //
                                                 outputVariable, //
                                                 "openSchema", //
                                                 OtacValue.field(fieldNameKey)))) //
-                                .addLine(OtacTry.builder() //
+                                .addLine(OtacTry.builder() // try
                                         .addLine( //
-                                                OtacLine.invokeMethod( //
+                                                OtacLine.invokeMethod( // invoke "serialize" on the opened schema output
+                                                                       // above
                                                         OtacValue.field(schemaFieldName), //
                                                         "serialize", //
                                                         OtacValue.variable(fieldName), //
                                                         OtacValue.variable(Consts.schemaOutputVarname)))
-                                        .finallyDo( //
+                                        .finallyDo( // finally
                                                 OtacLine.invokeMethod( //
                                                         OtacValue.variable(Consts.schemaOutputVarname), //
                                                         "close")) //

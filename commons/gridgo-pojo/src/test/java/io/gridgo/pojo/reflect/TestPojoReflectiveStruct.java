@@ -6,7 +6,7 @@ import java.util.List;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import io.gridgo.pojo.generic.PojoTypes;
+import io.gridgo.pojo.reflect.type.PojoTypes;
 import io.gridgo.pojo.test.support.Bar;
 import io.gridgo.pojo.test.support.Primitive;
 

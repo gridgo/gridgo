@@ -12,4 +12,6 @@ public class CombinedPojo {
     private WrapperArray wrapperArrayVo;
 
     private SimplePojo[] simpleArray;
+
+    private CollectionPojo collectionPojo;
 }

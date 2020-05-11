@@ -1,5 +1,6 @@
-package io.gridgo.pojo.generic;
+package io.gridgo.pojo.reflect.type;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -7,7 +8,45 @@ import java.lang.reflect.TypeVariable;
 import java.util.LinkedList;
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class PojoTypes {
+
+    public static PojoType extractFieldTypeInfo(Field field) {
+        return extractFieldTypeInfo(field, null);
+    }
+
+    public static PojoType extractFieldTypeInfo(Field field, Class<?> effectiveClass) {
+        effectiveClass = effectiveClass != null ? effectiveClass : field.getDeclaringClass();
+        return extractTypeInfo(field.getGenericType(), effectiveClass);
+    }
+
+    public static PojoType extractReturnTypeInfo(Method method) {
+        return extractReturnTypeInfo(method, null);
+    }
+
+    public static PojoType extractReturnTypeInfo(Method method, Class<?> effectiveClass) {
+        effectiveClass = effectiveClass != null ? effectiveClass : method.getDeclaringClass();
+        return extractTypeInfo(method.getGenericReturnType(), effectiveClass);
+    }
+
+    public static PojoType extractParamTypeInfo(Method method, int paramNo) {
+        return extractParamTypeInfo(method, paramNo, null);
+    }
+
+    public static PojoType extractParamTypeInfo(Method method, int paramNo, Class<?> effectiveClass) {
+        effectiveClass = effectiveClass != null ? effectiveClass : method.getDeclaringClass();
+        return extractTypeInfo(method.getGenericParameterTypes()[paramNo], effectiveClass);
+    }
+
+    public static PojoType extractFirstParamTypeInfo(Method method) {
+        return extractFirstParamTypeInfo(method, null);
+    }
+
+    public static PojoType extractFirstParamTypeInfo(Method method, Class<?> effectiveClass) {
+        return extractParamTypeInfo(method, 0, effectiveClass);
+    }
 
     public static PojoType extractTypeInfo(Type type, Class<?> effectiveClass) {
         if (type instanceof Class<?>)
@@ -43,7 +82,6 @@ public class PojoTypes {
                         } else if (t instanceof Class) {
                             return PojoType.builder().rawType((Class<?>) t).build();
                         } else {
-                            System.out.println("holy shit: " + t);
                             return PojoType.builder().rawType(Object.class).build();
                         }
                     }
@@ -51,9 +89,8 @@ public class PojoTypes {
             } else if (genericDeclaration instanceof Method) {
                 return PojoType.builder().rawType(Object.class).build();
             }
-            return null;
         }
-        System.out.println("found unknown type: " + type.getClass());
+        log.warn("found unknown type: " + type.getClass() + ": " + type);
         return null;
     }
 
