@@ -6,11 +6,11 @@ import lombok.Data;
 public class WrapperArray {
 
     private Boolean[] booleanArray;
-    private Character[] charArray;
-    private Byte[] byteArray;
-    private Short[] shortArray;
-    private Integer[] intArray;
-    private Long[] longArray;
-    private Float[] floatArray;
-    private Double[] doubleArray;
+//    private Character[] charArray;
+//    private Byte[] byteArray;
+//    private Short[] shortArray;
+//    private Integer[] intArray;
+//    private Long[] longArray;
+//    private Float[] floatArray;
+//    private Double[] doubleArray;
 }

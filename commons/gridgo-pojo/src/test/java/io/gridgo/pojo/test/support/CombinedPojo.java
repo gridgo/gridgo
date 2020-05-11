@@ -10,4 +10,6 @@ public class CombinedPojo {
     private Wrapper wrapperVo;
 
     private WrapperArray wrapperArrayVo;
+
+    private SimplePojo[] simpleArray;
 }
