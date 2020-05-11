@@ -129,7 +129,7 @@ class JaninoGetterProxyBuilder extends AbstractProxyBuilder implements PojoGette
                 .parameter(parameter(typeOf(PojoGetterConsumer.class), "consumer")) //
                 .parameter(parameter(typeOf(String[].class), "fields")) //
                 .addLine(OtacIf.builder() //
-                        .condition(customValue("fields == null || fields.length == 0")) //
+                        .condition(customLine("fields == null || fields.length == 0")) //
                         .addLine(invokeMethod("walkThroughAll", variable("target"), variable("consumer"))) //
                         .addLine(OtacLine.RETURN) //
                         .build())

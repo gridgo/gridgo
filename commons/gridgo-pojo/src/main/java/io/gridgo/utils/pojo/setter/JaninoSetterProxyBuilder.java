@@ -14,7 +14,6 @@ import static io.gridgo.otac.code.line.OtacLine.declare;
 import static io.gridgo.otac.code.line.OtacLine.invokeMethod;
 import static io.gridgo.otac.value.OtacValue.NULL;
 import static io.gridgo.otac.value.OtacValue.castVariable;
-import static io.gridgo.otac.value.OtacValue.customValue;
 import static io.gridgo.otac.value.OtacValue.field;
 import static io.gridgo.otac.value.OtacValue.methodReturn;
 import static io.gridgo.otac.value.OtacValue.variable;
@@ -144,7 +143,7 @@ class JaninoSetterProxyBuilder extends AbstractProxyBuilder implements PojoSette
                                             "apply", //
                                             field(signatureFieldName)))) //
                             .addLine(OtacIf.builder() //
-                                    .condition(customValue("value != null")) //
+                                    .condition(customLine("value != null")) //
                                     .addLine(buildInvokeSetter(sig)) //
                                     .build()) //
                             .addLine(BREAK) //
@@ -158,7 +157,7 @@ class JaninoSetterProxyBuilder extends AbstractProxyBuilder implements PojoSette
                 .parameter(parameter(PojoSetterConsumer.class, "consumer")) //
                 .parameter(parameter(String[].class, "fields")) //
                 .addLine(OtacIf.builder() //
-                        .condition(customValue("fields == null || fields.length == 0")) //
+                        .condition(customLine("fields == null || fields.length == 0")) //
                         .addLine(invokeMethod("walkThroughAll", variable("target"), variable("consumer"))) //
                         .addLine(RETURN) //
                         .build()) //
@@ -195,7 +194,7 @@ class JaninoSetterProxyBuilder extends AbstractProxyBuilder implements PojoSette
                                     "apply", //
                                     field(signatureFieldName)))) //
                     .addLine(OtacIf.builder() //
-                            .condition(customValue("value != null")) //
+                            .condition(customLine("value != null")) //
                             .addLine(buildInvokeSetter(sig)) //
                             .build());
 
