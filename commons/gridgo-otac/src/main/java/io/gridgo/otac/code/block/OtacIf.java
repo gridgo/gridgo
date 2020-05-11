@@ -3,7 +3,7 @@ package io.gridgo.otac.code.block;
 import java.util.HashSet;
 import java.util.Set;
 
-import io.gridgo.otac.value.OtacValue;
+import io.gridgo.otac.code.line.OtacLine;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.experimental.SuperBuilder;
@@ -12,7 +12,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class OtacIf extends OtacBlock {
 
-    private @NonNull OtacValue condition;
+    private @NonNull OtacLine condition;
 
     private OtacElse orElse;
 
@@ -29,7 +29,7 @@ public class OtacIf extends OtacBlock {
     @Override
     public String toString() {
         var sb = new StringBuilder();
-        sb.append("if (").append(condition).append(") ");
+        sb.append("if (").append(condition.toStringWithoutSemicolon()).append(") ");
         writeBodyTo(sb, 0, true);
         if (orElse != null)
             sb.append(orElse);

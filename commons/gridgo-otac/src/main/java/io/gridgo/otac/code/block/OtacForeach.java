@@ -20,6 +20,7 @@ public class OtacForeach extends OtacLoop {
     @Override
     public Set<Class<?>> requiredImports() {
         var imports = new HashSet<Class<?>>();
+        imports.addAll(super.requiredImports());
         if (type != null)
             imports.addAll(type.requiredImports());
         imports.addAll(sequence.requiredImports());

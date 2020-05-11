@@ -51,25 +51,6 @@ public abstract class OtacValue implements OtacRequireImports {
 
     @Getter
     @SuperBuilder
-    public static class OtacValueClass extends OtacValue {
-        private final @NonNull Class<?> type;
-
-        @Override
-        public Set<Class<?>> requiredImports() {
-            var imports = new HashSet<Class<?>>();
-            imports.addAll(super.requiredImports());
-            imports.add(type);
-            return imports;
-        }
-
-        @Override
-        public String toString() {
-            return type.getSimpleName() + ".class";
-        }
-    }
-
-    @Getter
-    @SuperBuilder
     public static class OtacValueType extends OtacValue {
         private final @NonNull Class<?> type;
 
@@ -84,6 +65,16 @@ public abstract class OtacValue implements OtacRequireImports {
         @Override
         public String toString() {
             return type.getSimpleName();
+        }
+    }
+
+    @Getter
+    @SuperBuilder
+    public static class OtacValueClass extends OtacValueType {
+
+        @Override
+        public String toString() {
+            return super.toString() + ".class";
         }
     }
 

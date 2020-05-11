@@ -84,7 +84,7 @@ public abstract class OtacLine extends OtacCodeElement {
     }
 
     public static final OtacLine declare(String variableName, Object initValue) {
-        return declare(variableName, OtacValue.raw(initValue));
+        return declare(OtacType.typeOf(initValue.getClass()), variableName, OtacValue.raw(initValue));
     }
 
     public static OtacLine invokeMethod(OtacValue target, String methodName, OtacValue... params) {
