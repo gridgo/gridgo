@@ -32,6 +32,7 @@ public class OtacForeach extends OtacLoop {
         var sb = new StringBuilder();
         sb.append("for (") //
                 .append(type) //
+                .append(" ") //
                 .append(variableName) //
                 .append(" : ") //
                 .append(sequence) //

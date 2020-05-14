@@ -55,7 +55,8 @@ public class OtacParameter implements OtacRequireImports {
         for (var a : getAnnotations())
             sb.append(a.toString()).append(" ");
         sb.append(isFinal() ? "final " : "") //
-                .append(type.toString()) //
+                .append(type.toString().trim()) //
+                .append(" ") //
                 .append(getName());
         return sb.toString();
     }

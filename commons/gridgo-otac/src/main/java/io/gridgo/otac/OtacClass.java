@@ -3,17 +3,18 @@ package io.gridgo.otac;
 import static io.gridgo.otac.OtacAccessLevel.PUBLIC;
 import static io.gridgo.otac.OtacParameter.parameter;
 import static io.gridgo.otac.OtacType.VOID;
-import static io.gridgo.otac.value.OtacValue.field;
-import static io.gridgo.otac.value.OtacValue.variable;
 import static io.gridgo.otac.code.line.OtacLine.assignField;
 import static io.gridgo.otac.code.line.OtacLine.returnValue;
 import static io.gridgo.otac.utils.OtacUtils.tabs;
+import static io.gridgo.otac.value.OtacValue.field;
+import static io.gridgo.otac.value.OtacValue.variable;
 import static io.gridgo.utils.StringUtils.upperCaseFirstLetter;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import io.gridgo.otac.OtacType.OtacExplicitlyType;
 import lombok.Getter;
 import lombok.Singular;
 import lombok.experimental.SuperBuilder;
@@ -127,7 +128,9 @@ public class OtacClass extends OtacModifiers implements OtacRequireImports {
             for (var f : fields) {
                 var fName = f.getName();
                 if (f.isGenerateGetter()) {
-                    var prefix = f.getType().getType() == boolean.class ? "is" : "get";
+                    var prefix = f.getType() instanceof OtacExplicitlyType //
+                            ? ((OtacExplicitlyType) f.getType()).getType() == boolean.class ? "is" : "get" //
+                            : f.getType().getSimpleName().equals("boolean");
                     var getterName = prefix + upperCaseFirstLetter(fName);
                     methods.add(OtacMethod.builder()//
                             .accessLevel(PUBLIC) //
@@ -210,7 +213,7 @@ public class OtacClass extends OtacModifiers implements OtacRequireImports {
         for (var i : requiredImports) {
             if (i.isArray())
                 i = i.getComponentType();
-            var name = i.getName();
+            var name = i.getName().replaceAll("\\$", ".");
             if (name.startsWith("java.lang.") || i.isPrimitive())
                 continue;
             sb.append("import ").append(name).append(";\n");

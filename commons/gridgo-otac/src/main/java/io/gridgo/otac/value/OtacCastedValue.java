@@ -30,7 +30,7 @@ public class OtacCastedValue extends OtacValue {
     public String toString() {
         return new StringBuilder() //
                 .append("(") //
-                .append(castTo.getType().getSimpleName()) //
+                .append(castTo.toString().trim()) //
                 .append(forceArray ? "[]" : "") //
                 .append(") ") //
                 .append(target.toString()) //

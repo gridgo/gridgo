@@ -60,7 +60,7 @@ class JaninoGetterProxyBuilder extends AbstractProxyBuilder implements PojoGette
                 .fields(buildSignatureFields(signatures)) //
                 .constructor(OtacConstructor.builder() //
                         .accessLevel(PUBLIC) //
-                        .parameter(parameter(OtacType.builder() //
+                        .parameter(parameter(OtacType.explicitlyBuilder() //
                                 .type(List.class) //
                                 .genericType(generic(PojoMethodSignature.class)) //
                                 .build(), "signatures")) //

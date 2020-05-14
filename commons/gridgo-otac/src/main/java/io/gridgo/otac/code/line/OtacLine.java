@@ -66,6 +66,10 @@ public abstract class OtacLine extends OtacCodeElement {
                 .build();
     }
 
+    public static final OtacLine declare(Class<?> type, String variableName) {
+        return declare(OtacType.typeOf(type), variableName);
+    }
+
     public static final OtacLine declare(OtacType type, String variableName, OtacValue initValue) {
         return OtacDeclareVariable.builder() //
                 .name(variableName) //
@@ -103,6 +107,26 @@ public abstract class OtacLine extends OtacCodeElement {
 
     public static OtacLine customLine(String content) {
         return OtacLineCustom.builder().content(content).build();
+    }
+
+    @Getter
+    @SuperBuilder
+    private static class OtacComment extends OtacLine {
+        private final String comment;
+
+        @Override
+        public String toStringWithoutSemicolon() {
+            return "// " + comment;
+        }
+
+        @Override
+        public String toString() {
+            return toStringWithoutSemicolon();
+        }
+    }
+
+    public static OtacLine lineComment(String comment) {
+        return OtacComment.builder().comment(comment).build();
     }
 
 }

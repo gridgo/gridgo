@@ -55,7 +55,8 @@ public class PojoUtils {
     }
 
     public static boolean isSupported(@NonNull Class<?> targetType) {
-        return !(targetType == Object.class //
+        return !(targetType.isEnum() //
+                || targetType == Object.class //
                 || Collection.class.isAssignableFrom(targetType) //
                 || Map.class.isAssignableFrom(targetType) //
                 || isPrimitive(targetType) //

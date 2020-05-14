@@ -21,6 +21,7 @@ public class OtacFor extends OtacLoop {
         if (init == null && condition == null && afterLoop == null)
             return Collections.emptySet();
         var imports = new HashSet<Class<?>>();
+        imports.addAll(super.requiredImports());
         if (init != null)
             imports.addAll(init.requiredImports());
         if (condition != null)
@@ -34,9 +35,11 @@ public class OtacFor extends OtacLoop {
     public String toString() {
         var sb = new StringBuilder();
         sb.append("for (") //
-                .append(init == null ? "; " : init) //
-                .append(condition == null ? "" : condition.toStringWithoutSemicolon()).append(";") //
-                .append(afterLoop == null ? ";" : afterLoop.toStringWithoutSemicolon()) //
+                .append(init == null ? "" : init.toStringWithoutSemicolon()) //
+                .append("; ") //
+                .append(condition == null ? "" : condition.toStringWithoutSemicolon()) //
+                .append("; ") //
+                .append(afterLoop == null ? "" : afterLoop.toStringWithoutSemicolon()) //
                 .append(") ");
         writeBodyTo(sb, 0, true);
         return sb.toString();

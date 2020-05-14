@@ -47,7 +47,7 @@ public class TestOtacClass {
                 .generic(OtacGeneric.builder() //
                         .name("T") //
                         .operator(EXTENDS) //
-                        .type(OtacType.builder() //
+                        .type(OtacType.explicitlyBuilder() //
                                 .type(Map.class) //
                                 .genericType(ANY) //
                                 .genericType(ANY) //
@@ -55,7 +55,7 @@ public class TestOtacClass {
                         .build()) //
                 .extendsFrom(typeOf(InputStream.class)) //
                 .implement(typeOf(Serializable.class)) //
-                .implement(OtacType.builder() //
+                .implement(OtacType.explicitlyBuilder() //
                         .type(Set.class) //
                         .genericType(genericDeclared("T")) //
                         .build()) //
@@ -104,12 +104,12 @@ public class TestOtacClass {
                 .field(OtacField.builder() //
                         .accessLevel(PRIVATE) //
                         .name("innerSet") //
-                        .type(OtacType.builder() //
+                        .type(OtacType.explicitlyBuilder() //
                                 .type(Set.class) //
                                 .genericType(genericDeclared("T")) //
                                 .build()) //
                         .initValue(OtacValue.newOf(//
-                                OtacType.builder() //
+                                OtacType.explicitlyBuilder() //
                                         .type(HashSet.class) //
                                         .generic(true) //
                                         .build())) //

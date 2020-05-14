@@ -6,7 +6,7 @@ import java.util.List;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import io.gridgo.pojo.reflect.type.PojoTypes;
+import io.gridgo.pojo.reflect.type.PojoTypeResolver;
 import io.gridgo.pojo.test.support.Bar;
 import io.gridgo.pojo.test.support.Primitive;
 
@@ -29,6 +29,6 @@ public class TestPojoReflectiveStruct {
 //        System.out.println(PojoTypes.extractTypeInfo(method.getGenericReturnType(), Bar.class));
 
         method = Bar.class.getMethod("setData", List.class);
-        System.out.println(PojoTypes.extractTypeInfo(method.getGenericParameterTypes()[0], Bar.class));
+        System.out.println(PojoTypeResolver.extractTypeInfo(method.getGenericParameterTypes()[0], Bar.class));
     }
 }

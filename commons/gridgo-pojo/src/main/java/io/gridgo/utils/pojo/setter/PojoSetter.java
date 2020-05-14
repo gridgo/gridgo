@@ -57,8 +57,14 @@ public class PojoSetter {
     }
 
     public Object fill() {
-        proxy.walkThrough(data, this::onField);
-        return this.data;
+        try {
+            proxy.walkThrough(data, this::onField);
+            return this.data;
+        } catch (Exception e) {
+            System.out.println("error while trying to walk through data's fields of type: "
+                    + (data == null ? "null" : data.getClass()));
+            throw e;
+        }
     }
 
     private Object onField(PojoMethodSignature signature) {

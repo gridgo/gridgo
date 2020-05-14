@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 import io.gridgo.otac.code.OtacCodeElement;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Singular;
 import lombok.experimental.SuperBuilder;
@@ -19,6 +20,9 @@ public class OtacBlock extends OtacCodeElement {
     public static final OtacBlock of(List<OtacCodeElement> lines) {
         return OtacBlock.builder().lines(lines).build();
     }
+
+    @Builder.Default
+    private boolean wrapped = true;
 
     @Singular("addLine")
     private List<OtacCodeElement> lines;
@@ -53,9 +57,9 @@ public class OtacBlock extends OtacCodeElement {
     @Override
     public String toString() {
         if (lines.isEmpty())
-            return "{}";
+            return this.isWrapped() ? "{}" : "";
         var sb = new StringBuilder();
-        writeBodyTo(sb, 0, true);
+        writeBodyTo(sb, 0, this.wrapped);
         return sb.toString();
     }
 }

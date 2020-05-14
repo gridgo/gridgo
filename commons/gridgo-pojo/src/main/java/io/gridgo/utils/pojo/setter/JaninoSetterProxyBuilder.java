@@ -60,7 +60,7 @@ class JaninoSetterProxyBuilder extends AbstractProxyBuilder implements PojoSette
                 .fields(buildSignatureFields(signatures)) //
                 .constructor(OtacConstructor.builder() //
                         .accessLevel(PUBLIC) //
-                        .parameter(parameter(OtacType.builder() //
+                        .parameter(parameter(OtacType.explicitlyBuilder() //
                                 .type(List.class) //
                                 .genericType(generic(PojoMethodSignature.class)) //
                                 .build(), "signatures")) //
@@ -109,10 +109,15 @@ class JaninoSetterProxyBuilder extends AbstractProxyBuilder implements PojoSette
         var fieldType = methodSignature.getFieldType();
         OtacValue param;
         if (PrimitiveUtils.isNumberClass(fieldType)) {
-            var primitiveTypeName = methodSignature.isPrimitiveType()//
-                    ? fieldType.getTypeName() //
-                    : methodSignature.getPrimitiveTypeFromWrapperType().getName();
-            param = methodReturn(castVariable("value", Number.class), primitiveTypeName + "Value");
+            if (methodSignature.isPrimitiveType())
+                param = methodReturn(castVariable("value", Number.class), fieldType.getTypeName() + "Value");
+            else if (methodSignature.isWrapperType())
+                param = methodReturn(castVariable("value", Number.class),
+                        methodSignature.getPrimitiveTypeFromWrapperType().getTypeName() + "Value");
+            else {
+                // big decimal/big integer
+                param = castVariable("value", fieldType);
+            }
         } else if (methodSignature.isPrimitiveOrWrapperType()) {
             param = castVariable("value", methodSignature.getWrapperType());
             if (fieldType.isPrimitive())

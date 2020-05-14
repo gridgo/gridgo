@@ -7,6 +7,7 @@ import java.lang.reflect.Field;
 import org.junit.Test;
 
 import io.gridgo.pojo.test.support.Bar;
+import io.gridgo.pojo.test.support.CollectionPojo;
 import io.gridgo.pojo.test.support.CombinedPojo;
 import io.gridgo.pojo.test.support.Primitive;
 import io.gridgo.pojo.test.support.Wrapper;
@@ -29,8 +30,8 @@ public class TestPojoTypes {
     }
 
     private void verifyField(Field field, Class<?> effectiveClass) throws NoSuchMethodException, SecurityException {
-        var typeInfo = PojoTypes.extractFieldTypeInfo(field, effectiveClass);
-        System.out.println("\t- " + field.getName() + " : " + typeInfo);
+        var typeInfo = PojoTypeResolver.extractFieldTypeInfo(field, effectiveClass);
+        System.out.println("\t- " + field.getName() + " (" + typeInfo.getSimpleName() + ")" + ": " + typeInfo);
 
         String setterMethodName, getterMethodName;
 
@@ -50,10 +51,10 @@ public class TestPojoTypes {
         }
 
         var getter = effectiveClass.getMethod(getterMethodName);
-        assertEquals(typeInfo, PojoTypes.extractReturnTypeInfo(getter, effectiveClass));
+        assertEquals(typeInfo, PojoTypeResolver.extractReturnTypeInfo(getter, effectiveClass));
 
         var setter = effectiveClass.getMethod(setterMethodName, field.getType());
-        assertEquals(typeInfo, PojoTypes.extractFirstParamTypeInfo(setter, effectiveClass));
+        assertEquals(typeInfo, PojoTypeResolver.extractFirstParamTypeInfo(setter, effectiveClass));
     }
 
     @Test
@@ -63,5 +64,6 @@ public class TestPojoTypes {
         verifyAllField(WrapperArray.class);
         verifyAllField(Bar.class);
         verifyAllField(CombinedPojo.class);
+        verifyAllField(CollectionPojo.class);
     }
 }

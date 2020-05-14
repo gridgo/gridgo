@@ -1,6 +1,7 @@
 package io.gridgo.pojo.reflect.type;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -11,7 +12,7 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class PojoTypes {
+public class PojoTypeResolver {
 
     public static PojoType extractFieldTypeInfo(Field field) {
         return extractFieldTypeInfo(field, null);
@@ -49,8 +50,16 @@ public class PojoTypes {
     }
 
     public static PojoType extractTypeInfo(Type type, Class<?> effectiveClass) {
-        if (type instanceof Class<?>)
-            return PojoType.builder().rawType((Class<?>) type).build();
+
+        if (type instanceof Class<?>) {
+            var typeCls = (Class<?>) type;
+            if (typeCls.isArray()) {
+                var componentType = typeCls.getComponentType();
+                var typeInfo = extractTypeInfo(componentType, effectiveClass);
+                return PojoArrayType.builder().componentType(typeInfo).build();
+            }
+            return PojoSimpleType.builder().type(typeCls).build();
+        }
 
         if (type instanceof ParameterizedType)
             return PojoParameterizedType.builder() //
@@ -80,16 +89,25 @@ public class PojoTypes {
                             }
                             t = ((Class<?>) pType.getRawType()).getGenericSuperclass();
                         } else if (t instanceof Class) {
-                            return PojoType.builder().rawType((Class<?>) t).build();
+                            return extractTypeInfo((Class<?>) t, effectiveClass);
                         } else {
-                            return PojoType.builder().rawType(Object.class).build();
+                            return PojoSimpleType.OBJECT;
                         }
                     }
                 }
             } else if (genericDeclaration instanceof Method) {
-                return PojoType.builder().rawType(Object.class).build();
+                return PojoSimpleType.OBJECT;
             }
         }
+
+        if (type instanceof GenericArrayType) {
+            var genericArrayType = (GenericArrayType) type;
+            var componentType = genericArrayType.getGenericComponentType();
+            return PojoArrayType.builder() //
+                    .componentType(extractTypeInfo(componentType, effectiveClass)) //
+                    .build();
+        }
+
         log.warn("found unknown type: " + type.getClass() + ": " + type);
         return null;
     }

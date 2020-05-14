@@ -3,7 +3,7 @@ package io.gridgo.pojo.reflect;
 import java.lang.reflect.Type;
 
 import io.gridgo.pojo.reflect.type.PojoType;
-import io.gridgo.pojo.reflect.type.PojoTypes;
+import io.gridgo.pojo.reflect.type.PojoTypeResolver;
 import io.gridgo.pojo.support.PojoAccessorType;
 
 public class PojoReflectiveGetter extends AbstractPojoReflectiveAccessor {
@@ -17,8 +17,8 @@ public class PojoReflectiveGetter extends AbstractPojoReflectiveAccessor {
         var element = element();
         var effectiveClass = element.effectiveClass();
         if (element.isField())
-            return PojoTypes.extractFieldTypeInfo(element.field(), effectiveClass);
-        return PojoTypes.extractReturnTypeInfo(element.method(), effectiveClass);
+            return PojoTypeResolver.extractFieldTypeInfo(element.field(), effectiveClass);
+        return PojoTypeResolver.extractReturnTypeInfo(element.method(), effectiveClass);
     }
 
     public Type genericFieldType() {

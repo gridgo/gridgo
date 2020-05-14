@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import io.gridgo.otac.code.OtacCodeElement;
 import io.gridgo.otac.code.line.OtacLine;
 import lombok.Getter;
 import lombok.Singular;
@@ -16,7 +17,7 @@ public class OtacTry extends OtacBlock {
     @Singular
     private List<OtacLine> openResources;
 
-    private OtacLine finallyDo;
+    private OtacCodeElement finallyDo;
 
     @Override
     public Set<Class<?>> requiredImports() {
