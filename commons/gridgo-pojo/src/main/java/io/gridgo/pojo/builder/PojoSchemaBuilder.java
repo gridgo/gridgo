@@ -149,7 +149,6 @@ public class PojoSchemaBuilder<T> {
     private Class<T> compile() {
         var otacClass = classBuilder.build();
         try {
-            System.out.println(otacClass.printWithLineNumber());
             var compiler = new SimpleCompiler();
             compiler.cook(otacClass.toString());
             return (Class<T>) compiler.getClassLoader().loadClass(otacClass.getName());

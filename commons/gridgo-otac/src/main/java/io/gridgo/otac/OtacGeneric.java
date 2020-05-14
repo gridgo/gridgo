@@ -68,7 +68,7 @@ public class OtacGeneric implements OtacRequireImports {
     @Override
     public String toString() {
         if (name == null)
-            return type == null ? "?" : type.toString();
+            return type == null ? "?" : type.toString().trim();
 
         if (operator == OtacInheritOperator.NONE)
             return name;
@@ -76,7 +76,7 @@ public class OtacGeneric implements OtacRequireImports {
         if (type == null)
             throw new OtacException("[OTAC] type cannot be null while operator = " + operator);
 
-        return name + " " + operator.getKeywork() + " " + type.toString();
+        return name + " " + operator.getKeywork().trim() + " " + type.toString().trim();
     }
 
 }
