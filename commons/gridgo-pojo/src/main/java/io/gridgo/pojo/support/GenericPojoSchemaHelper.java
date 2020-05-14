@@ -45,7 +45,9 @@ public class GenericPojoSchemaHelper {
                 serializeMap((Map<?, ?>) any, _output);
             }
         } else {
-            PojoSchema.of(type).serialize(any, output);
+            try (var _output = output.openSchema(key)) {
+                PojoSchema.of(type).serialize(any, _output);
+            }
         }
     }
 
@@ -65,6 +67,10 @@ public class GenericPojoSchemaHelper {
         } else if (Map.class.isAssignableFrom(type)) {
             try (var _output = output.openSchema(key)) {
                 serializeMap((Map<?, ?>) any, _output);
+            }
+        } else {
+            try (var _output = output.openSchema(key)) {
+                PojoSchema.of(type).serialize(any, _output);
             }
         }
     }
