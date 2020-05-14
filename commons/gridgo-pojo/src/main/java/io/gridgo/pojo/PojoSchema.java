@@ -1,14 +1,16 @@
 package io.gridgo.pojo;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import io.gridgo.pojo.builder.PojoSchemaBuilder;
 import io.gridgo.pojo.input.PojoSchemaInput;
 import io.gridgo.pojo.output.PojoSchemaOutput;
 
 public interface PojoSchema<T> {
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     public static PojoSchema<Object> of(Class<?> type) {
-        return new PojoSchemaBuilder(type, PojoSchemaConfig.DEFAULT).build();
+        return PojoSchemaCache.lookup(type);
     }
 
     T newInstance();
@@ -22,4 +24,16 @@ public interface PojoSchema<T> {
         deserialize(t, input);
         return t;
     }
+}
+
+class PojoSchemaCache {
+
+    private static final Map<Class<?>, PojoSchema<?>> CACHE = new ConcurrentHashMap<>();
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    static final PojoSchema<Object> lookup(Class<?> type) {
+        return (PojoSchema<Object>) CACHE.computeIfAbsent(type,
+                t -> new PojoSchemaBuilder(t, PojoSchemaConfig.DEFAULT).build());
+    }
+
 }
