@@ -6,11 +6,17 @@ import java.util.concurrent.ConcurrentHashMap;
 import io.gridgo.pojo.builder.PojoSchemaBuilder;
 import io.gridgo.pojo.input.PojoSchemaInput;
 import io.gridgo.pojo.output.PojoSchemaOutput;
+import lombok.AllArgsConstructor;
+import lombok.NonNull;
 
 public interface PojoSchema<T> {
 
-    public static PojoSchema<Object> of(Class<?> type) {
-        return PojoSchemaCache.lookup(type);
+    public static <T> PojoSchema<T> of(Class<T> type) {
+        return of(type, PojoSchemaConfig.DEFAULT);
+    }
+
+    public static <T> PojoSchema<T> of(Class<T> type, PojoSchemaConfig config) {
+        return PojoSchemaCache.lookup(type, config);
     }
 
     T newInstance();
@@ -28,12 +34,18 @@ public interface PojoSchema<T> {
 
 class PojoSchemaCache {
 
-    private static final Map<Class<?>, PojoSchema<?>> CACHE = new ConcurrentHashMap<>();
+    @AllArgsConstructor(staticName = "of")
+    private static class Key {
+        private @NonNull Class<?> type;
+        private @NonNull PojoSchemaConfig config;
+    }
+
+    private static final Map<Key, PojoSchema<?>> CACHE = new ConcurrentHashMap<>();
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    static final PojoSchema<Object> lookup(Class<?> type) {
-        return (PojoSchema<Object>) CACHE.computeIfAbsent(type,
-                t -> new PojoSchemaBuilder(t, PojoSchemaConfig.DEFAULT).build());
+    static final <T> PojoSchema<T> lookup(@NonNull Class<T> type, @NonNull PojoSchemaConfig config) {
+        return (PojoSchema<T>) CACHE.computeIfAbsent(Key.of(type, config),
+                k -> new PojoSchemaBuilder(k.type, k.config).build());
     }
 
 }

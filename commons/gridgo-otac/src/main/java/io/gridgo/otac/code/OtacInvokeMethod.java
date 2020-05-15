@@ -26,9 +26,8 @@ public class OtacInvokeMethod extends OtacCodeElement {
         var imports = new HashSet<Class<?>>();
         if (target != null)
             imports.addAll(target.requiredImports());
-        if (!parameters.isEmpty())
-            for (var p : parameters)
-                imports.addAll(p.requiredImports());
+        for (var p : parameters)
+            imports.addAll(p.requiredImports());
         return imports;
     }
 

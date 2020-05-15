@@ -8,6 +8,11 @@ import io.gridgo.pojo.output.PojoSequenceOutput;
 
 public class GenericPojoSchemaHelper {
 
+    @SuppressWarnings("unchecked")
+    private static PojoSchema<Object> schemaOf(Class<?> type) {
+        return (PojoSchema<Object>) PojoSchema.of(type);
+    }
+
     private static boolean isPrimitiveOrWrapper(Class<?> type) {
         return type == Byte.class //
                 || type == Short.class //
@@ -46,7 +51,7 @@ public class GenericPojoSchemaHelper {
             }
         } else {
             try (var _output = output.openSchema(key)) {
-                PojoSchema.of(type).serialize(any, _output);
+                schemaOf(type).serialize(any, _output);
             }
         }
     }
@@ -70,7 +75,7 @@ public class GenericPojoSchemaHelper {
             }
         } else {
             try (var _output = output.openSchema(key)) {
-                PojoSchema.of(type).serialize(any, _output);
+                schemaOf(type).serialize(any, _output);
             }
         }
     }

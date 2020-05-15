@@ -3,6 +3,7 @@ package io.gridgo.pojo.builder;
 import java.lang.reflect.InvocationTargetException;
 
 import io.gridgo.pojo.PojoSchema;
+import io.gridgo.pojo.PojoSchemaConfig;
 import io.gridgo.pojo.input.PojoSchemaInput;
 import io.gridgo.pojo.output.PojoSchemaOutput;
 import io.gridgo.utils.pojo.exception.PojoException;
@@ -43,5 +44,9 @@ public abstract class AbstractPojoSchema<T> implements PojoSchema<T> {
                 | SecurityException e) {
             throw new PojoException("cannot create new instance of type: " + type, e);
         }
+    }
+
+    protected static <T> PojoSchema<T> createSchema(Class<T> type, PojoSchemaConfig config) {
+        return PojoSchema.of(type, config);
     }
 }

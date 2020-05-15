@@ -149,6 +149,7 @@ public class PojoSchemaBuilder<T> {
     private Class<T> compile() {
         var otacClass = classBuilder.build();
         try {
+            System.out.println(otacClass.printWithLineNumber() + "\n--------------");
             var compiler = new SimpleCompiler();
             compiler.cook(otacClass.toString());
             return (Class<T>) compiler.getClassLoader().loadClass(otacClass.getName());
@@ -270,21 +271,20 @@ public class PojoSchemaBuilder<T> {
             if (!PojoOutput.isDirectSupported(fieldType) && !simpleType.isWrapper()
                     && !alreadyInitExtSchemas.contains(fieldType)) {
                 var schemaFieldName = PojoConvension.genExtSchemaName(fieldType);
-                getClassBuilder().field(OtacField.builder() //
-                        .name(schemaFieldName) //
-                        .accessLevel(OtacAccessLevel.PRIVATE) //
-                        .type(OtacType.typeOf(PojoSchema.class)) //
-                        .build());
+                getClassBuilder() //
+                        .field(OtacField.builder() //
+                                .name(schemaFieldName) //
+                                .accessLevel(OtacAccessLevel.PRIVATE) //
+                                .type(OtacType.typeOf(PojoSchema.class)) //
+                                .build());
 
-                getClassBuilder().require(PojoSchemaBuilder.class) //
-                        .require(fieldType) //
-                        .require(PojoSchemaConfig.class);
-
-                getInitMethodBuilder()
-                        .addLine(OtacLine.assignField(schemaFieldName,
-                                OtacValue.customValue("new " + PojoSchemaBuilder.class.getSimpleName() + "("
-                                        + fieldType.getSimpleName() + ".class, "
-                                        + PojoSchemaConfig.class.getSimpleName() + ".DEFAULT).build()")));
+                getInitMethodBuilder() //
+                        .addLine(OtacLine.assignField(//
+                                schemaFieldName, //
+                                OtacValue.methodReturn( //
+                                        "createSchema", //
+                                        OtacValue.ofClass(fieldType), //
+                                        OtacValue.staticField(PojoSchemaConfig.class, "DEFAULT"))));
 
                 alreadyInitExtSchemas.add(fieldType);
 
@@ -532,12 +532,10 @@ public class PojoSchemaBuilder<T> {
             boolean isRoot) {
 
         var componentType = type.componentType();
-        if (componentType.isSimple()
-                && (componentType.asSimple().isPrimitive() || componentType.asSimple().type() == String.class)) {
+        if (componentType.isSimple() && PojoOutput.isDirectSupported(componentType.asSimple().type())) {
             var typeName = componentType.getSimpleName();
             var outputInvokedMethodName = "write" + upperCaseFirstLetter(typeName) + "Array";
             var outputVariable = OtacValue.variable("output");
-            getClassBuilder().require(componentType.asSimple().type());
 
             return OtacLine.invokeMethod( //
                     outputVariable, //
@@ -565,13 +563,19 @@ public class PojoSchemaBuilder<T> {
 
         return OtacBlock.builder() //
                 .wrapped(false) //
-                .addLine(initSubOutput) //
-                .addLine(OtacTry.builder() //
-                        .addLine(OtacLine.invokeMethod( //
-                                methodName, //
-                                OtacValue.variable(localValueName), //
-                                _output)) //
-                        .finallyDo(OtacLine.invokeMethod(_output, "close")) //
+                .addLine(OtacIf.builder() //
+                        .condition(OtacLine.customLine(localValueName + " == null")) //
+                        .addLine(OtacLine.invokeMethod(OtacValue.variable("output"), "writeNull", outputKey)) //
+                        .orElse(OtacElse.builder() //
+                                .addLine(initSubOutput) //
+                                .addLine(OtacTry.builder() //
+                                        .addLine(OtacLine.invokeMethod( //
+                                                methodName, //
+                                                OtacValue.variable(localValueName), //
+                                                _output)) //
+                                        .finallyDo(OtacLine.invokeMethod(_output, "close")) //
+                                        .build()) //
+                                .build()) //
                         .build()) //
                 .build();
     }
