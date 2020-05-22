@@ -6,8 +6,6 @@ import static org.junit.Assert.assertNull;
 import org.junit.Before;
 import org.junit.Test;
 
-import io.gridgo.utils.pojo.setter.data.GenericData;
-
 public class TestGenericData {
 
     private GenericData genericData;

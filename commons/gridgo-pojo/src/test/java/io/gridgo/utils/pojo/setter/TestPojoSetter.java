@@ -1,15 +1,15 @@
 package io.gridgo.utils.pojo.setter;
 
-import org.junit.Test;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import org.junit.Test;
 
 import io.gridgo.utils.exception.UnsupportedTypeException;
 import io.gridgo.utils.pojo.exception.PojoProxyException;
