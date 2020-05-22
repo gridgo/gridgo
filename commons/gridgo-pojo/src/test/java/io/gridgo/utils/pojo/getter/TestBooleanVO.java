@@ -12,7 +12,6 @@ import java.util.function.Supplier;
 import org.junit.Before;
 import org.junit.Test;
 
-import io.gridgo.utils.pojo.getter.PojoGetter;
 import io.gridgo.utils.pojo.setter.PojoSetter;
 import io.gridgo.utils.pojo.setter.data.GenericData;
 import io.gridgo.utils.pojo.setter.data.KeyValueData;

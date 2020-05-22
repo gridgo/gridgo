@@ -8,8 +8,6 @@ import java.text.DecimalFormat;
 
 import org.junit.Test;
 
-import io.gridgo.utils.format.GlobalFormatTransformerRegistry;
-import io.gridgo.utils.format.StringFormatter;
 import io.gridgo.utils.format.StringFormatter.StringFormatOption;
 
 public class TestFormatTransformation {

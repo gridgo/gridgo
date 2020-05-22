@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import io.gridgo.utils.pojo.setter.PojoSetterProxyBuilder;
 import io.gridgo.utils.pojo.support.PrimitiveVO;
 
 public class TestJavassistSetterProxy {
