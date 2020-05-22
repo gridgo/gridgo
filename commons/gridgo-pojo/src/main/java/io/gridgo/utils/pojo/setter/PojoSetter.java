@@ -1,6 +1,6 @@
 package io.gridgo.utils.pojo.setter;
 
-import io.gridgo.utils.pojo.PojoFieldSignature;
+import io.gridgo.utils.pojo.PojoMethodSignature;
 import io.gridgo.utils.pojo.exception.PojoProxyException;
 import io.gridgo.utils.pojo.setter.data.GenericData;
 import io.gridgo.utils.pojo.setter.data.KeyValueData;
@@ -61,12 +61,12 @@ public class PojoSetter {
         return this.data;
     }
 
-    private Object onField(PojoFieldSignature signature) {
+    private Object onField(PojoMethodSignature signature) {
         var value = getValue(signature);
         return genericFieldConverter.convert(value, signature);
     }
 
-    private GenericData getValue(PojoFieldSignature signature) {
+    private GenericData getValue(PojoMethodSignature signature) {
         var fieldName = signature.getFieldName();
         var transformedFieldName = signature.getTransformedFieldName();
 

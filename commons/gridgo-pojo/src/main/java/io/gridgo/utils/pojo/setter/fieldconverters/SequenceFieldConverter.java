@@ -1,6 +1,6 @@
 package io.gridgo.utils.pojo.setter.fieldconverters;
 
-import io.gridgo.utils.pojo.PojoFieldSignature;
+import io.gridgo.utils.pojo.PojoMethodSignature;
 import io.gridgo.utils.pojo.exception.PojoProxyException;
 import io.gridgo.utils.pojo.setter.data.SequenceData;
 
@@ -21,7 +21,7 @@ public class SequenceFieldConverter implements GenericDataConverter, FieldConver
     }
 
     @Override
-    public Object convert(SequenceData data, PojoFieldSignature signature) {
+    public Object convert(SequenceData data, PojoMethodSignature signature) {
         if (signature.isCollectionType()) {
             return collectionFieldConverter.convert(data, signature);
         }

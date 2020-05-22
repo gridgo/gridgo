@@ -2,7 +2,7 @@ package io.gridgo.utils.pojo.translator;
 
 import java.lang.reflect.Method;
 
-import io.gridgo.utils.pojo.PojoFieldSignature;
+import io.gridgo.utils.pojo.PojoMethodSignature;
 import io.gridgo.utils.pojo.helper.BiFunctionAccessor;
 import io.gridgo.utils.pojo.helper.MethodAccessors;
 
@@ -22,7 +22,7 @@ public class ReflectiveMethodValueTranslator implements ValueTranslator<Object, 
     }
 
     @Override
-    public Object translate(Object obj, PojoFieldSignature signature) {
+    public Object translate(Object obj, PojoMethodSignature signature) {
         return this.accessor.apply(obj, signature);
     }
 }

@@ -9,7 +9,7 @@ import java.util.Date;
 import org.junit.Before;
 import org.junit.Test;
 
-import io.gridgo.utils.pojo.PojoFieldSignature;
+import io.gridgo.utils.pojo.PojoMethodSignature;
 
 public class TestValueTranslator {
 
@@ -17,7 +17,7 @@ public class TestValueTranslator {
     private static boolean classCalled = false;
 
     @RegisterValueTranslator("dateToTimeStamp")
-    public static long dateToTimestamp(Date date, PojoFieldSignature signature) {
+    public static long dateToTimestamp(Date date, PojoMethodSignature signature) {
         methodCalled = true;
         return date.getTime();
     }
@@ -26,7 +26,7 @@ public class TestValueTranslator {
     public static class MyTranslator implements ValueTranslator<String, String> {
 
         @Override
-        public String translate(String obj, PojoFieldSignature signature) {
+        public String translate(String obj, PojoMethodSignature signature) {
             classCalled = true;
             return "Hello " + obj;
         }

@@ -6,5 +6,5 @@ public interface PojoProxy {
 
     String[] getFields();
 
-    List<PojoFieldSignature> getSignatures();
+    List<PojoMethodSignature> getSignatures();
 }

@@ -35,7 +35,7 @@ public abstract class AbstractProxyRegistry<T extends PojoProxy> {
     private T buildProxy(Class<?> type, Map<String, T> tempCache) {
         T proxy = buildMandatory(type);
         tempCache.put(type.getName(), proxy);
-        for (PojoFieldSignature signature : proxy.getSignatures()) {
+        for (PojoMethodSignature signature : proxy.getSignatures()) {
             prepareSubProxy(signature, tempCache);
         }
         return proxy;
@@ -51,7 +51,7 @@ public abstract class AbstractProxyRegistry<T extends PojoProxy> {
         return result;
     }
 
-    private void prepareSubProxy(PojoFieldSignature signature, Map<String, T> tempCache) {
+    private void prepareSubProxy(PojoMethodSignature signature, Map<String, T> tempCache) {
         if (isSupported(signature.getFieldType())) {
             setFieldProxy(signature, lookupProxy(signature.getFieldType(), tempCache));
         } else {
@@ -65,23 +65,23 @@ public abstract class AbstractProxyRegistry<T extends PojoProxy> {
 
     protected abstract T buildMandatory(Class<?> type);
 
-    protected abstract void setFieldProxy(PojoFieldSignature signature, T proxy);
+    protected abstract void setFieldProxy(PojoMethodSignature signature, T proxy);
 
-    protected abstract void setFieldElementProxy(PojoFieldSignature signature, T proxy);
+    protected abstract void setFieldElementProxy(PojoMethodSignature signature, T proxy);
 
-    protected void injectGetterProxy(PojoFieldSignature methodSignature, PojoGetterProxy getterProxy) {
+    protected void injectGetterProxy(PojoMethodSignature methodSignature, PojoGetterProxy getterProxy) {
         methodSignature.setGetterProxy(getterProxy);
     }
 
-    protected void injectElementGetterProxy(PojoFieldSignature signature, PojoGetterProxy elementGetterProxy) {
+    protected void injectElementGetterProxy(PojoMethodSignature signature, PojoGetterProxy elementGetterProxy) {
         signature.setElementGetterProxy(elementGetterProxy);
     }
 
-    protected void injectSetterProxy(PojoFieldSignature signature, PojoSetterProxy setterProxy) {
+    protected void injectSetterProxy(PojoMethodSignature signature, PojoSetterProxy setterProxy) {
         signature.setSetterProxy(setterProxy);
     }
 
-    protected void injectElementSetterProxy(PojoFieldSignature signature, PojoSetterProxy elementSetterProxy) {
+    protected void injectElementSetterProxy(PojoMethodSignature signature, PojoSetterProxy elementSetterProxy) {
         signature.setElementSetterProxy(elementSetterProxy);
     }
 

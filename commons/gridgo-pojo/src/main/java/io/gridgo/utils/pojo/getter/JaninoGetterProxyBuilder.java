@@ -7,7 +7,7 @@ import org.codehaus.janino.SimpleCompiler;
 
 import io.gridgo.utils.pojo.AbstractProxyBuilder;
 import io.gridgo.utils.pojo.MethodSignatureExtractor;
-import io.gridgo.utils.pojo.PojoFieldSignature;
+import io.gridgo.utils.pojo.PojoMethodSignature;
 import io.gridgo.utils.pojo.exception.PojoProxyException;
 import lombok.NonNull;
 
@@ -38,7 +38,7 @@ class JaninoGetterProxyBuilder extends AbstractProxyBuilder implements PojoGette
 
         classContent = new StringBuilder();
         classContent.append("package " + packageName + ";\n\n");
-        doImport(classContent, target, PojoGetterProxy.class, PojoFieldSignature.class, PojoGetterConsumer.class,
+        doImport(classContent, target, PojoGetterProxy.class, PojoMethodSignature.class, PojoGetterConsumer.class,
                 List.class, ArrayList.class);
         classContent //
                 .append("\n") //
@@ -58,21 +58,21 @@ class JaninoGetterProxyBuilder extends AbstractProxyBuilder implements PojoGette
         }
     }
 
-    private PojoGetterProxy makeProxy(List<PojoFieldSignature> methodSignatures, Class<?> resultClass)
+    private PojoGetterProxy makeProxy(List<PojoMethodSignature> methodSignatures, Class<?> resultClass)
             throws Exception {
         var result = (PojoGetterProxy) resultClass.getConstructor().newInstance();
-        var signatureSetter = resultClass.getMethod("setMethodSignature", String.class, PojoFieldSignature.class);
-        for (PojoFieldSignature methodSignature : methodSignatures)
+        var signatureSetter = resultClass.getMethod("setMethodSignature", String.class, PojoMethodSignature.class);
+        for (PojoMethodSignature methodSignature : methodSignatures)
             signatureSetter.invoke(result, methodSignature.getFieldName(), methodSignature);
         return result;
     }
 
-    private String buildGetValueMethod(String typeName, List<PojoFieldSignature> methodSignatures) {
+    private String buildGetValueMethod(String typeName, List<PojoMethodSignature> methodSignatures) {
         String castedTarget = "(" + typeName + ") target";
         String method = "public Object getValue(Object target, String fieldName) { \n" //
                 + "\t" + typeName + " castedTarget = " + castedTarget + ";\n"; //
         method += "\tswitch (fieldName) {\n";
-        for (PojoFieldSignature methodSignature : methodSignatures) {
+        for (PojoMethodSignature methodSignature : methodSignatures) {
             String fieldName = methodSignature.getFieldName();
             String invoked = "castedTarget." + methodSignature.getMethodName() + "()";
             if (methodSignature.getFieldType().isPrimitive()) {
@@ -88,7 +88,7 @@ class JaninoGetterProxyBuilder extends AbstractProxyBuilder implements PojoGette
         return method;
     }
 
-    private String buildWalkThroughMethod(String typeName, List<PojoFieldSignature> methodSignatures,
+    private String buildWalkThroughMethod(String typeName, List<PojoMethodSignature> methodSignatures,
             String allFields) {
 
         String signatureFieldSubfix = "Signature";
@@ -99,7 +99,7 @@ class JaninoGetterProxyBuilder extends AbstractProxyBuilder implements PojoGette
         method += "    for (int i=0; i<fields.length; i++) { \n";
         method += "        String field = fields[i];\n";
         method += "        switch (field) {\n";
-        for (PojoFieldSignature methodSignature : methodSignatures) {
+        for (PojoMethodSignature methodSignature : methodSignatures) {
             String fieldName = methodSignature.getFieldName();
             String invokeGetter = "castedTarget." + methodSignature.getMethodName() + "()";
             if (methodSignature.getFieldType().isPrimitive()) {
@@ -117,14 +117,14 @@ class JaninoGetterProxyBuilder extends AbstractProxyBuilder implements PojoGette
         return method;
     }
 
-    private String buildWalkThroughAllMethod(String typeName, List<PojoFieldSignature> methodSignatures) {
+    private String buildWalkThroughAllMethod(String typeName, List<PojoMethodSignature> methodSignatures) {
 
         String signatureFieldSubfix = "Signature";
 
         String method = "private void walkThroughAll(Object target, PojoGetterConsumer consumer) { \n";
         method += "    " + typeName + " castedTarget = (" + typeName + ") target;\n";
 
-        for (PojoFieldSignature methodSignature : methodSignatures) {
+        for (PojoMethodSignature methodSignature : methodSignatures) {
             String fieldName = methodSignature.getFieldName();
             String invoked = "castedTarget." + methodSignature.getMethodName() + "()";
             if (methodSignature.getFieldType().isPrimitive()) {
