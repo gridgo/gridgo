@@ -1,15 +1,14 @@
 package io.gridgo.utils.pojo.getter;
 
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
 import java.util.HashSet;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Assert;
+import org.junit.Test;
 
 import io.gridgo.utils.pojo.PojoUtils;
-import io.gridgo.utils.pojo.getter.PojoGetterProxy;
 import io.gridgo.utils.pojo.support.AbstractTest;
 import io.gridgo.utils.pojo.support.PrimitiveVO;
 import io.gridgo.utils.pojo.support.TransientVO;
